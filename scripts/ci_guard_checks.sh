@@ -11,17 +11,11 @@ cd "$ROOT_DIR"
 
 for checker in \
   scripts/checks/check_build_workflow.py \
-  scripts/checks/check_apple_spm_locks.py \
-  scripts/checks/check_tvos_test_wiring.py \
   scripts/checks/check_shrinker_rules.py \
   scripts/checks/verify_runtime_inputs.py \
   scripts/checks/check_workflow_security.py \
   scripts/checks/check_workflow_action_pins.py \
-  scripts/checks/check_container_image_pins.py \
-  scripts/checks/check_update_packages_workflow.py \
-  scripts/checks/check_linux_package_deps.py \
-  scripts/checks/check_windows_installer.py \
-  scripts/checks/check_windows_msix.py; do
+  scripts/checks/check_container_image_pins.py; do
   python3 "$checker"
 done
 

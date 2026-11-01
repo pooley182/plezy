@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the Supporter alternate app icons for iOS, tvOS, Android and the in-app picker.
+"""Generate the Supporter alternate app icons for Android and the in-app picker.
 
 Sources, one directory per icon under assets/app_icons/source/<id>/ (not bundled into the app):
 
@@ -12,33 +12,24 @@ Sources, one directory per icon under assets/app_icons/source/<id>/ (not bundled
 * tv_background.svg (optional): a hand-composed wide back layer for designs whose backdrop has to
   line up with the mark (CRT's screen, VHS's stripes) or would be clipped by a mechanical crop
   (Pop's burst). Drawn in the foreground's 1024 coordinates and wide enough for 16:9. Without it
-  the tvOS and Android TV backs are a centred cover crop of background.svg.
+  the Android TV banner back is a centred cover crop of background.svg.
 
 Outputs, all committed:
 
-* ios/Runner/AlternateAppIcons.xcassets: one single-size 1024 AppIcon-<id>.appiconset per icon. The
-  Runner target compiles every app icon set in it as an alternate
-  (ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS); plezy.icon stays the primary.
-* tvos/Runner/AlternateAppIcons.xcassets: one AppIcon-<id>.imagestack per icon, a Front (foreground)
-  and Back layer at 400x240 and 800x480. tvOS wants CFBundleAlternateIcons as an array of names,
-  but the asset catalog compiler only writes iOS's dictionary form (App Store Connect rejects it
-  with ITMS-90471), so the Runner lists the names between the generated markers in
-  tvos/Runner/Info.plist instead.
 * android/app/src/main/res: an adaptive icon (background, foreground and monochrome layers), a
   legacy launcher icon for API 25 and an Android TV banner per icon, plus the matching
   <activity-alias> block in AndroidManifest.xml between the generated markers.
 * assets/app_icons/previews/<id>.webp: the picker thumbnails, bundled as Flutter assets. Also
-  default-tvos.webp and default-androidtv.webp: the shipping default as the TV launchers draw it,
-  rendered from tvOS's App Icon image stack and the Android TV banner. Re-run after changing the
+  default-androidtv.webp: the shipping default as the Android TV launcher draws it, rendered from
+  the Android TV banner. Re-run after changing the
   default icon; phones need no default thumbnail, the picker draws their flat plate itself.
 
-Wide formats (the tvOS tile and the Android TV banner) scale the foreground canvas to 1.25x the
-tile height and centre it, so the mark sits at about the default icon's size; the back layer
-fills the tile.
+The wide Android TV banner scale the foreground canvas to 1.25x the
+tile height and centres it, so the mark sits at about the default icon's size; the back layer
+fills the banner.
 
-Icon ids are permanent. iOS and tvOS persist the chosen icon by name, and Android keeps the chosen
-launcher component (.appicon.<id>) enabled across updates: removing or renaming an id would leave
-those users with an icon the app no longer ships or, on Android, no launcher entry at all. The
+Icon ids are permanent. Android keeps the chosen launcher component (.appicon.<id>) enabled
+across updates: removing or renaming an id would leave those users with no launcher entry at all. The
 Dart catalog (lib/services/app_icon/app_icon_catalog.dart) lists the same ids.
 
 Needs rsvg-convert (librsvg), ImageMagick 7 (magick) and cwebp (libwebp):
@@ -60,13 +51,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "assets/app_icons/source"
 PREVIEWS = ROOT / "assets/app_icons/previews"
-IOS_CATALOG = ROOT / "ios/Runner/AlternateAppIcons.xcassets"
-TVOS_CATALOG = ROOT / "tvos/Runner/AlternateAppIcons.xcassets"
 ANDROID_RES = ROOT / "android/app/src/main/res"
 ANDROID_MANIFEST = ROOT / "android/app/src/main/AndroidManifest.xml"
-TVOS_INFO_PLIST = ROOT / "tvos/Runner/Info.plist"
-# The shipping default icon's TV artwork, which the default picker thumbnails are cut from.
-TVOS_DEFAULT_STACK = ROOT / "tvos/Runner/Assets.xcassets/AppIcon.brandassets/App Icon.imagestack"
 ANDROID_DEFAULT_BANNER = ANDROID_RES / "drawable-xxxhdpi/tv_banner.png"
 
 # Picker order; the default icon is not part of this set.
@@ -108,14 +94,10 @@ ANDROID_LEGACY_DENSITY = ("xxxhdpi", 192)
 # Leanback banners are 320x180dp; Android TV renders them at xhdpi.
 ANDROID_BANNER_DENSITIES = {"xhdpi": (320, 180)}
 PREVIEW_SIZE = 216
-TVOS_SIZES = {"": (400, 240), "@2x": (800, 480)}
 
 WEBP_QUALITY = "90"
 MANIFEST_BEGIN = "<!-- BEGIN generated app icon aliases (scripts/codegen/generate_app_icons.py); do not edit -->"
 MANIFEST_END = "<!-- END generated app icon aliases -->"
-TVOS_PLIST_BEGIN = "<!-- BEGIN generated tvOS alternate icons (scripts/codegen/generate_app_icons.py); do not edit -->"
-TVOS_PLIST_END = "<!-- END generated tvOS alternate icons -->"
-XCASSETS_INFO = {"info": {"author": "xcode", "version": 1}}
 
 _ROOT_SVG = re.compile(r"<svg\b[^>]*>")
 
@@ -267,11 +249,6 @@ class Renderer:
         _run(self.cwebp, "-quiet", "-m", "6", "-metadata", "none", *quality, str(source), "-o", str(out))
 
 
-def _write_json(path: Path, data: object) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2) + "\n")
-
-
 def _replace_generated(path: Path, begin_marker: str, end_marker: str, body: str) -> None:
     """Replaces the whole lines between the [begin_marker] line and the [end_marker] line."""
     text = path.read_text()
@@ -288,44 +265,6 @@ def _reset_dir(path: Path) -> None:
     if path.exists():
         shutil.rmtree(path)
     path.mkdir(parents=True)
-
-
-def generate_ios(renderer: Renderer) -> None:
-    _reset_dir(IOS_CATALOG)
-    _write_json(IOS_CATALOG / "Contents.json", XCASSETS_INFO)
-    for icon in ICONS:
-        icon_set = IOS_CATALOG / f"AppIcon-{icon}.appiconset"
-        renderer.png(renderer.square(SOURCE / icon / "icon.svg", CANVAS), icon_set / "icon.png", opaque=True)
-        _write_json(
-            icon_set / "Contents.json",
-            {
-                "images": [{"filename": "icon.png", "idiom": "universal", "platform": "ios", "size": "1024x1024"}],
-                **XCASSETS_INFO,
-            },
-        )
-
-
-def generate_tvos(renderer: Renderer) -> None:
-    _reset_dir(TVOS_CATALOG)
-    _write_json(TVOS_CATALOG / "Contents.json", XCASSETS_INFO)
-    layers = {"Front": "foreground", "Back": "background"}
-    for icon in ICONS:
-        stack = TVOS_CATALOG / f"AppIcon-{icon}.imagestack"
-        _write_json(
-            stack / "Contents.json",
-            {"layers": [{"filename": f"{name}.imagestacklayer"} for name in layers], **XCASSETS_INFO},
-        )
-        for name, layer in layers.items():
-            _write_json(stack / f"{name}.imagestacklayer/Contents.json", XCASSETS_INFO)
-            imageset = stack / f"{name}.imagestacklayer/Content.imageset"
-            images = []
-            for suffix, (width, height) in TVOS_SIZES.items():
-                filename = f"{name}{suffix}.png"
-                renderer.png(renderer.wide(SOURCE / icon, layer, width, height), imageset / filename, opaque=name == "Back")
-                images.append({"filename": filename, "idiom": "tv", "scale": "2x" if suffix else "1x"})
-            _write_json(imageset / "Contents.json", {"images": images, **XCASSETS_INFO})
-    names = "".join(f"\t\t\t<string>AppIcon-{icon}</string>\n" for icon in ICONS)
-    _replace_generated(TVOS_INFO_PLIST, TVOS_PLIST_BEGIN, TVOS_PLIST_END, names)
 
 
 def _adaptive_icon_xml(icon: str) -> str:
@@ -400,15 +339,6 @@ def generate_previews(renderer: Renderer) -> None:
     _reset_dir(PREVIEWS)
     for icon in ICONS:
         renderer.webp(renderer.square(SOURCE / icon / "icon.svg", PREVIEW_SIZE), PREVIEWS / f"{icon}.webp")
-    tvos = TVOS_DEFAULT_STACK
-    stack = renderer.composite(
-        renderer.composite(
-            tvos / "Back.imagestacklayer/Content.imageset/Back@2x.png",
-            tvos / "Middle.imagestacklayer/Content.imageset/Middle@2x.png",
-        ),
-        tvos / "Front.imagestacklayer/Content.imageset/Front@2x.png",
-    )
-    renderer.webp(renderer.cover_square(stack, PREVIEW_SIZE), PREVIEWS / "default-tvos.webp")
     renderer.webp(renderer.cover_square(ANDROID_DEFAULT_BANNER, PREVIEW_SIZE), PREVIEWS / "default-androidtv.webp")
 
 
@@ -423,8 +353,6 @@ def main() -> None:
         sys.exit("error: missing sources: " + ", ".join(missing))
     with tempfile.TemporaryDirectory(prefix="plezy-app-icons-") as scratch:
         renderer = Renderer(Path(scratch))
-        generate_ios(renderer)
-        generate_tvos(renderer)
         generate_android(renderer)
         generate_previews(renderer)
     print(f"Generated {len(ICONS)} alternate app icons.")

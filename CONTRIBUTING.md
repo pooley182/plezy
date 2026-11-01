@@ -11,7 +11,7 @@
 
 - Follow Dart/Flutter conventions
 - Run `dart format .` to format Dart code (note: generated files like `*.g.dart` are excluded from CI checks)
-- Run `scripts/format_native.sh --fix` to format Kotlin, Swift, C++, C, Objective-C, and native headers
+- Run `scripts/format_native.sh --fix` to format Kotlin, C, and C++
 - Run `flutter analyze` before submitting to check for issues
 - Run `scripts/run_tests.sh` to run the test suite (same as `flutter test`, but scaled to your core count)
 - Test your changes thoroughly

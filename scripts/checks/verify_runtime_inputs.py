@@ -65,56 +65,6 @@ def _locked_package(lock_text: str, name: str) -> tuple[str, str] | None:
     return version.group(1), checksum.group(1)
 
 
-def _validate_native(root: Path, errors: list[str]) -> None:
-    manifest_path = root / "linux/packaging/native-inputs.json"
-    manifest = _load_json(manifest_path, errors)
-    if manifest.get("formatVersion") != 1:
-        errors.append(f"{manifest_path}: formatVersion must be 1")
-
-
-    inputs = manifest.get("inputs")
-    if not isinstance(inputs, dict) or set(inputs) != NATIVE_NAMES:
-        errors.append(f"{manifest_path}: inputs must be exactly {sorted(NATIVE_NAMES)}")
-        return
-
-    for name, value in inputs.items():
-        label = f"{manifest_path}: inputs.{name}"
-        if not isinstance(value, dict):
-            errors.append(f"{label}: must be an object")
-            continue
-        version = _require_text(value.get("version"), f"{label}.version", errors)
-        url = _require_text(value.get("url"), f"{label}.url", errors)
-        _require_text(value.get("provenance"), f"{label}.provenance", errors)
-        if url and not url.startswith("https://"):
-            errors.append(f"{label}.url: production source must use HTTPS")
-        if version and url and version not in url:
-            errors.append(f"{label}.url: must identify declared version {version}")
-        if value.get("kind") != "archive":
-            errors.append(f"{label}.kind: must be archive")
-        checksum = value.get("sha256")
-        if not isinstance(checksum, str) or HEX_256.fullmatch(checksum) is None:
-            errors.append(f"{label}.sha256: must be a lowercase full SHA-256")
-
-    cmake_path = root / "linux/CMakeLists.txt"
-    try:
-        cmake = cmake_path.read_text(encoding="utf-8")
-    except OSError as error:
-        errors.append(f"{cmake_path}: cannot read: {error}")
-        cmake = ""
-    simdutf = inputs.get("simdutf")
-    if isinstance(simdutf, dict):
-        simdutf_url = simdutf.get("url")
-        simdutf_sha256 = simdutf.get("sha256")
-        if isinstance(simdutf_url, str) and simdutf_url and f"URL {simdutf_url}" not in cmake:
-            errors.append(f"{cmake_path}: simdutf URL differs from native-inputs.json")
-        if (
-            isinstance(simdutf_sha256, str)
-            and HEX_256.fullmatch(simdutf_sha256) is not None
-            and f"URL_HASH SHA256={simdutf_sha256}" not in cmake
-        ):
-            errors.append(f"{cmake_path}: simdutf SHA-256 differs from native-inputs.json")
-
-
 def _validate_wakelock(root: Path, errors: list[str]) -> None:
     package = root / "packages/wakelock_plus"
     provenance_path = package / "provenance.json"
@@ -204,7 +154,6 @@ def _validate_wakelock(root: Path, errors: list[str]) -> None:
 
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
-    _validate_native(root, errors)
     _validate_wakelock(root, errors)
     return errors
 

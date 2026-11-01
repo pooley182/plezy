@@ -51,19 +51,6 @@ run_clang_format() {
   fi
 }
 
-run_swift_format() {
-  if has_command xcrun && xcrun --find swift-format >/dev/null 2>&1; then
-    xcrun swift-format "$@"
-  elif has_command swift-format; then
-    swift-format "$@"
-  elif has_command swift && swift format --help >/dev/null 2>&1; then
-    swift format "$@"
-  else
-    echo "swift-format not found. Install Swift 6+, swift-format, or Xcode 16+." >&2
-    return 127
-  fi
-}
-
 java_diagnostic() {
   echo "A working JDK 17+ is required for Kotlin formatting. Set JAVA_HOME to a JDK 17+ installation or put java on PATH." >&2
 }
@@ -183,34 +170,22 @@ append_native_files() {
     case "$file" in
       android/app/src/main/cpp/include/*) continue ;;
       android/app/src/main/java/io/flutter/plugins/*) continue ;;
-      ios/Flutter/*|macos/Flutter/*|tvos/Flutter/*) continue ;;
-      linux/flutter/*|windows/flutter/*) continue ;;
-      tvos/Runner/Plugins/*) continue ;;
       */GeneratedPluginRegistrant.*|*/generated_plugin_registrant.*) continue ;;
     esac
 
     case "$file" in
       *.kt|*.kts) ktlint_files+=("$file") ;;
-      *.swift) swift_files+=("$file") ;;
-      *.c|*.cc|*.cpp|*.h|*.hpp|*.m|*.mm) clang_files+=("$file") ;;
+      *.c|*.cc|*.cpp|*.h|*.hpp) clang_files+=("$file") ;;
     esac
   done < <(git ls-files -z -- "$@")
 }
 
 ktlint_files=()
-swift_files=()
 clang_files=()
 
 append_native_files \
   'android/**/*.kt' 'android/**/*.kts' \
-  'ios/**/*.swift' 'macos/**/*.swift' 'tvos/**/*.swift' 'shared/**/*.swift' \
-  'android/**/*.[ch]' 'android/**/*.cc' 'android/**/*.cpp' 'android/**/*.hpp' \
-  'ios/**/*.[hm]' 'ios/**/*.mm' \
-  'macos/**/*.[hm]' 'macos/**/*.mm' \
-  'tvos/**/*.[hm]' 'tvos/**/*.mm' \
-  'linux/**/*.[ch]' 'linux/**/*.cc' 'linux/**/*.cpp' 'linux/**/*.hpp' \
-  'windows/**/*.[ch]' 'windows/**/*.cc' 'windows/**/*.cpp' 'windows/**/*.hpp' \
-  'shared/**/*.[ch]' 'shared/**/*.cc' 'shared/**/*.cpp' 'shared/**/*.hpp'
+  'android/**/*.[ch]' 'android/**/*.cc' 'android/**/*.cpp' 'android/**/*.hpp'
 
 FAILED=0
 
@@ -224,31 +199,6 @@ if [ "${#ktlint_files[@]}" -gt 0 ]; then
   fi
 else
   echo "No Kotlin files found."
-fi
-
-if [ "${#swift_files[@]}" -gt 0 ]; then
-  if [ "$MODE" = "fix" ]; then
-    run_swift_format format --configuration "$ROOT/.swift-format" --in-place "${swift_files[@]}"
-  else
-    swift_failed=0
-    for file in "${swift_files[@]}"; do
-      tmp="$(mktemp)"
-      run_swift_format format --configuration "$ROOT/.swift-format" "$file" >"$tmp"
-      if ! cmp -s "$file" "$tmp"; then
-        if [ "$swift_failed" -eq 0 ]; then
-          echo "Swift files need formatting:"
-        fi
-        echo "  $file"
-        swift_failed=1
-      fi
-      rm -f "$tmp"
-    done
-    if [ "$swift_failed" -ne 0 ]; then
-      FAILED=1
-    fi
-  fi
-else
-  echo "No Swift files found."
 fi
 
 if [ "${#clang_files[@]}" -gt 0 ]; then

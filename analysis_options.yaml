@@ -6,11 +6,7 @@ analyzer:
     - "**/*.freezed.dart"
     - build/**
     - android/**
-    - ios/**
     - web/**
-    - windows/**
-    - macos/**
-    - linux/**
     # Nested git worktrees (other branches' full checkouts), when present.
     - worktrees/**
 
