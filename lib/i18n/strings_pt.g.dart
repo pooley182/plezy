@@ -145,7 +145,6 @@ class _Translations$auth$pt extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Aguardando aprovação…';
 	@override String get quickConnectCancel => 'Cancelar';
 	@override String get quickConnectExpired => 'Quick Connect expirou. Tente novamente.';
-	@override String get localDataRecoveryRequired => 'O Plezy não conseguiu recuperar com segurança os dados locais de acesso e de reproduções pendentes. Entre novamente.';
 	@override String get pinCheckRejected => 'A verificação do PIN do Plex foi rejeitada';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$pt extends Translations$common$en {
 	@override String get connectingToServers => 'Conectando aos servidores...';
 	@override String get startingOfflineMode => 'Iniciando modo offline...';
 	@override String get loading => 'Carregando...';
-	@override String get fullscreen => 'Tela cheia';
-	@override String get exitFullscreen => 'Sair da tela cheia';
 	@override String get pressBackAgainToExit => 'Pressione voltar novamente para sair';
 	@override late final _Translations$common$ratingSource$pt ratingSource = _Translations$common$ratingSource$pt._(_root);
 	@override String get notAvailable => 'N/D';
@@ -364,9 +361,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => 'Igual à qualidade padrão';
 	@override String get directPlayCoveredQuality => 'Reproduzir Vídeos Menores na Qualidade Original';
 	@override String get directPlayCoveredQualityDescription => 'Reproduzir diretamente os vídeos que já estão dentro do limite de qualidade em vez de transcodificá-los';
-	@override String get videoCodecs => 'Codecs de vídeo';
-	@override String get videoCodecsDescription => 'Codecs desmarcados são transcodificados pelo servidor';
-	@override String get videoCodecsAlwaysAccepted => 'Sempre aceito';
 	@override String get musicQualityTitle => 'Qualidade da música';
 	@override String get subtitleStyling => 'Estilo de Legendas';
 	@override String get subtitleStylingDescription => 'Personalizar aparência das legendas';
@@ -392,11 +386,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get specialsOrderingLast => 'Após as temporadas regulares';
 	@override String get clickVideoTogglesPlayback => 'Clicar no vídeo para alternar reprodução/pausa';
 	@override String get clickVideoTogglesPlaybackDescription => 'Clicar no vídeo para reproduzir ou pausar em vez de mostrar os controles.';
-	@override String get videoPlayerControls => 'Controles do reprodutor de vídeo';
-	@override String get keyboardShortcuts => 'Atalhos de Teclado';
-	@override String get keyboardShortcutsDescription => 'Personalizar atalhos de teclado';
-	@override String get videoPlayerNavigation => 'Navegação do reprodutor de vídeo';
-	@override String get videoPlayerNavigationDescription => 'Usar as teclas de seta para navegar pelos controles do reprodutor';
 	@override String get watchTogetherRelay => 'Servidor de retransmissão do Assistir Juntos';
 	@override String get watchTogetherRelayDescription => 'Servidores de retransmissão públicos do Open Watch Party, a menos que você defina o seu';
 	@override String get watchTogetherRelayHint => 'https://minha-retransmissao.exemplo.com.br';
@@ -423,8 +412,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get importSettingsSuccess => 'Configurações importadas';
 	@override String get importSettingsInvalidFile => 'Este arquivo não é uma exportação válida do Plezy';
 	@override String get importSettingsNoUser => 'Entre na conta antes de importar as configurações';
-	@override String get shortcutsReset => 'Atalhos redefinidos para o padrão';
-	@override String get resetShortcutsConfirm => 'Isso substituirá seus atalhos personalizados pelos padrões. Continuar?';
 	@override String get about => 'Sobre';
 	@override String get aboutDescription => 'Informações do app e licenças';
 	@override String get updates => 'Atualizações';
@@ -434,8 +421,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => 'Notificar ao iniciar quando houver atualização disponível';
 	@override String get validationErrorEnterNumber => 'Insira um número válido';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => 'A duração deve estar entre ${min} e ${max} ${unit}';
-	@override String shortcutAlreadyAssigned({required Object action}) => 'Atalho já atribuído a ${action}';
-	@override String shortcutUpdated({required Object action}) => 'Atalho atualizado para ${action}';
 	@override String get saveFailed => 'Não foi possível salvar as alterações. Tente novamente.';
 	@override String get autoPlayAndSkip => 'Reprodução automática e pulos';
 	@override String get autoPlayNextEpisode => 'Reproduzir próximo episódio automaticamente';
@@ -484,8 +469,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get maxVolume => 'Volume Máximo';
 	@override String get maxVolumeDescription => 'Permitir aumento de volume acima de 100% para mídias silenciosas';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Mostrar o que você está assistindo no Discord';
 	@override String get services => 'Serviços';
 	@override String get servicesDescription => 'Conecte Trakt, MyAnimeList, Seerr e mais';
 	@override String get manageLibrariesDescription => 'Reordene e oculte bibliotecas';
@@ -499,17 +482,11 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => 'Ajustar a taxa de atualização da tela ao conteúdo de vídeo';
 	@override String get matchContentResolution => 'Ajustar à resolução do conteúdo';
 	@override String get matchContentResolutionDescription => 'Muda a tela para a resolução nativa do vídeo para que a TV cuide do upscaling. Menus e legendas também são ampliados durante a reprodução';
-	@override String get matchRefreshRate => 'Ajustar à taxa de atualização';
-	@override String get matchRefreshRateDescription => 'Ajustar a taxa de atualização da tela em tela cheia';
-	@override String get matchDynamicRange => 'Ajustar à faixa dinâmica';
-	@override String get matchDynamicRangeDescription => 'Ativar HDR para conteúdo HDR e depois voltar para SDR';
 	@override String get displaySwitchDelay => 'Atraso na troca do modo de exibição';
 	@override String get tunneledPlayback => 'Reprodução em túnel';
 	@override String get tunneledPlaybackDescription => 'Usar o tunelamento de vídeo. Desative se o vídeo ficar preto ao reproduzir em HDR ou o movimento travar.';
 	@override String get audioPassthrough => 'Passagem direta de áudio';
 	@override String get audioPassthroughDescription => 'Enviar o áudio Dolby/DTS ao receptor ou à TV sem recodificação, preservando o som surround. Desative se não houver som.';
-	@override String get audioPassthroughDescriptionApple => 'Usar o decodificador Dolby nativo da Apple para Dolby Digital Plus, incluindo Atmos. DTS e TrueHD continuam sendo reproduzidos como PCM multicanal. Desative se não houver som.';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Usar o decodificador Dolby nativo da Apple para Dolby Digital Plus, incluindo Atmos. No iOS, iPadOS e tvOS 26 ou posterior, TrueHD Atmos e DTS:X são reproduzidos como áudio espacial. As demais faixas DTS e TrueHD são reproduzidas como PCM multicanal. Desative se não houver som.';
 	@override String get audioPassthroughOverriddenByNormalization => 'Desativada enquanto a normalização de intensidade sonora estiver ativa';
 	@override String get audioChannelLimit => 'Canais de áudio';
 	@override String get audioChannelLimitDescription => 'Mixar o áudio decodificado em menos canais para alto-falantes, fones de ouvido ou sistemas HDMI que não reproduzem todos os canais';
@@ -557,10 +534,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Mostrar a seleção de perfil sempre que o app for aberto';
 	@override String get forceTvMode => 'Forçar modo TV';
 	@override String get forceTvModeDescription => 'Forçar o layout de TV em dispositivos sem detecção automática. Requer reiniciar o app.';
-	@override String get startInFullscreen => 'Iniciar em tela cheia';
-	@override String get startInFullscreenDescription => 'Abrir o Plezy em modo de tela cheia ao iniciar';
-	@override String get exitFullscreenOnPlayerClose => 'Sair da tela cheia ao fechar o reprodutor';
-	@override String get exitFullscreenOnPlayerCloseDescription => 'Sair automaticamente da tela cheia ao fechar o reprodutor de vídeo';
 	@override String get autoHidePerformanceOverlay => 'Ocultar automaticamente o painel de desempenho';
 	@override String get autoHidePerformanceOverlayDescription => 'Esmaecer o painel de desempenho junto com os controles de reprodução';
 	@override String get showNavBarLabels => 'Mostrar Rótulos da Barra de Navegação';
@@ -578,7 +551,6 @@ class _Translations$settings$pt extends Translations$settings$en {
 	@override String get libraryAndCards => 'Biblioteca e Cards';
 	@override String get homeScreen => 'Tela inicial';
 	@override String get navigation => 'Navegação';
-	@override String get window => 'Janela';
 	@override String get liveTv => 'TV ao Vivo';
 	@override String get player => 'Reprodutor';
 	@override String get videoAndDisplay => 'Vídeo e Tela';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$pt extends Translations$hotkeys$en {
 	final TranslationsPt _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => 'Definir Atalho para ${actionName}';
-	@override String get clearShortcut => 'Limpar atalho';
 	@override String get noShortcutSet => 'Nenhum atalho definido';
-	@override String get currentShortcut => 'Atalho atual:';
-	@override String get pressToRecord => 'Selecionar para gravar um atalho';
-	@override String get recordingShortcut => 'Pressione o atalho agora';
 	@override late final _Translations$hotkeys$actions$pt actions = _Translations$hotkeys$actions$pt._(_root);
 }
 
@@ -980,16 +947,12 @@ class _Translations$videoControls$pt extends Translations$videoControls$en {
 	@override String get pipButton => 'Modo Picture-in-Picture';
 	@override String get aspectRatioButton => 'Proporção';
 	@override String get ambientLighting => 'Iluminação ambiente';
-	@override String get fullscreenButton => 'Entrar em tela cheia';
-	@override String get exitFullscreenButton => 'Sair da tela cheia';
-	@override String get alwaysOnTopButton => 'Sempre no topo';
 	@override String get rotationLockButton => 'Travar rotação';
 	@override String get lockScreen => 'Travar tela';
 	@override String get screenLockButton => 'Travar tela';
 	@override String get timelineSlider => 'Linha do tempo do vídeo';
 	@override String get volumeSlider => 'Nível de volume';
 	@override String endsAt({required Object time}) => 'Termina às ${time}';
-	@override String get pipActive => 'Reproduzindo em Picture-in-Picture';
 	@override String get pipFailed => 'Falha ao iniciar picture-in-picture';
 	@override String get screenshotSaved => 'Captura de tela salva';
 	@override String get screenshotFailed => 'Não foi possível fazer a captura de tela';
@@ -1157,7 +1120,6 @@ class _Translations$mpvConfig$pt extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => 'Adicionar linha';
 	@override String get removeLine => 'Remover linha';
-	@override String get embeddedVoHint => 'vo, gpu-context e gpu-api são ignorados no Linux: o vídeo incorporado é sempre renderizado via vo=libmpv no plano de vídeo, e gpu-next (necessário para shaders de computação como ArtCNN) não pode ser executado incorporado.';
 }
 
 // Path: dialog
@@ -1507,7 +1469,6 @@ class _Translations$startup$pt extends Translations$startup$en {
 	@override String get repairSucceeded => 'Armazenamento reparado';
 	@override String get repairNeedsRestart => 'Armazenamento reparado — reinício necessário';
 	@override String get restartRequiredBody => 'Seus dados foram reparados, mas o Plezy precisa iniciar do zero antes de usá-los. Feche o Plezy e abra-o novamente.';
-	@override String get quitPlezy => 'Sair do Plezy';
 	@override String get repairFailed => 'Falha no reparo';
 	@override String get repairKeptSignIns => 'Seus servidores e perfis ainda estão conectados.';
 	@override String get repairLostSignIns => 'A chave que protege seus logins salvos não pôde ser recuperada. Você terá que entrar novamente em todos os servidores e perfis.';
@@ -2078,20 +2039,9 @@ class _Translations$videoSettings$pt extends Translations$videoSettings$en {
 	@override String get audioSync => 'Sincronia de áudio';
 	@override String get subtitleSync => 'Sincronia de legendas';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => 'O HDR não está disponível aqui — este compositor da área de trabalho ou esta saída de vídeo não é compatível com ele.';
-	@override String get hdrToneMapping => 'Mapeamento de tons HDR';
-	@override String get hdrToneMappingCompositor => 'Compositor';
-	@override String get hdrToneMappingCompositorDescription => 'Repassar os metadados HDR da fonte e deixar que o compositor da área de trabalho faça o mapeamento.';
-	@override String get hdrToneMappingPlayer => 'Reprodutor';
-	@override String get hdrToneMappingPlayerDescription => 'Mapear para o brilho máximo da tela no reprodutor e informar o resultado ao compositor.';
-	@override String get hdrToneMappingFailed => 'Não foi possível alterar o mapeamento de tons HDR — o modo anterior continua ativo.';
 	@override String get audioOutput => 'Saída de áudio';
-	@override String get performanceOverlay => 'Painel de desempenho';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => 'Surround';
-	@override String get audioOutputSpatial => 'Áudio espacial';
 	@override String get audioOutputStereo => 'Estéreo';
+	@override String get performanceOverlay => 'Painel de desempenho';
 	@override String get audioNormalization => 'Normalizar intensidade sonora';
 	@override String get audioNormalizationDisablesPassthrough => 'Decodifica o áudio para PCM; a passagem direta fica desativada enquanto esta opção estiver ativa';
 }
@@ -2174,7 +2124,6 @@ class _Translations$externalPlayer$pt extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => 'Adicionar reprodutor personalizado';
 	@override String get playerName => 'Nome do reprodutor';
 	@override String get playerNameHint => 'Meu reprodutor';
-	@override String get playerCommand => 'Comando';
 	@override String get playerPackage => 'Nome do pacote';
 	@override String get playerUrlScheme => 'Esquema de URL';
 	@override String get off => 'Desativado';
@@ -2386,7 +2335,6 @@ class _Translations$services$pt extends Translations$services$en {
 	// Translations
 	@override String get title => 'Serviços';
 	@override String get hubSubtitle => 'Sincronize o progresso de exibição e solicite novos títulos.';
-	@override String get integrations => 'Integrações';
 	@override String get notConnected => 'Não conectado';
 	@override String connectedAs({required Object username}) => 'Conectado como @${username}';
 	@override String get scrobble => 'Registrar progresso automaticamente';
@@ -2621,7 +2569,6 @@ class _Translations$videoControls$pipErrors$pt extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Requer Android 8.0 ou superior';
-	@override String get iosVersion => 'Requer iOS 15.0 ou superior';
 	@override String get permissionDisabled => 'Picture-in-picture está desativado. Ative nas configurações do sistema.';
 	@override String get notSupported => 'O dispositivo não suporta modo picture-in-picture';
 	@override String get voSwitchFailed => 'Falha ao trocar saída de vídeo para picture-in-picture';
@@ -3442,7 +3389,6 @@ extension on TranslationsPt {
 			'auth.quickConnectWaiting' => 'Aguardando aprovação…',
 			'auth.quickConnectCancel' => 'Cancelar',
 			'auth.quickConnectExpired' => 'Quick Connect expirou. Tente novamente.',
-			'auth.localDataRecoveryRequired' => 'O Plezy não conseguiu recuperar com segurança os dados locais de acesso e de reproduções pendentes. Entre novamente.',
 			'auth.pinCheckRejected' => 'A verificação do PIN do Plex foi rejeitada',
 			'common.cancel' => 'Cancelar',
 			'common.save' => 'Salvar',
@@ -3487,8 +3433,6 @@ extension on TranslationsPt {
 			'common.connectingToServers' => 'Conectando aos servidores...',
 			'common.startingOfflineMode' => 'Iniciando modo offline...',
 			'common.loading' => 'Carregando...',
-			'common.fullscreen' => 'Tela cheia',
-			'common.exitFullscreen' => 'Sair da tela cheia',
 			'common.pressBackAgainToExit' => 'Pressione voltar novamente para sair',
 			'common.ratingSource.critic' => 'Críticos',
 			'common.ratingSource.audience' => 'Público',
@@ -3644,9 +3588,6 @@ extension on TranslationsPt {
 			'settings.cellularQualitySameAsDefault' => 'Igual à qualidade padrão',
 			'settings.directPlayCoveredQuality' => 'Reproduzir Vídeos Menores na Qualidade Original',
 			'settings.directPlayCoveredQualityDescription' => 'Reproduzir diretamente os vídeos que já estão dentro do limite de qualidade em vez de transcodificá-los',
-			'settings.videoCodecs' => 'Codecs de vídeo',
-			'settings.videoCodecsDescription' => 'Codecs desmarcados são transcodificados pelo servidor',
-			'settings.videoCodecsAlwaysAccepted' => 'Sempre aceito',
 			'settings.musicQualityTitle' => 'Qualidade da música',
 			'settings.subtitleStyling' => 'Estilo de Legendas',
 			'settings.subtitleStylingDescription' => 'Personalizar aparência das legendas',
@@ -3672,11 +3613,6 @@ extension on TranslationsPt {
 			'settings.specialsOrderingLast' => 'Após as temporadas regulares',
 			'settings.clickVideoTogglesPlayback' => 'Clicar no vídeo para alternar reprodução/pausa',
 			'settings.clickVideoTogglesPlaybackDescription' => 'Clicar no vídeo para reproduzir ou pausar em vez de mostrar os controles.',
-			'settings.videoPlayerControls' => 'Controles do reprodutor de vídeo',
-			'settings.keyboardShortcuts' => 'Atalhos de Teclado',
-			'settings.keyboardShortcutsDescription' => 'Personalizar atalhos de teclado',
-			'settings.videoPlayerNavigation' => 'Navegação do reprodutor de vídeo',
-			'settings.videoPlayerNavigationDescription' => 'Usar as teclas de seta para navegar pelos controles do reprodutor',
 			'settings.watchTogetherRelay' => 'Servidor de retransmissão do Assistir Juntos',
 			'settings.watchTogetherRelayDescription' => 'Servidores de retransmissão públicos do Open Watch Party, a menos que você defina o seu',
 			'settings.watchTogetherRelayHint' => 'https://minha-retransmissao.exemplo.com.br',
@@ -3703,8 +3639,6 @@ extension on TranslationsPt {
 			'settings.importSettingsSuccess' => 'Configurações importadas',
 			'settings.importSettingsInvalidFile' => 'Este arquivo não é uma exportação válida do Plezy',
 			'settings.importSettingsNoUser' => 'Entre na conta antes de importar as configurações',
-			'settings.shortcutsReset' => 'Atalhos redefinidos para o padrão',
-			'settings.resetShortcutsConfirm' => 'Isso substituirá seus atalhos personalizados pelos padrões. Continuar?',
 			'settings.about' => 'Sobre',
 			'settings.aboutDescription' => 'Informações do app e licenças',
 			'settings.updates' => 'Atualizações',
@@ -3714,8 +3648,6 @@ extension on TranslationsPt {
 			'settings.autoCheckUpdatesOnStartupDescription' => 'Notificar ao iniciar quando houver atualização disponível',
 			'settings.validationErrorEnterNumber' => 'Insira um número válido',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => 'A duração deve estar entre ${min} e ${max} ${unit}',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'Atalho já atribuído a ${action}',
-			'settings.shortcutUpdated' => ({required Object action}) => 'Atalho atualizado para ${action}',
 			'settings.saveFailed' => 'Não foi possível salvar as alterações. Tente novamente.',
 			'settings.autoPlayAndSkip' => 'Reprodução automática e pulos',
 			'settings.autoPlayNextEpisode' => 'Reproduzir próximo episódio automaticamente',
@@ -3764,8 +3696,6 @@ extension on TranslationsPt {
 			'settings.maxVolume' => 'Volume Máximo',
 			'settings.maxVolumeDescription' => 'Permitir aumento de volume acima de 100% para mídias silenciosas',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Mostrar o que você está assistindo no Discord',
 			'settings.services' => 'Serviços',
 			'settings.servicesDescription' => 'Conecte Trakt, MyAnimeList, Seerr e mais',
 			'settings.manageLibrariesDescription' => 'Reordene e oculte bibliotecas',
@@ -3779,17 +3709,11 @@ extension on TranslationsPt {
 			'settings.matchContentFrameRateDescription' => 'Ajustar a taxa de atualização da tela ao conteúdo de vídeo',
 			'settings.matchContentResolution' => 'Ajustar à resolução do conteúdo',
 			'settings.matchContentResolutionDescription' => 'Muda a tela para a resolução nativa do vídeo para que a TV cuide do upscaling. Menus e legendas também são ampliados durante a reprodução',
-			'settings.matchRefreshRate' => 'Ajustar à taxa de atualização',
-			'settings.matchRefreshRateDescription' => 'Ajustar a taxa de atualização da tela em tela cheia',
-			'settings.matchDynamicRange' => 'Ajustar à faixa dinâmica',
-			'settings.matchDynamicRangeDescription' => 'Ativar HDR para conteúdo HDR e depois voltar para SDR',
 			'settings.displaySwitchDelay' => 'Atraso na troca do modo de exibição',
 			'settings.tunneledPlayback' => 'Reprodução em túnel',
 			'settings.tunneledPlaybackDescription' => 'Usar o tunelamento de vídeo. Desative se o vídeo ficar preto ao reproduzir em HDR ou o movimento travar.',
 			'settings.audioPassthrough' => 'Passagem direta de áudio',
 			'settings.audioPassthroughDescription' => 'Enviar o áudio Dolby/DTS ao receptor ou à TV sem recodificação, preservando o som surround. Desative se não houver som.',
-			'settings.audioPassthroughDescriptionApple' => 'Usar o decodificador Dolby nativo da Apple para Dolby Digital Plus, incluindo Atmos. DTS e TrueHD continuam sendo reproduzidos como PCM multicanal. Desative se não houver som.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Usar o decodificador Dolby nativo da Apple para Dolby Digital Plus, incluindo Atmos. No iOS, iPadOS e tvOS 26 ou posterior, TrueHD Atmos e DTS:X são reproduzidos como áudio espacial. As demais faixas DTS e TrueHD são reproduzidas como PCM multicanal. Desative se não houver som.',
 			'settings.audioPassthroughOverriddenByNormalization' => 'Desativada enquanto a normalização de intensidade sonora estiver ativa',
 			'settings.audioChannelLimit' => 'Canais de áudio',
 			'settings.audioChannelLimitDescription' => 'Mixar o áudio decodificado em menos canais para alto-falantes, fones de ouvido ou sistemas HDMI que não reproduzem todos os canais',
@@ -3837,10 +3761,6 @@ extension on TranslationsPt {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Mostrar a seleção de perfil sempre que o app for aberto',
 			'settings.forceTvMode' => 'Forçar modo TV',
 			'settings.forceTvModeDescription' => 'Forçar o layout de TV em dispositivos sem detecção automática. Requer reiniciar o app.',
-			'settings.startInFullscreen' => 'Iniciar em tela cheia',
-			'settings.startInFullscreenDescription' => 'Abrir o Plezy em modo de tela cheia ao iniciar',
-			'settings.exitFullscreenOnPlayerClose' => 'Sair da tela cheia ao fechar o reprodutor',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'Sair automaticamente da tela cheia ao fechar o reprodutor de vídeo',
 			'settings.autoHidePerformanceOverlay' => 'Ocultar automaticamente o painel de desempenho',
 			'settings.autoHidePerformanceOverlayDescription' => 'Esmaecer o painel de desempenho junto com os controles de reprodução',
 			'settings.showNavBarLabels' => 'Mostrar Rótulos da Barra de Navegação',
@@ -3858,7 +3778,6 @@ extension on TranslationsPt {
 			'settings.libraryAndCards' => 'Biblioteca e Cards',
 			'settings.homeScreen' => 'Tela inicial',
 			'settings.navigation' => 'Navegação',
-			'settings.window' => 'Janela',
 			'settings.liveTv' => 'TV ao Vivo',
 			'settings.player' => 'Reprodutor',
 			'settings.videoAndDisplay' => 'Vídeo e Tela',
@@ -3907,8 +3826,6 @@ extension on TranslationsPt {
 			'themeEditor.slots.text' => 'Texto',
 			'themeEditor.slots.textMuted' => 'Texto secundário',
 			'themeEditor.slots.accent' => 'Destaque',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => 'Opacidade',
 			'themeEditor.hexHint' => '#RRGGBB ou #AARRGGBB',
 			'themeEditor.fromOtherThemes' => 'De outros temas',
@@ -3933,15 +3850,12 @@ extension on TranslationsPt {
 			'search.searchYourMedia' => 'Buscar suas mídias',
 			'search.enterTitleActorOrKeyword' => 'Insira um título, ator ou palavra-chave',
 			'search.people' => 'Pessoas',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => 'Definir Atalho para ${actionName}',
-			'hotkeys.clearShortcut' => 'Limpar atalho',
 			'hotkeys.noShortcutSet' => 'Nenhum atalho definido',
-			'hotkeys.currentShortcut' => 'Atalho atual:',
-			'hotkeys.pressToRecord' => 'Selecionar para gravar um atalho',
-			'hotkeys.recordingShortcut' => 'Pressione o atalho agora',
 			'hotkeys.actions.playPause' => 'Reproduzir/Pausar',
 			'hotkeys.actions.volumeUp' => 'Aumentar Volume',
 			'hotkeys.actions.volumeDown' => 'Diminuir Volume',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Avançar (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Retroceder (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Alternar Tela Cheia',
@@ -4198,23 +4112,18 @@ extension on TranslationsPt {
 			'videoControls.pipButton' => 'Modo Picture-in-Picture',
 			'videoControls.aspectRatioButton' => 'Proporção',
 			'videoControls.ambientLighting' => 'Iluminação ambiente',
-			'videoControls.fullscreenButton' => 'Entrar em tela cheia',
-			'videoControls.exitFullscreenButton' => 'Sair da tela cheia',
-			'videoControls.alwaysOnTopButton' => 'Sempre no topo',
 			'videoControls.rotationLockButton' => 'Travar rotação',
 			'videoControls.lockScreen' => 'Travar tela',
 			'videoControls.screenLockButton' => 'Travar tela',
 			'videoControls.timelineSlider' => 'Linha do tempo do vídeo',
 			'videoControls.volumeSlider' => 'Nível de volume',
 			'videoControls.endsAt' => ({required Object time}) => 'Termina às ${time}',
-			'videoControls.pipActive' => 'Reproduzindo em Picture-in-Picture',
 			'videoControls.pipFailed' => 'Falha ao iniciar picture-in-picture',
 			'videoControls.screenshotSaved' => 'Captura de tela salva',
 			'videoControls.screenshotFailed' => 'Não foi possível fazer a captura de tela',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'Zoom ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => 'Volume ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Requer Android 8.0 ou superior',
-			'videoControls.pipErrors.iosVersion' => 'Requer iOS 15.0 ou superior',
 			'videoControls.pipErrors.permissionDisabled' => 'Picture-in-picture está desativado. Ative nas configurações do sistema.',
 			'videoControls.pipErrors.notSupported' => 'O dispositivo não suporta modo picture-in-picture',
 			'videoControls.pipErrors.voSwitchFailed' => 'Falha ao trocar saída de vídeo para picture-in-picture',
@@ -4352,7 +4261,6 @@ extension on TranslationsPt {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => 'Adicionar linha',
 			'mpvConfig.removeLine' => 'Remover linha',
-			'mpvConfig.embeddedVoHint' => 'vo, gpu-context e gpu-api são ignorados no Linux: o vídeo incorporado é sempre renderizado via vo=libmpv no plano de vídeo, e gpu-next (necessário para shaders de computação como ArtCNN) não pode ser executado incorporado.',
 			'dialog.confirmAction' => 'Confirmar Ação',
 			'profiles.addPlezyProfile' => 'Adicionar perfil Plezy',
 			'profiles.switchingProfile' => 'Mudando perfil…',
@@ -4421,8 +4329,6 @@ extension on TranslationsPt {
 			'profiles.tokenIdentityMismatch' => 'O token do perfil do Plex foi associado a um servidor inesperado',
 			'connections.sectionTitle' => 'Conexões',
 			'connections.addConnection' => 'Adicionar conexão',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Entre com Plex ou conecte um servidor Jellyfin ou Emby',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => 'Adicionar a ${displayName}: Plex, Jellyfin, Emby ou outra conexão de perfil',
 			'connections.sessionExpiredOne' => ({required Object name}) => 'Sessão de ${name} expirada',
@@ -4462,6 +4368,8 @@ extension on TranslationsPt {
 			'accountPreferences.subtitleModes.smart' => 'Exibir com áudio estrangeiro',
 			'accountPreferences.subtitleModes.smartDescription' => 'Ativar legendas apenas quando o áudio estiver em outro idioma.',
 			'accountPreferences.subtitleAccessibility' => 'Legendas SDH',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Preferir legendas não SDH',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Preferir legendas SDH',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Apenas legendas SDH',
@@ -4686,7 +4594,6 @@ extension on TranslationsPt {
 			'startup.repairSucceeded' => 'Armazenamento reparado',
 			'startup.repairNeedsRestart' => 'Armazenamento reparado — reinício necessário',
 			'startup.restartRequiredBody' => 'Seus dados foram reparados, mas o Plezy precisa iniciar do zero antes de usá-los. Feche o Plezy e abra-o novamente.',
-			'startup.quitPlezy' => 'Sair do Plezy',
 			'startup.repairFailed' => 'Falha no reparo',
 			'startup.repairKeptSignIns' => 'Seus servidores e perfis ainda estão conectados.',
 			'startup.repairLostSignIns' => 'A chave que protege seus logins salvos não pôde ser recuperada. Você terá que entrar novamente em todos os servidores e perfis.',
@@ -4935,8 +4842,6 @@ extension on TranslationsPt {
 			'liveTv.recordSettings.keepUpToHint' => '0 mantém todos os episódios',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => 'Começa em ${minutes} min',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day} às ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product} retornou dados inválidos de reprodução de TV ao Vivo',
 			'liveTv.failedToStartChannel' => 'Não foi possível iniciar o canal ao vivo',
 			'liveTv.failedToBuildStreamUrl' => 'Não foi possível gerar a URL da transmissão',
@@ -4977,6 +4882,8 @@ extension on TranslationsPt {
 			'playlists.deleteConfirm' => 'Excluir Playlist?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Tem certeza de que deseja excluir "${name}"?',
 			'playlists.created' => 'Playlist criada',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => 'Playlist excluída',
 			'playlists.itemAdded' => 'Adicionado à playlist',
 			'playlists.itemRemoved' => 'Removido da playlist',
@@ -5380,20 +5287,9 @@ extension on TranslationsPt {
 			'videoSettings.audioSync' => 'Sincronia de áudio',
 			'videoSettings.subtitleSync' => 'Sincronia de legendas',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'O HDR não está disponível aqui — este compositor da área de trabalho ou esta saída de vídeo não é compatível com ele.',
-			'videoSettings.hdrToneMapping' => 'Mapeamento de tons HDR',
-			'videoSettings.hdrToneMappingCompositor' => 'Compositor',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'Repassar os metadados HDR da fonte e deixar que o compositor da área de trabalho faça o mapeamento.',
-			'videoSettings.hdrToneMappingPlayer' => 'Reprodutor',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'Mapear para o brilho máximo da tela no reprodutor e informar o resultado ao compositor.',
-			'videoSettings.hdrToneMappingFailed' => 'Não foi possível alterar o mapeamento de tons HDR — o modo anterior continua ativo.',
 			'videoSettings.audioOutput' => 'Saída de áudio',
-			'videoSettings.performanceOverlay' => 'Painel de desempenho',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'Surround',
-			'videoSettings.audioOutputSpatial' => 'Áudio espacial',
 			'videoSettings.audioOutputStereo' => 'Estéreo',
+			'videoSettings.performanceOverlay' => 'Painel de desempenho',
 			'videoSettings.audioNormalization' => 'Normalizar intensidade sonora',
 			'videoSettings.audioNormalizationDisablesPassthrough' => 'Decodifica o áudio para PCM; a passagem direta fica desativada enquanto esta opção estiver ativa',
 			'performanceOverlay.color' => 'Cor',
@@ -5449,8 +5345,6 @@ extension on TranslationsPt {
 			'performanceOverlay.decoderHardware' => 'Hardware',
 			'performanceOverlay.tunnelingActive' => 'Ativo',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted} (${failures} com falha)',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => 'Reprodutor externo',
 			'externalPlayer.useExternalPlayer' => 'Usar reprodutor externo',
 			'externalPlayer.useExternalPlayerDescription' => 'Abrir vídeos em outro app',
@@ -5460,7 +5354,6 @@ extension on TranslationsPt {
 			'externalPlayer.addCustomPlayer' => 'Adicionar reprodutor personalizado',
 			'externalPlayer.playerName' => 'Nome do reprodutor',
 			'externalPlayer.playerNameHint' => 'Meu reprodutor',
-			'externalPlayer.playerCommand' => 'Comando',
 			'externalPlayer.playerPackage' => 'Nome do pacote',
 			'externalPlayer.playerUrlScheme' => 'Esquema de URL',
 			'externalPlayer.off' => 'Desativado',
@@ -5503,6 +5396,8 @@ extension on TranslationsPt {
 			'metadataEdit.libraryDefault' => 'Padrão da biblioteca',
 			'metadataEdit.accountDefault' => 'Padrão da conta',
 			'metadataEdit.seriesDefault' => 'Padrão da série',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Ordenação de Episódios',
 			'metadataEdit.oldestFirst' => 'Mais antigos primeiro',
 			'metadataEdit.newestFirst' => 'Mais recentes primeiro',
@@ -5618,7 +5513,6 @@ extension on TranslationsPt {
 			'seerr.permissionRevoked' => 'Você não tem mais permissão para solicitar isso',
 			'services.title' => 'Serviços',
 			'services.hubSubtitle' => 'Sincronize o progresso de exibição e solicite novos títulos.',
-			'services.integrations' => 'Integrações',
 			'services.notConnected' => 'Não conectado',
 			'services.connectedAs' => ({required Object username}) => 'Conectado como @${username}',
 			'services.scrobble' => 'Registrar progresso automaticamente',

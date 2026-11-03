@@ -69,7 +69,7 @@ extension _VideoPlayerDisplayMatchingMethods on VideoPlayerScreenState {
   /// [_FrameRateStartupPlan.needsFirstFrameSwitch] instead, which marks the
   /// item applied before open so this stays a no-op for it.
   Future<void> _applyFrameRateMatching() async {
-    if (player == null || !Platform.isAndroid) return;
+    if (player == null) return;
     if (_frameRate.applied) return;
 
     try {
@@ -175,110 +175,6 @@ extension _VideoPlayerDisplayMatchingMethods on VideoPlayerScreenState {
       );
     } catch (e) {
       appLogger.w('Failed to refresh Android MPV decoder after frame rate switch ($reason)', error: e);
-    }
-  }
-
-  /// Apply desktop display mode matching from what mpv presents: the derived
-  /// output rate for the refresh rate (Windows, macOS) and
-  /// `video-params/sig-peak`, which mpv raises above 1.0 for PQ/HLG (and
-  /// Dolby Vision base layers), for system HDR (Windows).
-  Future<void> _applyDisplayModeMatching() async {
-    if (player == null || _displayModeService == null) return;
-
-    try {
-      final currentPlayer = player!;
-      final output = await PlayerOutputFormat.read(currentPlayer);
-      if (!mounted || player != currentPlayer) return;
-      final sigPeak = double.tryParse(await currentPlayer.getProperty('video-params/sig-peak') ?? '');
-      if (!mounted || _displayModeService == null) return;
-      final displayModeService = _displayModeService!;
-
-      final delay = await displayModeService.applyDisplayMatching(fps: output.fps, sigPeak: sigPeak);
-      if (!mounted || player != currentPlayer) return;
-
-      // Leaving fullscreen clears mpv's colorspace hint so its HDR swapchain
-      // is released before system HDR goes off (_restoreDisplayMode).
-      // With system HDR on again, restore the hint the user's HDR setting
-      // asks for, or mpv keeps presenting SDR.
-      if (displayModeService.hdrStateChanged) {
-        final settingsService = await SettingsService.getInstance();
-        final enableHDR = settingsService.read(SettingsService.enableHDR);
-        await currentPlayer.setProperty('hdr-enabled', enableHDR ? 'yes' : 'no');
-      }
-
-      if (delay > Duration.zero) {
-        await _holdPlaybackForDisplaySwitch(currentPlayer, delay);
-      }
-    } catch (e) {
-      appLogger.w('Failed to apply display mode matching', error: e);
-    }
-  }
-
-  /// Hold playback through the user's display switch delay so the display
-  /// finishes re-syncing before playback runs on (as the Android switch
-  /// does), rather than just waiting while the video keeps playing.
-  ///
-  /// The pause and resume are the screen's own, not the viewer's: a Watch
-  /// Together room is held off meanwhile, so it neither takes them for the
-  /// viewer's nor commands the player. The resume answers to the playback
-  /// generation the hold started in: an in-place reload or source switch that
-  /// ran meanwhile owns the play state it left (its own resume, or the room
-  /// starting the replacement), so the resume waits for it to settle and
-  /// stands down if it opened anything.
-  Future<void> _holdPlaybackForDisplaySwitch(Player currentPlayer, Duration delay) async {
-    if (!currentPlayer.state.playing) {
-      await Future<void>.delayed(delay);
-      return;
-    }
-    final generation = _transitionGate.generation;
-    bool isCurrent() => _isCurrentPlaybackGeneration(generation, currentPlayer);
-    await _withWatchTogetherHeld(() async {
-      await currentPlayer.pause();
-      await Future<void>.delayed(delay);
-      // Wait out the transition itself, not just its generation bump: leaving
-      // this window rebinds the room, and a reload still opening its
-      // replacement owns that rebind (and the startup hold it carries). Once
-      // it has rebound, the stale binding keeps this window from rebinding
-      // again.
-      await _transitionGate.waitForIdle(() => mounted && !_shuttingDown && player == currentPlayer);
-      // A pause the viewer asked for meanwhile clears the play intent.
-      if (!isCurrent() || !_playbackIntentShouldPlay) return;
-      await _playWithPlaybackIntent(currentPlayer);
-    });
-  }
-
-  /// Called when fullscreen state changes — apply or restore desktop display
-  /// matching. The desktop player opens windowed by default, so the initial
-  /// attempt during `playbackRestart` is skipped by DisplayModeService's
-  /// fullscreen gate. Catching the enter-fullscreen transition here lets the
-  /// switch happen at the natural moment the user starts watching.
-  void _onFullscreenChanged() {
-    if (_displayModeService == null) return;
-    if (FullscreenStateManager().isFullscreen) {
-      if (_firstFrame.uiReady.value && !_displayModeService!.anyChangeApplied) {
-        _applyDisplayModeMatching();
-      }
-    } else if (_displayModeService!.anyChangeApplied) {
-      _restoreDisplayMode();
-    }
-  }
-
-  /// Restore the display mode to its original state. Fullscreen-exit only:
-  /// `dispose()` runs its own fire-and-forget variant because it cannot await
-  /// the HDR settle below.
-  Future<void> _restoreDisplayMode() async {
-    if (_displayModeService == null || !_displayModeService!.anyChangeApplied) return;
-
-    try {
-      // If HDR was toggled, release mpv's HDR swapchain first.
-      if (_displayModeService!.hdrStateChanged && player != null) {
-        await player!.setProperty('target-colorspace-hint', 'no');
-        await Future.delayed(const Duration(milliseconds: 200));
-      }
-
-      await _displayModeService!.restoreAll();
-    } catch (e) {
-      appLogger.w('Failed to restore display mode', error: e);
     }
   }
 }

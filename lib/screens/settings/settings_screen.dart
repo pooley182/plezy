@@ -22,13 +22,11 @@ import '../../providers/download_provider.dart';
 import '../../providers/libraries_provider.dart';
 import '../../services/donation_service.dart';
 import '../../services/download_storage_service.dart';
-import '../../services/file_picker_service.dart';
 import '../../services/saf_storage_service.dart';
 import '../../services/settings_export_service.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/seerr_account_provider.dart';
 import '../../services/account_preferences_accounts.dart';
-import '../../services/keyboard_shortcuts_service.dart';
 import '../../services/background_work_diagnostics_service.dart';
 import '../../services/settings_service.dart' as settings;
 import '../../services/settings_mutation_service.dart';
@@ -56,7 +54,6 @@ import 'add_connection_screen.dart';
 import 'account_preferences_screen.dart';
 import 'appearance_settings_screen.dart';
 import 'general_settings_screen.dart';
-import 'keyboard_shortcuts_screen.dart';
 import 'logs_screen.dart';
 import 'playback_settings_screen.dart';
 import '../profile/profile_switch_screen.dart';
@@ -107,8 +104,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   static const _kDownloadOnWifiOnly = 'download_on_wifi_only';
   static const _kAutoRemoveWatchedDownloads = 'auto_remove_watched_downloads';
   static const _kBackgroundDownloads = 'background_downloads';
-  static const _kVideoPlayerControls = 'video_player_controls';
-  static const _kVideoPlayerNavigation = 'video_player_navigation';
   static const _kCompanionRemoteServer = 'companion_remote_server';
   static const _kCrashReporting = 'crash_reporting';
   static const _kDebugLogging = 'debug_logging';
@@ -124,9 +119,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   static const _kImportSettings = 'import_settings';
   static const _kAccountPreferences = 'account_preferences';
 
-  KeyboardShortcutsService? _keyboardService;
-  late final bool _keyboardShortcutsSupported = KeyboardShortcutsService.isPlatformSupported();
-
   // Update checking state
   bool _isCheckingForUpdate = false;
   Map<String, dynamic>? _updateInfo;
@@ -135,11 +127,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   void initState() {
     super.initState();
     _focusTracker = FocusMemoryTracker(debugLabelPrefix: 'settings');
-    if (_keyboardShortcutsSupported) {
-      KeyboardShortcutsService.getInstance().then((s) {
-        setStateIfMounted(() => _keyboardService = s);
-      });
-    }
   }
 
   @override
@@ -227,18 +214,16 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
 
                   _buildConnectionsSection(sheetContext),
 
-                  if (!PlatformDetector.isAppleTV()) _buildDownloadsSection(),
+                  _buildDownloadsSection(),
 
-                  if (_keyboardShortcutsSupported || PlatformDetector.shouldActAsRemoteHost(sheetContext))
-                    _buildControlsSection(sheetContext),
+                  if (PlatformDetector.shouldActAsRemoteHost(sheetContext)) _buildControlsSection(sheetContext),
 
                   _buildAdvancedSection(),
 
                   if (UpdateService.isUpdateCheckAvailable) ...[_buildUpdateSection()],
 
-                  // Hidden on Android TV / tvOS (no document picker); desktop in
-                  // force-TV mode keeps it — FilePickerService works there.
-                  if (!PlatformDetector.isTV() || PlatformDetector.isDesktopOS()) _buildBackupSection(),
+                  // Hidden on TV: no document picker.
+                  if (!PlatformDetector.isTV()) _buildBackupSection(),
 
                   const SizedBox(height: 24),
                   SettingsGroup(
@@ -425,21 +410,20 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     return SettingsGroup(
       title: t.settings.downloads,
       children: [
-        if (!Platform.isIOS)
-          FutureBuilder<String>(
-            future: storageService.getCurrentDownloadPathDisplay(),
-            builder: (context, snapshot) {
-              final currentPath = snapshot.data ?? '...';
-              return FocusableListTile(
-                focusNode: _focusTracker.get(_kDownloadLocation),
-                leading: const AppIcon(Symbols.folder_rounded, fill: 1),
-                title: Text(isCustom ? t.settings.downloadLocationCustom : t.settings.downloadLocationDefault),
-                subtitle: Text(currentPath, maxLines: 2, overflow: .ellipsis),
-                trailing: const AppIcon(Symbols.chevron_right_rounded, fill: 1),
-                onTap: () => _showDownloadLocationDialog(),
-              );
-            },
-          ),
+        FutureBuilder<String>(
+          future: storageService.getCurrentDownloadPathDisplay(),
+          builder: (context, snapshot) {
+            final currentPath = snapshot.data ?? '...';
+            return FocusableListTile(
+              focusNode: _focusTracker.get(_kDownloadLocation),
+              leading: const AppIcon(Symbols.folder_rounded, fill: 1),
+              title: Text(isCustom ? t.settings.downloadLocationCustom : t.settings.downloadLocationDefault),
+              subtitle: Text(currentPath, maxLines: 2, overflow: .ellipsis),
+              trailing: const AppIcon(Symbols.chevron_right_rounded, fill: 1),
+              onTap: () => _showDownloadLocationDialog(),
+            );
+          },
+        ),
         SettingSwitchTile(
           focusNode: _focusTracker.get(_kDownloadOnWifiOnly),
           pref: settings.SettingsService.downloadOnWifiOnly,
@@ -504,34 +488,11 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
     );
   }
 
-  /// Input devices: keyboard shortcuts on platforms with a physical keyboard,
-  /// and the companion-remote host on surfaces that can be controlled from a
-  /// phone. Either half may be absent; the caller skips the section when both
-  /// are.
+  /// The companion-remote host, on surfaces that can be controlled from a phone.
   Widget _buildControlsSection(BuildContext context) {
-    final children = <Widget>[
-      if (_keyboardService != null) ...[
-        SettingNavigationTile(
-          focusNode: _focusTracker.get(_kVideoPlayerControls),
-          icon: Symbols.keyboard_rounded,
-          title: t.settings.videoPlayerControls,
-          subtitle: t.settings.keyboardShortcutsDescription,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => KeyboardShortcutsScreen(keyboardService: _keyboardService!)),
-            );
-          },
-        ),
-        SettingSwitchTile(
-          focusNode: _focusTracker.get(_kVideoPlayerNavigation),
-          pref: settings.SettingsService.videoPlayerNavigationEnabled,
-          icon: Symbols.gamepad_rounded,
-          title: t.settings.videoPlayerNavigation,
-          subtitle: t.settings.videoPlayerNavigationDescription,
-        ),
-      ],
-      if (PlatformDetector.shouldActAsRemoteHost(context))
+    return SettingsGroup(
+      title: t.settings.controls,
+      children: [
         SettingSwitchTile(
           focusNode: _focusTracker.get(_kCompanionRemoteServer),
           pref: settings.SettingsService.enableCompanionRemoteServer,
@@ -539,11 +500,8 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
           title: t.settings.companionRemoteServer,
           subtitle: t.settings.companionRemoteServerDescription,
         ),
-    ];
-    // Keyboard platforms render nothing until the shortcuts service loads; an
-    // empty SettingsGroup would paint a bare section title.
-    if (children.isEmpty) return const SizedBox.shrink();
-    return SettingsGroup(title: t.settings.controls, children: children);
+      ],
+    );
   }
 
   Widget _buildAdvancedSection() {
@@ -656,21 +614,6 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
   );
 
   Widget _buildUpdateSection() {
-    if (UpdateService.useNativeUpdater) {
-      return SettingsGroup(
-        title: t.settings.updates,
-        children: [
-          SettingNavigationTile(
-            focusNode: _focusTracker.get(_kCheckForUpdates),
-            icon: Symbols.system_update_rounded,
-            title: t.settings.checkForUpdates,
-            onTap: () => UpdateService.checkForUpdatesNative(inBackground: false),
-          ),
-          _buildAutoCheckUpdatesOnStartupTile(),
-        ],
-      );
-    }
-
     final hasUpdate = _updateInfo != null && _updateInfo!['hasUpdate'] == true;
 
     return SettingsGroup(
@@ -762,19 +705,14 @@ class _SettingsScreenState extends State<SettingsScreen> with FocusableTab, Moun
         String? selectedPath;
         String pathType = 'file';
 
-        if (Platform.isAndroid) {
-          final safStorage = SafStorageService.instance;
-          if (!safStorage.supportsDirectoryPicker) {
-            showErrorSnackBar(context, t.settings.downloadLocationPickerUnavailable);
-            return false;
-          }
-          selectedPath = await safStorage.pickDirectory();
-          if (!mounted) return false;
-          if (selectedPath != null) pathType = 'saf';
-        } else {
-          selectedPath = await FilePickerService.instance.getDirectoryPath(dialogTitle: t.settings.selectFolder);
-          if (!mounted) return false;
+        final safStorage = SafStorageService.instance;
+        if (!safStorage.supportsDirectoryPicker) {
+          showErrorSnackBar(context, t.settings.downloadLocationPickerUnavailable);
+          return false;
         }
+        selectedPath = await safStorage.pickDirectory();
+        if (!mounted) return false;
+        if (selectedPath != null) pathType = 'saf';
         if (selectedPath == null) return false;
 
         final writableChecker = widget.downloadDirectoryWritableChecker;

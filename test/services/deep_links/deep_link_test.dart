@@ -61,12 +61,6 @@ void main() {
       expect(DeepLink.tryParse('PLEZY://OPEN'), isA<OpenLink>());
     });
 
-    test('keeps an external player return link whole', () {
-      const url = 'plezy://external-player/success/s1?position=12.5&duration=1420.016';
-      final link = DeepLink.tryParse(url) as ExternalPlayerReturnLink;
-      expect(link.uri.toString(), url);
-    });
-
     test('rejects links that do not say what to play', () {
       for (final url in [
         'https://example.com/play?server=a&id=1',

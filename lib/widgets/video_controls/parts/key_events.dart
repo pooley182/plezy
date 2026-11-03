@@ -141,7 +141,7 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
     return _keyboardService!.handleVideoPlayerKeyEvent(
       event,
       widget.player,
-      _toggleFullscreen,
+      null,
       _toggleSubtitles,
       _nextAudioTrack,
       _nextSubtitleTrack,
@@ -188,7 +188,7 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
 
     // Native key events also continue through the focus tree after global
     // handlers run. Player navigation must only mutate state there.
-    if (classifyPlayerNavigationKey(event, isAppleTV: PlatformDetector.isAppleTV()) != PlayerNavigationKey.none) {
+    if (classifyPlayerNavigationKey(event) != PlayerNavigationKey.none) {
       return false;
     }
 
@@ -239,7 +239,7 @@ extension _PlexVideoControlsKeyEventMethods on _PlexVideoControlsState {
   }
 
   KeyEventResult _handleControlsKeyEvent(KeyEvent event, bool isMobile) {
-    final navigationKey = classifyPlayerNavigationKey(event, isAppleTV: PlatformDetector.isAppleTV());
+    final navigationKey = classifyPlayerNavigationKey(event);
     final navigationResult = _handleLocalPlayerNavigationKeyEvent(event, navigationKey, isMobile);
     if (navigationResult != KeyEventResult.ignored) {
       return navigationResult;

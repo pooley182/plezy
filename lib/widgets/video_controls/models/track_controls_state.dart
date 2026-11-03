@@ -35,16 +35,12 @@ class TrackControlsState {
   final int audioSyncOffset;
   final int subtitleSyncOffset;
   final bool isRotationLocked;
-  final bool isFullscreen;
-  final bool isAlwaysOnTop;
   final VoidCallback? onTogglePIPMode;
   final VoidCallback? onCycleBoxFitMode;
   final ValueChanged<double>? onVideoZoomChanged;
   final VoidCallback? onResetVideoZoom;
   final VoidCallback? onToggleRotationLock;
   final VoidCallback? onToggleScreenLock;
-  final VoidCallback? onToggleFullscreen;
-  final VoidCallback? onToggleAlwaysOnTop;
   final Function(int)? onSwitchVersion;
   final ValueChanged<TranscodeQualityPreset>? onSwitchQualityPreset;
   final Future<void> Function(int)? onSwitchAudioStreamId;
@@ -103,16 +99,12 @@ class TrackControlsState {
     this.audioSyncOffset = 0,
     this.subtitleSyncOffset = 0,
     this.isRotationLocked = false,
-    this.isFullscreen = false,
-    this.isAlwaysOnTop = false,
     this.onTogglePIPMode,
     this.onCycleBoxFitMode,
     this.onVideoZoomChanged,
     this.onResetVideoZoom,
     this.onToggleRotationLock,
     this.onToggleScreenLock,
-    this.onToggleFullscreen,
-    this.onToggleAlwaysOnTop,
     this.onSwitchVersion,
     this.onSwitchQualityPreset,
     this.onSwitchAudioStreamId,

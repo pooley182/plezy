@@ -6,6 +6,7 @@ import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/mpv/player/player_stream_controllers.dart';
 import 'package:plezy/utils/formatters.dart';
 import 'package:plezy/widgets/video_controls/widgets/finish_time_builder.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -118,7 +119,7 @@ Future<void> _pumpFinishTime(WidgetTester tester, Player player, DateTime Functi
 
 /// Player whose state the test moves; each change is announced on its stream
 /// after the state updates, as `PlayerBase` does.
-class _FakePlayer with PlayerStreamControllersMixin implements Player {
+class _FakePlayer with PlayerStreamControllersMixin, AndroidPlayerNoops implements Player {
   _FakePlayer(this._state);
 
   PlayerState _state;

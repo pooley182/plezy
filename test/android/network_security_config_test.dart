@@ -29,7 +29,6 @@ const _fixedEndpointSourcePaths = <String>[
   'lib/services/trackers/anime_lists_mapping_store.dart',
   'lib/services/trackers/fribb_mapping_store.dart',
   'lib/services/catalog/seerr_catalog_source.dart',
-  'lib/services/discord_rpc_service.dart',
   'lib/services/update_service.dart',
   'lib/services/plezy_server.dart',
   'lib/main.dart',

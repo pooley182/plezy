@@ -1655,28 +1655,14 @@ class _CardTapRegion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!PlatformDetector.isDesktopOS()) {
-      return GestureDetector(
-        excludeFromSemantics: true,
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        onTapDown: onTapDown,
-        onLongPress: onLongPress,
-        onSecondaryTap: onSecondaryTap,
-        onSecondaryTapDown: onSecondaryTapDown,
-        child: child,
-      );
-    }
-    return InkWell(
+    return GestureDetector(
       excludeFromSemantics: true,
-      mouseCursor: SystemMouseCursors.click,
-      canRequestFocus: false,
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       onTapDown: onTapDown,
       onLongPress: onLongPress,
-      onSecondaryTapDown: onSecondaryTapDown,
       onSecondaryTap: onSecondaryTap,
-      borderRadius: borderRadius,
+      onSecondaryTapDown: onSecondaryTapDown,
       child: child,
     );
   }

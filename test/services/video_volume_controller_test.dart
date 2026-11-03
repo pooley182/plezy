@@ -10,6 +10,7 @@ import 'package:plezy/services/video_volume_controller.dart';
 
 import '../test_helpers/mock_player_channels.dart';
 import '../test_helpers/prefs.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -404,7 +405,7 @@ void main() {
 
 Future<void> _flush() => Future<void>.delayed(Duration.zero);
 
-final class _ControlledVolumePlayer implements Player {
+final class _ControlledVolumePlayer with AndroidPlayerNoops implements Player {
   _ControlledVolumePlayer(this.volume);
 
   double volume;

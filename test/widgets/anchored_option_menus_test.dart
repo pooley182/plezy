@@ -11,52 +11,6 @@ import 'package:plezy/widgets/overlay_sheet.dart';
 import '../test_helpers/theme.dart';
 
 void main() {
-  testWidgets('useAnchoredChipMenus splits mobile from desktop platforms', (tester) async {
-    late bool result;
-    Widget probe() => MaterialApp(
-      theme: ThemeData(extensions: const [testMonoTokens]),
-      home: Builder(
-        builder: (context) {
-          result = useAnchoredChipMenus(context);
-          return const SizedBox();
-        },
-      ),
-    );
-
-    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-    await tester.pumpWidget(probe());
-    expect(result, isTrue);
-
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
-    await tester.pumpWidget(probe());
-    expect(result, isFalse);
-
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    await tester.pumpWidget(probe());
-    expect(result, isFalse);
-    debugDefaultTargetPlatformOverride = null;
-  });
-
-  testWidgets('chipAnchorRect returns the chip render box rect', (tester) async {
-    final key = GlobalKey();
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: ThemeData(extensions: const [testMonoTokens]),
-        home: Scaffold(
-          body: Align(
-            alignment: Alignment.topLeft,
-            child: SizedBox(key: key, width: 40, height: 20),
-          ),
-        ),
-      ),
-    );
-    final rect = chipAnchorRect(key);
-    expect(rect, isNotNull);
-    expect(rect!.width, 40);
-    expect(rect.height, 20);
-    expect(chipAnchorRect(GlobalKey()), isNull);
-  });
-
   testWidgets('selection menu returns the picked option and marks the selected one', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
     String? picked;

@@ -5,10 +5,8 @@ import 'package:flutter/foundation.dart';
 import '../../mpv/mpv.dart';
 import '../../providers/companion_remote_provider.dart';
 import '../../services/companion_remote/companion_remote_receiver.dart';
-import '../../services/fullscreen_state_manager.dart';
 import '../../services/video_volume_controller.dart';
 import '../../utils/app_logger.dart';
-import '../../utils/platform_detector.dart';
 
 /// Wires the player screen into the [CompanionRemoteReceiver] callback slots
 /// and owns the home-button fallback plus the provider handle used for
@@ -129,8 +127,7 @@ class CompanionRemoteBinding {
   }
 
   Future<void> _toggleFullscreen() async {
-    if (!PlatformDetector.isDesktopOS()) return;
-    await FullscreenStateManager().toggleFullscreen();
+    return;
   }
 
   void unbind() {

@@ -31,7 +31,7 @@ const deepLinkServerWait = Duration(seconds: 20);
 /// playing. The link's profile has already been applied.
 Future<void> launchDeepLink(BuildContext context, DeepLink link, {required bool isOffline}) async {
   switch (link) {
-    case OpenLink() || ExternalPlayerReturnLink():
+    case OpenLink():
       return;
     case PlayLink():
       await _launchPlayLink(context, link, isOffline: isOffline);

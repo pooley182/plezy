@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../utils/desktop_window_padding.dart';
-import '../services/fullscreen_state_manager.dart';
 import 'app_bar_back_button.dart';
 
 /// A custom sliver app bar that automatically handles desktop window controls spacing.
@@ -48,19 +47,13 @@ class DesktopSliverAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveLeading = DesktopAppBarHelper.buildAdjustedLeading(
-      _impliedLeading(context),
-      includeGestureDetector: true,
-      context: context,
-    );
+    final effectiveLeading = _impliedLeading(context);
 
     return SliverAppBar(
-      title: title == null
-          ? null
-          : DesktopTitleBarPadding(leftPadding: effectiveLeading != null ? 0 : null, child: title!),
+      title: title,
       actions: DesktopAppBarHelper.buildAdjustedActions(actions),
       leading: effectiveLeading,
-      leadingWidth: DesktopAppBarHelper.calculateLeadingWidth(effectiveLeading, context: context),
+      leadingWidth: null,
       automaticallyImplyLeading: false, // Always false since we handle it manually
       elevation: elevation,
       backgroundColor: backgroundColor,
@@ -71,7 +64,7 @@ class DesktopSliverAppBar extends StatelessWidget {
       pinned: pinned,
       snap: snap,
       expandedHeight: expandedHeight,
-      flexibleSpace: DesktopAppBarHelper.buildAdjustedFlexibleSpace(flexibleSpace),
+      flexibleSpace: flexibleSpace,
       bottom: bottom,
     );
   }
@@ -110,20 +103,12 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: FullscreenStateManager(),
-      builder: (context, _) {
-        final isFullscreen = FullscreenStateManager().isFullscreen;
-
-        return DesktopSliverAppBar(
-          key: ValueKey('desktop_top_bar_$isFullscreen'),
-          title: title,
-          actions: actions,
-          pinned: pinned,
-          automaticallyImplyLeading: automaticallyImplyLeading,
-          onBackPressed: onBackPressed,
-        );
-      },
+    return DesktopSliverAppBar(
+      title: title,
+      actions: actions,
+      pinned: pinned,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+      onBackPressed: onBackPressed,
     );
   }
 }

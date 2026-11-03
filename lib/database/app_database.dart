@@ -1,22 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import '../media/ids.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 import 'tables.dart';
 import 'plex_metadata_recovery.dart';
-import 'tvos_database_recovery_store.dart';
 import '../models/download_models.dart';
-import '../services/base_shared_preferences_service.dart';
-import '../services/credential_vault.dart';
 import '../utils/app_logger.dart';
-import '../utils/serial_future_queue.dart';
 import '../utils/global_key_utils.dart';
 import '../utils/content_utils.dart';
 
@@ -39,13 +33,6 @@ enum OfflineActionType {
   };
 }
 
-final class AppDatabaseBootstrap {
-  const AppDatabaseBootstrap({required this.database, required this.recoveryOutcome});
-
-  final AppDatabase database;
-  final TvosDatabaseRecoveryOutcome recoveryOutcome;
-}
-
 @DriftDatabase(
   tables: [
     DownloadedMedia,
@@ -64,308 +51,44 @@ final class AppDatabaseBootstrap {
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase._(QueryExecutor executor, {TvosDatabaseRecoveryStore? recoveryStore})
-    : this._withRecovery(executor, recoveryStore);
+  AppDatabase._(super.e);
 
   /// Test-only constructor — inject an in-memory [QueryExecutor]
   /// (e.g. `NativeDatabase.memory()`) so tests don't touch real disk.
   @visibleForTesting
-  AppDatabase.forTesting(QueryExecutor executor, {TvosDatabaseRecoveryStore? recoveryStore})
-    : this._withRecovery(executor, recoveryStore);
-  AppDatabase._withRecovery(super.e, this._recoveryStore);
-
-  final TvosDatabaseRecoveryStore? _recoveryStore;
-  static final Object _durabilityZoneKey = Object();
-  static final SerialFutureQueue _tvosRecoveryQueue = SerialFutureQueue();
+  AppDatabase.forTesting(super.e);
 
   /// Resolves and opens the production database, removing orphaned WAL/SHM
   /// sidecars when the main database is absent (#1732), then eagerly completing
-  /// Drift setup and migrations on non-tvOS. tvOS recovery retains ownership
-  /// of database access ordering.
-  static Future<AppDatabaseBootstrap> open({
-    bool isTvos = const bool.fromEnvironment('TVOS_BUILD'),
-    File? databaseFile,
-    SharedPreferencesWithCache? preferences,
-    QueryExecutor Function(File file)? executorFactory,
-    TvosDatabaseRecoveryStore? recoveryStore,
-    TvosDatabaseRecoveryPriorInstallEvidence? priorInstallEvidence,
-  }) async {
+  /// Drift setup and migrations.
+  static Future<AppDatabase> open({File? databaseFile, QueryExecutor Function(File file)? executorFactory}) async {
     final file = databaseFile ?? await _resolveProductionDatabaseFile();
     if (!await file.parent.exists()) {
       await file.parent.create(recursive: true);
     }
-    if (databaseFile == null && !Platform.isAndroid && !Platform.isIOS && !await file.exists()) {
-      await migrateLegacyDesktopDatabase(target: file);
-    }
 
-    final databaseExisted = await file.exists();
-    if (!databaseExisted) {
+    if (!await file.exists()) {
       await _removeOrphanedDatabaseSidecars(file);
     }
 
-    final prefs = preferences ?? await BaseSharedPreferencesService.sharedCache();
-    final store = recoveryStore ?? TvosDatabaseRecoveryStore(prefs, isTvos: isTvos);
-    final database = AppDatabase._((executorFactory ?? _createNativeDatabase)(file), recoveryStore: store);
+    final database = AppDatabase._((executorFactory ?? _createNativeDatabase)(file));
     try {
-      if (!isTvos) {
-        // Drift executors open lazily. Force the connection through setup and
-        // migrations while failures are still covered by this close/rethrow
-        // boundary and the caller's startup download-recovery decision.
-        await database.customSelect('SELECT 1').get();
-      }
-      final outcome = await _tvosRecoveryQueue.run(
-        () => store.reconcile(
-          databaseExisted: databaseExisted,
-          readIdentity: database._readProtectedIdentityRecoveryRows,
-          readPending: database._readPendingRecoveryRows,
-          restore: database._restoreRecoverySnapshot,
-          hasPriorInstallEvidence:
-              priorInstallEvidence ??
-              () async {
-                return (prefs.getString('active_app_profile_id')?.isNotEmpty ?? false) ||
-                    (prefs.getBool('profile_migration_v1_done') ?? false) ||
-                    (prefs.getString('credential_vault_key_v1')?.isNotEmpty ?? false);
-              },
-        ),
-      );
-      return AppDatabaseBootstrap(database: database, recoveryOutcome: outcome);
+      // Drift executors open lazily. Force the connection through setup and
+      // migrations while failures are still covered by this close/rethrow
+      // boundary and the caller's startup download-recovery decision.
+      await database.customSelect('SELECT 1').get();
+      return database;
     } catch (_) {
       await database.close();
       rethrow;
     }
   }
 
-  /// Wraps one complete registry identity mutation. Nested registry helpers
-  /// share the outer commit and all identity/pending commits are serialized.
-  Future<T> runIdentityMutation<T>(Future<T> Function() mutation) {
-    return _runDurableMutation(TvosDatabaseRecoveryGroup.identity, mutation);
-  }
+  /// Wraps one complete registry identity mutation.
+  // ponytail: pass-through left from the removed tvOS recovery store; inline into callers when touching them.
+  Future<T> runIdentityMutation<T>(Future<T> Function() mutation) => mutation();
 
-  /// Establishes a fresh committed recovery generation only after a user has
-  /// acknowledged [TvosDatabaseRecoveryOutcome.recoveryRequired] by starting
-  /// a new sign-in. This keeps invalid evidence blocking automatic bootstrap
-  /// while allowing the explicit recovery path to persist new identity rows.
-  Future<void> acknowledgeTvosDatabaseRecoveryRequired() {
-    final store = _recoveryStore;
-    if (store == null || !store.isTvos) return Future<void>.value();
-
-    return _tvosRecoveryQueue.run(
-      () => store.acknowledgeRecoveryRequired(
-        readIdentity: _readProtectedIdentityRecoveryRows,
-        readPending: _readPendingRecoveryRows,
-      ),
-    );
-  }
-
-  Future<T> _runPendingMutation<T>(Future<T> Function() mutation) {
-    return _runDurableMutation(TvosDatabaseRecoveryGroup.pending, mutation);
-  }
-
-  Future<T> _runDurableMutation<T>(TvosDatabaseRecoveryGroup group, Future<T> Function() mutation) {
-    final store = _recoveryStore;
-    if (store == null || !store.isTvos) return mutation();
-    if (Zone.current[_durabilityZoneKey] == this) return mutation();
-
-    return _tvosRecoveryQueue.run(
-      () => runZoned(
-        () => store.runDurableMutation(
-          group: group,
-          mutation: mutation,
-          readIdentity: _readProtectedIdentityRecoveryRows,
-          readPending: _readPendingRecoveryRows,
-        ),
-        zoneValues: {_durabilityZoneKey: this},
-      ),
-    );
-  }
-
-  /// Recovery preferences are a second persisted copy of identity rows. Run
-  /// the same credential-vault cutover before reading those rows so a legacy
-  /// plaintext database can never become an authoritative plaintext image.
-  Future<Map<String, Object?>> _readProtectedIdentityRecoveryRows() async {
-    await _migrateLegacyCredentialsBeforeRecoverySnapshot();
-    return _readIdentityRecoveryRows();
-  }
-
-  Future<void> _migrateLegacyCredentialsBeforeRecoverySnapshot() async {
-    final connectionUpdates = <(String, String)>[];
-    for (final row in await select(connections).get()) {
-      final decoded = jsonDecode(row.configJson);
-      if (decoded is! Map<String, dynamic>) {
-        throw const FormatException('Invalid connection configuration');
-      }
-      if (!_containsPlaintextConnectionCredential(row.kind, decoded)) continue;
-      final protected = await CredentialVault.protectConnectionConfig(row.kind, decoded);
-      connectionUpdates.add((row.id, jsonEncode(protected)));
-    }
-
-    final tokenUpdates = <(String, String, String)>[];
-    for (final row in await select(profileConnections).get()) {
-      if (row.userToken.isEmpty || CredentialVault.isProtected(row.userToken)) continue;
-      tokenUpdates.add((row.profileId, row.connectionId, await CredentialVault.protect(row.userToken)));
-    }
-    if (connectionUpdates.isEmpty && tokenUpdates.isEmpty) return;
-
-    await transaction(() async {
-      for (final (id, configJson) in connectionUpdates) {
-        await (update(
-          connections,
-        )..where((table) => table.id.equals(id))).write(ConnectionsCompanion(configJson: Value(configJson)));
-      }
-      for (final (profileId, connectionId, token) in tokenUpdates) {
-        await (update(profileConnections)
-              ..where((table) => table.profileId.equals(profileId) & table.connectionId.equals(connectionId)))
-            .write(ProfileConnectionsCompanion(userToken: Value(token)));
-      }
-    });
-  }
-
-  static bool _containsPlaintextConnectionCredential(String kind, Map<String, dynamic> config) {
-    bool isPlaintext(Object? value) => value is String && value.isNotEmpty && !CredentialVault.isProtected(value);
-
-    if (kind == 'jellyfin' || kind == 'emby') return isPlaintext(config['accessToken']);
-    if (kind != 'plex') return false;
-    if (isPlaintext(config['accountToken'])) return true;
-    final servers = config['servers'];
-    return servers is List && servers.any((server) => server is Map && isPlaintext(server['accessToken']));
-  }
-
-  Future<Map<String, Object?>> _readIdentityRecoveryRows() async {
-    final connectionRows = await (select(connections)..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
-    final profileRows = await (select(profiles)..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
-    final joinRows = await (select(
-      profileConnections,
-    )..orderBy([(t) => OrderingTerm.asc(t.profileId), (t) => OrderingTerm.asc(t.connectionId)])).get();
-    // Drift's generated serializer is the recovery image's column schema:
-    // `toJson`/`fromJson` use these camelCase keys, so the read and restore
-    // sides can never drift apart when a column is added or renamed.
-    return {
-      'connections': [for (final row in connectionRows) row.toJson()],
-      'profiles': [for (final row in profileRows) row.toJson()],
-      'profileConnections': [for (final row in joinRows) row.toJson()],
-    };
-  }
-
-  Future<Map<String, Object?>> _readPendingRecoveryRows() async {
-    final rows = await (select(offlineWatchProgress)..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
-    return {
-      'offlineWatchProgress': [for (final row in rows) row.toJson()],
-    };
-  }
-
-  Future<void> _restoreRecoverySnapshot(TvosDatabaseRecoverySnapshot snapshot) async {
-    final connectionRows = _decodeRecoveryRows(snapshot.identity, 'connections', ConnectionRow.fromJson);
-    final profileRows = _decodeRecoveryRows(snapshot.identity, 'profiles', ProfileRow.fromJson);
-    final joinRows = _decodeRecoveryRows(snapshot.identity, 'profileConnections', ProfileConnectionRow.fromJson);
-    final pendingRows = _decodeRecoveryRows(
-      snapshot.pending,
-      'offlineWatchProgress',
-      OfflineWatchProgressItem.fromJson,
-    );
-
-    // Recovery images from releases before the credential vault may contain
-    // plaintext secrets. Protect them before they cross into Drift; already
-    // protected values remain byte-identical because vault protection is
-    // idempotent.
-    for (var index = 0; index < connectionRows.length; index++) {
-      final row = connectionRows[index];
-      final decoded = jsonDecode(row.configJson);
-      if (decoded is! Map<String, dynamic>) {
-        throw const FormatException('Invalid connection configuration');
-      }
-      if (_containsPlaintextConnectionCredential(row.kind, decoded)) {
-        connectionRows[index] = row.copyWith(
-          configJson: jsonEncode(await CredentialVault.protectConnectionConfig(row.kind, decoded)),
-        );
-      }
-    }
-    for (var index = 0; index < joinRows.length; index++) {
-      final row = joinRows[index];
-      if (row.userToken.isNotEmpty && !CredentialVault.isProtected(row.userToken)) {
-        joinRows[index] = row.copyWith(userToken: await CredentialVault.protect(row.userToken));
-      }
-    }
-
-    await transaction(() async {
-      // Recovery completion (the durable marker removal) is deliberately
-      // separate from this transaction. Replace the snapshot-owned rows so a
-      // restart can replay the same committed image after a crash or marker
-      // removal failure without hitting primary-key conflicts.
-      await delete(profileConnections).go();
-      await delete(profiles).go();
-      await delete(connections).go();
-      await delete(offlineWatchProgress).go();
-      // `toCompanion(false)` writes every column explicitly, including the
-      // nulls, so a restored row is byte-identical to the captured one rather
-      // than picking up column defaults.
-      for (final row in connectionRows) {
-        await into(connections).insert(row.toCompanion(false));
-      }
-      for (final row in profileRows) {
-        await into(profiles).insert(row.toCompanion(false));
-      }
-      for (final row in joinRows) {
-        await into(profileConnections).insert(row.toCompanion(false));
-      }
-      for (final row in pendingRows) {
-        await into(offlineWatchProgress).insert(row.toCompanion(false));
-      }
-    });
-  }
-
-  /// Columns that once existed in a snapshotted table and may still appear in
-  /// committed recovery images written by older builds. They are stripped
-  /// before the strict round-trip check in [_decodeRecoveryRow] so retiring a
-  /// column does not brick restore on devices holding a pre-retirement image.
-  static const Map<String, Set<String>> _retiredRecoveryColumns = {
-    'connections': {'isDefault'},
-  };
-
-  static List<T> _decodeRecoveryRows<T extends DataClass>(
-    Map<String, Object?> group,
-    String key,
-    T Function(Map<String, dynamic> json) fromJson,
-  ) {
-    final value = group[key];
-    if (value is! List) throw _invalidRecoveryImage;
-    final retired = _retiredRecoveryColumns[key];
-    return [
-      for (final row in value)
-        if (row is Map<String, dynamic>)
-          _decodeRecoveryRow(
-            retired == null
-                ? row
-                : {
-                    for (final entry in row.entries)
-                      if (!retired.contains(entry.key)) entry.key: entry.value,
-                  },
-            fromJson,
-          )
-        else
-          throw _invalidRecoveryImage,
-    ];
-  }
-
-  /// Reads one row through drift's generated deserializer and rejects anything
-  /// that does not round-trip back to the exact same map. Drift already throws
-  /// on a missing or mistyped required column; the round-trip additionally
-  /// rejects unknown and missing-but-nullable columns, which the serializer
-  /// would otherwise accept silently.
-  static T _decodeRecoveryRow<T extends DataClass>(
-    Map<String, dynamic> row,
-    T Function(Map<String, dynamic> json) fromJson,
-  ) {
-    final T decoded;
-    try {
-      decoded = fromJson(row);
-    } catch (_) {
-      throw _invalidRecoveryImage;
-    }
-    if (!mapEquals(decoded.toJson(), row)) throw _invalidRecoveryImage;
-    return decoded;
-  }
-
-  static const FormatException _invalidRecoveryImage = FormatException('Invalid tvOS database recovery image');
+  Future<T> _runPendingMutation<T>(Future<T> Function() mutation) => mutation();
 
   @override
   int get schemaVersion => 25;
@@ -1428,9 +1151,7 @@ String _rescopePinnedPlexMetadataStatement({
 ''';
 
 Future<File> _resolveProductionDatabaseFile() async {
-  final dbFolder = (Platform.isAndroid || Platform.isIOS)
-      ? await getApplicationDocumentsDirectory()
-      : await getApplicationSupportDirectory();
+  final dbFolder = await getApplicationDocumentsDirectory();
   return File(p.join(dbFolder.path, 'plezy_downloads.db'));
 }
 
@@ -1459,147 +1180,4 @@ QueryExecutor _createNativeDatabase(File file) {
       db.execute('PRAGMA foreign_keys = ON');
     },
   );
-}
-
-/// Move the legacy desktop DB from `Documents/` to `ApplicationSupport/`.
-/// `File.rename` only works within a single volume — Windows users with
-/// OneDrive-redirected Documents (or any cross-drive setup) hit
-/// `ERROR_NOT_SAME_DEVICE` (errno 17), and the uncaught throw used to
-/// strand the splash on "Loading servers..." forever (#1022). Falls back
-/// to a synced sibling temporary copy followed by an atomic rename on any
-/// [FileSystemException], and swallows all errors so a failed migration
-/// never propagates fatally. The canonical-path lock file is intentionally
-/// retained: deleting it could let a new process lock a different inode while
-/// an existing waiter still holds the old one.
-///
-/// [sourceOverride], [renameOverride], [copyOverride], and [publishOverride]
-/// are test seams — production callers leave them null.
-Future<void> migrateLegacyDesktopDatabase({
-  required File target,
-  File? sourceOverride,
-  Future<void> Function(File source, String targetPath)? renameOverride,
-  Future<void> Function(File source, File temporary)? copyOverride,
-  Future<void> Function(File temporary, File target)? publishOverride,
-}) async {
-  final File oldFile;
-  try {
-    if (sourceOverride != null) {
-      oldFile = sourceOverride;
-    } else {
-      final oldFolder = await getApplicationDocumentsDirectory();
-      oldFile = File(p.join(oldFolder.path, 'plezy_downloads.db'));
-    }
-    if (!await oldFile.exists()) return;
-  } catch (e, st) {
-    appLogger.w('Legacy DB migration skipped before source lookup completed', error: e, stackTrace: st);
-    return;
-  }
-
-  try {
-    final moved = await _withLegacyDatabasePublishLock(target, () async {
-      if (await target.exists()) {
-        appLogger.w('Legacy DB migration skipped because ${target.path} now exists');
-        return false;
-      }
-      if (renameOverride != null) {
-        await renameOverride(oldFile, target.path);
-      } else {
-        await oldFile.rename(target.path);
-      }
-      return true;
-    });
-    if (!moved) return;
-    appLogger.i('Moved legacy DB from ${oldFile.path} → ${target.path}');
-    return;
-  } on FileSystemException catch (e) {
-    appLogger.w('Legacy DB rename failed (osError=${e.osError?.errorCode}); falling back to copy', error: e);
-  }
-
-  final temporary = File(
-    p.join(
-      target.parent.path,
-      '.${p.basename(target.path)}.legacy-migration-$pid-${DateTime.now().microsecondsSinceEpoch}.tmp',
-    ),
-  );
-  try {
-    if (copyOverride != null) {
-      await copyOverride(oldFile, temporary);
-    } else {
-      await _copyFileAndSync(oldFile, temporary);
-    }
-
-    final published = await _withLegacyDatabasePublishLock(target, () async {
-      // Recheck only while holding the inter-process lock. On POSIX, rename
-      // replaces an existing destination, so an unlocked check can race a
-      // concurrent publisher and overwrite its now-canonical database.
-      if (await target.exists()) {
-        appLogger.w('Legacy DB migration skipped because ${target.path} now exists');
-        return false;
-      }
-
-      // The temporary file is a sibling, so this rename stays on one volume
-      // and publishes the complete, synced copy atomically.
-      if (publishOverride != null) {
-        await publishOverride(temporary, target);
-      } else {
-        await temporary.rename(target.path);
-      }
-      return true;
-    });
-    if (!published) return;
-    try {
-      await oldFile.delete();
-    } catch (e) {
-      // Leaving the source behind is non-fatal — the new file is canonical.
-      appLogger.w('Legacy DB copied but old file delete failed: $e');
-    }
-    appLogger.i('Copied legacy DB from ${oldFile.path} → ${target.path}');
-  } catch (e, st) {
-    // A failed copy or final rename never touches the canonical path. Keep
-    // the legacy source so a future launch can retry.
-    appLogger.e('Legacy DB migration failed entirely', error: e, stackTrace: st);
-  } finally {
-    try {
-      if (await temporary.exists()) await temporary.delete();
-    } catch (e, st) {
-      appLogger.w('Failed to clean legacy DB migration temporary file', error: e, stackTrace: st);
-    }
-  }
-}
-
-Future<T> _withLegacyDatabasePublishLock<T>(File target, Future<T> Function() action) async {
-  final lockFile = File(p.join(target.parent.path, '.${p.basename(target.path)}.legacy-migration.lock'));
-  final handle = await lockFile.open(mode: FileMode.append);
-  var locked = false;
-  try {
-    await handle.lock(FileLock.blockingExclusive);
-    locked = true;
-    return await action();
-  } finally {
-    try {
-      if (locked) await handle.unlock();
-    } finally {
-      await handle.close();
-    }
-  }
-}
-
-Future<void> _copyFileAndSync(File source, File destination) async {
-  final input = await source.open();
-  try {
-    final output = await destination.open(mode: FileMode.writeOnly);
-    try {
-      final buffer = Uint8List(64 * 1024);
-      while (true) {
-        final bytesRead = await input.readInto(buffer);
-        if (bytesRead == 0) break;
-        await output.writeFrom(buffer, 0, bytesRead);
-      }
-      await output.flush();
-    } finally {
-      await output.close();
-    }
-  } finally {
-    await input.close();
-  }
 }

@@ -24,6 +24,7 @@ import 'package:plezy/widgets/video_controls/widgets/track_chapter_controls.dart
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// The sync-offset display follows the offset the player applies, not the
 /// stored pref. Under "Don't save" nothing is stored, so a display that read
@@ -52,8 +53,7 @@ void main() {
     settings = await SettingsService.getInstance();
 
     // Phone layout: the chrome mounts TrackChapterControls in the top bar.
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
 
     database = AppDatabase.forTesting(NativeDatabase.memory());
     player = _IdlePlayer();
@@ -65,8 +65,7 @@ void main() {
   });
 
   tearDown(() async {
-    TvDetectionService.debugSetAppleTVOverride(null);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     volume.dispose();
     playbackState.dispose();
     watchTogether.dispose();
@@ -146,7 +145,7 @@ void main() {
 
 /// Minimal [Player] with static state so the controls have no stream activity
 /// to react to; rebuilds in these tests can then only come from the offsets.
-class _IdlePlayer implements Player {
+class _IdlePlayer with AndroidPlayerNoops implements Player {
   @override
   Future<void> setProperty(String name, String value) async {}
 

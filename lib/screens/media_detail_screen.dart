@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 
 import '../navigation/profile_navigation_scope.dart';
 import '../services/device_performance.dart';
-import '../services/fullscreen_state_manager.dart';
 import 'package:flutter/services.dart';
 import 'package:plezy/utils/platform_detector.dart';
 import 'package:plezy/widgets/app_icon.dart';
@@ -75,7 +74,6 @@ import '../utils/dialogs.dart';
 import '../utils/snackbar_helper.dart';
 import '../utils/video_player_navigation.dart';
 import '../widgets/app_bar_back_button.dart';
-import '../utils/desktop_window_padding.dart';
 import '../widgets/horizontal_scroll_with_arrows.dart';
 import '../widgets/media_context_menu.dart';
 import '../widgets/watchlist_source_chooser.dart';
@@ -3447,28 +3445,16 @@ class _MediaDetailScreenState extends State<MediaDetailScreen>
 
     // Show loading state while fetching full metadata
     if (_isLoadingMetadata) {
-      // A bare AppBar's auto-implied back button ignores the macOS traffic
-      // lights; route the leading through the shared desktop padding logic.
       final backButton = AppBarBackButton(
         style: BackButtonStyle.plain,
         onPressed: _popMediaDetail,
         focusNode: _backButtonFocusNode,
       );
-      final loading = ListenableBuilder(
-        listenable: FullscreenStateManager(),
-        builder: (context, _) => Focus(
-          onKeyEvent: _handleMediaDetailBackKey,
-          child: Scaffold(
-            appBar: AppBar(
-              leading: DesktopAppBarHelper.buildAdjustedLeading(
-                backButton,
-                includeGestureDetector: true,
-                context: context,
-              ),
-              leadingWidth: DesktopAppBarHelper.calculateLeadingWidth(backButton, context: context),
-            ),
-            body: const Center(child: CircularProgressIndicator()),
-          ),
+      final loading = Focus(
+        onKeyEvent: _handleMediaDetailBackKey,
+        child: Scaffold(
+          appBar: AppBar(leading: backButton, leadingWidth: null),
+          body: const Center(child: CircularProgressIndicator()),
         ),
       );
       final blockSystemBack = InputModeTracker.shouldBlockSystemBack(context);
@@ -3736,14 +3722,11 @@ class _MediaDetailScreenState extends State<MediaDetailScreen>
                 Positioned(
                   top: 0,
                   left: 0,
-                  child: DesktopAppBarHelper.buildAdjustedLeading(
-                    AppBarBackButton(
-                      style: BackButtonStyle.circular,
-                      onPressed: _popMediaDetail,
-                      focusNode: _backButtonFocusNode,
-                    ),
-                    context: context,
-                  )!,
+                  child: AppBarBackButton(
+                    style: BackButtonStyle.circular,
+                    onPressed: _popMediaDetail,
+                    focusNode: _backButtonFocusNode,
+                  ),
                 ),
               ],
             ),
@@ -3823,14 +3806,11 @@ class _MediaDetailScreenState extends State<MediaDetailScreen>
         Positioned(
           top: 0,
           left: 0,
-          child: DesktopAppBarHelper.buildAdjustedLeading(
-            AppBarBackButton(
-              style: BackButtonStyle.circular,
-              onPressed: _popMediaDetail,
-              focusNode: _backButtonFocusNode,
-            ),
-            context: context,
-          )!,
+          child: AppBarBackButton(
+            style: BackButtonStyle.circular,
+            onPressed: _popMediaDetail,
+            focusNode: _backButtonFocusNode,
+          ),
         ),
         if (buildHiddenContent && detailHubs.isNotEmpty)
           Positioned(

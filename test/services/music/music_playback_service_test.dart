@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:dart_discord_presence/dart_discord_presence.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,9 +16,7 @@ import 'package:plezy/mpv/models.dart';
 import 'package:plezy/models/audio_channel_limit.dart';
 import 'package:plezy/models/companion_remote/remote_command.dart';
 import 'package:plezy/models/download_models.dart';
-import 'package:plezy/mpv/player/audio_rendering_mode.dart';
 import 'package:plezy/mpv/player/player.dart';
-import 'package:plezy/mpv/player/player_native.dart';
 import 'package:plezy/mpv/player/player_state.dart';
 import 'package:plezy/mpv/player/player_streams.dart';
 import 'package:plezy/providers/download_provider.dart';
@@ -28,7 +25,6 @@ import 'package:plezy/services/agent_control_protocol.dart';
 import 'package:plezy/services/agent_playback_commands.dart';
 import 'package:plezy/services/base_shared_preferences_service.dart';
 import 'package:plezy/services/companion_remote/companion_remote_receiver.dart';
-import 'package:plezy/services/discord_rpc_service.dart';
 import 'package:plezy/services/media_controls_manager.dart';
 import 'package:plezy/services/multi_server_manager.dart';
 import 'package:plezy/services/music/music_playback_service.dart';
@@ -41,7 +37,6 @@ import 'package:plezy/services/playback_coordinator.dart';
 import 'package:plezy/services/settings_service.dart';
 import 'package:plezy/services/playback_launch_observer.dart';
 import 'package:provider/provider.dart';
-import '../../test_helpers/discord_rpc_fakes.dart';
 import '../../test_helpers/media_items.dart';
 import '../../test_helpers/multi_server_fixtures.dart';
 import '../../test_helpers/playback_report_fakes.dart';
@@ -251,10 +246,6 @@ class FakePlayer implements Player {
   @override
   bool get audioPassthroughActive => false;
 
-  // Audio only; there is no video output to carry HDR.
-  @override
-  Future<bool> isHdrOutputSupported() async => false;
-
   @override
   String get playerType => 'fake';
 
@@ -370,9 +361,6 @@ class FakePlayer implements Player {
   Future<void> command(List<String> args) async {}
 
   @override
-  Future<void> awaitDisplayModeSwitch({int extraDelayMs = 0}) async {}
-
-  @override
   Future<void> configureSubtitleFonts() async {}
 
   /// Each setAudioPassthrough write with the number of opens before it, so a
@@ -381,9 +369,6 @@ class FakePlayer implements Player {
 
   @override
   Future<void> setAudioPassthrough(bool enabled) async => passthroughWrites.add((enabled, openedUris.length));
-
-  @override
-  Future<AudioRenderingMode?> getAudioRenderingMode() async => null;
 
   @override
   Future<void> setAudioNormalization(bool enabled) async {}
@@ -564,10 +549,7 @@ class FakeMediaControlsManager extends MediaControlsManager {
     bool force = false,
   }) async {}
 
-  final List<
-    ({bool canPlayPause, bool canGoNext, bool canStop, bool canSkip, bool preferSkipOverTrackButtons, bool canSetSpeed})
-  >
-  controlSyncs = [];
+  final List<({bool canPlayPause, bool canGoNext, bool canStop, bool canSkip, bool canSetSpeed})> controlSyncs = [];
 
   @override
   Future<void> setControlsEnabled({
@@ -578,15 +560,12 @@ class FakeMediaControlsManager extends MediaControlsManager {
     bool canStop = false,
     bool canSkip = false,
     bool canSetSpeed = false,
-    bool preferSkipOverTrackButtons = false,
-    Duration? skipInterval,
   }) async {
     controlSyncs.add((
       canPlayPause: canPlayPause,
       canGoNext: canGoNext,
       canStop: canStop,
       canSkip: canSkip,
-      preferSkipOverTrackButtons: preferSkipOverTrackButtons,
       canSetSpeed: canSetSpeed,
     ));
   }
@@ -1644,7 +1623,6 @@ void main() {
     expect(last.canSkip, isTrue);
     // Music never claims the Darwin lock-screen side slots for skip —
     // next/previous stay the primary transport there.
-    expect(last.preferSkipOverTrackButtons, isFalse);
     expect(last.canSetSpeed, isFalse);
   });
 
@@ -1867,71 +1845,6 @@ void main() {
     });
   });
 
-  group('Discord presence', () {
-    late FakeDiscordRPC rpc;
-    late DiscordRPCService rpcService;
-
-    setUp(() {
-      rpc = FakeDiscordRPC();
-      rpcService = DiscordRPCService.forTesting(rpcFactory: () => rpc);
-      DiscordRPCService.debugOverrideInstance(rpcService);
-      unawaited(rpcService.setEnabled(true));
-      rpc.emitReady();
-    });
-
-    tearDown(() {
-      DiscordRPCService.debugOverrideInstance(null);
-      unawaited(rpcService.dispose());
-    });
-
-    test('a session publishes Listening, withdraws on pause, returns on resume, and clears on stop', () async {
-      await h.playTracks([t1, t2]);
-
-      var presence = rpc.presences.last;
-      expect(presence.type, DiscordActivityType.listening);
-      expect(presence.details, 'Track t1');
-      expect(presence.state, 'Artist');
-      expect(presence.timestamps, isNotNull, reason: 'audible playback runs the progress bar');
-
-      final published = rpc.presences.length;
-      await h.service.pause();
-      await pumpEventQueue();
-      expect(rpc.clearPresenceCalls, 1, reason: 'a paused session can sit in the mini-player for hours');
-      expect(rpc.presences, hasLength(published));
-
-      await h.service.play();
-      await pumpEventQueue();
-      presence = rpc.presences.last;
-      expect(presence.details, 'Track t1');
-      expect(presence.timestamps, isNotNull);
-
-      h.player.emitTransition(_urlFor(t2));
-      await pumpEventQueue();
-      presence = rpc.presences.last;
-      expect(presence.details, 'Track t2');
-      expect(presence.timestamps, isNotNull);
-
-      // Regression: the player subscriptions are cancelled before the player
-      // stops, so no playing=false reaches the service — the teardown itself
-      // must clear presence or the last track sticks to the profile.
-      await h.service.stop();
-      expect(rpc.clearPresenceCalls, 2);
-    });
-
-    test('a queue that plays out withdraws the card', () async {
-      await h.playTracks([t1]);
-      expect(rpc.presences.last.timestamps, isNotNull);
-      final published = rpc.presences.length;
-
-      h.player.emitCompleted();
-      await pumpEventQueue();
-
-      expect(h.service.status, MusicPlaybackStatus.paused);
-      expect(rpc.clearPresenceCalls, isPositive);
-      expect(rpc.presences, hasLength(published));
-    });
-  });
-
   group('session restore (#2148)', () {
     late AppDatabase db;
 
@@ -2089,58 +2002,5 @@ void main() {
       expect(harness.service.status, MusicPlaybackStatus.idle);
       expect(harness.service.currentTrack, isNull);
     });
-  });
-
-  group('Dolby passthrough for music (#2595)', () {
-    Future<SettingsService> bootstrapSettings({required bool passthrough, bool normalization = false}) async {
-      resetSharedPreferencesForTest();
-      SettingsService.resetForTesting();
-      addTearDown(BaseSharedPreferencesService.resetForTesting);
-      addTearDown(SettingsService.resetForTesting);
-      final settings = await SettingsService.getInstance();
-      await settings.write(SettingsService.audioPassthrough, passthrough);
-      await settings.write(SettingsService.audioNormalization, normalization);
-      return settings;
-    }
-
-    void useAppleAudioOutput(bool value) {
-      PlayerNative.debugUseAppleAudioOutput = value;
-      addTearDown(() => PlayerNative.debugUseAppleAudioOutput = null);
-    }
-
-    test('an Apple music player starts on the system Dolby decoder before its first open', () async {
-      await bootstrapSettings(passthrough: true);
-      useAppleAudioOutput(true);
-
-      await h.playTracks([t1, t2]);
-
-      expect(h.player.openedUris, [_urlFor(t1)]);
-      expect(h.player.passthroughWrites, [(true, 0)]);
-    });
-
-    test(
-      'music stays decoded when the setting is off, normalization overrides it, or the output is not Apple',
-      () async {
-        for (final (passthrough, normalization, apple) in [
-          (false, false, true),
-          (true, true, true),
-          (true, false, false),
-        ]) {
-          await bootstrapSettings(passthrough: passthrough, normalization: normalization);
-          useAppleAudioOutput(apple);
-          final harness = _Harness.create();
-          addTearDown(harness.dispose);
-
-          await harness.playTracks([t1]);
-
-          expect(harness.player.openedUris, [_urlFor(t1)]);
-          expect(
-            harness.player.passthroughWrites,
-            isEmpty,
-            reason: 'passthrough=$passthrough normalization=$normalization apple=$apple',
-          );
-        }
-      },
-    );
   });
 }

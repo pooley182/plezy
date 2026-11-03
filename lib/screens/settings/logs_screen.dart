@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,6 @@ import '../../focus/focusable_action_bar.dart';
 import '../../widgets/dialog_action_button.dart';
 import '../../widgets/app_icon.dart';
 import '../../focus/key_event_utils.dart';
-import '../../navigation/page_refresh_shortcut.dart';
 import '../../i18n/strings.g.dart';
 import '../../mixins/mounted_set_state_mixin.dart';
 import '../../utils/dialogs.dart';
@@ -131,42 +129,29 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
     final commitSuffix = gitCommit.isNotEmpty ? ' ${gitCommit.substring(0, 7)}' : '';
     buffer.writeln('${t.app.title} v${packageInfo.version} (${packageInfo.buildNumber})$commitSuffix');
 
-    if (Platform.isAndroid) {
-      final info = await deviceInfo.androidInfo;
-      buffer.writeln('Android ${info.version.release} (API ${info.version.sdkInt})');
-      buffer.writeln('${info.manufacturer} ${info.model}');
-      if (PlatformDetector.isTV()) {
-        final reasons = TvDetectionService.tvDetectionReasonsSync();
-        final suffix = reasons.isEmpty ? '' : ' (${reasons.join(', ')})';
-        buffer.writeln('TV mode: yes$suffix');
-      }
-      // Renderer + effects tier turn "did the reduced tier engage on this
-      // device" into something answerable from any uploaded log (#1349).
-      String renderer;
-      try {
-        renderer = await const MethodChannel('com.plezy/theme').invokeMethod<String>('getRenderer') ?? 'unknown';
-      } catch (_) {
-        renderer = 'unknown';
-      }
-      buffer.writeln('Renderer: $renderer');
-      // "Are downloads allowed to run in the background" is the single most
-      // asked support question; answering it from the uploaded log turns a
-      // four-message thread into one reply.
-      final backgroundWork = BackgroundWorkDiagnosticsService.instance;
-      await backgroundWork.refresh();
-      buffer.writeln('Background: ${backgroundWork.describeSync()}');
-    } else if (Platform.isIOS) {
-      final info = await deviceInfo.iosInfo;
-      buffer.writeln('iOS ${info.systemVersion}');
-      buffer.writeln(info.utsname.machine);
-    } else if (Platform.isMacOS) {
-      final info = await deviceInfo.macOsInfo;
-      buffer.writeln('macOS ${info.osRelease}');
-      buffer.writeln(info.model);
-    } else if (Platform.isLinux) {
-      final info = await deviceInfo.linuxInfo;
-      buffer.writeln('Linux ${info.versionId ?? info.id}');
+    final info = await deviceInfo.androidInfo;
+    buffer.writeln('Android ${info.version.release} (API ${info.version.sdkInt})');
+    buffer.writeln('${info.manufacturer} ${info.model}');
+    if (PlatformDetector.isTV()) {
+      final reasons = TvDetectionService.tvDetectionReasonsSync();
+      final suffix = reasons.isEmpty ? '' : ' (${reasons.join(', ')})';
+      buffer.writeln('TV mode: yes$suffix');
     }
+    // Renderer + effects tier turn "did the reduced tier engage on this
+    // device" into something answerable from any uploaded log (#1349).
+    String renderer;
+    try {
+      renderer = await const MethodChannel('com.plezy/theme').invokeMethod<String>('getRenderer') ?? 'unknown';
+    } catch (_) {
+      renderer = 'unknown';
+    }
+    buffer.writeln('Renderer: $renderer');
+    // "Are downloads allowed to run in the background" is the single most
+    // asked support question; answering it from the uploaded log turns a
+    // four-message thread into one reply.
+    final backgroundWork = BackgroundWorkDiagnosticsService.instance;
+    await backgroundWork.refresh();
+    buffer.writeln('Background: ${backgroundWork.describeSync()}');
 
     buffer.writeln('Effects: ${DevicePerformance.describeSync()}');
     buffer.writeln('Display: ${DevicePerformance.describeDisplay()}');
@@ -436,8 +421,6 @@ class _LogsScreenState extends State<LogsScreen> with MountedSetStateMixin {
       onKeyEvent: (node, event) {
         final backResult = handleBackKeyNavigation(context, event);
         if (backResult != KeyEventResult.ignored) return backResult;
-        final refreshResult = handlePageRefreshShortcut(event, _loadLogs);
-        if (refreshResult != KeyEventResult.ignored) return refreshResult;
         if (event is KeyDownEvent || event is KeyRepeatEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
             _scroll(80);

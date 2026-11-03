@@ -30,6 +30,8 @@ import '../test_helpers/prefs.dart';
 import '../test_helpers/profile_stack.dart';
 import '../test_helpers/media_items.dart';
 import '../test_helpers/multi_server_fixtures.dart';
+import '../test_helpers/empty_download_provider.dart';
+import 'package:plezy/providers/download_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -678,11 +680,11 @@ void main() {
   testWidgets('full card focus adds outside ring, local glow, and card image scale', (tester) async {
     await SettingsService.instanceOrNull!.write(SettingsService.tvFullCardLayout, true);
 
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       tester.view.resetDevicePixelRatio();
       tester.view.resetPhysicalSize();
     });
@@ -756,11 +758,11 @@ void main() {
   testWidgets('vertical hub viewport keeps top clipping while switching hubs', (tester) async {
     await SettingsService.instanceOrNull!.write(SettingsService.tvFullCardLayout, true);
 
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       tester.view.resetDevicePixelRatio();
       tester.view.resetPhysicalSize();
     });
@@ -836,11 +838,11 @@ void main() {
   testWidgets('glow stays hidden while the rail animates an UP hub move, returns after settling', (tester) async {
     await SettingsService.instanceOrNull!.write(SettingsService.tvFullCardLayout, true);
 
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       tester.view.resetDevicePixelRatio();
       tester.view.resetPhysicalSize();
     });
@@ -921,11 +923,11 @@ void main() {
 
   testWidgets('detailed card focus border hugs the poster, captions outside', (tester) async {
     await SettingsService.instanceOrNull!.write(SettingsService.tvFullCardLayout, false);
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       tester.view.resetDevicePixelRatio();
       tester.view.resetPhysicalSize();
     });
@@ -987,11 +989,11 @@ void main() {
   });
 
   testWidgets('view all item renders as a full card matching the hub card footprint', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       tester.view.resetDevicePixelRatio();
       tester.view.resetPhysicalSize();
     });
@@ -1058,11 +1060,11 @@ void main() {
   });
 
   testWidgets('loading trailing item keeps visible focus style', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       tester.view.resetDevicePixelRatio();
       tester.view.resetPhysicalSize();
     });
@@ -1110,11 +1112,11 @@ void main() {
   });
 
   testWidgets('clamps focused trailing item when trailing state disappears', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       tester.view.resetDevicePixelRatio();
       tester.view.resetPhysicalSize();
     });
@@ -2139,18 +2141,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(position.pixels, settled);
     });
-
-    testWidgets('keeps the measured native glide on Apple TV', (tester) async {
-      TvDetectionService.debugSetAppleTVOverride(true);
-      addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
-      final position = await pumpRailAndPressRight(tester);
-      final start = position.pixels;
-      await tester.pump(const Duration(milliseconds: 160));
-      final midway = position.pixels;
-      expect(midway, greaterThan(start));
-      await tester.pumpAndSettle();
-      expect(position.pixels, greaterThan(midway));
-    });
   });
 
   testWidgets('keeps late episode thumbnails visible during rapid key repeat', (tester) async {
@@ -2916,10 +2906,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPhysicalSize);
     LocaleSettings.setLocaleSync(AppLocale.en);
-    // Apple TV skips the download entries, keeping the menu free of the
-    // DownloadProvider dependency (same trick as media_context_menu_test).
-    TvDetectionService.debugSetAppleTVOverride(true);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
     final db = AppDatabase.forTesting(NativeDatabase.memory());
     final stack = await ProfileStack.create(db: db, withStorage: false);
@@ -2960,6 +2948,7 @@ void main() {
           providers: [
             ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
             ChangeNotifierProvider<ActiveProfileProvider>.value(value: stack.active),
+            ChangeNotifierProvider<DownloadProvider>.value(value: emptyDownloadProvider()),
           ],
           child: MaterialApp(
             theme: monoTheme(MonoPalette.dark),

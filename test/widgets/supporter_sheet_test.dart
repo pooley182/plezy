@@ -110,17 +110,6 @@ void main() {
     expect(_enabled(tester, t.supporter.restore), isFalse);
   });
 
-  testWidgets('platforms without alternate app icons do not offer them', (tester) async {
-    final harness = _Harness();
-    addTearDown(harness.dispose);
-    await harness.pump(tester);
-
-    await harness.open(tester);
-
-    expect(find.text(t.supporter.presetThemes), findsOneWidget);
-    expect(find.text(t.supporter.appIcons), findsNothing);
-  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
-
   testWidgets('an unavailable price explains why and Retry loads it', (tester) async {
     final harness = _Harness();
     addTearDown(harness.dispose);
@@ -259,11 +248,9 @@ void main() {
 
   group('on a TV remote', () {
     setUp(() {
-      TvDetectionService.debugSetAppleTVOverride(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
+      TvDetectionService.debugSetTvOverride(true);
       addTearDown(() {
-        TvDetectionService.debugSetAppleTVOverride(null);
-        PlatformDetector.debugSetIsDesktopOSOverride(null);
+        TvDetectionService.debugSetTvOverride(null);
       });
     });
 

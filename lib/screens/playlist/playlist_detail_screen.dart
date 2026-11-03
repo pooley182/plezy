@@ -23,7 +23,6 @@ import 'package:provider/provider.dart';
 import 'playlist_item_card.dart';
 import '../../i18n/strings.g.dart';
 import '../../providers/download_provider.dart';
-import '../../utils/platform_detector.dart';
 import '../../utils/download_utils.dart';
 import '../../utils/scroll_utils.dart';
 import '../../utils/snackbar_helper.dart';
@@ -685,7 +684,6 @@ class _PlaylistDetailScreenState extends BaseMediaListDetailScreen<PlaylistDetai
   @override
   Widget build(BuildContext context) {
     final isKeyboardMode = InputModeTracker.isKeyboardMode(context);
-    final allowsNativeBackGesture = PlatformDetector.isHandheldIOS(context);
 
     // For regular playlists, wrap the scroll view with the Focus widget
     // (Focus is a RenderObject widget and cannot directly wrap a sliver)
@@ -772,7 +770,7 @@ class _PlaylistDetailScreenState extends BaseMediaListDetailScreen<PlaylistDetai
     }
 
     return OverlaySheetHost(
-      canPop: allowsNativeBackGesture && _movingIndex == null,
+      canPop: false,
       onSystemBack: () {
         if (BackKeyCoordinator.consumeIfHandled()) return;
         final shouldPop = _handleBackNavigation();

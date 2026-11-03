@@ -77,8 +77,6 @@ void main() {
     expect(find.text(t.settings.startupSection), findsOneWidget);
     // Only meaningful with several profiles; a lone profile has nothing to pick.
     expect(find.text(t.settings.requireProfileSelectionOnOpen), findsNothing);
-    // The test host is a desktop OS, so the window group applies.
-    expect(find.text(t.settings.startInFullscreen), findsOneWidget);
 
     await disposeHarness(tester, harness);
   });

@@ -175,17 +175,15 @@ void main() {
   setUp(() {
     resetSharedPreferencesForTest();
     LocaleSettings.setLocaleSync(AppLocale.en);
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     TvDetectionService.setForceTVSync(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
     database = AppDatabase.forTesting(NativeDatabase.memory());
     PlexApiCache.initialize(database);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     TvDetectionService.setForceTVSync(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
     FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic;
   });
   tearDown(() => database.close());
@@ -215,7 +213,7 @@ void main() {
   }
 
   testWidgets('the D-pad cursor stays on screen while walking a long library list', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     // Shield-class TV output: 1080p at a 2.0 ratio.
     tester.view.physicalSize = const Size(1920, 1080);
     tester.view.devicePixelRatio = 2.0;

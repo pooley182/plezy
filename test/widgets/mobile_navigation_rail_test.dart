@@ -207,13 +207,9 @@ void main() {
       expect(await evaluate(tester, size: const Size(600, 1080)), isFalse);
     });
 
-    testWidgets('desktop keeps its own sidebar', (tester) async {
-      expect(await evaluate(tester, size: const Size(1080, 600), platform: TargetPlatform.macOS), isFalse);
-    });
-
     testWidgets('TV keeps its own sidebar', (tester) async {
-      TvDetectionService.debugSetAppleTVOverride(true);
-      addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+      TvDetectionService.debugSetTvOverride(true);
+      addTearDown(() => TvDetectionService.debugSetTvOverride(null));
       expect(await evaluate(tester, size: const Size(1080, 600)), isFalse);
     });
   });

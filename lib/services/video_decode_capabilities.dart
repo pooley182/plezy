@@ -41,11 +41,8 @@ enum RankedVideoCodec {
 /// phone or TV box has to ask the server to transcode instead of taking the
 /// original stream, and must not offer that codec as a transcode target.
 ///
-/// Only Android (`MediaCodecList`) and iOS/tvOS (`VTIsHardwareDecodeSupported`)
-/// answer the probe. Desktop deliberately does not implement it: a
-/// pre-Kaby-Lake Mac has no hardware HEVC decoder and an M1 no hardware AV1
-/// one, yet both software-decode in real time, so narrowing there would force
-/// transcodes for nothing. An unanswered or failed probe reports support — the
+/// Android answers the probe from `MediaCodecList`. An unanswered or failed
+/// probe reports support — the
 /// advertised codec list must never narrow on missing data.
 ///
 /// The user's refusals cover what the probe cannot: a desktop too weak to

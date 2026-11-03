@@ -3,14 +3,12 @@ import 'dart:io' show Directory, Platform, ProcessInfo;
 import 'dart:ui' show AppExitResponse;
 import 'package:flutter/foundation.dart';
 // ignore: depend_on_referenced_packages
-import 'package:shared_preferences_foundation/shared_preferences_foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as material show ThemeMode;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -27,7 +25,6 @@ import 'profiles/profile_connection_registry.dart';
 import 'profiles/profile_registry.dart';
 import 'profiles/profile_activation.dart';
 import 'profiles/profile_selection_policy.dart';
-import 'models/external_player_models.dart';
 import 'mixins/mounted_set_state_mixin.dart';
 import 'theme/mono_theme.dart';
 import 'profiles/plex_home_service.dart';
@@ -38,19 +35,13 @@ import 'services/storage_service.dart';
 import 'services/assistive_technology_service.dart';
 import 'services/device_performance.dart';
 import 'services/video_decode_capabilities.dart';
-import 'services/macos_window_service.dart';
-import 'services/native_window_service.dart';
-import 'services/fullscreen_state_manager.dart';
 import 'services/settings_service.dart';
 import 'services/agent_control_service.dart';
 import 'widgets/agent_control_scope.dart';
 import 'widgets/settings_builder.dart';
 import 'utils/platform_detector.dart';
 import 'utils/pointer_scroll_axis.dart';
-import 'services/apple_tv_remote_touch_service.dart';
-import 'services/discord_rpc_service.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'services/image_cache_service.dart';
 import 'services/app_icon/app_icon_service.dart';
 import 'services/gamepad_service.dart';
@@ -82,7 +73,6 @@ import 'services/jellyfin_api_cache.dart';
 import 'services/plex_api_cache.dart';
 import 'database/app_database.dart';
 import 'database/download_operations.dart';
-import 'database/tvos_database_recovery_store.dart';
 import 'screens/video_player_screen.dart';
 import 'utils/app_logger.dart';
 import 'utils/certificate_trust.dart';
@@ -116,37 +106,6 @@ const String gitCommit = String.fromEnvironment('GIT_COMMIT');
 const String _sentryEnvironment = String.fromEnvironment('SENTRY_ENVIRONMENT');
 const String _sentryDist = String.fromEnvironment('SENTRY_DIST');
 
-// Workaround for Flutter bug #177992: iPadOS 26.1+ misinterprets fake touch events
-// at (0,0) as barrier taps, causing modals to dismiss immediately.
-// Remove when Flutter PR #179643 is merged.
-bool _zeroOffsetPointerGuardInstalled = false;
-
-void _installZeroOffsetPointerGuard() {
-  if (_zeroOffsetPointerGuardInstalled || !Platform.isIOS) return;
-  GestureBinding.instance.pointerRouter.addGlobalRoute(_absorbZeroOffsetPointerEvent);
-  _zeroOffsetPointerGuardInstalled = true;
-}
-
-void _absorbZeroOffsetPointerEvent(PointerEvent event) {
-  if (event is PointerDownEvent && event.position == Offset.zero) {
-    GestureBinding.instance.cancelPointer(event.pointer);
-  }
-}
-
-/// Register platform plugin stores manually for tvOS. Flutter's tool
-/// doesn't support tvOS so it never generates a plugin registrant for it.
-/// Each plugin whose iOS Swift implementation is tvOS-compatible must be
-/// wired here; the Swift side (GeneratedPluginRegistrant.m / AppDelegate)
-/// also needs to call the plugin's Swift register(with:) to attach its
-/// message channels.
-void _registerTvosPlatformPlugins() {
-  if (!Platform.isIOS) return; // tvOS reports as iOS via dart:io.
-  SharedPreferencesFoundation.registerWith();
-  // in_app_purchase needs no entry here: `InAppPurchase.instance` registers
-  // its StoreKit platform on first use (tvOS reports iOS), which
-  // SupporterService reaches only in SUPPORTER_MODE=iap builds.
-}
-
 void main() {
   final binding = PlezyWidgetsBinding.ensureInitialized();
   if (agentControlEnabled) AgentControlService.instance.register();
@@ -157,12 +116,6 @@ void main() {
   // Android: skip the per-frame semantics pass when the only bound
   // accessibility service cannot read it (launcher hooks, key remappers).
   AssistiveTechnologyService.instance.ensureStarted();
-  _installZeroOffsetPointerGuard(); // Workaround for iPadOS 26.1+ modal dismissal bug
-
-  // On tvOS, Flutter's generated plugin registrant doesn't run (no tvOS
-  // target in Flutter's tool), so register platform stores manually for
-  // the plugins we use.
-  _registerTvosPlatformPlugins();
   _registerAppLicenses();
   _bootstrapApp();
 }
@@ -186,7 +139,6 @@ void _bootstrapApp() {
         settings: dependencies.settings,
         storage: dependencies.storage,
         appDatabase: dependencies.appDatabase,
-        databaseRecoveryOutcome: dependencies.databaseRecoveryOutcome,
       ),
       discard: (dependencies) => dependencies.appDatabase.close(),
       onCommitted: (dependencies) => _startNonessentialInitialization(dependencies.settings),
@@ -197,7 +149,7 @@ void _bootstrapApp() {
       // whose background PlezyActivity already restored, so the loading frame
       // can leave the launch screen on display. Every other platform composites
       // opaquely and has nothing behind Flutter worth showing.
-      transparentWhileLoading: Platform.isAndroid,
+      transparentWhileLoading: true,
     ),
   );
 }
@@ -220,9 +172,6 @@ Future<StartupThemeResolution> _resolveStartupTheme() async {
   final settings = await SettingsService.getInstance();
   await TvDetectionService.getInstance(forceTv: settings.read(SettingsService.forceTvMode));
   final palette = ThemeProvider.resolveStored(settings, unlocked: SupporterService.startupUnlocked(settings)).palette;
-  ThemeProvider.applyWindowChromeBrightness(
-    ThemeProvider.isDarkFor(palette, WidgetsBinding.instance.platformDispatcher.platformBrightness),
-  );
   return (
     themeMode: ThemeProvider.materialThemeModeFor(palette),
     lightTheme: ThemeProvider.lightThemeFor(palette),
@@ -245,9 +194,8 @@ Future<T> _gatePhase<T>(StartupPhase phase, Future<T> Function() step) async {
 
 /// How long a degradable startup step may block the launch before it is
 /// abandoned. Generous next to the sub-second these normally take, but bounded:
-/// `windowManager.ensureInitialized()` is a platform-channel round trip and the
-/// Windows runner puts the UI on its own thread, so a stalled platform thread
-/// would otherwise hold the splash forever with no error to report.
+/// a stalled platform channel would otherwise hold the splash forever with no
+/// error to report.
 const Duration _optionalPhaseTimeout = Duration(seconds: 10);
 
 /// Runs a startup step that the app can survive without.
@@ -290,11 +238,9 @@ Future<_StartupDependencies> _initializeApplication() async {
     // then run the whole gate — migrations, native recovery, database open —
     // a second time.
     await _optionalGatePhase(StartupPhase.crashReporting, () async {
-      final nativeDatabasePath = await _sentryNativeDatabasePath();
       await SentryFlutter.init((options) {
         options.dsn = _sentryDsn;
         options.release = _sentryRelease();
-        if (nativeDatabasePath != null) options.nativeDatabasePath = nativeDatabasePath;
         if (_sentryEnvironment.isNotEmpty) options.environment = _sentryEnvironment;
         if (_sentryDist.isNotEmpty) options.dist = _sentryDist;
         options.tracesSampleRate = 0;
@@ -325,27 +271,10 @@ Future<_StartupDependencies> _initializeApplication() async {
 }
 
 /// Release identifier for Sentry.
-///
-/// `PackageInfo.fromPlatform()` reads the executable's Win32 version resource
-/// and throws `WindowsException`/`ArgumentError` when that read fails (UNC
-/// launch, antivirus interception). Official builds always define
-/// `GIT_COMMIT`, so resolve that first and only pay the platform read — inside
-/// a guard — when there is no commit to use.
 String _sentryRelease() {
   if (gitCommit.length >= 7) return 'plezy@${gitCommit.substring(0, 7)}';
   if (gitCommit.isNotEmpty) return 'plezy@$gitCommit';
   return 'plezy@unknown';
-}
-
-Future<String?> _sentryNativeDatabasePath() async {
-  if (kIsWeb || !(Platform.isWindows || Platform.isLinux)) return null;
-  try {
-    final directory = await getApplicationSupportDirectory();
-    return p.join(directory.path, 'sentry-native');
-  } catch (error, stackTrace) {
-    appLogger.d('Sentry native database location unavailable', error: error, stackTrace: stackTrace);
-    return null;
-  }
 }
 
 const startupBootstrapProgressKey = Key('startup-bootstrap-progress');
@@ -354,12 +283,8 @@ const startupBootstrapProgressKey = Key('startup-bootstrap-progress');
 /// path by [_primeDiagnosticsVersion].
 String _diagnosticsVersion = gitCommit.isEmpty ? 'unknown' : gitCommit.substring(0, gitCommit.length.clamp(0, 7));
 
-/// Resolves the package version for diagnostics without putting it in the gate.
-///
-/// `PackageInfo.fromPlatform()` reads the executable's Win32 version resource
-/// and throws `WindowsException`/`ArgumentError` when that read fails (a UNC
-/// launch, antivirus interception). It used to run inside the startup gate for
-/// a value only Sentry consumed; here a failure just leaves the commit label.
+/// Resolves the package version for diagnostics without putting it in the gate;
+/// a failure just leaves the commit label.
 Future<void> _primeDiagnosticsVersion() async {
   try {
     final info = await PackageInfo.fromPlatform();
@@ -784,8 +709,7 @@ class _StartupBootstrapState<T> extends State<StartupBootstrap<T>> {
       // whatever document failed to parse.
       appLogger.e('Startup initialization failed: ${failure.headline}', stackTrace: stackTrace);
       // Persist first: this record is the only thing that survives the
-      // process. On Windows there is no log file and no console for a
-      // double-clicked release build.
+      // process.
       unawaited(StartupDiagnosticsStore.record(failure));
       // Not reported from here: the earliest phases run before the crash
       // reporter exists, so the record is persisted and flushed by
@@ -888,22 +812,16 @@ class _StartupBootstrapState<T> extends State<StartupBootstrap<T>> {
 }
 
 class _StartupDependencies {
-  const _StartupDependencies({
-    required this.settings,
-    required this.storage,
-    required this.appDatabase,
-    required this.databaseRecoveryOutcome,
-  });
+  const _StartupDependencies({required this.settings, required this.storage, required this.appDatabase});
 
   final SettingsService settings;
   final StorageService storage;
   final AppDatabase appDatabase;
-  final TvosDatabaseRecoveryOutcome databaseRecoveryOutcome;
 }
 
 @visibleForTesting
-Future<AppDatabaseBootstrap> openAppDatabaseWithDownloadRecovery({
-  required Future<AppDatabaseBootstrap> Function() openDatabase,
+Future<AppDatabase> openAppDatabaseWithDownloadRecovery({
+  required Future<AppDatabase> Function() openDatabase,
   required Future<void> Function() recoverNativeDownloads,
   required String storageFullMessage,
 }) async {
@@ -919,15 +837,15 @@ Future<AppDatabaseBootstrap> openAppDatabaseWithDownloadRecovery({
   }
 
   await recoverNativeDownloads();
-  final bootstrap = await openDatabase();
+  final database = await openDatabase();
   try {
-    final failedKeys = await bootstrap.database.failActiveDownloadsForStorageFull(storageFullMessage);
+    final failedKeys = await database.failActiveDownloadsForStorageFull(storageFullMessage);
     appLogger.w('Recovered startup after storage exhaustion; stopped ${failedKeys.length} active download(s)');
-    return bootstrap;
+    return database;
   } catch (_) {
     // The caller only takes ownership once this helper returns, so the freshly
     // opened background isolate has to be released here.
-    await bootstrap.database.close();
+    await database.close();
     rethrow;
   }
 }
@@ -946,7 +864,7 @@ Future<_StartupDependencies> _initializeStartup(SettingsService settings) async 
   // Started first so the store walk overlaps the phases below. Every request
   // to a user-entered server verifies against the result, so it is awaited
   // before any client can exist (#2339); the load itself never throws.
-  final userAuthorities = Platform.isAndroid ? CertificateTrust.loadUserAuthorities() : null;
+  final userAuthorities = CertificateTrust.loadUserAuthorities();
   try {
     // Slang builds the base locale eagerly, so `t` already resolves before
     // this runs; a failure here degrades to English rather than no app.
@@ -960,12 +878,6 @@ Future<_StartupDependencies> _initializeStartup(SettingsService settings) async 
     // remembered size, not the app. It is also the step most exposed to a
     // stalled platform thread, so it must not sit in the same combined future
     // as the services the first build genuinely needs.
-    if (PlatformDetector.isDesktopOS()) {
-      await _optionalGatePhase(StartupPhase.windowManager, () async {
-        await windowManager.ensureInitialized();
-        if (Platform.isMacOS) await MacOSWindowService.setupCustomTitlebar();
-      });
-    }
 
     // MainApp reads the first two synchronous facades during its first build
     // and the Jellyfin device profile the third at playback negotiation. All
@@ -978,23 +890,21 @@ Future<_StartupDependencies> _initializeStartup(SettingsService settings) async 
       ).wait;
     });
 
-    if (userAuthorities != null) {
-      await _optionalGatePhase(StartupPhase.certificateTrust, () => userAuthorities);
-    }
+    await _optionalGatePhase(StartupPhase.certificateTrust, () => userAuthorities);
 
     final storage = await _gatePhase(StartupPhase.storage, StorageService.getInstance);
     markStartupPhase('platform-services');
 
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.databaseOpenStarted);
-    final databaseBootstrap = await _gatePhase(
+    final database = await _gatePhase(
       StartupPhase.database,
       () => openAppDatabaseWithDownloadRecovery(
-        openDatabase: () => AppDatabase.open(isTvos: PlatformDetector.isAppleTV()),
+        openDatabase: AppDatabase.open,
         recoverNativeDownloads: DownloadManagerService.discardInterruptedNativeDownloadsAfterStorageFailure,
         storageFullMessage: t.downloads.storageFull,
       ),
     );
-    openedDatabase = databaseBootstrap.database;
+    openedDatabase = database;
     AndroidExitDiagnostics.markStartupPhase(AndroidStartupPhase.databaseReady);
     markStartupPhase('database-recovery');
 
@@ -1002,12 +912,7 @@ Future<_StartupDependencies> _initializeStartup(SettingsService settings) async 
 
     markStartupPhase('image-cache');
 
-    return _StartupDependencies(
-      settings: settings,
-      storage: storage,
-      appDatabase: databaseBootstrap.database,
-      databaseRecoveryOutcome: databaseBootstrap.recoveryOutcome,
-    );
+    return _StartupDependencies(settings: settings, storage: storage, appDatabase: database);
   } catch (_) {
     await openedDatabase?.close();
     rethrow;
@@ -1046,28 +951,14 @@ void _startNonessentialInitialization(SettingsService settings) {
   });
 
   bestEffort('Native window', () {
-    if (Platform.isAndroid) PipService();
-    NativeWindowService.initialize();
+    PipService();
   });
 
-  bestEffort('Fullscreen monitor', () async {
-    FullscreenStateManager().startMonitoring();
-    if (PlatformDetector.isDesktopOS() && settings.read(SettingsService.startInFullscreen)) {
-      await FullscreenStateManager().enterFullscreen();
-    }
-  });
+  bestEffort('Fullscreen monitor', () async {});
 
   bestEffort('Gamepad', () {
     GamepadService.instance.start();
-    if (PlatformDetector.isAppleTV()) AppleTvRemoteTouchService.instance.start();
   });
-
-  if (PlatformDetector.isDesktopOS()) {
-    bestEffort('Discord RPC', DiscordRPCService.instance.initialize);
-    // Detection forks helper processes; resolve it here so the External Player
-    // settings page never has to wait on a cold probe.
-    bestEffort('External player detection', KnownPlayers.getForCurrentPlatform);
-  }
 
   if (settings.read(SettingsService.crashReporting)) {
     unawaited(AndroidExitDiagnostics.logPreviousExit());
@@ -1084,20 +975,16 @@ Future<void> _logEnvironmentDiagnostics() async {
   final packageInfo = await PackageInfo.fromPlatform();
   final commitSuffix = gitCommit.isNotEmpty ? ' (${gitCommit.substring(0, 7)})' : '';
   String renderer = '';
-  if (Platform.isAndroid) {
-    final rendererName = await const MethodChannel('com.plezy/theme').invokeMethod<String>('getRenderer');
-    renderer = ' [$rendererName]';
-    await Future.sync(() => Sentry.configureScope((scope) => scope.setTag('renderer', rendererName ?? 'unknown')));
-  }
+  final rendererName = await const MethodChannel('com.plezy/theme').invokeMethod<String>('getRenderer');
+  renderer = ' [$rendererName]';
+  await Future.sync(() => Sentry.configureScope((scope) => scope.setTag('renderer', rendererName ?? 'unknown')));
   appLogger.i(
     'Plezy v${packageInfo.version}+${packageInfo.buildNumber}$commitSuffix$renderer'
     ' [effects: ${DevicePerformance.describeSync()}]',
   );
   appLogger.i('Display: ${DevicePerformance.describeDisplay()}');
   appLogger.i('Video decoders: ${VideoDecodeCapabilities.describeSync()}');
-  if (Platform.isAndroid) {
-    appLogger.i('Startup RSS: ${ProcessInfo.currentRss >> 20}MB');
-  }
+  appLogger.i('Startup RSS: ${ProcessInfo.currentRss >> 20}MB');
 }
 
 Breadcrumb? _beforeBreadcrumb(Breadcrumb? breadcrumb, Hint _) {
@@ -1123,18 +1010,10 @@ FutureOr<SentryEvent?> _beforeSend(SentryEvent event, Hint _) {
     bool shouldDrop(SentryException e) {
       final v = e.value;
       final lowerValue = v?.toLowerCase();
-      // Windows file-lock errors from cache manager cleanup
-      if (e.type == 'FileSystemException' && v != null && v.contains('plexImageCache') && v.contains('errno = 32')) {
-        return true;
-      }
       if (e.type == 'FileSystemException' &&
           lowerValue != null &&
           lowerValue.contains('cached_network_image_ce') &&
           (lowerValue.contains('lock failed') || lowerValue.contains('writefrom failed'))) {
-        return true;
-      }
-      // Linux without DBus/NetworkManager
-      if (e.type == 'DBusServiceUnknownException' || (v != null && v.contains('system_bus_socket'))) {
         return true;
       }
       // Device out of disk space
@@ -1145,8 +1024,6 @@ FutureOr<SentryEvent?> _beforeSend(SentryEvent event, Hint _) {
       // 'cancel' lands after the stream is already gone, and the framework
       // reports it via FlutterError — nothing was ever wrong user-side.
       if (e.type == 'PlatformException' && v != null && v.contains('No active stream to cancel')) return true;
-      // Discord RPC errors when Discord is not running
-      if (e.type == 'DiscordStateException') return true;
       return false;
     }
 
@@ -1206,18 +1083,6 @@ FutureOr<SentryEvent?> _beforeSend(SentryEvent event, Hint _) {
 /// them here loads nothing until a reader runs.
 void _registerAppLicenses() {
   _registerShaderLicenses();
-  // iOS covers iPhone, iPad, and Apple TV; mpv-build links SpatialAudioBridge
-  // into libmpv there and not on macOS.
-  if (Platform.isIOS) _registerSpatialAudioLicenses();
-}
-
-/// Notices for the SpatialAudioBridge core compiled into libmpv, verbatim from
-/// the source commit mpv-build pins (versions.json `spatialaudiobridge`).
-void _registerSpatialAudioLicenses() {
-  LicenseRegistry.addLicense(() async* {
-    final notices = await rootBundle.loadString('assets/licenses/SpatialAudioBridge.txt');
-    yield LicenseEntryWithLineBreaks(const ['SpatialAudioBridge'], notices);
-  });
 }
 
 void _registerShaderLicenses() {
@@ -1332,15 +1197,8 @@ class MainApp extends StatefulWidget {
   final SettingsService settings;
   final StorageService storage;
   final AppDatabase appDatabase;
-  final TvosDatabaseRecoveryOutcome databaseRecoveryOutcome;
 
-  const MainApp({
-    super.key,
-    required this.settings,
-    required this.storage,
-    required this.appDatabase,
-    required this.databaseRecoveryOutcome,
-  });
+  const MainApp({super.key, required this.settings, required this.storage, required this.appDatabase});
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -1447,20 +1305,6 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   );
 
   Future<void> _runShutdownForExit() async {
-    // Hide the window before anything else so the exit reads as an instant
-    // close: the teardown below runs against a still-mounted tree and its
-    // state churn must never be user-visible. Cmd+Q and OS-initiated exits
-    // arrive here directly, so the close-button path is not the only entry.
-    // Bounded — hide() is a platform-channel round trip and a stalled
-    // platform thread must not hold the already-accepted exit open.
-    if (PlatformDetector.isDesktopOS()) {
-      try {
-        await windowManager.hide().timeout(const Duration(seconds: 1));
-      } catch (e, st) {
-        appLogger.w('Failed to hide window before exit teardown', error: e, stackTrace: st);
-      }
-    }
-
     // The player owns the backend session. Flush it while its client and
     // native position still exist, before unrelated cleanup can delay exit.
     try {
@@ -1535,18 +1379,11 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   void _startRssWatchdog() {
     final int threshold;
     final Duration period;
-    if (PlatformDetector.isDesktopOS()) {
-      threshold = 1536 << 20; // 1.5GB
-      period = const Duration(seconds: 30);
-    } else if (Platform.isAndroid) {
-      final totalMem = DevicePerformance.totalMemBytes;
-      threshold = totalMem != null ? (totalMem * 0.45).round().clamp(512 << 20, 1536 << 20) : 1 << 30;
-      // Decode bursts can spike RSS in seconds on low-end boxes; the read
-      // itself is an in-process syscall, cheap enough for a short period.
-      period = DevicePerformance.isLowEndHardware ? const Duration(seconds: 15) : const Duration(seconds: 30);
-    } else {
-      return; // iOS/tvOS: jetsam pressure arrives via didHaveMemoryPressure.
-    }
+    final totalMem = DevicePerformance.totalMemBytes;
+    threshold = totalMem != null ? (totalMem * 0.45).round().clamp(512 << 20, 1536 << 20) : 1 << 30;
+    // Decode bursts can spike RSS in seconds on low-end boxes; the read
+    // itself is an in-process syscall, cheap enough for a short period.
+    period = DevicePerformance.isLowEndHardware ? const Duration(seconds: 15) : const Duration(seconds: 30);
 
     _memoryCheckTimer = Timer.periodic(period, (_) {
       final rss = ProcessInfo.currentRss;
@@ -1690,9 +1527,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         // On desktop, resumed fires on every window focus (alt-tab), so apply a cooldown
         // to avoid piling up network probes from rapid alt-tabbing.
         final now = DateTime.now();
-        final cooldown = (Platform.isIOS || Platform.isAndroid)
-            ? const Duration(seconds: 10)
-            : const Duration(minutes: 2);
+        final cooldown = const Duration(seconds: 10);
         if (now.difference(_lastResumeProbe) >= cooldown) {
           _lastResumeProbe = now;
           // Await health check before reconnecting so stale "online" servers
@@ -1715,20 +1550,13 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
         // Closing here would kill the Drift isolate channel while services
         // (sync, downloads, cache) still hold references to the executor.
         // SQLite WAL mode handles process death; desktop uses onExitRequested.
-        if (PlatformDetector.isDesktopOS()) {
-          if (ProcessInfo.currentRss > 1024 * 1024 * 1024) {
-            // 1GB
-            _evictImageCaches();
-          }
-        } else if (Platform.isAndroid) {
-          // A backgrounded app is LMK's first candidate; shed the image
-          // caches at a lower bar than the foreground watchdog to survive
-          // the HOME press on low-RAM boxes.
-          final totalMem = DevicePerformance.totalMemBytes;
-          final bar = totalMem != null ? (totalMem * 0.35).round() : 768 << 20;
-          if (ProcessInfo.currentRss > bar) {
-            _evictImageCaches();
-          }
+        // A backgrounded app is LMK's first candidate; shed the image
+        // caches at a lower bar than the foreground watchdog to survive
+        // the HOME press on low-RAM boxes.
+        final totalMem = DevicePerformance.totalMemBytes;
+        final bar = totalMem != null ? (totalMem * 0.35).round() : 768 << 20;
+        if (ProcessInfo.currentRss > bar) {
+          _evictImageCaches();
         }
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
@@ -1933,7 +1761,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
           },
         ),
       ],
-      child: _AppShell(databaseRecoveryOutcome: widget.databaseRecoveryOutcome),
+      child: const _AppShell(),
     );
   }
 }
@@ -1943,9 +1771,7 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
 /// [ProfileSessionScreen], not here, so root auth/PIN/global dialogs survive a
 /// profile switch.
 class _AppShell extends StatelessWidget {
-  const _AppShell({required this.databaseRecoveryOutcome});
-
-  final TvosDatabaseRecoveryOutcome databaseRecoveryOutcome;
+  const _AppShell();
 
   @override
   Widget build(BuildContext context) {
@@ -1983,13 +1809,12 @@ class _AppShell extends StatelessWidget {
                     themeMode: themeProvider.materialThemeMode,
                     navigatorKey: rootNavigatorKey,
                     navigatorObservers: [BackKeySuppressorObserver()],
-                    home: SetupScreen(databaseRecoveryOutcome: databaseRecoveryOutcome),
-                    // Siri Remote select + gamepad A report as
+                    home: const SetupScreen(),
+                    // Remote select + gamepad A report as
                     // LogicalKeyboardKey.{select,gameButtonA} which aren't
                     // in Flutter's default shortcut set — Material-level
                     // widgets (menu items, showModalBottomSheet actions)
-                    // ignore them. Map both to ActivateIntent so tapping
-                    // select on tvOS activates the focused widget.
+                    // ignore them. Map both to ActivateIntent.
                     shortcuts: <ShortcutActivator, Intent>{
                       ...WidgetsApp.defaultShortcuts,
                       const SingleActivator(LogicalKeyboardKey.select): const ActivateIntent(),
@@ -2032,26 +1857,19 @@ Widget rootShell(Widget? child) {
   );
 }
 
-/// Apple TV receives a full-HD logical surface, while Android Automotive can
-/// report a very low display density. Both make otherwise comfortable controls
-/// physically too small, so render through a smaller, self-consistent logical
-/// viewport and scale the result back to the physical surface.
+/// Android Automotive can report a very low display density, which makes
+/// otherwise comfortable controls physically too small, so render through a
+/// smaller, self-consistent logical viewport and scale the result back to the
+/// physical surface.
 class FormFactorScale extends StatelessWidget {
   final Widget? child;
   const FormFactorScale({super.key, required this.child});
-
-  static const double _appleTvScale = 2.0;
 
   @override
   Widget build(BuildContext context) {
     final child = this.child;
     if (child == null) return const SizedBox.shrink();
 
-    // Keep the existing Apple TV path independent of settings so its 2×
-    // behavior and overscan handling remain unchanged.
-    if (PlatformDetector.isAppleTV()) {
-      return _scaledSurface(child: child, scale: _appleTvScale, zeroInsets: true);
-    }
     if (!PlatformDetector.isAutomotive()) return child;
 
     // Car system bars can sit on the left or right, are opaque, and may be
@@ -2062,19 +1880,15 @@ class FormFactorScale extends StatelessWidget {
     final insetChild = SafeArea(top: false, bottom: false, child: child);
     return SettingValueBuilder<double>(
       pref: SettingsService.automotiveUiScale,
-      builder: (context, scale, _) => _scaledSurface(child: insetChild, scale: scale, zeroInsets: false),
+      builder: (context, scale, _) => _scaledSurface(child: insetChild, scale: scale),
     );
   }
 
-  Widget _scaledSurface({required Widget child, required double scale, required bool zeroInsets}) {
+  Widget _scaledSurface({required Widget child, required double scale}) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final logicalSize = Size(constraints.maxWidth / scale, constraints.maxHeight / scale);
         final outerQ = MediaQuery.of(context);
-        // tvOS reports conservative overscan insets (~60pt top/bottom,
-        // ~90pt left/right). Modern TVs don't overscan, so treat them as
-        // dead margin and zero them out — the UI can use the full surface.
-        //
         // Automotive system bars are real touch-exclusion regions. Preserve
         // their physical size in the scaled coordinate system so SafeArea
         // continues to keep controls out from underneath them.
@@ -2095,10 +1909,10 @@ class FormFactorScale extends StatelessWidget {
                 data: outerQ.copyWith(
                   size: logicalSize,
                   devicePixelRatio: outerQ.devicePixelRatio * scale,
-                  padding: zeroInsets ? .zero : outerQ.padding * (1 / scale),
-                  viewPadding: zeroInsets ? .zero : outerQ.viewPadding * (1 / scale),
-                  viewInsets: zeroInsets ? .zero : outerQ.viewInsets * (1 / scale),
-                  systemGestureInsets: zeroInsets ? .zero : outerQ.systemGestureInsets * (1 / scale),
+                  padding: outerQ.padding * (1 / scale),
+                  viewPadding: outerQ.viewPadding * (1 / scale),
+                  viewInsets: outerQ.viewInsets * (1 / scale),
+                  systemGestureInsets: outerQ.systemGestureInsets * (1 / scale),
                 ),
                 child: child,
               ),
@@ -2110,23 +1924,10 @@ class FormFactorScale extends StatelessWidget {
   }
 }
 
-@visibleForTesting
-bool shouldBypassSetupForDatabaseRecovery(TvosDatabaseRecoveryOutcome outcome) {
-  return outcome == TvosDatabaseRecoveryOutcome.recoveryRequired;
-}
-
 class SetupScreen extends StatefulWidget {
-  const SetupScreen({
-    super.key,
-    required this.databaseRecoveryOutcome,
-    this.initializeAuthServices = true,
-    this.debugRecoveryRequiredRouter,
-  });
+  const SetupScreen({super.key, this.initializeAuthServices = true});
 
-  final TvosDatabaseRecoveryOutcome databaseRecoveryOutcome;
   final bool initializeAuthServices;
-  @visibleForTesting
-  final FutureOr<void> Function(BuildContext context, String message)? debugRecoveryRequiredRouter;
 
   @override
   State<SetupScreen> createState() => _SetupScreenState();
@@ -2168,31 +1969,6 @@ class _SetupScreenState extends State<SetupScreen> with MountedSetStateMixin {
   }
 
   Future<void> _loadSavedCredentials() async {
-    if (shouldBypassSetupForDatabaseRecovery(widget.databaseRecoveryOutcome)) {
-      final message = t.auth.localDataRecoveryRequired;
-      final debugRouter = widget.debugRecoveryRequiredRouter;
-      if (debugRouter != null) {
-        await Future.sync(() => debugRouter(context, message));
-        return;
-      }
-      await Future<void>.delayed(Duration.zero);
-      if (mounted) {
-        unawaited(
-          Navigator.pushReplacement(
-            context,
-            fadeRoute(
-              AuthScreen(
-                initialErrorMessage: message,
-                initializeServices: widget.initializeAuthServices,
-                databaseRecoveryRequired: true,
-              ),
-            ),
-          ),
-        );
-      }
-      return;
-    }
-
     _setStatus(t.common.checkingNetwork);
 
     final storage = await StorageService.getInstance();

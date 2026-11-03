@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import 'package:cached_network_image_ce/cached_network_image.dart' show FileInfo;
-import 'package:flutter/foundation.dart' show TargetPlatform, Uint8List, defaultTargetPlatform, visibleForTesting;
-
 import 'package:os_media_controls/os_media_controls.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 
@@ -11,7 +8,6 @@ import '../media/media_item.dart';
 import '../media/media_item_types.dart';
 import '../media/media_kind.dart';
 import '../utils/app_logger.dart';
-import 'image_cache_service.dart';
 
 /// Manages OS media controls integration for video playback.
 ///
@@ -34,17 +30,9 @@ class MediaControlsManager {
   bool? _lastCanStop;
   bool? _lastCanSkip;
   bool? _lastCanSetSpeed;
-  Duration? _lastSkipInterval;
   bool _updatesSuspended = false;
 
-  /// Bumped by every metadata update and [clear], so artwork bytes that
-  /// arrive late never land on a newer item or a cleared session.
-  int _metadataGeneration = 0;
-
-  final Future<Uint8List?> Function(String url) _artworkBytesLoader;
-
-  MediaControlsManager({@visibleForTesting Future<Uint8List?> Function(String url)? artworkBytesLoader})
-    : _artworkBytesLoader = artworkBytesLoader ?? _loadArtworkFromCache {
+  MediaControlsManager() {
     _throttledUpdate = throttle(
       _doUpdatePlaybackState,
       const Duration(seconds: 1),
@@ -61,7 +49,6 @@ class MediaControlsManager {
   /// self-authenticated image URL).
   Future<void> updateMetadata({required MediaItem metadata, MediaServerClient? client, Duration? duration}) async {
     if (_updatesSuspended) return;
-    final generation = ++_metadataGeneration;
 
     try {
       String? artworkUrl;
@@ -73,49 +60,21 @@ class MediaControlsManager {
         }
       }
 
-      MediaMetadata build({String? artworkUrl, Uint8List? artwork}) => MediaMetadata(
-        title: metadata.title ?? '',
-        artist: _buildArtist(metadata),
-        // Music-only: null for video content, so video behavior is untouched.
-        album: metadata.kind == MediaKind.track ? metadata.albumTitle : null,
-        artworkUrl: artworkUrl,
-        artwork: artwork,
-        duration: duration,
+      await OsMediaControls.setMetadata(
+        MediaMetadata(
+          title: metadata.title ?? '',
+          artist: _buildArtist(metadata),
+          // Music-only: null for video content, so video behavior is untouched.
+          album: metadata.kind == MediaKind.track ? metadata.albumTitle : null,
+          artworkUrl: artworkUrl,
+          duration: duration,
+        ),
       );
-
-      // The artwork URL embeds the server token. Linux publishes it verbatim
-      // as MPRIS `mpris:artUrl` on the session bus, readable by every process
-      // of the user, so hand the plugin the bytes instead: it writes them to a
-      // private runtime file and publishes that file:// URI. The download
-      // must not hold up the title, so the artwork follows in a second update.
-      final artworkUrlForBus = artworkUrl != null && defaultTargetPlatform == TargetPlatform.linux ? null : artworkUrl;
-      await OsMediaControls.setMetadata(build(artworkUrl: artworkUrlForBus));
-      if (artworkUrl != null && artworkUrlForBus == null) {
-        unawaited(_publishArtworkBytes(artworkUrl, generation, (bytes) => build(artwork: bytes)));
-      }
 
       appLogger.d('Updated media controls metadata: ${metadata.title}');
     } catch (e) {
       appLogger.w('Failed to update media controls metadata', error: e);
     }
-  }
-
-  Future<void> _publishArtworkBytes(String url, int generation, MediaMetadata Function(Uint8List bytes) build) async {
-    try {
-      final bytes = await _artworkBytesLoader(url);
-      // A newer update, clear() or suspension owns the session by now.
-      if (bytes == null || bytes.isEmpty || generation != _metadataGeneration || _updatesSuspended) return;
-      await OsMediaControls.setMetadata(build(bytes));
-    } catch (e) {
-      appLogger.w('Failed to load media controls artwork', error: e);
-    }
-  }
-
-  /// Reads [url] through the shared artwork cache, which also keeps the token
-  /// out of its own metadata.
-  static Future<Uint8List?> _loadArtworkFromCache(String url) async {
-    final response = await PlexImageCacheManager.instance.getFileStream(url).firstWhere((r) => r is FileInfo);
-    return (response as FileInfo).file.readAsBytes();
   }
 
   /// Update playback state in OS media controls
@@ -163,18 +122,9 @@ class MediaControlsManager {
   /// default, so anything the caller leaves disabled here is explicitly
   /// un-advertised rather than shown as a dead button.
   ///
-  /// [canSkip] on iOS/macOS (and tvOS, which reports [TargetPlatform.iOS])
-  /// is honored only when the caller also sets [preferSkipOverTrackButtons]:
-  /// the MPRemoteCommandCenter skip commands displace the next/previous
-  /// track buttons on the lock screen / Control Center / iPhone remote card.
-  /// Video wants exactly that — in-track ±skip is the primary transport
-  /// there (#1994) — while music keeps next/previous. Android's
-  /// fast-forward/rewind actions are independent of next/previous, so skip
-  /// is always safe to advertise.
-  ///
-  /// [skipInterval] is the advertised skip step (the number in the
-  /// lock-screen glyph); the OS echoes it back on each skip event. Sent on
-  /// iOS/macOS only — Android hardcodes 15-second events.
+  /// Android's fast-forward/rewind actions are independent of next/previous,
+  /// so [canSkip] is always safe to advertise; the OS hardcodes 15-second
+  /// events.
   Future<void> setControlsEnabled({
     bool canPlayPause = false,
     bool canGoNext = false,
@@ -183,23 +133,16 @@ class MediaControlsManager {
     bool canStop = false,
     bool canSkip = false,
     bool canSetSpeed = false,
-    bool preferSkipOverTrackButtons = false,
-    Duration? skipInterval,
   }) async {
     if (_updatesSuspended) return;
 
-    final isDarwin = defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS;
-    final effectiveCanSkip = canSkip && (!isDarwin || preferSkipOverTrackButtons);
+    final effectiveCanSkip = canSkip;
 
     try {
       // Intervals go out before the commands are advertised so the first
       // lock-screen render already shows the right glyph. The platform side
       // re-enables the skip commands as part of this call, which is
       // consistent: it only runs while skip is being advertised.
-      if (isDarwin && effectiveCanSkip && skipInterval != null && skipInterval != _lastSkipInterval) {
-        await OsMediaControls.setSkipIntervals(forward: skipInterval, backward: skipInterval);
-        _lastSkipInterval = skipInterval;
-      }
 
       final controlsToEnable = <MediaControl>[];
       final controlsToDisable = <MediaControl>[];
@@ -272,7 +215,6 @@ class MediaControlsManager {
   ///
   /// Should be called when playback stops or screen is disposed.
   Future<void> clear() async {
-    _metadataGeneration++;
     try {
       await OsMediaControls.clear();
       _throttledUpdate.cancel();
@@ -282,7 +224,6 @@ class MediaControlsManager {
       _lastCanSeek = null;
       _lastCanStop = null;
       _lastCanSkip = null;
-      _lastSkipInterval = null;
       _lastCanSetSpeed = null;
       appLogger.d('Media controls cleared');
     } catch (e) {

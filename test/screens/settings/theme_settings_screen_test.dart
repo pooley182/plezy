@@ -241,8 +241,8 @@ void main() {
   });
 
   testWidgets('on TV a locked saved perk shows the TV default, OLED, selected and focused', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     await SettingsService.instance.write(SettingsService.themeMode, settings.ThemeMode.glacier);
     final harness = await _pumpPicker(tester, SupporterAvailability.purchasable, viaKeyboard: true);
 

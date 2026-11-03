@@ -145,7 +145,6 @@ class _Translations$auth$tr extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Onay bekleniyor…';
 	@override String get quickConnectCancel => 'İptal';
 	@override String get quickConnectExpired => 'Hızlı Bağlantı süresi doldu. Tekrar deneyin.';
-	@override String get localDataRecoveryRequired => 'Plezy yerel giriş ve bekleyen oynatma verilerini güvenli bir şekilde kurtaramadı. Lütfen tekrar giriş yapın.';
 	@override String get pinCheckRejected => 'Plex PIN denetimi reddedildi';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$tr extends Translations$common$en {
 	@override String get connectingToServers => 'Sunuculara bağlanılıyor...';
 	@override String get startingOfflineMode => 'Çevrimdışı mod başlatılıyor...';
 	@override String get loading => 'Yükleniyor...';
-	@override String get fullscreen => 'Tam Ekran';
-	@override String get exitFullscreen => 'Tam Ekrandan Çık';
 	@override String get pressBackAgainToExit => 'Çıkmak için tekrar geri tuşuna basın';
 	@override late final _Translations$common$ratingSource$tr ratingSource = _Translations$common$ratingSource$tr._(_root);
 	@override String get notAvailable => 'Yok';
@@ -364,9 +361,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => 'Varsayılan Kaliteyle Aynı';
 	@override String get directPlayCoveredQuality => 'Küçük Videoları Orijinal Kalitede Oynat';
 	@override String get directPlayCoveredQualityDescription => 'Kalite sınırı içindeki videoları kod dönüştürme yerine doğrudan oynat';
-	@override String get videoCodecs => 'Video codec\'leri';
-	@override String get videoCodecsDescription => 'İşaretlenmemiş codec\'lerin kodunu sunucu dönüştürür';
-	@override String get videoCodecsAlwaysAccepted => 'Her zaman kabul edilir';
 	@override String get musicQualityTitle => 'Müzik Kalitesi';
 	@override String get subtitleStyling => 'Altyazı Biçimlendirmesi';
 	@override String get subtitleStylingDescription => 'Altyazı görünümünü özelleştirin';
@@ -392,11 +386,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get specialsOrderingLast => 'Normal sezonlardan sonra';
 	@override String get clickVideoTogglesPlayback => 'Oynat/duraklat için videoya tıkla';
 	@override String get clickVideoTogglesPlaybackDescription => 'Kontrolleri göstermek yerine oynatmak/duraklatmak için videoya tıkla.';
-	@override String get videoPlayerControls => 'Video Oynatıcı Kontrolleri';
-	@override String get keyboardShortcuts => 'Klavye Kısayolları';
-	@override String get keyboardShortcutsDescription => 'Klavye kısayollarını özelleştirin';
-	@override String get videoPlayerNavigation => 'Video Oynatıcı Gezinmesi';
-	@override String get videoPlayerNavigationDescription => 'Video oynatıcı kontrollerinde gezinmek için yön tuşlarını kullanın';
 	@override String get watchTogetherRelay => 'Birlikte İzle Aktarıcısı (Relay)';
 	@override String get watchTogetherRelayDescription => 'Kendi aktarıcınızı ayarlamadığınız sürece herkese açık Open Watch Party aktarıcıları kullanılır';
 	@override String get watchTogetherRelayHint => 'https://ornek-aktarici.com';
@@ -423,8 +412,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get importSettingsSuccess => 'Ayarlar içe aktarıldı';
 	@override String get importSettingsInvalidFile => 'Bu dosya geçerli bir Plezy ayar dosyası değil';
 	@override String get importSettingsNoUser => 'Ayarları içe aktarmadan önce giriş yapın';
-	@override String get shortcutsReset => 'Kısayollar varsayılana sıfırlandı';
-	@override String get resetShortcutsConfirm => 'Bu işlem özel kısayollarınızı varsayılanlarla değiştirecek. Devam edilsin mi?';
 	@override String get about => 'Hakkında';
 	@override String get aboutDescription => 'Uygulama bilgileri ve lisanslar';
 	@override String get updates => 'Güncellemeler';
@@ -434,8 +421,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => 'Açılışta bir güncelleme olduğunda bildir';
 	@override String get validationErrorEnterNumber => 'Lütfen geçerli bir sayı girin';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => 'Süre ${min} ile ${max} ${unit} arasında olmalıdır';
-	@override String shortcutAlreadyAssigned({required Object action}) => 'Kısayol zaten ${action} eylemine atanmış';
-	@override String shortcutUpdated({required Object action}) => '${action} için kısayol güncellendi';
 	@override String get saveFailed => 'Değişiklikler kaydedilemedi. Tekrar deneyin.';
 	@override String get autoPlayAndSkip => 'Otomatik Oynat ve Atla';
 	@override String get autoPlayNextEpisode => 'Sonraki Bölümü Otomatik Oynat';
@@ -484,8 +469,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get maxVolume => 'Maksimum Ses';
 	@override String get maxVolumeDescription => 'Kısık sesli medyalar için %100\'ün üzerinde ses yükseltmeye izin ver';
 	@override String maxVolumePercent({required Object percent}) => '%${percent}';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Discord\'da ne izlediğinizi gösterin';
 	@override String get services => 'Servisler';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr ve daha fazlasını bağlayın';
 	@override String get manageLibrariesDescription => 'Kitaplıkları yeniden sıralayın ve gizleyin';
@@ -499,17 +482,11 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => 'Ekran yenileme hızını video içeriğiyle eşitle';
 	@override String get matchContentResolution => 'İçerik çözünürlüğüne uyarla';
 	@override String get matchContentResolutionDescription => 'Ekranı videonun kendi çözünürlüğüne geçirir, böylece ölçeklendirmeyi televizyonunuz yapar. Oynatma sırasında menüler ve altyazılar da ölçeklendirilir';
-	@override String get matchRefreshRate => 'Yenileme Hızını Eşitle';
-	@override String get matchRefreshRateDescription => 'Tam ekranda ekran yenileme hızını eşitle';
-	@override String get matchDynamicRange => 'Dinamik Aralığı Eşitle';
-	@override String get matchDynamicRangeDescription => 'HDR içerik için HDR\'yi aç, ardından SDR\'ye geri dön';
 	@override String get displaySwitchDelay => 'Ekran Değiştirme Gecikmesi';
 	@override String get tunneledPlayback => 'Tünelli Oynatma';
 	@override String get tunneledPlaybackDescription => 'Video tünellemeyi kullan. HDR oynatmada siyah ekran görünüyorsa veya hareket takılıyorsa devre dışı bırakın.';
 	@override String get audioPassthrough => 'Ses Doğrudan Geçişi (Passthrough)';
 	@override String get audioPassthroughDescription => 'Dolby/DTS sesleri yeniden kodlamadan alıcınıza veya TV\'nize göndererek çevreleyen sesi korur. Ses gelmiyorsa kapatın.';
-	@override String get audioPassthroughDescriptionApple => 'Atmos dahil Dolby Digital Plus için Apple\'ın yerel Dolby çözücüsünü kullanın. DTS ve TrueHD yine çok kanallı PCM olarak oynatılır. Ses gelmiyorsa kapatın.';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Atmos dahil Dolby Digital Plus için Apple\'ın yerel Dolby çözücüsünü kullanın. iOS, iPadOS ve tvOS 26 veya sonrasında TrueHD Atmos ve DTS:X uzamsal ses olarak oynatılır. Diğer DTS ve TrueHD parçaları çok kanallı PCM olarak oynatılır. Ses gelmiyorsa kapatın.';
 	@override String get audioPassthroughOverriddenByNormalization => 'Ses normalleştirme açıkken kapalıdır';
 	@override String get audioChannelLimit => 'Ses Kanalları';
 	@override String get audioChannelLimitDescription => 'Tüm kanalları çalamayan hoparlör, kulaklık veya HDMI kurulumları için çözülen sesi daha az kanala indirger';
@@ -557,10 +534,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Uygulama her açıldığında profil seçimini göster';
 	@override String get forceTvMode => 'TV modunu zorla';
 	@override String get forceTvModeDescription => 'TV düzenini zorla. Otomatik algılamayan cihazlar içindir. Yeniden başlatma gerektirir.';
-	@override String get startInFullscreen => 'Tam ekranda başlat';
-	@override String get startInFullscreenDescription => 'Plezy\'yi açılışta tam ekran modunda aç';
-	@override String get exitFullscreenOnPlayerClose => 'Oynatıcı kapandığında tam ekrandan çık';
-	@override String get exitFullscreenOnPlayerCloseDescription => 'Video oynatıcıyı kapatırken otomatik olarak tam ekrandan çık';
 	@override String get autoHidePerformanceOverlay => 'Performans Katmanını Otomatik Gizle';
 	@override String get autoHidePerformanceOverlayDescription => 'Performans katmanını oynatma kontrolleriyle birlikte soluklaştır';
 	@override String get showNavBarLabels => 'Gezinme Çubuğu Etiketlerini Göster';
@@ -578,7 +551,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get libraryAndCards => 'Kitaplık ve Kartlar';
 	@override String get homeScreen => 'Ana Ekran';
 	@override String get navigation => 'Gezinme';
-	@override String get window => 'Pencere';
 	@override String get liveTv => 'Canlı TV';
 	@override String get player => 'Oynatıcı';
 	@override String get videoAndDisplay => 'Video ve Ekran';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$tr extends Translations$hotkeys$en {
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => '${actionName} için Kısayol Ayarla';
-	@override String get clearShortcut => 'Kısayolu temizle';
 	@override String get noShortcutSet => 'Kısayol ayarlanmadı';
-	@override String get currentShortcut => 'Mevcut kısayol:';
-	@override String get pressToRecord => 'Kısayol kaydetmek için seçin';
-	@override String get recordingShortcut => 'Şimdi kısayol tuşuna basın';
 	@override late final _Translations$hotkeys$actions$tr actions = _Translations$hotkeys$actions$tr._(_root);
 }
 
@@ -980,16 +947,12 @@ class _Translations$videoControls$tr extends Translations$videoControls$en {
 	@override String get pipButton => 'Pencere İçinde Pencere modu';
 	@override String get aspectRatioButton => 'En boy oranı';
 	@override String get ambientLighting => 'Ortam aydınlatması';
-	@override String get fullscreenButton => 'Tam ekrana geç';
-	@override String get exitFullscreenButton => 'Tam ekrandan çık';
-	@override String get alwaysOnTopButton => 'Her zaman üstte';
 	@override String get rotationLockButton => 'Döndürme kilidi';
 	@override String get lockScreen => 'Ekranı kilitle';
 	@override String get screenLockButton => 'Ekran kilidi';
 	@override String get timelineSlider => 'Video zaman çubuğu';
 	@override String get volumeSlider => 'Ses seviyesi';
 	@override String endsAt({required Object time}) => 'Bitiş saati: ${time}';
-	@override String get pipActive => 'Pencere İçinde Pencere modunda oynatılıyor';
 	@override String get pipFailed => 'Pencere içinde pencere modu başlatılamadı';
 	@override String get screenshotSaved => 'Ekran görüntüsü kaydedildi';
 	@override String get screenshotFailed => 'Ekran görüntüsü alınamadı';
@@ -1157,7 +1120,6 @@ class _Translations$mpvConfig$tr extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => 'Satır Ekle';
 	@override String get removeLine => 'Satırı Kaldır';
-	@override String get embeddedVoHint => 'vo, gpu-context ve gpu-api Linux\'ta yok sayılır: gömülü video her zaman video düzleminde vo=libmpv üzerinden işlenir ve gpu-next (ArtCNN gibi compute shader\'ların ihtiyaç duyduğu) gömülü olarak çalışamaz.';
 }
 
 // Path: dialog
@@ -1507,7 +1469,6 @@ class _Translations$startup$tr extends Translations$startup$en {
 	@override String get repairSucceeded => 'Depolama alanı onarıldı';
 	@override String get repairNeedsRestart => 'Depolama alanı onarıldı — yeniden başlatma gerekli';
 	@override String get restartRequiredBody => 'Verileriniz onarıldı, ancak Plezy\'nin bunları kullanabilmesi için temiz bir başlangıç yapması gerekiyor. Plezy\'yi kapatıp yeniden açın.';
-	@override String get quitPlezy => 'Plezy\'den Çık';
 	@override String get repairFailed => 'Onarım başarısız oldu';
 	@override String get repairKeptSignIns => 'Sunucularınız ve profilleriniz hâlâ giriş yapılı.';
 	@override String get repairLostSignIns => 'Kayıtlı girişlerinizi koruyan anahtar kurtarılamadı. Her sunucuya ve profile yeniden giriş yapmanız gerekecek.';
@@ -2078,20 +2039,9 @@ class _Translations$videoSettings$tr extends Translations$videoSettings$en {
 	@override String get audioSync => 'Ses Senkronizasyonu';
 	@override String get subtitleSync => 'Altyazı Senkronizasyonu';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => 'HDR burada kullanılamıyor — bu masaüstü birleştiricisi veya video çıkışı HDR\'yi taşıyamıyor.';
-	@override String get hdrToneMapping => 'HDR ton eşleme';
-	@override String get hdrToneMappingCompositor => 'Birleştirici';
-	@override String get hdrToneMappingCompositorDescription => 'Kaynağın HDR meta verilerini olduğu gibi iletip eşlemeyi masaüstü birleştiricisine bırakın.';
-	@override String get hdrToneMappingPlayer => 'Oynatıcı';
-	@override String get hdrToneMappingPlayerDescription => 'Oynatıcıda ekranın en yüksek parlaklığına göre eşleyin, ardından sonucu birleştiriciye bildirin.';
-	@override String get hdrToneMappingFailed => 'HDR ton eşleme değiştirilemedi — önceki mod hâlâ etkin.';
 	@override String get audioOutput => 'Ses Çıkışı';
-	@override String get performanceOverlay => 'Performans Katmanı';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => 'Çevreleyen Ses';
-	@override String get audioOutputSpatial => 'Uzamsal Ses';
 	@override String get audioOutputStereo => 'Stereo';
+	@override String get performanceOverlay => 'Performans Katmanı';
 	@override String get audioNormalization => 'Ses Yüksekliğini Normalleştir';
 	@override String get audioNormalizationDisablesPassthrough => 'Sesi PCM\'e çözer; bu açıkken doğrudan geçiş kapalıdır';
 }
@@ -2174,7 +2124,6 @@ class _Translations$externalPlayer$tr extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => 'Özel Oynatıcı Ekle';
 	@override String get playerName => 'Oynatıcı Adı';
 	@override String get playerNameHint => 'Oynatıcım';
-	@override String get playerCommand => 'Komut';
 	@override String get playerPackage => 'Paket Adı';
 	@override String get playerUrlScheme => 'URL Şeması';
 	@override String get off => 'Kapalı';
@@ -2386,7 +2335,6 @@ class _Translations$services$tr extends Translations$services$en {
 	// Translations
 	@override String get title => 'Servisler';
 	@override String get hubSubtitle => 'İzleme ilerlemesini eşitleyin ve yeni başlıklar isteyin.';
-	@override String get integrations => 'Entegrasyonlar';
 	@override String get notConnected => 'Bağlı değil';
 	@override String connectedAs({required Object username}) => '@${username} olarak bağlandı';
 	@override String get scrobble => 'İlerlemeyi otomatik takip et';
@@ -2621,7 +2569,6 @@ class _Translations$videoControls$pipErrors$tr extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Android 8.0 veya daha yenisini gerektirir';
-	@override String get iosVersion => 'iOS 15.0 veya daha yenisini gerektirir';
 	@override String get permissionDisabled => 'Pencere içinde pencere devre dışı. Sistem ayarlarından etkinleştirin.';
 	@override String get notSupported => 'Cihaz pencere içinde pencere modunu desteklemiyor';
 	@override String get voSwitchFailed => 'Pencere içinde pencere için video çıkışı değiştirilemedi';
@@ -3442,7 +3389,6 @@ extension on TranslationsTr {
 			'auth.quickConnectWaiting' => 'Onay bekleniyor…',
 			'auth.quickConnectCancel' => 'İptal',
 			'auth.quickConnectExpired' => 'Hızlı Bağlantı süresi doldu. Tekrar deneyin.',
-			'auth.localDataRecoveryRequired' => 'Plezy yerel giriş ve bekleyen oynatma verilerini güvenli bir şekilde kurtaramadı. Lütfen tekrar giriş yapın.',
 			'auth.pinCheckRejected' => 'Plex PIN denetimi reddedildi',
 			'common.cancel' => 'İptal',
 			'common.save' => 'Kaydet',
@@ -3487,8 +3433,6 @@ extension on TranslationsTr {
 			'common.connectingToServers' => 'Sunuculara bağlanılıyor...',
 			'common.startingOfflineMode' => 'Çevrimdışı mod başlatılıyor...',
 			'common.loading' => 'Yükleniyor...',
-			'common.fullscreen' => 'Tam Ekran',
-			'common.exitFullscreen' => 'Tam Ekrandan Çık',
 			'common.pressBackAgainToExit' => 'Çıkmak için tekrar geri tuşuna basın',
 			'common.ratingSource.critic' => 'Eleştirmenler',
 			'common.ratingSource.audience' => 'İzleyiciler',
@@ -3644,9 +3588,6 @@ extension on TranslationsTr {
 			'settings.cellularQualitySameAsDefault' => 'Varsayılan Kaliteyle Aynı',
 			'settings.directPlayCoveredQuality' => 'Küçük Videoları Orijinal Kalitede Oynat',
 			'settings.directPlayCoveredQualityDescription' => 'Kalite sınırı içindeki videoları kod dönüştürme yerine doğrudan oynat',
-			'settings.videoCodecs' => 'Video codec\'leri',
-			'settings.videoCodecsDescription' => 'İşaretlenmemiş codec\'lerin kodunu sunucu dönüştürür',
-			'settings.videoCodecsAlwaysAccepted' => 'Her zaman kabul edilir',
 			'settings.musicQualityTitle' => 'Müzik Kalitesi',
 			'settings.subtitleStyling' => 'Altyazı Biçimlendirmesi',
 			'settings.subtitleStylingDescription' => 'Altyazı görünümünü özelleştirin',
@@ -3672,11 +3613,6 @@ extension on TranslationsTr {
 			'settings.specialsOrderingLast' => 'Normal sezonlardan sonra',
 			'settings.clickVideoTogglesPlayback' => 'Oynat/duraklat için videoya tıkla',
 			'settings.clickVideoTogglesPlaybackDescription' => 'Kontrolleri göstermek yerine oynatmak/duraklatmak için videoya tıkla.',
-			'settings.videoPlayerControls' => 'Video Oynatıcı Kontrolleri',
-			'settings.keyboardShortcuts' => 'Klavye Kısayolları',
-			'settings.keyboardShortcutsDescription' => 'Klavye kısayollarını özelleştirin',
-			'settings.videoPlayerNavigation' => 'Video Oynatıcı Gezinmesi',
-			'settings.videoPlayerNavigationDescription' => 'Video oynatıcı kontrollerinde gezinmek için yön tuşlarını kullanın',
 			'settings.watchTogetherRelay' => 'Birlikte İzle Aktarıcısı (Relay)',
 			'settings.watchTogetherRelayDescription' => 'Kendi aktarıcınızı ayarlamadığınız sürece herkese açık Open Watch Party aktarıcıları kullanılır',
 			'settings.watchTogetherRelayHint' => 'https://ornek-aktarici.com',
@@ -3703,8 +3639,6 @@ extension on TranslationsTr {
 			'settings.importSettingsSuccess' => 'Ayarlar içe aktarıldı',
 			'settings.importSettingsInvalidFile' => 'Bu dosya geçerli bir Plezy ayar dosyası değil',
 			'settings.importSettingsNoUser' => 'Ayarları içe aktarmadan önce giriş yapın',
-			'settings.shortcutsReset' => 'Kısayollar varsayılana sıfırlandı',
-			'settings.resetShortcutsConfirm' => 'Bu işlem özel kısayollarınızı varsayılanlarla değiştirecek. Devam edilsin mi?',
 			'settings.about' => 'Hakkında',
 			'settings.aboutDescription' => 'Uygulama bilgileri ve lisanslar',
 			'settings.updates' => 'Güncellemeler',
@@ -3714,8 +3648,6 @@ extension on TranslationsTr {
 			'settings.autoCheckUpdatesOnStartupDescription' => 'Açılışta bir güncelleme olduğunda bildir',
 			'settings.validationErrorEnterNumber' => 'Lütfen geçerli bir sayı girin',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => 'Süre ${min} ile ${max} ${unit} arasında olmalıdır',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'Kısayol zaten ${action} eylemine atanmış',
-			'settings.shortcutUpdated' => ({required Object action}) => '${action} için kısayol güncellendi',
 			'settings.saveFailed' => 'Değişiklikler kaydedilemedi. Tekrar deneyin.',
 			'settings.autoPlayAndSkip' => 'Otomatik Oynat ve Atla',
 			'settings.autoPlayNextEpisode' => 'Sonraki Bölümü Otomatik Oynat',
@@ -3764,8 +3696,6 @@ extension on TranslationsTr {
 			'settings.maxVolume' => 'Maksimum Ses',
 			'settings.maxVolumeDescription' => 'Kısık sesli medyalar için %100\'ün üzerinde ses yükseltmeye izin ver',
 			'settings.maxVolumePercent' => ({required Object percent}) => '%${percent}',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Discord\'da ne izlediğinizi gösterin',
 			'settings.services' => 'Servisler',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr ve daha fazlasını bağlayın',
 			'settings.manageLibrariesDescription' => 'Kitaplıkları yeniden sıralayın ve gizleyin',
@@ -3779,17 +3709,11 @@ extension on TranslationsTr {
 			'settings.matchContentFrameRateDescription' => 'Ekran yenileme hızını video içeriğiyle eşitle',
 			'settings.matchContentResolution' => 'İçerik çözünürlüğüne uyarla',
 			'settings.matchContentResolutionDescription' => 'Ekranı videonun kendi çözünürlüğüne geçirir, böylece ölçeklendirmeyi televizyonunuz yapar. Oynatma sırasında menüler ve altyazılar da ölçeklendirilir',
-			'settings.matchRefreshRate' => 'Yenileme Hızını Eşitle',
-			'settings.matchRefreshRateDescription' => 'Tam ekranda ekran yenileme hızını eşitle',
-			'settings.matchDynamicRange' => 'Dinamik Aralığı Eşitle',
-			'settings.matchDynamicRangeDescription' => 'HDR içerik için HDR\'yi aç, ardından SDR\'ye geri dön',
 			'settings.displaySwitchDelay' => 'Ekran Değiştirme Gecikmesi',
 			'settings.tunneledPlayback' => 'Tünelli Oynatma',
 			'settings.tunneledPlaybackDescription' => 'Video tünellemeyi kullan. HDR oynatmada siyah ekran görünüyorsa veya hareket takılıyorsa devre dışı bırakın.',
 			'settings.audioPassthrough' => 'Ses Doğrudan Geçişi (Passthrough)',
 			'settings.audioPassthroughDescription' => 'Dolby/DTS sesleri yeniden kodlamadan alıcınıza veya TV\'nize göndererek çevreleyen sesi korur. Ses gelmiyorsa kapatın.',
-			'settings.audioPassthroughDescriptionApple' => 'Atmos dahil Dolby Digital Plus için Apple\'ın yerel Dolby çözücüsünü kullanın. DTS ve TrueHD yine çok kanallı PCM olarak oynatılır. Ses gelmiyorsa kapatın.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Atmos dahil Dolby Digital Plus için Apple\'ın yerel Dolby çözücüsünü kullanın. iOS, iPadOS ve tvOS 26 veya sonrasında TrueHD Atmos ve DTS:X uzamsal ses olarak oynatılır. Diğer DTS ve TrueHD parçaları çok kanallı PCM olarak oynatılır. Ses gelmiyorsa kapatın.',
 			'settings.audioPassthroughOverriddenByNormalization' => 'Ses normalleştirme açıkken kapalıdır',
 			'settings.audioChannelLimit' => 'Ses Kanalları',
 			'settings.audioChannelLimitDescription' => 'Tüm kanalları çalamayan hoparlör, kulaklık veya HDMI kurulumları için çözülen sesi daha az kanala indirger',
@@ -3837,10 +3761,6 @@ extension on TranslationsTr {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Uygulama her açıldığında profil seçimini göster',
 			'settings.forceTvMode' => 'TV modunu zorla',
 			'settings.forceTvModeDescription' => 'TV düzenini zorla. Otomatik algılamayan cihazlar içindir. Yeniden başlatma gerektirir.',
-			'settings.startInFullscreen' => 'Tam ekranda başlat',
-			'settings.startInFullscreenDescription' => 'Plezy\'yi açılışta tam ekran modunda aç',
-			'settings.exitFullscreenOnPlayerClose' => 'Oynatıcı kapandığında tam ekrandan çık',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'Video oynatıcıyı kapatırken otomatik olarak tam ekrandan çık',
 			'settings.autoHidePerformanceOverlay' => 'Performans Katmanını Otomatik Gizle',
 			'settings.autoHidePerformanceOverlayDescription' => 'Performans katmanını oynatma kontrolleriyle birlikte soluklaştır',
 			'settings.showNavBarLabels' => 'Gezinme Çubuğu Etiketlerini Göster',
@@ -3858,7 +3778,6 @@ extension on TranslationsTr {
 			'settings.libraryAndCards' => 'Kitaplık ve Kartlar',
 			'settings.homeScreen' => 'Ana Ekran',
 			'settings.navigation' => 'Gezinme',
-			'settings.window' => 'Pencere',
 			'settings.liveTv' => 'Canlı TV',
 			'settings.player' => 'Oynatıcı',
 			'settings.videoAndDisplay' => 'Video ve Ekran',
@@ -3907,8 +3826,6 @@ extension on TranslationsTr {
 			'themeEditor.slots.text' => 'Metin',
 			'themeEditor.slots.textMuted' => 'İkincil metin',
 			'themeEditor.slots.accent' => 'Vurgu',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => 'Opaklık',
 			'themeEditor.hexHint' => '#RRGGBB veya #AARRGGBB',
 			'themeEditor.fromOtherThemes' => 'Diğer temalardan',
@@ -3933,15 +3850,12 @@ extension on TranslationsTr {
 			'search.searchYourMedia' => 'Medyanızda arayın',
 			'search.enterTitleActorOrKeyword' => 'Başlık, oyuncu veya anahtar kelime girin',
 			'search.people' => 'Kişiler',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => '${actionName} için Kısayol Ayarla',
-			'hotkeys.clearShortcut' => 'Kısayolu temizle',
 			'hotkeys.noShortcutSet' => 'Kısayol ayarlanmadı',
-			'hotkeys.currentShortcut' => 'Mevcut kısayol:',
-			'hotkeys.pressToRecord' => 'Kısayol kaydetmek için seçin',
-			'hotkeys.recordingShortcut' => 'Şimdi kısayol tuşuna basın',
 			'hotkeys.actions.playPause' => 'Oynat/Duraklat',
 			'hotkeys.actions.volumeUp' => 'Sesi Yükselt',
 			'hotkeys.actions.volumeDown' => 'Sesi Kıs',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'İleri Sar (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Geri Sar (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Tam Ekranı Aç/Kapat',
@@ -4198,23 +4112,18 @@ extension on TranslationsTr {
 			'videoControls.pipButton' => 'Pencere İçinde Pencere modu',
 			'videoControls.aspectRatioButton' => 'En boy oranı',
 			'videoControls.ambientLighting' => 'Ortam aydınlatması',
-			'videoControls.fullscreenButton' => 'Tam ekrana geç',
-			'videoControls.exitFullscreenButton' => 'Tam ekrandan çık',
-			'videoControls.alwaysOnTopButton' => 'Her zaman üstte',
 			'videoControls.rotationLockButton' => 'Döndürme kilidi',
 			'videoControls.lockScreen' => 'Ekranı kilitle',
 			'videoControls.screenLockButton' => 'Ekran kilidi',
 			'videoControls.timelineSlider' => 'Video zaman çubuğu',
 			'videoControls.volumeSlider' => 'Ses seviyesi',
 			'videoControls.endsAt' => ({required Object time}) => 'Bitiş saati: ${time}',
-			'videoControls.pipActive' => 'Pencere İçinde Pencere modunda oynatılıyor',
 			'videoControls.pipFailed' => 'Pencere içinde pencere modu başlatılamadı',
 			'videoControls.screenshotSaved' => 'Ekran görüntüsü kaydedildi',
 			'videoControls.screenshotFailed' => 'Ekran görüntüsü alınamadı',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'Yakınlaştırma %${percent}',
 			'videoControls.volumePercent' => ({required Object percent}) => 'Ses %${percent}',
 			'videoControls.pipErrors.androidVersion' => 'Android 8.0 veya daha yenisini gerektirir',
-			'videoControls.pipErrors.iosVersion' => 'iOS 15.0 veya daha yenisini gerektirir',
 			'videoControls.pipErrors.permissionDisabled' => 'Pencere içinde pencere devre dışı. Sistem ayarlarından etkinleştirin.',
 			'videoControls.pipErrors.notSupported' => 'Cihaz pencere içinde pencere modunu desteklemiyor',
 			'videoControls.pipErrors.voSwitchFailed' => 'Pencere içinde pencere için video çıkışı değiştirilemedi',
@@ -4352,7 +4261,6 @@ extension on TranslationsTr {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => 'Satır Ekle',
 			'mpvConfig.removeLine' => 'Satırı Kaldır',
-			'mpvConfig.embeddedVoHint' => 'vo, gpu-context ve gpu-api Linux\'ta yok sayılır: gömülü video her zaman video düzleminde vo=libmpv üzerinden işlenir ve gpu-next (ArtCNN gibi compute shader\'ların ihtiyaç duyduğu) gömülü olarak çalışamaz.',
 			'dialog.confirmAction' => 'Eylemi Onayla',
 			'profiles.addPlezyProfile' => 'Plezy profili ekle',
 			'profiles.switchingProfile' => 'Profil değiştiriliyor…',
@@ -4421,8 +4329,6 @@ extension on TranslationsTr {
 			'profiles.tokenIdentityMismatch' => 'Plex profil belirtecinin beklenmeyen bir sunucuya ait olduğu belirlendi',
 			'connections.sectionTitle' => 'Bağlantılar',
 			'connections.addConnection' => 'Bağlantı ekle',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Plex ile giriş yapın veya bir Jellyfin ya da Emby sunucusu bağlayın',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => '${displayName} profiline ekle: Plex, Jellyfin, Emby veya başka bir profil bağlantısı',
 			'connections.sessionExpiredOne' => ({required Object name}) => '${name} için oturum süresi doldu',
@@ -4462,6 +4368,8 @@ extension on TranslationsTr {
 			'accountPreferences.subtitleModes.smart' => 'Yabancı sesle gösterilen',
 			'accountPreferences.subtitleModes.smartDescription' => 'Altyazıları yalnızca ses başka bir dildeyken aç.',
 			'accountPreferences.subtitleAccessibility' => 'SDH altyazılar',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'SDH olmayan altyazıları tercih et',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH altyazıları tercih et',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Yalnızca SDH altyazılar',
@@ -4686,7 +4594,6 @@ extension on TranslationsTr {
 			'startup.repairSucceeded' => 'Depolama alanı onarıldı',
 			'startup.repairNeedsRestart' => 'Depolama alanı onarıldı — yeniden başlatma gerekli',
 			'startup.restartRequiredBody' => 'Verileriniz onarıldı, ancak Plezy\'nin bunları kullanabilmesi için temiz bir başlangıç yapması gerekiyor. Plezy\'yi kapatıp yeniden açın.',
-			'startup.quitPlezy' => 'Plezy\'den Çık',
 			'startup.repairFailed' => 'Onarım başarısız oldu',
 			'startup.repairKeptSignIns' => 'Sunucularınız ve profilleriniz hâlâ giriş yapılı.',
 			'startup.repairLostSignIns' => 'Kayıtlı girişlerinizi koruyan anahtar kurtarılamadı. Her sunucuya ve profile yeniden giriş yapmanız gerekecek.',
@@ -4935,8 +4842,6 @@ extension on TranslationsTr {
 			'liveTv.recordSettings.keepUpToHint' => '0 tüm bölümleri saklar',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => '${minutes} dk içinde başlıyor',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day} saat ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product} geçersiz Canlı TV oynatma verileri döndürdü',
 			'liveTv.failedToStartChannel' => 'Canlı kanal başlatılamadı',
 			'liveTv.failedToBuildStreamUrl' => 'Akış URL\'si oluşturulamadı',
@@ -4977,6 +4882,8 @@ extension on TranslationsTr {
 			'playlists.deleteConfirm' => 'Oynatma Listesi Silinsin mi?',
 			'playlists.deleteMessage' => ({required Object name}) => '"${name}" listesini silmek istediğinizden emin misiniz?',
 			'playlists.created' => 'Oynatma listesi oluşturuldu',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => 'Oynatma listesi silindi',
 			'playlists.itemAdded' => 'Oynatma listesine eklendi',
 			'playlists.itemRemoved' => 'Oynatma listesinden kaldırıldı',
@@ -5380,20 +5287,9 @@ extension on TranslationsTr {
 			'videoSettings.audioSync' => 'Ses Senkronizasyonu',
 			'videoSettings.subtitleSync' => 'Altyazı Senkronizasyonu',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'HDR burada kullanılamıyor — bu masaüstü birleştiricisi veya video çıkışı HDR\'yi taşıyamıyor.',
-			'videoSettings.hdrToneMapping' => 'HDR ton eşleme',
-			'videoSettings.hdrToneMappingCompositor' => 'Birleştirici',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'Kaynağın HDR meta verilerini olduğu gibi iletip eşlemeyi masaüstü birleştiricisine bırakın.',
-			'videoSettings.hdrToneMappingPlayer' => 'Oynatıcı',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'Oynatıcıda ekranın en yüksek parlaklığına göre eşleyin, ardından sonucu birleştiriciye bildirin.',
-			'videoSettings.hdrToneMappingFailed' => 'HDR ton eşleme değiştirilemedi — önceki mod hâlâ etkin.',
 			'videoSettings.audioOutput' => 'Ses Çıkışı',
-			'videoSettings.performanceOverlay' => 'Performans Katmanı',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'Çevreleyen Ses',
-			'videoSettings.audioOutputSpatial' => 'Uzamsal Ses',
 			'videoSettings.audioOutputStereo' => 'Stereo',
+			'videoSettings.performanceOverlay' => 'Performans Katmanı',
 			'videoSettings.audioNormalization' => 'Ses Yüksekliğini Normalleştir',
 			'videoSettings.audioNormalizationDisablesPassthrough' => 'Sesi PCM\'e çözer; bu açıkken doğrudan geçiş kapalıdır',
 			'performanceOverlay.color' => 'Renk',
@@ -5449,8 +5345,6 @@ extension on TranslationsTr {
 			'performanceOverlay.decoderHardware' => 'Donanım',
 			'performanceOverlay.tunnelingActive' => 'Etkin',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted} (${failures} başarısız)',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => 'Harici Oynatıcı',
 			'externalPlayer.useExternalPlayer' => 'Harici Oynatıcı Kullan',
 			'externalPlayer.useExternalPlayerDescription' => 'Videoları başka bir uygulamada açın',
@@ -5460,7 +5354,6 @@ extension on TranslationsTr {
 			'externalPlayer.addCustomPlayer' => 'Özel Oynatıcı Ekle',
 			'externalPlayer.playerName' => 'Oynatıcı Adı',
 			'externalPlayer.playerNameHint' => 'Oynatıcım',
-			'externalPlayer.playerCommand' => 'Komut',
 			'externalPlayer.playerPackage' => 'Paket Adı',
 			'externalPlayer.playerUrlScheme' => 'URL Şeması',
 			'externalPlayer.off' => 'Kapalı',
@@ -5503,6 +5396,8 @@ extension on TranslationsTr {
 			'metadataEdit.libraryDefault' => 'Kitaplık varsayılanı',
 			'metadataEdit.accountDefault' => 'Hesap varsayılanı',
 			'metadataEdit.seriesDefault' => 'Dizi varsayılanı',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Bölüm Sıralaması',
 			'metadataEdit.oldestFirst' => 'Önce en eski',
 			'metadataEdit.newestFirst' => 'Önce en yeni',
@@ -5618,7 +5513,6 @@ extension on TranslationsTr {
 			'seerr.permissionRevoked' => 'Bunu isteme izniniz artık yok',
 			'services.title' => 'Servisler',
 			'services.hubSubtitle' => 'İzleme ilerlemesini eşitleyin ve yeni başlıklar isteyin.',
-			'services.integrations' => 'Entegrasyonlar',
 			'services.notConnected' => 'Bağlı değil',
 			'services.connectedAs' => ({required Object username}) => '@${username} olarak bağlandı',
 			'services.scrobble' => 'İlerlemeyi otomatik takip et',

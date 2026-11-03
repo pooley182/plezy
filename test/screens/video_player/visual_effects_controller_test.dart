@@ -16,6 +16,7 @@ import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart
 import '../../test_helpers/io_fakes.dart';
 import '../../test_helpers/media_items.dart';
 import '../../test_helpers/prefs.dart';
+import '../../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -85,7 +86,7 @@ void main() {
 /// Answers picture geometry the way mpv does: `video-aspect-override` rewrites
 /// the display size `dwidth`/`dheight` report, `keepaspect` only changes how
 /// the VO scales the frame and leaves them alone.
-class _MpvGeometryPlayer implements Player {
+class _MpvGeometryPlayer with AndroidPlayerNoops implements Player {
   _MpvGeometryPlayer({required this._width, required this._height});
 
   int _width;

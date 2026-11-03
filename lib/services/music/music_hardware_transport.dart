@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show TargetPlatform, VoidCallback, defaultTargetPlatform;
 import 'package:flutter/services.dart';
 
 import '../../focus/transport_keys.dart';
@@ -15,11 +14,6 @@ import '../../focus/transport_keys.dart';
 /// and up so a press can neither leak to Android's fallback MediaSession
 /// dispatch (the stale-session class of #1375) nor double as input to a
 /// focused library item (#1510).
-///
-/// Android-only by design: Apple platforms deliver transport through the
-/// native remote bridge / MPRemoteCommandCenter, and desktop OSes route media
-/// keys through SMTC/MPRIS/MPNowPlaying — consuming raw key events there
-/// would run commands twice.
 ///
 /// `MusicPlaybackServiceImpl` owns one instance per session, on the same
 /// lifecycle as the OS media session. Video playback can never race this
@@ -54,7 +48,7 @@ class MusicHardwareTransportHandler {
   /// Install the global key handler. No-op off Android and when already
   /// registered.
   void register() {
-    if (_registered || defaultTargetPlatform != TargetPlatform.android) return;
+    if (_registered) return;
     HardwareKeyboard.instance.addHandler(_handleKeyEvent);
     _registered = true;
   }

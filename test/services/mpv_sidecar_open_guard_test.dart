@@ -4,13 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/services/mpv_sidecar_open_guard.dart';
 import 'package:plezy/services/playback_open_outcome.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// A stream that never emits and never closes, for the signals a case does
 /// not drive: the open outcome treats any closed player stream as the player
 /// being gone.
 Stream<T> _idle<T>() => StreamController<T>.broadcast().stream;
 
-class _StreamPlayer implements Player {
+class _StreamPlayer with AndroidPlayerNoops implements Player {
   @override
   final PlayerStreams streams;
 

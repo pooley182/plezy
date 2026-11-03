@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -10,11 +9,9 @@ import '../../media/media_item.dart';
 import '../../media/stepped_seek.dart';
 import '../../mpv/mpv.dart';
 import '../../media/media_source_info.dart';
-import '../../services/fullscreen_state_manager.dart';
 import '../../services/live_seek_accumulator.dart';
 import '../../services/scrub_preview_source.dart';
 import '../../services/video_volume_controller.dart';
-import '../../utils/desktop_window_padding.dart';
 import '../../utils/platform_detector.dart';
 import '../../utils/formatters.dart';
 import '../../i18n/strings.g.dart';
@@ -677,16 +674,7 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
   );
 
   Widget _buildTopBar(BuildContext _) {
-    // Use global fullscreen state for padding
-    return ListenableBuilder(
-      listenable: FullscreenStateManager(),
-      builder: (context, _) {
-        // On macOS the traffic lights need clearing in normal mode; they auto-hide in fullscreen.
-        final leftPadding = Platform.isMacOS ? DesktopWindowPadding.macOSLeftCurrent : 0.0;
-
-        return _buildTopBarContent(context, leftPadding);
-      },
-    );
+    return _buildTopBarContent(context, 0);
   }
 
   Widget _buildTopBarContent(BuildContext _, double leftPadding) {
@@ -697,7 +685,6 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
           Expanded(
             child: VideoControlsHeader(
               metadata: widget.metadata,
-              style: Platform.isMacOS ? VideoHeaderStyle.singleLine : VideoHeaderStyle.multiLine,
               onBack: widget.onBack,
               onCancelAutoHide: widget.onCancelAutoHide,
               onStartAutoHide: widget.onStartAutoHide,
@@ -718,7 +705,7 @@ class DesktopVideoControlsState extends State<DesktopVideoControls> {
       ),
     );
 
-    return DesktopAppBarHelper.wrapWithGestureDetector(_absorbMissedClicks(topBar), opaque: true);
+    return _absorbMissedClicks(topBar);
   }
 
   Widget _buildBottomControlsContent(BuildContext _, {required bool hasFrame}) {

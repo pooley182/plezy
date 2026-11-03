@@ -11,13 +11,13 @@ import 'package:plezy/utils/platform_detector.dart';
 
 void main() {
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     BackKeyUpSuppressor.clearSuppression();
     BackKeyCoordinator.clear();
   });
 
   testWidgets('tvOS physical keyboard back runs on key down and suppresses key up', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     var backs = 0;
 
     final downResult = handleBackKeyAction(
@@ -47,7 +47,7 @@ void main() {
   });
 
   testWidgets('tvOS remote back runs on key down for non-keyboard device types', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     var backs = 0;
 
     final downResult = handleBackKeyAction(

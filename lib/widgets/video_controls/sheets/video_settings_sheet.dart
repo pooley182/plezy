@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -18,7 +17,6 @@ import '../../../media/media_item.dart';
 import '../../../media/media_server_client.dart';
 import '../../../media/playback_rate.dart';
 import '../../../mpv/mpv.dart';
-import '../../../mpv/player/player_native.dart';
 import '../../../providers/shader_provider.dart';
 import '../../../services/file_picker_service.dart';
 import '../../../services/scoped_player_prefs.dart';
@@ -50,18 +48,7 @@ import '../../../i18n/strings.g.dart';
 import 'base_video_control_sheet.dart';
 import 'version_quality_sheet.dart';
 
-enum _SettingsView {
-  menu,
-  speed,
-  zoom,
-  versionQuality,
-  sleep,
-  audioDevice,
-  shader,
-  dvConversion,
-  hdrToneMapping,
-  audioChannelLimit,
-}
+enum _SettingsView { menu, speed, zoom, versionQuality, sleep, audioDevice, shader, dvConversion, audioChannelLimit }
 
 class _SettingsMenuItem extends StatelessWidget {
   final IconData icon;
@@ -272,89 +259,16 @@ class _SettingsToggleItemState extends State<_SettingsToggleItem> {
   }
 }
 
-/// Reflects the system's resolved audio rendering mode, as the Dolby
-/// application guide requires, and on iPhone/iPad confirms Spatial Audio or
-/// Dolby Atmos reached the headphones. Renders nothing until the system
-/// reports a conclusive value: `renderingMode` is only populated for routes
-/// the system renders itself, and showing "Stereo" for an inconclusive HDMI
-/// route would be worse than showing nothing.
-class _AudioRenderingModeItem extends StatefulWidget {
-  const _AudioRenderingModeItem({required this.player});
-
-  final Player player;
-
-  @override
-  State<_AudioRenderingModeItem> createState() => _AudioRenderingModeItemState();
-}
-
-class _AudioRenderingModeItemState extends State<_AudioRenderingModeItem> {
-  AudioRenderingMode? _mode;
-  Timer? _poll;
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_refresh());
-    _poll = Timer.periodic(const Duration(seconds: 2), (_) => unawaited(_refresh()));
-  }
-
-  @override
-  void dispose() {
-    _poll?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _refresh() async {
-    final mode = await widget.player.getAudioRenderingMode();
-    if (!mounted) return;
-    setState(() => _mode = mode);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final mode = _mode;
-    if (mode == null || !mode.isConclusive) return const SizedBox.shrink();
-    final label = switch (mode.rawValue) {
-      AudioRenderingMode.dolbyAtmos => t.videoSettings.audioOutputDolbyAtmos,
-      AudioRenderingMode.dolbyAudio => t.videoSettings.audioOutputDolbyAudio,
-      AudioRenderingMode.surround => t.videoSettings.audioOutputSurround,
-      AudioRenderingMode.spatialAudio => t.videoSettings.audioOutputSpatial,
-      _ => t.videoSettings.audioOutputStereo,
-    };
-    final highlighted = mode.isDolbyAtmos || mode.isDolbyAudio;
-    return FocusableListTile(
-      leading: AppIcon(
-        Symbols.spatial_audio_rounded,
-        fill: 1,
-        color: highlighted ? Colors.amber : tokens(context).textMuted,
-      ),
-      title: Text(t.videoSettings.audioOutput),
-      trailing: Text(label, style: TextStyle(color: tokens(context).textMuted)),
-    );
-  }
-}
-
 /// Unified settings sheet for playback adjustments with in-sheet navigation
 class VideoSettingsSheet extends StatefulWidget {
   final Player player;
-
-  /// Whether this player surface supports Plezy's HDR control.
-  ///
-  /// Defaults to the native platform capability, but can be supplied by
-  /// embedders whose capability is known independently of the host platform.
-  final bool? supportsHdrControl;
 
   /// Shared player-control state. Every playback value and callback this sheet
   /// shows (sync offsets, zoom, versions/quality, shaders, ambient lighting,
   /// auto-hide) is read straight off it.
   final TrackControlsState trackControlsState;
 
-  const VideoSettingsSheet({
-    super.key,
-    required this.player,
-    this.supportsHdrControl,
-    required this.trackControlsState,
-  });
+  const VideoSettingsSheet({super.key, required this.player, required this.trackControlsState});
 
   @override
   State<VideoSettingsSheet> createState() => _VideoSettingsSheetState();
@@ -367,38 +281,13 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
   late double _zoomScale;
   String _dvConversionMode = 'auto';
   int _dvConversionWriteGeneration = 0;
-  // Linux only, and answered by the native side. Starts false so the toggle
-  // never flashes into view on an output that cannot carry HDR.
-  bool _linuxHdrSupported = false;
-  // Re-probes that answer when the app is shown or resumed. Null wherever the
-  // capability is a constant and there is nothing to re-probe.
-  AppLifecycleListener? _hdrSupportLifecycle;
-  // The lifecycle hooks miss the case that matters most here: dragging the
-  // window to another monitor changes the answer without the app ever being
-  // hidden. Only the plane sees that, so it says so.
-  StreamSubscription<void>? _hdrOutputChanged;
-  late HdrToneMapping _hdrToneMapping;
   late AudioChannelLimit _audioChannelLimit;
 
   TrackControlsState get _state => widget.trackControlsState;
 
-  // An explicit value from the caller wins. Otherwise the capability is static
-  // per platform, except on the Linux video plane where it depends on the
-  // compositor, the output and the plane's bit depth, so it has to be asked for.
-  bool get _supportsHdrControl =>
-      widget.supportsHdrControl ??
-      (_probesHdrSupport ? _linuxHdrSupported : Platform.isIOS || Platform.isMacOS || Platform.isWindows);
-
-  // The Linux plane is the only path whose answer moves, and an explicit value
-  // from the caller replaces the question altogether. Asked through
-  // PlayerNative.usesLinuxVideoPlane, not Platform.isLinux, so the probe and the
-  // tone-mapping row it gates resolve the same way under the test override.
-  bool get _probesHdrSupport => PlayerNative.usesLinuxVideoPlane && widget.supportsHdrControl == null;
-
   bool get _showDebugDvConversionMode {
     if (!kDebugMode) return false;
-    if (Platform.isAndroid) return widget.player.playerType == 'exoplayer';
-    return (Platform.isIOS || Platform.isMacOS) && widget.player.playerType == 'mpv';
+    return widget.player.playerType == 'exoplayer';
   }
 
   @override
@@ -407,21 +296,8 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
     _audioSyncOffset = _state.audioSyncOffset;
     _subtitleSyncOffset = _state.subtitleSyncOffset;
     _zoomScale = VideoFilterManager.normalizeZoomScale(_state.videoZoomScale);
-    _hdrToneMapping = SettingsService.instance.read(SettingsService.hdrToneMapping);
     _audioChannelLimit = SettingsService.instance.read(SettingsService.audioChannelLimit);
     _loadDebugDvConversionMode();
-    if (_probesHdrSupport) {
-      _hdrSupportLifecycle = AppLifecycleListener(onResume: _refreshLinuxHdrSupport, onShow: _refreshLinuxHdrSupport);
-      _hdrOutputChanged = widget.player.streams.hdrOutputChanged.listen((_) => _refreshLinuxHdrSupport());
-    }
-    _refreshLinuxHdrSupport();
-  }
-
-  @override
-  void dispose() {
-    _hdrSupportLifecycle?.dispose();
-    _hdrOutputChanged?.cancel();
-    super.dispose();
   }
 
   @override
@@ -442,87 +318,13 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
     });
   }
 
-  // Asked again rather than cached for the sheet's lifetime. The native answer
-  // is "this client can describe HDR *and* the output is in HDR right now", and
-  // the second half moves when the window changes monitor or the display's HDR
-  // mode is switched under us. The plane handles that internally and sends
-  // nothing to Dart, so this rides the hooks that do exist: the app being shown
-  // or resumed, and the menu coming back into view.
-  Future<void> _refreshLinuxHdrSupport() async {
-    if (!_probesHdrSupport) return;
-    final player = widget.player;
-    final supported = await player.isHdrOutputSupported();
-    if (!mounted || player != widget.player || supported == _linuxHdrSupported) return;
-    setState(() {
-      _linuxHdrSupported = supported;
-    });
-  }
-
-  // What the native side answers when the plane can never carry HDR - an 8-bit
-  // EGL config, or a compositor without the colour-management protocol. Fixed
-  // for the session, unlike a merely-SDR output, which is now accepted and
-  // honoured once an HDR output is reached.
-  static const String _hdrUnsupportedCode = 'HDR_UNSUPPORTED';
-
-  // Rethrown so the switch still springs back. The message is what keeps that
-  // from reading as a lost tap: retrying cannot help for the rest of the session.
-  Future<void> _setHdrEnabled(bool enabled) async {
-    try {
-      await widget.player.setProperty('hdr-enabled', enabled ? 'yes' : 'no');
-    } on PlatformException catch (error) {
-      if (mounted && error.code == _hdrUnsupportedCode) showErrorSnackBar(context, t.videoSettings.hdrUnsupported);
-      rethrow;
-    }
-  }
-
-  void _setHdrToneMapping(HdrToneMapping mode) {
-    final targetPlayer = widget.player;
-    // The tiles stay tappable until close() runs, so two picks can be in flight.
-    // The native side happens to queue HDR transactions in order, but that is not
-    // an invariant this file can see: last write wins locally instead.
-    //
-    // Deliberately not gated on `mounted`: dismissing the sheet mid-write would
-    // otherwise leave mpv in the new mode while the stored setting still named
-    // the old one, and the next playback start would push the old one back.
-    // A superseded pick can still persist transiently - the staleness check is
-    // before the body, not inside it - but the winner is serialized behind it
-    // and overwrites it, so the settled value is the last pick.
-    final key = SettingsService.hdrToneMapping.key;
-    final writeToken = _prefWrites.begin(key);
-    unawaited(() async {
-      try {
-        final committed = await _prefWrites.commitIfLatest(
-          key,
-          writeToken,
-          () => _applyThenPersist(
-            SettingsService.hdrToneMapping,
-            mode,
-            (value) => targetPlayer.setProperty('hdr-tone-mapping', value.name),
-          ),
-        );
-        if (!committed || !mounted || targetPlayer != widget.player) return;
-        setState(() {
-          _hdrToneMapping = mode;
-        });
-        OverlaySheetController.of(context).close();
-      } catch (error, stackTrace) {
-        appLogger.w('Failed to set the HDR tone-mapping mode', error: error, stackTrace: stackTrace);
-        // The tick stays on the old mode by design (the stored setting was
-        // left alone), but a dead tap needs saying so - the HDR toggle's
-        // refusal shows a snackbar, and this is the same shape of refusal.
-        if (mounted) showErrorSnackBar(context, t.videoSettings.hdrToneMappingFailed);
-      }
-    }());
-  }
-
   /// ExoPlayer only has the stereo fold; see [AudioChannelLimit.onExoPlayer].
-  bool get _isExoPlayer => Platform.isAndroid && widget.player.playerType == 'exoplayer';
+  bool get _isExoPlayer => widget.player.playerType == 'exoplayer';
 
   AudioChannelLimit get _displayedAudioChannelLimit =>
       _isExoPlayer ? _audioChannelLimit.onExoPlayer : _audioChannelLimit;
 
-  // Same ordering and undo contract as the tone-mapping picker above: the
-  // player takes the limit first, and a refused store write puts both back.
+  // The player takes the limit first, and a refused store write puts both back.
   void _setAudioChannelLimit(AudioChannelLimit limit) {
     final targetPlayer = widget.player;
     final key = SettingsService.audioChannelLimit.key;
@@ -651,7 +453,6 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
     });
     // The HDR rows live on the menu only, so this is the moment a stale answer
     // becomes visible again.
-    _refreshLinuxHdrSupport();
     OverlaySheetController.maybeOf(context)?.refocus();
   }
 
@@ -673,8 +474,6 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
         return t.shaders.title;
       case _SettingsView.dvConversion:
         return t.settings.dvConversionMode;
-      case _SettingsView.hdrToneMapping:
-        return t.videoSettings.hdrToneMapping;
       case _SettingsView.audioChannelLimit:
         return t.settings.audioChannelLimit;
     }
@@ -698,8 +497,6 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
         return Symbols.auto_fix_high_rounded;
       case _SettingsView.dvConversion:
         return Symbols.hdr_strong_rounded;
-      case _SettingsView.hdrToneMapping:
-        return Symbols.tonality_rounded;
       case _SettingsView.audioChannelLimit:
         return Symbols.speaker_group_rounded;
     }
@@ -722,11 +519,6 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
       _ => t.settings.dvConversionAuto,
     };
   }
-
-  String _formatHdrToneMapping(HdrToneMapping mode) => switch (mode) {
-    HdrToneMapping.compositor => t.videoSettings.hdrToneMappingCompositor,
-    HdrToneMapping.player => t.videoSettings.hdrToneMappingPlayer,
-  };
 
   String _formatSleepTimer(SleepTimerService sleepTimer) {
     if (!sleepTimer.isActive) return t.common.off;
@@ -882,25 +674,6 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
           onTap: () => _openSyncBar(isSubtitle: true),
         ),
 
-        if (_supportsHdrControl)
-          _SettingsToggleItem(
-            pref: SettingsService.enableHDR,
-            icon: Symbols.hdr_strong_rounded,
-            title: t.videoSettings.hdr,
-            onAfterWrite: _setHdrEnabled,
-          ),
-
-        // Only meaningful where the plane can actually carry HDR, and only the
-        // Linux plane lets us pick the curve: elsewhere the platform decides who
-        // tone-maps.
-        if (_supportsHdrControl && PlayerNative.usesLinuxVideoPlane)
-          _SettingsMenuItem(
-            icon: Symbols.tonality_rounded,
-            title: t.videoSettings.hdrToneMapping,
-            valueText: _formatHdrToneMapping(_hdrToneMapping),
-            onTap: () => _navigateTo(_SettingsView.hdrToneMapping),
-          ),
-
         _SettingsToggleItem(
           pref: SettingsService.autoPlayNextEpisode,
           icon: Symbols.skip_next_rounded,
@@ -929,14 +702,6 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
         // than this playback, and applying it mid-stream bounces the audio renderer and
         // re-decides video tunneling. It lives in Settings > Video Playback next to
         // Tunneled Playback, which is applied the same way — at the next player start.
-
-        // Dolby / Spatial Audio badge. The Dolby application guide requires
-        // the app to reflect AVAudioSession.renderingMode; the system only
-        // resolves it for routes it renders itself (AirPlay, CarPlay,
-        // headphones), so it is hidden rather than shown as "not Dolby" when
-        // it reports notApplicable. iOS covers iPhone, iPad, and Apple TV.
-        if (Platform.isIOS) _AudioRenderingModeItem(player: widget.player),
-
         _SettingsToggleItem(
           pref: SettingsService.audioNormalization,
           icon: Symbols.graphic_eq_rounded,
@@ -1032,7 +797,7 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
           ),
 
         // Debug: Trigger MPV Fallback (Android ExoPlayer only)
-        if (kDebugMode && Platform.isAndroid && widget.player.playerType == 'exoplayer')
+        if (kDebugMode && widget.player.playerType == 'exoplayer')
           FocusableListTile(
             leading: AppIcon(Symbols.swap_horiz_rounded, fill: 1, color: tokens(context).textMuted),
             title: const Text('Trigger MPV Fallback'),
@@ -1081,29 +846,6 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
             subtitle: Text(mode.subtitle, style: TextStyle(color: tokens(context).textMuted, fontSize: 12)),
             trailing: _dvConversionMode == mode.value ? AppIcon(Symbols.check_rounded, fill: 1, color: primary) : null,
             onTap: () => _setDebugDvConversionMode(mode.value),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildHdrToneMappingView() {
-    final modes = [
-      (value: HdrToneMapping.compositor, subtitle: t.videoSettings.hdrToneMappingCompositorDescription),
-      (value: HdrToneMapping.player, subtitle: t.videoSettings.hdrToneMappingPlayerDescription),
-    ];
-    final primary = Theme.of(context).colorScheme.primary;
-
-    return ListView(
-      children: [
-        for (final mode in modes)
-          FocusableListTile(
-            title: Text(
-              _formatHdrToneMapping(mode.value),
-              style: TextStyle(color: _hdrToneMapping == mode.value ? primary : null),
-            ),
-            subtitle: Text(mode.subtitle, style: TextStyle(color: tokens(context).textMuted, fontSize: 12)),
-            trailing: _hdrToneMapping == mode.value ? AppIcon(Symbols.check_rounded, fill: 1, color: primary) : null,
-            onTap: () => _setHdrToneMapping(mode.value),
           ),
       ],
     );
@@ -1556,8 +1298,6 @@ class _VideoSettingsSheetState extends State<VideoSettingsSheet> {
             return _buildShaderView();
           case _SettingsView.dvConversion:
             return _buildDvConversionView();
-          case _SettingsView.hdrToneMapping:
-            return _buildHdrToneMappingView();
           case _SettingsView.audioChannelLimit:
             return _buildAudioChannelLimitView();
         }

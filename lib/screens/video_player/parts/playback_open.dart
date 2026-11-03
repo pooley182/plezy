@@ -26,8 +26,7 @@ class _FrameRateStartupPlan {
   bool needsPostOpenSwitch = false;
 
   /// Open paused; once the first frame is shown, negotiate the display from
-  /// the player's own output (Android mpv) or wait out the AVDisplayManager
-  /// switch the decoded stream triggered (Apple TV), then resume.
+  /// the player's own output (mpv), then resume.
   bool needsFirstFrameSwitch = false;
 
   /// The first-frame signal, taken from the attempt's open outcome *before*
@@ -137,7 +136,7 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
   }) async {
     // needsDecoderRefreshAfterDisplaySwitch is how this file distinguishes
     // the two Android backends (true = the mpv core).
-    if (!Platform.isAndroid || !player.needsDecoderRefreshAfterDisplaySwitch) return;
+    if (!player.needsDecoderRefreshAfterDisplaySwitch) return;
     final transfer = isTranscoding ? null : displayCriteria?.transfer;
     await player.setProperty('content-color-transfer', transfer ?? 'unknown');
   }
@@ -178,7 +177,6 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     int width = 0,
     int height = 0,
   }) {
-    if (!Platform.isAndroid) return false;
     final rateEligible = settingsService.read(SettingsService.matchContentFrameRate) && fps != null && fps > 0;
     final resolutionEligible = settingsService.read(SettingsService.matchContentResolution) && width > 0 && height > 0;
     return rateEligible || resolutionEligible;
@@ -221,8 +219,8 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
   }
 
   /// The startup plan for a backend that negotiates the display from the
-  /// decoded stream at its first frame — Android mpv and Apple TV — or null
-  /// for one that does not (ExoPlayer, desktop). Shared by the VOD open and
+  /// decoded stream at its first frame — mpv — or null for one that does not
+  /// (ExoPlayer). Shared by the VOD open and
   /// Live TV channel opens ([_armLiveDisplayNegotiation]) so the two cannot
   /// drift.
   _FrameRateStartupPlan? _firstFrameStartupPlan(
@@ -233,19 +231,16 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     // needsDecoderRefreshAfterDisplaySwitch is how this file distinguishes
     // the two Android backends (true = the mpv core).
     final isAndroidMpv = currentPlayer.needsDecoderRefreshAfterDisplaySwitch;
-    if (!isAndroidMpv && !PlatformDetector.isAppleTV()) return null;
+    if (!isAndroidMpv) return null;
     final plan = _FrameRateStartupPlan(fps: null);
     final matchingEnabled =
         settingsService.read(SettingsService.matchContentFrameRate) ||
         settingsService.read(SettingsService.matchContentResolution);
-    // Apple TV matching is a system setting (AVDisplayManager); the gate
-    // only exists to keep playback from running through the HDMI blank.
-    plan.needsFirstFrameSwitch = hasVideoUrl && (!isAndroidMpv || matchingEnabled);
+    plan.needsFirstFrameSwitch = hasVideoUrl && matchingEnabled;
     return plan;
   }
 
-  /// Decide the display strategy for an open. mpv (Android) and Apple TV
-  /// open paused and negotiate from the decoded stream at the first frame;
+  /// Decide the display strategy for an open. mpv opens paused and negotiate from the decoded stream at the first frame;
   /// ExoPlayer switches before open from metadata (after audio focus, so
   /// AudioTrack passthrough survives the renegotiation) and falls back to a
   /// post-open switch that holds playback start when it could not. Returns
@@ -284,10 +279,8 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     // Source-side only: a transcode's metadata rate describes the original
     // file, not what the server is about to send. "0" clears a stale rate
     // carried over from the previous item.
-    if (Platform.isAndroid) {
-      final directPlayFps = isTranscoding ? null : preKnownFps;
-      await currentPlayer.setProperty('content-frame-rate', (directPlayFps ?? 0).toString());
-    }
+    final directPlayFps = isTranscoding ? null : preKnownFps;
+    await currentPlayer.setProperty('content-frame-rate', (directPlayFps ?? 0).toString());
     final needsExoPreOpen = willAutoSwitch && hasVideoUrl;
     plan.needsPostOpenSwitch = willAutoSwitch && !needsExoPreOpen;
 
@@ -419,37 +412,29 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     // Together room must not command the player mid-measurement.
     await _withWatchTogetherHeld(() async {
       try {
-        if (PlatformDetector.isAppleTV()) {
-          // The decoded stream's criteria already went to AVDisplayManager
-          // natively; only the mode switch it may have started is waited out.
-          await currentPlayer.awaitDisplayModeSwitch(
-            extraDelayMs: settingsService.read(SettingsService.displaySwitchDelay) * 1000,
+        await holdResumedClock();
+        final measurement = await _measurePresentedFormat(currentPlayer);
+        if (!isCurrent()) return;
+        final target = _displayTargetFor(settingsService, measurement.output);
+        var switched = false;
+        if (target != null) {
+          switched = await _switchDisplayToTarget(
+            currentPlayer: currentPlayer,
+            settingsService: settingsService,
+            target: target,
+            reason: 'first-frame display switch',
+            refreshPosition: measurement.windowStart,
           );
-        } else {
-          await holdResumedClock();
-          final measurement = await _measurePresentedFormat(currentPlayer);
-          if (!isCurrent()) return;
-          final target = _displayTargetFor(settingsService, measurement.output);
-          var switched = false;
-          if (target != null) {
-            switched = await _switchDisplayToTarget(
-              currentPlayer: currentPlayer,
-              settingsService: settingsService,
-              target: target,
-              reason: 'first-frame display switch',
-              refreshPosition: measurement.windowStart,
-            );
-          }
-          // The switch's decoder refresh seeks back to the window start; with
-          // no switch, playback would otherwise begin the stepped frames in.
-          // Live rewinds only within its cache: nothing here needs the flush.
-          if (!switched && measurement.windowStart != null && isCurrent()) {
-            await _refreshAndroidMpvDecoderAfterFrameRateSwitch(
-              reason: 'measurement window rewind',
-              targetPosition: measurement.windowStart,
-              dropIfUncached: false,
-            );
-          }
+        }
+        // The switch's decoder refresh seeks back to the window start; with
+        // no switch, playback would otherwise begin the stepped frames in.
+        // Live rewinds only within its cache: nothing here needs the flush.
+        if (!switched && measurement.windowStart != null && isCurrent()) {
+          await _refreshAndroidMpvDecoderAfterFrameRateSwitch(
+            reason: 'measurement window rewind',
+            targetPosition: measurement.windowStart,
+            dropIfUncached: false,
+          );
         }
       } catch (e) {
         appLogger.w('Failed to negotiate the display at the first frame', error: e);
@@ -805,9 +790,7 @@ extension _VideoPlayerOpenMethods on VideoPlayerScreenState {
     if (isNetworkVod && !isTranscoding) {
       // Transcode (HLS) playback only uses the mpv stream layer for the
       // playlist file; segment fetches happen inside ffmpeg's hls demuxer.
-      final maxBytes = Platform.isAndroid
-          ? androidStreamRingCapBytes(await PlayerNative.getHeapSize())
-          : maxStreamRingBytes;
+      final maxBytes = androidStreamRingCapBytes(await PlayerNative.getHeapSize());
       ringBytes = networkStreamRingBytes(
         container: selectedVersion?.container,
         bitrateKbps: selectedVersion?.bitrate,

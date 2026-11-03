@@ -12,7 +12,6 @@ import '../focus/key_event_utils.dart';
 import '../theme/mono_tokens.dart';
 import '../utils/focus_utils.dart';
 import 'app_icon.dart';
-import 'clickable_cursor.dart';
 import 'overlay_sheet.dart';
 
 typedef AppMenuEntryBuilder<T> = List<AppMenuEntry<T>> Function(BuildContext context);
@@ -255,25 +254,11 @@ Future<T?> showAdaptiveAppMenu<T>(
   bool focusFirstItem = false,
   bool isScrollControlled = false,
 }) {
-  // ThemeData.platform follows the real target platform by default, including
-  // Android TV and tvOS, while remaining overrideable in widget tests.
-  final platform = Theme.of(context).platform;
-  if (platform == TargetPlatform.iOS || platform == TargetPlatform.android) {
-    return OverlaySheetController.showAdaptive<T>(
-      context,
-      showDragHandle: true,
-      isScrollControlled: isScrollControlled,
-      builder: (context) => AppMenuSheet<T>(title: title, entries: entries, focusFirstItem: focusFirstItem),
-    );
-  }
-
-  return showAppMenu<T>(
+  return OverlaySheetController.showAdaptive<T>(
     context,
-    entries: entries,
-    position: position,
-    anchorRect: anchorRect,
-    anchorAlignment: anchorAlignment,
-    focusFirstItem: focusFirstItem,
+    showDragHandle: true,
+    isScrollControlled: isScrollControlled,
+    builder: (context) => AppMenuSheet<T>(title: title, entries: entries, focusFirstItem: focusFirstItem),
   );
 }
 
@@ -354,13 +339,10 @@ class AppMenuButtonState<T> extends State<AppMenuButton<T>> {
   Widget build(BuildContext context) {
     final child = widget.child;
     if (child != null) {
-      final button = ClickableCursor(
-        enabled: widget.enabled,
-        child: InkWell(
-          onTap: widget.enabled ? _handlePressed : null,
-          borderRadius: BorderRadius.circular(tokens(context).radiusSm),
-          child: child,
-        ),
+      final button = InkWell(
+        onTap: widget.enabled ? _handlePressed : null,
+        borderRadius: BorderRadius.circular(tokens(context).radiusSm),
+        child: child,
       );
       final tooltip = widget.tooltip;
       return tooltip == null ? button : Tooltip(message: tooltip, child: button);
@@ -572,69 +554,66 @@ class _AppMenuItemTileState<T> extends State<AppMenuItemTile<T>> with FocusableT
           cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
           onEnter: enabled ? (_) => setState(() => _isHovered = true) : null,
           onExit: enabled ? (_) => setState(() => _isHovered = false) : null,
-          child: ClickableCursor(
-            enabled: enabled,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: enabled ? widget.onPressed : null,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                child: AnimatedContainer(
-                  duration: tokens(context).fast,
-                  decoration: BoxDecoration(
-                    color: background,
-                    borderRadius: BorderRadius.circular(tokens(context).radiusSm),
-                  ),
-                  constraints: BoxConstraints(minHeight: subtitle == null ? 40 : 52),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  child: Row(
-                    children: [
-                      if (leading != null) ...[
-                        SizedBox(
-                          width: 24,
-                          child: IconTheme.merge(
-                            data: IconThemeData(color: foreground),
-                            child: leading,
-                          ),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: enabled ? widget.onPressed : null,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              child: AnimatedContainer(
+                duration: tokens(context).fast,
+                decoration: BoxDecoration(
+                  color: background,
+                  borderRadius: BorderRadius.circular(tokens(context).radiusSm),
+                ),
+                constraints: BoxConstraints(minHeight: subtitle == null ? 40 : 52),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                child: Row(
+                  children: [
+                    if (leading != null) ...[
+                      SizedBox(
+                        width: 24,
+                        child: IconTheme.merge(
+                          data: IconThemeData(color: foreground),
+                          child: leading,
                         ),
-                        const SizedBox(width: 12),
-                      ],
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DefaultTextStyle.merge(
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: enabled ? foreground : colorScheme.onSurface.withValues(alpha: 0.38),
+                              fontWeight: item.selected ? FontWeight.w600 : null,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            child: item.child ?? Text(item.label!),
+                          ),
+                          if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: textTheme.bodyMedium?.copyWith(
-                                color: enabled ? foreground : colorScheme.onSurface.withValues(alpha: 0.38),
-                                fontWeight: item.selected ? FontWeight.w600 : null,
+                              style: textTheme.labelSmall?.copyWith(
+                                color: enabled ? subtitleColor : colorScheme.onSurface.withValues(alpha: 0.38),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              child: item.child ?? Text(item.label!),
+                              child: subtitle,
                             ),
-                            if (subtitle != null)
-                              DefaultTextStyle.merge(
-                                style: textTheme.labelSmall?.copyWith(
-                                  color: enabled ? subtitleColor : colorScheme.onSurface.withValues(alpha: 0.38),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                child: subtitle,
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
-                      if (trailing != null) ...[
-                        const SizedBox(width: 12),
-                        IconTheme.merge(
-                          data: IconThemeData(color: foreground),
-                          child: trailing,
-                        ),
-                      ],
+                    ),
+                    if (trailing != null) ...[
+                      const SizedBox(width: 12),
+                      IconTheme.merge(
+                        data: IconThemeData(color: foreground),
+                        child: trailing,
+                      ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),

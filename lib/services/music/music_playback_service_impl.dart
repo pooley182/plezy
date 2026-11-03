@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'dart:math';
 
 import 'package:flutter/foundation.dart' show ValueListenable, visibleForTesting;
@@ -15,13 +14,11 @@ import '../../media/media_server_client.dart';
 import '../../models/companion_remote/remote_command.dart';
 import '../../mpv/models.dart';
 import '../../mpv/player/player.dart';
-import '../../mpv/player/player_native.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/notification_permission.dart';
 import '../../utils/platform_detector.dart';
 import '../car_ux_restrictions_service.dart';
 import '../companion_remote/companion_remote_receiver.dart';
-import '../discord_rpc_service.dart';
 import '../driver_distraction.dart';
 import '../media_control_router.dart';
 import '../media_controls_manager.dart';
@@ -101,15 +98,14 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
        _queue = MusicQueueController(random: queueRandom),
        _volumePersistenceWriter = volumePersistenceWriter ?? _writePersistedVolume {
     _coordinator.registerMusicSession(stopAndDispose: _stopForVideoClaim);
-    // tvOS has no background-audio session in v1, so it pauses on
-    // backgrounding. A car keeps observing the lifecycle only as the fallback
+    // A car keeps observing the lifecycle only as the fallback
     // authority for vehicles that cannot report UX restrictions; where the
     // vehicle does report them, [_onCarRestrictionsChanged] is what starts and
     // stops audio, so a parked driver can leave the app and keep listening.
     // A session store additionally needs the lifecycle everywhere: the
     // backgrounding states are the position-flush accelerator, since mobile
     // offers no termination hook (#2148).
-    if (PlatformDetector.isAppleTV() || PlatformDetector.isAutomotive() || _sessionStore != null) {
+    if (PlatformDetector.isAutomotive() || _sessionStore != null) {
       _observesLifecycle = true;
       WidgetsBinding.instance.addObserver(this);
     }
@@ -744,12 +740,10 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
       _player = player;
       _wirePlayerStreams(player);
     }
-    if (Platform.isAndroid) {
-      // Configure logging before volume/focus/open can create the native core,
-      // and refresh it on later opens if the debug preference changed.
-      final debugLogging = SettingsService.instanceOrNull?.read(SettingsService.enableDebugLogging) ?? false;
-      await player.setLogLevel(debugLogging ? 'v' : 'warn');
-    }
+    // Configure logging before volume/focus/open can create the native core,
+    // and refresh it on later opens if the debug preference changed.
+    final debugLogging = SettingsService.instanceOrNull?.read(SettingsService.enableDebugLogging) ?? false;
+    await player.setLogLevel(debugLogging ? 'v' : 'warn');
     if (isNew && _player == player && !player.disposed && _volume != 100.0) {
       unawaited(player.setVolume(_volume));
     }
@@ -766,15 +760,7 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
   /// the next player. Elsewhere passthrough claims the output device (exclusive
   /// WASAPI, IEC 61937 AudioTrack), which music playback does not opt into.
   Future<void> _applyAudioPassthrough(Player player) async {
-    if (!PlayerNative.usesAppleAudioOutput) return;
-    final settings = SettingsService.instanceOrNull;
-    if (settings == null) return;
-    if (!settings.read(SettingsService.audioPassthrough) || settings.read(SettingsService.audioNormalization)) return;
-    try {
-      await player.setAudioPassthrough(true);
-    } catch (error, stackTrace) {
-      appLogger.w('Music: audio passthrough not applied; decoding instead', error: error, stackTrace: stackTrace);
-    }
+    return;
   }
 
   /// The output picked in the video player's Audio Output menu, before the
@@ -840,7 +826,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     if (player != null) {
       _mediaControls?.updatePlaybackState(isPlaying: player.state.isActive, position: position, speed: 1.0);
     }
-    DiscordRPCService.instance.updatePosition(position);
     if (_status == MusicPlaybackStatus.playing) _maybePersistPositionTick(position);
   }
 
@@ -857,10 +842,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     if (_status == MusicPlaybackStatus.playing || _status == MusicPlaybackStatus.paused) {
       _setStatus(shouldBePlaying ? MusicPlaybackStatus.playing : MusicPlaybackStatus.paused);
       unawaited(_tracker?.sendProgress(shouldBePlaying ? 'playing' : 'paused'));
-      // Gated like the tracker: while an open is loading, the player's
-      // playing flips belong to a track whose presence is not bound yet.
-      final rpc = DiscordRPCService.instance;
-      unawaited(shouldBePlaying ? rpc.resumePlayback() : rpc.pausePlayback());
     }
     final player = _player;
     if (player != null) {
@@ -1009,7 +990,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     if (player != null) {
       _mediaControls?.updatePlaybackState(isPlaying: false, position: player.currentPosition, speed: 1.0, force: true);
     }
-    unawaited(DiscordRPCService.instance.pausePlayback());
   }
 
   void _onPlayerError(PlayerError error) {
@@ -1040,8 +1020,8 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
   // Per-track services (progress reporting + OS media controls)
   // ---------------------------------------------------------------------
 
-  /// (Re)bind the per-track progress tracker, media-session metadata and
-  /// Discord presence — the music mirror of the video screen's
+  /// (Re)bind the per-track progress tracker and media-session metadata — the
+  /// music mirror of the video screen's
   /// `_wirePerItemPlaybackServices`. The previous track must already be
   /// finalized.
   void _bindTrackServices(MediaItem track, MusicSource source) {
@@ -1093,15 +1073,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
         ),
       );
       _syncControlsAvailability();
-    }
-
-    if (metadataClient != null) {
-      final rpc = DiscordRPCService.instance;
-      unawaited(rpc.startPlayback(track, metadataClient));
-      // Callers set [_status] before binding; a restored session or a
-      // car-restricted open binds paused, and presence must not run a
-      // timer for a track that is not audible.
-      if (_status != MusicPlaybackStatus.playing) unawaited(rpc.pausePlayback());
     }
   }
 
@@ -1167,10 +1138,7 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
         canSeek: true,
         canStop: true,
         // In-track skips: Bluetooth/steering-wheel fast-forward and rewind
-        // buttons map here on Android. (Not surfaced on iOS/macOS — music
-        // keeps next/previous as its lock-screen transport; see
-        // MediaControlsManager.setControlsEnabled's preferSkipOverTrackButtons,
-        // which music deliberately leaves unset.)
+        // buttons map here.
         canSkip: true,
         // Music always plays at 1.0 — never advertise a speed control.
       ),
@@ -1196,9 +1164,7 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     onSkipForward: (interval) => unawaited(_seekRelative(interval ?? _defaultSkipInterval)),
     onSkipBackward: (interval) => unawaited(_seekRelative(-(interval ?? _defaultSkipInterval))),
     // Speed is deliberately ignored: music always plays at 1.0 and the control
-    // is not advertised — but Linux MPRIS exposes an always-writable Rate
-    // property, so the event can still arrive. The periodic playback-state
-    // update reasserts speed 1.0.
+    // is not advertised. The periodic playback-state update reasserts 1.0.
     onSetSpeed: (_) {},
   );
 
@@ -1319,8 +1285,7 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     return player.state.isActive ? pause() : play();
   }
 
-  /// On Apple TV, pause when the app leaves the foreground because tvOS
-  /// background audio is not attempted in v1. On a car this is only the
+  /// On a car, pause when the app leaves the foreground. This is only the
   /// fallback authority: [_applyCarPlaybackRestrictions] keeps playing when the
   /// vehicle reports no restrictions, so leaving the app while parked keeps the
   /// music going.
@@ -1337,12 +1302,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     if (PlatformDetector.isAutomotive()) {
       _applyCarPlaybackRestrictions();
       return;
-    }
-    if (PlatformDetector.isAppleTV() &&
-        (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) &&
-        isPlaying) {
-      appLogger.d('App backgrounded on Apple TV — pausing music playback');
-      unawaited(pause());
     }
   }
 
@@ -1814,7 +1773,6 @@ class MusicPlaybackServiceImpl extends MusicPlaybackService with WidgetsBindingO
     // The subscriptions above are gone before the player stops, so no
     // playing=false will reach [_onPlayingChanged]: clear presence here, and
     // before any await so a video claim's own presence lands after it.
-    unawaited(DiscordRPCService.instance.stopPlayback());
     final player = _player;
     _player = null;
     if (player != null && !player.disposed) {

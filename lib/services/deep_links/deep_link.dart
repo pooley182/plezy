@@ -16,11 +16,9 @@ import '../system_shelf_service.dart';
 /// plezy://play?type=movie|show&tmdb=<n>|tvdb=<n>|imdb=tt<n>|plex=<hash>[&mode=next|shuffle]
 /// plezy://play?content_id=plezy_<serverId>_<itemId>      (launcher shelf rows)
 /// plezy://live?channel=<channel>[&server=<serverId>][&start=beginning|live]
-/// plezy://external-player/<result>/<session>?...           (external player return links)
 /// ```
 ///
-/// Every link except the external-player return link may add
-/// `profile=<profile>`, matched by [resolveLinkProfile]. The app switches to
+/// Every link may add `profile=<profile>`, matched by [resolveLinkProfile]. The app switches to
 /// that profile before acting on the link; a protected profile still asks
 /// for its PIN.
 ///
@@ -49,7 +47,6 @@ sealed class DeepLink {
       OpenLink.host => OpenLink(profile: profile),
       PlayLink.host => PlayLink._parse(params, profile),
       LiveLink.host => LiveLink._parse(params, profile),
-      ExternalPlayerReturnLink.host => ExternalPlayerReturnLink(uri),
       _ => null,
     };
   }
@@ -281,20 +278,6 @@ final class LiveLink extends DeepLink {
     },
     ..._profileParam,
   });
-}
-
-/// `plezy://external-player/<result>/<session>`: an external player handing
-/// control back to Plezy (x-callback-url). The player appends its own query
-/// parameters, so the whole [uri] is kept for `ExternalPlayerService`.
-final class ExternalPlayerReturnLink extends DeepLink {
-  const ExternalPlayerReturnLink(this.uri);
-
-  static const host = 'external-player';
-
-  final Uri uri;
-
-  @override
-  Uri toUri() => uri;
 }
 
 /// The profile [ref] names: a profile id, else the one Plex Home user with

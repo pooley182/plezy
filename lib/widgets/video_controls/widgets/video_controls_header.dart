@@ -9,22 +9,11 @@ import '../../../watch_together/providers/watch_together_provider.dart';
 import '../../app_bar_back_button.dart';
 import '../../system_clock.dart';
 
-/// Header layout style for video controls
-enum VideoHeaderStyle {
-  /// Multi-line: Series name on first line, episode info on second line
-  multiLine,
-
-  /// Single-line: All info combined with separators (for macOS)
-  singleLine,
-}
-
 /// Shared header widget for video controls with back button and title.
 ///
 /// Displays the video title with optional series/episode information.
-/// Supports both single-line (macOS) and multi-line (other platforms) layouts.
 class VideoControlsHeader extends StatelessWidget {
   final MediaItem metadata;
-  final VideoHeaderStyle style;
 
   /// Optional trailing widget (e.g., track/chapter controls)
   final Widget? trailing;
@@ -42,7 +31,6 @@ class VideoControlsHeader extends StatelessWidget {
   const VideoControlsHeader({
     super.key,
     required this.metadata,
-    this.style = VideoHeaderStyle.multiLine,
     this.trailing,
     this.onBack,
     this.onCancelAutoHide,
@@ -57,11 +45,7 @@ class VideoControlsHeader extends StatelessWidget {
       children: [
         AppBarBackButton(style: BackButtonStyle.video, onPressed: onBack ?? () => Navigator.of(context).pop(true)),
         const SizedBox(width: 16),
-        Expanded(
-          child: style == VideoHeaderStyle.singleLine
-              ? _buildSingleLineTitle(itemTitle)
-              : _buildMultiLineTitle(itemTitle),
-        ),
+        Expanded(child: _buildTitle(itemTitle)),
         Selector<WatchTogetherProvider, bool>(
           selector: (_, p) => p.isInSession,
           builder: (context, inSession, child) {
@@ -87,26 +71,7 @@ class VideoControlsHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildSingleLineTitle(String itemTitle) {
-    final seriesName = metadata.grandparentTitle ?? itemTitle;
-    final hasEpisodeInfo = metadata.parentIndex != null && metadata.index != null;
-
-    final List<String> parts = [seriesName];
-
-    if (hasEpisodeInfo) {
-      parts.add('S${metadata.parentIndex}E${metadata.index}');
-      parts.add(itemTitle);
-    }
-
-    return Text(
-      toBulletedString(parts),
-      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: .w500),
-      maxLines: 1,
-      overflow: .ellipsis,
-    );
-  }
-
-  Widget _buildMultiLineTitle(String itemTitle) {
+  Widget _buildTitle(String itemTitle) {
     final List<String> secondLineParts = [];
 
     if (metadata.parentIndex != null && metadata.index != null) {

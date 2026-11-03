@@ -22,7 +22,6 @@ void main() {
       isPromptOpen: () => false,
       dismissPrompt: () {},
       isChromePresented: () => chromeController.controlsPresented,
-      exitFullscreenIfActive: () async => false,
       exitPlayer: () => exits++,
       navigateHome: () {},
     );
@@ -33,7 +32,7 @@ void main() {
           focusNode: focusNode,
           onKeyEvent: (_, event) {
             events.add(event);
-            final navigationKey = classifyPlayerNavigationKey(event, isAppleTV: false);
+            final navigationKey = classifyPlayerNavigationKey(event);
             return handlePlayerNavigationKeyAction(event, navigationKey, () {
               actions++;
               coordinator.handle(navigationKey);

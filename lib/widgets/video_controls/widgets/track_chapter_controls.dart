@@ -138,7 +138,6 @@ class TrackChapterControls extends StatelessWidget {
         final tracks = snapshot.data;
         final state = trackControlsState;
         final isMobile = PlatformDetector.isMobile(context);
-        final isDesktop = PlatformDetector.isDesktopOS();
 
         final buttons = <Widget>[];
         int buttonIndex = 0;
@@ -331,42 +330,6 @@ class TrackChapterControls extends StatelessWidget {
             ),
           );
           buttonIndex++;
-        }
-
-        // Always on top button (desktop only, not TV)
-        if (isDesktop && state.onToggleAlwaysOnTop != null) {
-          final currentIndex = buttonIndex;
-          buttons.add(
-            _buildTrackButton(
-              buttonIndex: currentIndex,
-              icon: Symbols.layers_rounded,
-              tooltip: t.videoControls.alwaysOnTopButton,
-              semanticLabel: t.videoControls.alwaysOnTopButton,
-              isActive: state.isAlwaysOnTop,
-              checked: state.isAlwaysOnTop,
-              buttons: buttons,
-              onPressed: state.onToggleAlwaysOnTop,
-            ),
-          );
-          buttonIndex++;
-        }
-
-        // Fullscreen button (desktop only)
-        if (isDesktop) {
-          final currentIndex = buttonIndex;
-          buttons.add(
-            _buildTrackButton(
-              buttonIndex: currentIndex,
-              icon: state.isFullscreen ? Symbols.fullscreen_exit_rounded : Symbols.fullscreen_rounded,
-              tooltip: state.isFullscreen ? t.videoControls.exitFullscreenButton : t.videoControls.fullscreenButton,
-              semanticLabel: state.isFullscreen
-                  ? t.videoControls.exitFullscreenButton
-                  : t.videoControls.fullscreenButton,
-              checked: state.isFullscreen,
-              buttons: buttons,
-              onPressed: state.onToggleFullscreen,
-            ),
-          );
         }
 
         return IntrinsicHeight(

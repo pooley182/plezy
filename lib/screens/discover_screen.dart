@@ -1,6 +1,5 @@
 import 'dart:async';
 import '../media/ids.dart';
-import 'dart:io' show Platform;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -30,7 +29,6 @@ import '../providers/multi_server_provider.dart';
 import '../providers/watch_state_store.dart';
 import '../widgets/hub_section.dart';
 import '../widgets/app_menu.dart';
-import '../widgets/clickable_cursor.dart';
 import '../widgets/loading_indicator_box.dart';
 import '../widgets/profile_switching_overlay.dart';
 import 'profile/profile_switch_screen.dart';
@@ -487,7 +485,7 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       final startedFullPass = _discover.refreshIfStale();
       // Refresh continue watching on mobile only
       // (on desktop, "resumed" fires on every window focus gain)
-      if (!startedFullPass && (Platform.isIOS || Platform.isAndroid)) {
+      if (!startedFullPass) {
         unawaited(_discover.refreshContinueWatching());
       }
     } else if (state == AppLifecycleState.inactive || state == AppLifecycleState.hidden) {
@@ -1221,24 +1219,22 @@ class _DiscoverScreenState extends State<DiscoverScreen>
                       mainAxisAlignment: .center,
                       children: [
                         // Pause/Play button
-                        ClickableCursor(
-                          child: GestureDetector(
-                            onTap: () {
-                              if (_isAutoScrollPaused) {
-                                _resumeAutoScroll();
-                              } else {
-                                _pauseAutoScroll();
-                              }
-                            },
-                            child: AppIcon(
-                              _isAutoScrollPaused ? Symbols.play_arrow_rounded : Symbols.pause_rounded,
-                              fill: 1,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              size: 18,
-                              semanticLabel: _isAutoScrollPaused
-                                  ? t.accessibility.autoScrollPlay
-                                  : t.accessibility.autoScrollPause,
-                            ),
+                        GestureDetector(
+                          onTap: () {
+                            if (_isAutoScrollPaused) {
+                              _resumeAutoScroll();
+                            } else {
+                              _pauseAutoScroll();
+                            }
+                          },
+                          child: AppIcon(
+                            _isAutoScrollPaused ? Symbols.play_arrow_rounded : Symbols.pause_rounded,
+                            fill: 1,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 18,
+                            semanticLabel: _isAutoScrollPaused
+                                ? t.accessibility.autoScrollPlay
+                                : t.accessibility.autoScrollPause,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -1440,163 +1436,161 @@ class _DiscoverScreenState extends State<DiscoverScreen>
       label: heroLabel,
       button: true,
       hint: t.accessibility.tapToPlay,
-      child: ClickableCursor(
-        child: GestureDetector(
-          // The artwork lives in the shared backdrop below the PageView, so
-          // the page itself must claim taps on its empty area.
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            appLogger.d('Activating hero item: ${heroItem.title}');
-            navigateToMediaItem(context, heroItem, playDirectly: true);
-          },
-          child: Stack(
-            fit: StackFit.expand,
-            clipBehavior: Clip.none,
-            children: [
-              // Content with responsive alignment. Compact trims the offset
-              // but still clears the page indicator row (bottom 16, ~18 tall)
-              // that sits over every handheld hero.
-              Positioned(
-                bottom: isTv
-                    ? 88
-                    : compact
-                    ? 44
-                    : isLargeScreen
-                    ? 80
-                    : 50,
-                left: 0,
-                right: isTv
-                    ? screenWidth * 0.36
-                    : isLargeScreen
-                    ? 200
-                    : 0,
-                // Horizontal-only SafeArea: the PageView artwork behind stays
-                // full-bleed; the foreground text/buttons clear the landscape
-                // notch. Vertical placement is handled by `bottom` above.
-                child: SafeArea(
-                  top: false,
-                  bottom: false,
-                  child: Padding(
-                    padding: .symmetric(
-                      horizontal: isTv
-                          ? TvLayoutConstants.horizontalInset
-                          : isLargeScreen
-                          ? 40
-                          : 24,
-                    ),
-                    child: Align(
-                      alignment: alignLeft ? Alignment.centerLeft : Alignment.center,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: isTv ? TvLayoutConstants.heroContentMaxWidth : double.infinity,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: alignLeft ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-                          mainAxisSize: .min,
-                          children: [
-                            // Show logo, falling back to the name/title. The
-                            // logo keeps its slot; the title gets a wider one.
-                            LayoutBuilder(
-                              builder: (context, constraints) => ClearLogoImage(
-                                client: heroClient,
-                                logoPath: heroItem.clearLogoPath,
-                                width: math.min(heroLogoWidth, constraints.maxWidth),
-                                height: heroLogoHeight,
-                                fallbackWidth: ClearLogoImage.fallbackWidthFor(
-                                  logoWidth: heroLogoWidth,
-                                  available: constraints.maxWidth,
-                                ),
-                                alignment: alignLeft ? Alignment.bottomLeft : Alignment.bottomCenter,
-                                // The hero scrim washes artwork toward the scaffold
-                                // background; light themes recolor light-toned logos.
-                                logoToneTarget: logoToneTargetFor(
-                                  surface: theme.scaffoldBackgroundColor,
-                                  foreground: colorScheme.onSurface,
-                                ),
-                                fallbackBuilder: (context) => FittingTitleText(
-                                  showName,
-                                  style: heroTitleStyle,
-                                  textAlign: alignLeft ? TextAlign.left : TextAlign.center,
-                                  alignment: alignLeft ? Alignment.centerLeft : Alignment.center,
-                                ),
+      child: GestureDetector(
+        // The artwork lives in the shared backdrop below the PageView, so
+        // the page itself must claim taps on its empty area.
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          appLogger.d('Activating hero item: ${heroItem.title}');
+          navigateToMediaItem(context, heroItem, playDirectly: true);
+        },
+        child: Stack(
+          fit: StackFit.expand,
+          clipBehavior: Clip.none,
+          children: [
+            // Content with responsive alignment. Compact trims the offset
+            // but still clears the page indicator row (bottom 16, ~18 tall)
+            // that sits over every handheld hero.
+            Positioned(
+              bottom: isTv
+                  ? 88
+                  : compact
+                  ? 44
+                  : isLargeScreen
+                  ? 80
+                  : 50,
+              left: 0,
+              right: isTv
+                  ? screenWidth * 0.36
+                  : isLargeScreen
+                  ? 200
+                  : 0,
+              // Horizontal-only SafeArea: the PageView artwork behind stays
+              // full-bleed; the foreground text/buttons clear the landscape
+              // notch. Vertical placement is handled by `bottom` above.
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: Padding(
+                  padding: .symmetric(
+                    horizontal: isTv
+                        ? TvLayoutConstants.horizontalInset
+                        : isLargeScreen
+                        ? 40
+                        : 24,
+                  ),
+                  child: Align(
+                    alignment: alignLeft ? Alignment.centerLeft : Alignment.center,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isTv ? TvLayoutConstants.heroContentMaxWidth : double.infinity,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: alignLeft ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+                        mainAxisSize: .min,
+                        children: [
+                          // Show logo, falling back to the name/title. The
+                          // logo keeps its slot; the title gets a wider one.
+                          LayoutBuilder(
+                            builder: (context, constraints) => ClearLogoImage(
+                              client: heroClient,
+                              logoPath: heroItem.clearLogoPath,
+                              width: math.min(heroLogoWidth, constraints.maxWidth),
+                              height: heroLogoHeight,
+                              fallbackWidth: ClearLogoImage.fallbackWidthFor(
+                                logoWidth: heroLogoWidth,
+                                available: constraints.maxWidth,
+                              ),
+                              alignment: alignLeft ? Alignment.bottomLeft : Alignment.bottomCenter,
+                              // The hero scrim washes artwork toward the scaffold
+                              // background; light themes recolor light-toned logos.
+                              logoToneTarget: logoToneTargetFor(
+                                surface: theme.scaffoldBackgroundColor,
+                                foreground: colorScheme.onSurface,
+                              ),
+                              fallbackBuilder: (context) => FittingTitleText(
+                                showName,
+                                style: heroTitleStyle,
+                                textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                                alignment: alignLeft ? Alignment.centerLeft : Alignment.center,
                               ),
                             ),
+                          ),
 
-                            // Metadata as dot-separated text with content type
-                            if (heroItem.year != null || heroItem.contentRating != null || heroItem.rating != null) ...[
-                              const SizedBox(height: 16),
-                              Text(
-                                [
-                                  contentTypeLabel,
-                                  if (heroItem.rating != null) '★ ${formatRating(heroItem.rating!)}',
-                                  if (heroItem.contentRating != null) formatContentRating(heroItem.contentRating!),
-                                  if (heroItem.year != null) heroItem.year.toString(),
-                                ].join(' • '),
-                                style: TextStyle(
-                                  color: colorScheme.onSurface,
-                                  fontSize: isTv ? 18 : 14,
-                                  fontWeight: .w600,
-                                ),
-                                textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                          // Metadata as dot-separated text with content type
+                          if (heroItem.year != null || heroItem.contentRating != null || heroItem.rating != null) ...[
+                            const SizedBox(height: 16),
+                            Text(
+                              [
+                                contentTypeLabel,
+                                if (heroItem.rating != null) '★ ${formatRating(heroItem.rating!)}',
+                                if (heroItem.contentRating != null) formatContentRating(heroItem.contentRating!),
+                                if (heroItem.year != null) heroItem.year.toString(),
+                              ].join(' • '),
+                              style: TextStyle(
+                                color: colorScheme.onSurface,
+                                fontSize: isTv ? 18 : 14,
+                                fontWeight: .w600,
                               ),
-                            ],
+                              textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                            ),
+                          ],
 
-                            if (!alignLeft) ...[const SizedBox(height: 20), _buildSmartPlayButton(heroItem)],
+                          if (!alignLeft) ...[const SizedBox(height: 20), _buildSmartPlayButton(heroItem)],
 
-                            if (heroItem.summary != null && !shouldHideSpoiler) ...[
-                              const SizedBox(height: 12),
-                              RichText(
-                                maxLines: isTv ? 3 : 2,
-                                overflow: .ellipsis,
-                                textAlign: alignLeft ? TextAlign.left : TextAlign.center,
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    color: colorScheme.onSurface.withValues(alpha: 0.7),
-                                    fontSize: isTv ? 18 : 14,
-                                    height: isTv ? 1.45 : 1.4,
-                                  ),
-                                  children: [
-                                    if (isEpisode && heroItem.parentIndex != null && heroItem.index != null)
-                                      TextSpan(
-                                        text: 'S${heroItem.parentIndex}, E${heroItem.index}: ',
-                                        style: TextStyle(fontWeight: .bold, color: colorScheme.onSurface),
-                                      ),
-                                    TextSpan(
-                                      text: heroItem.summary?.isNotEmpty == true
-                                          ? heroItem.summary!
-                                          : t.messages.noDescriptionAvailable,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ] else if (shouldHideSpoiler &&
-                                isEpisode &&
-                                heroItem.parentIndex != null &&
-                                heroItem.index != null) ...[
-                              const SizedBox(height: 12),
-                              Text(
-                                'S${heroItem.parentIndex}, E${heroItem.index}: ${heroItem.title}',
-                                maxLines: 2,
-                                overflow: .ellipsis,
-                                textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                          if (heroItem.summary != null && !shouldHideSpoiler) ...[
+                            const SizedBox(height: 12),
+                            RichText(
+                              maxLines: isTv ? 3 : 2,
+                              overflow: .ellipsis,
+                              textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                              text: TextSpan(
                                 style: TextStyle(
                                   color: colorScheme.onSurface.withValues(alpha: 0.7),
                                   fontSize: isTv ? 18 : 14,
                                   height: isTv ? 1.45 : 1.4,
                                 ),
+                                children: [
+                                  if (isEpisode && heroItem.parentIndex != null && heroItem.index != null)
+                                    TextSpan(
+                                      text: 'S${heroItem.parentIndex}, E${heroItem.index}: ',
+                                      style: TextStyle(fontWeight: .bold, color: colorScheme.onSurface),
+                                    ),
+                                  TextSpan(
+                                    text: heroItem.summary?.isNotEmpty == true
+                                        ? heroItem.summary!
+                                        : t.messages.noDescriptionAvailable,
+                                  ),
+                                ],
                               ),
-                            ],
-
-                            if (alignLeft) ...[SizedBox(height: isTv ? 28 : 20), _buildSmartPlayButton(heroItem)],
+                            ),
+                          ] else if (shouldHideSpoiler &&
+                              isEpisode &&
+                              heroItem.parentIndex != null &&
+                              heroItem.index != null) ...[
+                            const SizedBox(height: 12),
+                            Text(
+                              'S${heroItem.parentIndex}, E${heroItem.index}: ${heroItem.title}',
+                              maxLines: 2,
+                              overflow: .ellipsis,
+                              textAlign: alignLeft ? TextAlign.left : TextAlign.center,
+                              style: TextStyle(
+                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                                fontSize: isTv ? 18 : 14,
+                                height: isTv ? 1.45 : 1.4,
+                              ),
+                            ),
                           ],
-                        ),
+
+                          if (alignLeft) ...[SizedBox(height: isTv ? 28 : 20), _buildSmartPlayButton(heroItem)],
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -32,7 +32,7 @@ void main() {
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('custom item callbacks own pointer actions', (tester) async {
@@ -150,7 +150,7 @@ void main() {
   });
 
   testWidgets('grid poster override uses dense 2:3 TV geometry', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final item = testMediaItem(
       id: 'poster_episode',
       backend: MediaBackend.plex,
@@ -291,7 +291,7 @@ void main() {
   });
 
   testWidgets('TV shelf wide cards use the rail wide formula, not a tall-card multiplier', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.physicalSize = const Size(1920, 1080);
     tester.view.devicePixelRatio = 2.0;
     addTearDown(tester.view.reset);

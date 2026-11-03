@@ -16,7 +16,6 @@ import '../providers/companion_remote_provider.dart';
 import '../providers/shader_provider.dart';
 import '../utils/platform_detector.dart';
 import 'agent_control_protocol.dart';
-import 'discord_rpc_service.dart';
 import 'download_storage_service.dart';
 import 'keyboard_shortcuts_service.dart';
 import 'music/music_playback_service.dart';
@@ -180,22 +179,13 @@ class AgentSettingsCommands {
   /// enabling any native feature that the selected player does not implement.
   static String? unsupportedReason(String key, BuildContext context) {
     final tv = PlatformDetector.isTV();
-    final desktop = PlatformDetector.isDesktopOS();
-    final mobile = (Platform.isAndroid || Platform.isIOS) && !tv;
+    final mobile = !tv;
     final exo = _exoActive;
     switch (key) {
       case 'keyboard_hotkeys':
-        if (!KeyboardShortcutsService.isPlatformSupported()) {
-          return 'Keyboard customization requires a desktop platform.';
-        }
-      case 'enable_discord_rpc':
-        if (!DiscordRPCService.isAvailable) return 'Discord rich presence is unavailable on this platform.';
+        return 'Keyboard customization requires a desktop platform.';
       case 'auto_check_updates_on_startup':
         if (!UpdateService.isUpdateCheckAvailable) return 'Updates are managed externally on this platform.';
-      case 'force_tv_mode':
-        if (!desktop && !Platform.isAndroid) return 'Forced TV mode requires Android or a desktop platform.';
-      case 'visual_effects':
-        if (!Platform.isAndroid) return 'Visual-effects tier selection is Android-only.';
       case 'automotive_ui_scale':
         if (!PlatformDetector.isAutomotive()) return 'Display scale customization is for automotive displays.';
       case 'tv_full_card_layout' || 'tv_corner_spotlight_backdrop' || 'focus_glow':
@@ -210,37 +200,21 @@ class AgentSettingsCommands {
         if (!PlatformDetector.shouldActAsRemoteHost(context)) {
           return 'This device is a companion controller, not a host.';
         }
-      case 'start_in_fullscreen' || 'exit_fullscreen_on_player_close' || 'player_always_on_top':
-        if (!desktop) return 'Window behavior requires a desktop platform.';
       case 'auto_pip':
         if (!PlatformDetector.supportsPictureInPicture()) return 'Picture in picture is unavailable on this device.';
-      case 'use_external_player' || 'external_players' || 'selected_external_player':
-        if (!PlatformDetector.supportsExternalPlayers()) return 'External players are unavailable on this device.';
       case 'audio_passthrough':
         if (!PlatformDetector.supportsAudioPassthrough()) return 'Audio passthrough is unavailable on this device.';
-      case 'android_use_exoplayer' || 'match_content_frame_rate' || 'dv_conversion_mode':
-        if (!Platform.isAndroid) return 'This setting is Android-only.';
       case 'match_content_resolution':
-        if (!Platform.isAndroid || !tv) return 'Content resolution matching requires Android TV.';
-      case 'match_refresh_rate' || 'match_dynamic_range':
-        if (!Platform.isWindows) return 'This display matching setting is Windows-only.';
-      case 'display_switch_delay':
-        if (!PlatformDetector.isAppleTV() && !Platform.isWindows && !Platform.isAndroid) {
-          return 'Display switching delay is unavailable on this platform.';
-        }
-      case 'enable_hdr':
-        if (Platform.isAndroid) return 'Android HDR output is controlled by the platform, not this setting.';
+        if (!tv) return 'Content resolution matching requires Android TV.';
       case 'ambient_lighting':
         if (exo || !ShaderService.isPlatformSupported) {
           return 'Ambient lighting requires mpv on a platform with shader support.';
         }
-      case 'hdr_tone_mapping':
-        if (!Platform.isLinux) return 'HDR tone mapping selection requires the Linux native video plane.';
       case 'hdr_sdr_conversion':
-        if (!Platform.isAndroid || exo) return 'HDR-to-SDR conversion selection requires the Android mpv backend.';
+        if (exo) return 'HDR-to-SDR conversion selection requires the Android mpv backend.';
       case 'disable_dolby_vision':
-        if (!(Platform.isAndroid && !exo) && !PlatformDetector.isAppleTV()) {
-          return 'Disabling Dolby Vision requires the Android mpv backend or Apple TV.';
+        if (exo) {
+          return 'Disabling Dolby Vision requires the Android mpv backend.';
         }
       case 'tunneled_playback' || 'playback_buffer_tier' || 'subtitle_anchor_to_screen':
         if (!exo) return 'This setting requires the existing Android ExoPlayer backend.';
@@ -250,10 +224,6 @@ class AgentSettingsCommands {
         }
       case 'mpv_config_text' || 'mpv_config_presets' || 'deinterlace_mode' || 'subtitle_use_margins':
         if (exo) return 'This setting requires the mpv backend.';
-      case 'subtitle_render_resolution':
-        if (!Platform.isAndroid && !Platform.isIOS && !Platform.isMacOS) {
-          return 'Subtitle render resolution is Android/Apple-only.';
-        }
       case 'gesture_brightness_swipe' ||
           'gesture_volume_swipe' ||
           'gesture_pinch_to_zoom' ||
@@ -264,27 +234,21 @@ class AgentSettingsCommands {
         if (!mobile) return 'This setting requires a mobile device.';
       case 'click_video_toggles_playback':
         if (mobile) return 'Mobile playback uses touch gestures instead.';
-      case 'download_location':
-        if (Platform.isIOS) return 'Apple sandbox download location selection is not supported by the current app.';
-      case 'download_on_wifi_only' || 'auto_remove_watched_downloads' || 'download_include_specials':
-        if (PlatformDetector.isAppleTV()) return 'Downloads are unavailable on Apple TV.';
     }
     return null;
   }
 
-  static bool get _exoActive => Platform.isAndroid && SettingsService.instance.read(SettingsService.useExoPlayer);
+  static bool get _exoActive => SettingsService.instance.read(SettingsService.useExoPlayer);
 
   static void _validatePlatformValue(String key, Object? value) {
     if (key == 'subtitle_render_resolution') {
-      final choices = Platform.isIOS || Platform.isMacOS
-          ? [SubtitleRenderResolution.screen, SubtitleRenderResolution.video]
-          : [
-              SubtitleRenderResolution.screen,
-              SubtitleRenderResolution.threeQuarter,
-              SubtitleRenderResolution.half,
-              SubtitleRenderResolution.third,
-              SubtitleRenderResolution.quarter,
-            ];
+      final choices = [
+        SubtitleRenderResolution.screen,
+        SubtitleRenderResolution.threeQuarter,
+        SubtitleRenderResolution.half,
+        SubtitleRenderResolution.third,
+        SubtitleRenderResolution.quarter,
+      ];
       if (!choices.contains(value)) throw const FormatException('Unsupported subtitle resolution on this platform');
     }
     if (key == 'audio_channel_limit' && !AudioChannelLimit.available(exoPlayer: _exoActive).contains(value)) {
@@ -299,10 +263,7 @@ class AgentSettingsCommands {
 
   static String _application(String key) {
     if (SettingsMutationService.needsRootRebuild(key)) return 'rootRebuild';
-    if (key == 'start_in_fullscreen' ||
-        key == 'startup_section' ||
-        key == 'require_profile_selection_on_open' ||
-        key == 'resume_music_on_launch') {
+    if (key == 'startup_section' || key == 'require_profile_selection_on_open' || key == 'resume_music_on_launch') {
       return 'processRestart';
     }
     if (key == 'custom_relay_url') return 'nextConnection';
@@ -313,8 +274,6 @@ class AgentSettingsCommands {
 
   static const _nextPlayback = {
     'enable_hardware_decoding',
-    'enable_hdr',
-    'hdr_tone_mapping',
     'audio_sync_offset',
     'subtitle_sync_offset',
     'subtitle_search_language',
@@ -360,9 +319,6 @@ class AgentSettingsCommands {
     'android_use_exoplayer',
     'playback_buffer_tier',
     'deinterlace_mode',
-    'player_always_on_top',
-    'match_refresh_rate',
-    'match_dynamic_range',
     'display_switch_delay',
     'remember_brightness_level',
     'remembered_brightness_level',
@@ -379,20 +335,14 @@ class AgentSettingsCommands {
     if (pref == SettingsService.startupSection) {
       choices = [for (final id in startupSectionTabs) id.name];
     }
-    if (pref == SettingsService.subtitleRenderResolution &&
-        (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
-      choices =
-          (Platform.isIOS || Platform.isMacOS
-                  ? [SubtitleRenderResolution.screen, SubtitleRenderResolution.video]
-                  : [
-                      SubtitleRenderResolution.screen,
-                      SubtitleRenderResolution.threeQuarter,
-                      SubtitleRenderResolution.half,
-                      SubtitleRenderResolution.third,
-                      SubtitleRenderResolution.quarter,
-                    ])
-              .map((v) => v.name)
-              .toList();
+    if (pref == SettingsService.subtitleRenderResolution) {
+      choices = ([
+        SubtitleRenderResolution.screen,
+        SubtitleRenderResolution.threeQuarter,
+        SubtitleRenderResolution.half,
+        SubtitleRenderResolution.third,
+        SubtitleRenderResolution.quarter,
+      ]).map((v) => v.name).toList();
     }
     if (pref == SettingsService.audioChannelLimit) {
       choices = AudioChannelLimit.available(exoPlayer: _exoActive).map((v) => v.name).toList();
@@ -591,14 +541,6 @@ class AgentSettingsCommands {
       if (application == 'nextPlayback')
         'note': 'Saved default; this does not apply native properties to an already running player.',
     };
-    if (key == 'enable_discord_rpc') {
-      final owner = DiscordRPCService.instance;
-      runtime.addAll({
-        'enabled': owner.isEnabled,
-        'connected': owner.isConnected,
-        'state': owner.isEnabled && !owner.isConnected ? 'waitingForDiscord' : 'applied',
-      });
-    }
     if (key == 'enable_companion_remote_server') {
       final owner = companionOwner;
       runtime.addAll({
@@ -819,7 +761,7 @@ class AgentSettingsCommands {
           location = agentString(map, 'path');
           type = agentString(map, 'type');
           if (type == 'saf') {
-            if (!Platform.isAndroid || Uri.tryParse(location)?.scheme != 'content') {
+            if (Uri.tryParse(location)?.scheme != 'content') {
               throw const FormatException('Invalid SAF location');
             }
             final grant = await SafStorageService.instance.resolvePersistedPermissionUri(location);
@@ -831,15 +773,10 @@ class AgentSettingsCommands {
               );
             }
           } else if (type == 'file') {
-            if (Platform.isAndroid) {
-              throw const AgentControlException(
-                'permissionRequired',
-                'Android download locations require an existing SAF grant from the native folder picker.',
-              );
-            }
-            if (!path.isAbsolute(location) || location.contains('\u0000')) {
-              throw const FormatException('Expected an absolute device path');
-            }
+            throw const AgentControlException(
+              'permissionRequired',
+              'Android download locations require an existing SAF grant from the native folder picker.',
+            );
           } else {
             throw const FormatException('Unknown download location type');
           }

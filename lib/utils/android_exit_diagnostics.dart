@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -111,7 +110,7 @@ abstract final class AndroidExitDiagnostics {
   /// Persists and records one fixed, privacy-safe startup phase.
   static void markStartupPhase(AndroidStartupPhase phase) {
     try {
-      if (Platform.isAndroid && !_nativeOnCreateRecorded) {
+      if (!_nativeOnCreateRecorded) {
         _nativeOnCreateRecorded = true;
         _recordPhase(AndroidStartupPhase.nativeOnCreate.id, 0);
       }
@@ -119,9 +118,7 @@ abstract final class AndroidExitDiagnostics {
       final elapsedMs = measuredMs < _lastElapsedMs ? _lastElapsedMs : measuredMs;
       _lastElapsedMs = elapsedMs;
       _recordPhase(phase.id, elapsedMs);
-      if (Platform.isAndroid) {
-        unawaited(_persistStartupPhase(phase.id));
-      }
+      unawaited(_persistStartupPhase(phase.id));
     } catch (_) {
       // Startup diagnostics must never affect the startup path.
     }
@@ -165,7 +162,6 @@ abstract final class AndroidExitDiagnostics {
   }
 
   static Future<void> markUiState(AndroidUiState state) async {
-    if (!Platform.isAndroid) return;
     try {
       await deviceChannel.invokeMethod<bool>('setRuntimeUiState', state.id);
     } catch (_) {
@@ -180,7 +176,6 @@ abstract final class AndroidExitDiagnostics {
   /// intentionally contained because historical diagnostics must not affect
   /// startup.
   static Future<void> logPreviousExit() async {
-    if (!Platform.isAndroid) return;
     try {
       final raw = await deviceChannel.invokeMapMethod<String, Object?>('getPreviousExit');
       final report = _validate(raw);

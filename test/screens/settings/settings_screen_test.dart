@@ -30,7 +30,6 @@ import 'package:plezy/services/background_work_diagnostics_service.dart';
 import 'package:plezy/services/donation_service.dart';
 import 'package:plezy/services/download_storage_service.dart';
 import 'package:plezy/services/download_manager_service.dart';
-import 'package:plezy/services/file_picker_service.dart';
 import 'package:plezy/services/settings_export_service.dart';
 import 'package:plezy/services/settings_service.dart';
 import 'package:plezy/services/storage_service.dart';
@@ -53,7 +52,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late PathProviderPlatform originalPathProvider;
-  late _FakeDirectoryPicker directoryPicker;
   late Directory temporaryDirectory;
 
   setUpAll(() {
@@ -67,18 +65,13 @@ void main() {
     DownloadStorageService.resetForTesting();
     temporaryDirectory = await Directory.systemTemp.createTemp('plezy_settings_screen_test_');
     PathProviderPlatform.instance = FakePathProvider(temporaryDirectory);
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
-    directoryPicker = _FakeDirectoryPicker();
-    FilePickerService.setDelegateForTesting(directoryPicker);
+    TvDetectionService.debugSetTvOverride(false);
     await SettingsService.getInstance();
   });
 
   tearDown(() async {
-    TvDetectionService.debugSetAppleTVOverride(null);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     DownloadStorageService.resetForTesting();
-    FilePickerService.setDelegateForTesting(null);
     SettingsService.resetForTesting();
     PathProviderPlatform.instance = originalPathProvider;
     if (temporaryDirectory.existsSync()) {
@@ -139,7 +132,7 @@ void main() {
       _MigratedRow(
         title: t.settings.checkForUpdates,
         focusLabel: 'settings_check_for_updates',
-        isVisible: UpdateService.isUpdateCheckAvailable && UpdateService.useNativeUpdater,
+        isVisible: false,
         hasSubtitle: false,
       ),
     ];
@@ -212,42 +205,32 @@ void main() {
     final harness = await _pumpSettingsScreen(tester);
     addTearDown(() => harness.dispose(tester));
 
-    if (Platform.isIOS) {
-      expect(find.text(t.settings.downloadLocationDefault), findsNothing);
-    } else {
-      final downloadTileFinder = _focusableTileFor(t.settings.downloadLocationDefault);
-      final materialDownloadTile = tester.widget<ListTile>(
-        find.descendant(of: downloadTileFinder, matching: find.byType(ListTile)),
-      );
-      final downloadTile = tester.widget<FocusableListTile>(downloadTileFinder);
-      final subtitle = downloadTile.subtitle! as Text;
+    final downloadTileFinder = _focusableTileFor(t.settings.downloadLocationDefault);
+    final materialDownloadTile = tester.widget<ListTile>(
+      find.descendant(of: downloadTileFinder, matching: find.byType(ListTile)),
+    );
+    final downloadTile = tester.widget<FocusableListTile>(downloadTileFinder);
+    final subtitle = downloadTile.subtitle! as Text;
 
-      expect(_navigationTileFor(t.settings.downloadLocationDefault), findsNothing);
-      expect(materialDownloadTile.dense, isTrue);
-      expect(materialDownloadTile.visualDensity, const VisualDensity(vertical: -3));
-      expect(downloadTile.dense, isTrue);
-      expect(downloadTile.visualDensity, const VisualDensity(vertical: -3));
-      expect(downloadTile.leading, isA<AppIcon>());
-      expect(downloadTile.trailing, isA<AppIcon>());
-      expect(subtitle.maxLines, 2);
-      expect(subtitle.overflow, TextOverflow.ellipsis);
-      expect(downloadTile.onTap, isNotNull);
+    expect(_navigationTileFor(t.settings.downloadLocationDefault), findsNothing);
+    expect(materialDownloadTile.dense, isTrue);
+    expect(materialDownloadTile.visualDensity, const VisualDensity(vertical: -3));
+    expect(downloadTile.dense, isTrue);
+    expect(downloadTile.visualDensity, const VisualDensity(vertical: -3));
+    expect(downloadTile.leading, isA<AppIcon>());
+    expect(downloadTile.trailing, isA<AppIcon>());
+    expect(subtitle.maxLines, 2);
+    expect(subtitle.overflow, TextOverflow.ellipsis);
+    expect(downloadTile.onTap, isNotNull);
 
-      await tester.tap(find.text(t.settings.downloadLocationDefault));
-      await _pumpUi(tester);
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text(t.settings.downloadLocationDescription), findsOneWidget);
-      Navigator.of(tester.element(find.byType(AlertDialog))).pop();
-      await _pumpUi(tester);
-    }
-
+    await tester.tap(find.text(t.settings.downloadLocationDefault));
+    await _pumpUi(tester);
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text(t.settings.downloadLocationDescription), findsOneWidget);
+    Navigator.of(tester.element(find.byType(AlertDialog))).pop();
+    await _pumpUi(tester);
     if (!UpdateService.isUpdateCheckAvailable) {
       expect(find.text(t.settings.checkForUpdates), findsNothing);
-      return;
-    }
-
-    if (UpdateService.useNativeUpdater) {
-      expect(_navigationTileFor(t.settings.checkForUpdates), findsOneWidget);
       return;
     }
 
@@ -358,20 +341,6 @@ void main() {
     expect(find.widgetWithText(TextField, 'http://relay.example.test:8080/prefix'), findsOneWidget);
   });
 
-  testWidgets('selected download folder becomes the persisted location', (tester) async {
-    final selectedDirectory = Directory('${temporaryDirectory.path}/selected-downloads');
-    directoryPicker.directoryPath = selectedDirectory.path;
-    final harness = await _pumpSettingsScreen(tester);
-    addTearDown(() => harness.dispose(tester));
-
-    await tester.tap(find.text(t.settings.downloadLocationDefault));
-    await _pumpUi(tester);
-    await tester.tap(find.text(t.settings.selectFolder));
-    await _pumpUi(tester);
-
-    expect(SettingsService.instance.read(SettingsService.customDownloadPath), selectedDirectory.path);
-  });
-
   testWidgets('toggling Wi-Fi only re-evaluates downloads that are already queued', (tester) async {
     final requirements = <RequireWiFi>[];
     final harness = await _pumpSettingsScreen(
@@ -466,73 +435,6 @@ void main() {
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(find.text(t.settings.saveFailed), findsNothing);
     expect(find.text(t.settings.downloadLocationChanged), findsNothing);
-    expect(harness.locationEvents, isEmpty);
-  });
-
-  testWidgets('directory picker platform failure uses shared settings feedback', (tester) async {
-    directoryPicker.directoryError = PlatformException(code: 'picker_failed');
-    final harness = await _pumpSettingsScreen(tester);
-    addTearDown(() => harness.dispose(tester));
-
-    await tester.tap(find.text(t.settings.downloadLocationDefault));
-    await _pumpUi(tester);
-    await tester.tap(find.text(t.settings.selectFolder));
-    await _pumpUi(tester);
-
-    expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text(t.settings.saveFailed), findsOneWidget);
-    expect(harness.locationEvents, isEmpty);
-  });
-
-  testWidgets('directory filesystem failure uses shared settings feedback', (tester) async {
-    directoryPicker.directoryPath = '${temporaryDirectory.path}/selected-downloads';
-    final harness = await _pumpSettingsScreen(
-      tester,
-      writableChecker: (_) async => throw const FileSystemException('writable check failed'),
-    );
-    addTearDown(() => harness.dispose(tester));
-
-    await tester.tap(find.text(t.settings.downloadLocationDefault));
-    await _pumpUi(tester);
-    await tester.tap(find.text(t.settings.selectFolder));
-    await _pumpUi(tester);
-
-    expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text(t.settings.saveFailed), findsOneWidget);
-    expect(harness.locationEvents, isEmpty);
-  });
-
-  testWidgets('late directory picker completion does not use a disposed context', (tester) async {
-    directoryPicker.directoryGate = Completer<String?>();
-    final harness = await _pumpSettingsScreen(tester);
-
-    await tester.tap(find.text(t.settings.downloadLocationDefault));
-    await _pumpUi(tester);
-    await tester.tap(find.text(t.settings.selectFolder));
-    await tester.pump();
-    await harness.dispose(tester);
-
-    directoryPicker.directoryGate!.complete('${temporaryDirectory.path}/late-downloads');
-    await tester.pump();
-
-    expect(tester.takeException(), isNull);
-    expect(harness.locationEvents, isEmpty);
-  });
-
-  testWidgets('late directory picker failure does not use a disposed context', (tester) async {
-    directoryPicker.directoryGate = Completer<String?>();
-    final harness = await _pumpSettingsScreen(tester);
-
-    await tester.tap(find.text(t.settings.downloadLocationDefault));
-    await _pumpUi(tester);
-    await tester.tap(find.text(t.settings.selectFolder));
-    await tester.pump();
-    await harness.dispose(tester);
-
-    directoryPicker.directoryGate!.completeError(PlatformException(code: 'late_picker_failure'));
-    await tester.pump();
-
-    expect(tester.takeException(), isNull);
     expect(harness.locationEvents, isEmpty);
   });
 
@@ -838,26 +740,4 @@ class _FakeHiddenLibrariesStorage implements StorageService {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class _FakeDirectoryPicker implements FilePickerDelegate {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-
-  String? directoryPath;
-  Object? directoryError;
-  Completer<String?>? directoryGate;
-
-  @override
-  Future<String?> getDirectoryPath({
-    String? dialogTitle,
-    String? initialDirectory,
-    bool lockParentWindow = false,
-  }) async {
-    final gate = directoryGate;
-    if (gate != null) return gate.future;
-    final error = directoryError;
-    if (error != null) throw error;
-    return directoryPath;
-  }
 }

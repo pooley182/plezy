@@ -41,7 +41,6 @@ import '../watch_together/watch_together.dart' show WatchNoticeListener;
 import '../widgets/music/mini_player.dart';
 import '../widgets/agent_control_scope.dart';
 import 'profile_navigation_scope.dart';
-import 'settings_shortcut.dart';
 
 CatalogSourcesProvider _createCatalogSourcesProvider(BuildContext context) {
   return CatalogSourcesProvider(
@@ -338,7 +337,6 @@ class _ProfileSessionNavigatorState extends State<_ProfileSessionNavigator> {
   // MainScreen report its bottom-bar height so the overlay floats above it.
   final _musicRouteObserver = MusicUiRouteObserver();
   final _miniPlayerInsets = MiniPlayerInsetController();
-  final _settingsRouteTracker = SettingsRouteTracker();
 
   @override
   void initState() {
@@ -385,26 +383,16 @@ class _ProfileSessionNavigatorState extends State<_ProfileSessionNavigator> {
             ],
             // The mini-player mounts ABOVE the nested navigator so it persists
             // across content routes (but inside the profile provider scope so
-            // it dies with the session). SettingsShortcut wraps both so the
-            // desktop open-settings chord also works with mini-player focus.
-            child: SettingsShortcut(
-              navigatorKey: _navigatorKey,
-              settingsRoutes: _settingsRouteTracker,
-              child: Stack(
-                children: [
-                  Navigator(
-                    key: _navigatorKey,
-                    observers: [
-                      _routeObserver,
-                      _musicRouteObserver,
-                      _settingsRouteTracker,
-                      BackKeySuppressorObserver(),
-                    ],
-                    onGenerateRoute: _onGenerateRoute,
-                  ),
-                  const Positioned.fill(child: MusicMiniPlayerOverlay()),
-                ],
-              ),
+            // it dies with the session).
+            child: Stack(
+              children: [
+                Navigator(
+                  key: _navigatorKey,
+                  observers: [_routeObserver, _musicRouteObserver, BackKeySuppressorObserver()],
+                  onGenerateRoute: _onGenerateRoute,
+                ),
+                const Positioned.fill(child: MusicMiniPlayerOverlay()),
+              ],
             ),
           ),
         ),

@@ -6,7 +6,6 @@ import '../../mpv/mpv.dart';
 import '../../models/livetv_capture_buffer.dart';
 import '../../media/media_source_info.dart';
 import '../../services/scrub_preview_source.dart';
-import '../../utils/desktop_window_padding.dart';
 import '../../utils/platform_detector.dart';
 import '../../i18n/strings.g.dart';
 import 'player_chrome_controller.dart';
@@ -324,7 +323,6 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
         padding: const EdgeInsets.all(16),
         child: VideoControlsHeader(
           metadata: widget.metadata,
-          style: VideoHeaderStyle.multiLine,
           onCancelAutoHide: widget.onCancelAutoHide,
           onStartAutoHide: widget.onStartAutoHide,
           trailing: widget.trackChapterControls,
@@ -334,7 +332,7 @@ class _MobileVideoControlsState extends State<MobileVideoControls> with SingleTi
       ),
     );
 
-    return DesktopAppBarHelper.wrapWithGestureDetector(topBar, opaque: true);
+    return topBar;
   }
 
   Widget _buildPlaybackControls(BuildContext _) {

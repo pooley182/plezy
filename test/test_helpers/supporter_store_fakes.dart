@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
-import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 import 'package:plezy/services/supporter/supporter_store.dart';
 
 /// An in-memory store behind in_app_purchase's platform interface. Counts
@@ -135,64 +132,3 @@ GooglePlayPurchaseDetails playPurchase({
     purchaseState: state,
   ),
 ).single;
-
-/// The App Store (StoreKit 2) behind [platform], answering `Transaction.all`
-/// from [transactions].
-final class FakeAppStore {
-  FakeAppStore(this.platform);
-
-  final FakeInAppPurchasePlatform platform;
-  List<SK2Transaction> transactions = [];
-  int syncs = 0;
-
-  /// Thrown by `AppStore.sync` when set, as the plugin reports a failure.
-  Object? syncError;
-
-  late final SupporterStore store = AppStoreSupporterStore(
-    platform,
-    transactions: () async {
-      platform.billingCalls++;
-      return transactions;
-    },
-    sync: () async {
-      platform.billingCalls++;
-      syncs++;
-      if (syncError case final error?) throw error;
-    },
-  );
-}
-
-String _transactionJson(String productId, {required bool revoked}) => jsonEncode({
-  'productId': productId,
-  'purchaseDate': 1767225600000,
-  if (revoked) 'revocationDate': 1767312000000,
-  if (revoked) 'revocationReason': 0,
-});
-
-/// A verified StoreKit 2 transaction from `Transaction.all`.
-SK2Transaction appStoreTransaction({String productId = supporterProductId, bool revoked = false}) => SK2Transaction(
-  id: '2000000000000001',
-  originalId: '2000000000000001',
-  productId: productId,
-  purchaseDate: '2026-01-01T00:00:00Z',
-  appAccountToken: null,
-  jsonRepresentation: _transactionJson(productId, revoked: revoked),
-);
-
-/// A StoreKit 2 transaction on the purchase stream, as the plugin reports a
-/// purchase or a `Transaction.updates` refund.
-SK2PurchaseDetails appStorePurchase({
-  String productId = supporterProductId,
-  PurchaseStatus status = PurchaseStatus.purchased,
-  bool revoked = false,
-}) => SK2PurchaseDetails(
-  productID: productId,
-  purchaseID: '2000000000000001',
-  verificationData: PurchaseVerificationData(
-    localVerificationData: _transactionJson(productId, revoked: revoked),
-    serverVerificationData: 'jws',
-    source: 'app_store',
-  ),
-  transactionDate: '1767225600000',
-  status: status,
-);

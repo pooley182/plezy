@@ -11,11 +11,11 @@ import 'package:plezy/widgets/dialog_action_button.dart';
 
 void main() {
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('settings text input survives TV keyboard back dismissal', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await tester.binding.setSurfaceSize(const Size(1280, 720));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     late BuildContext hostContext;

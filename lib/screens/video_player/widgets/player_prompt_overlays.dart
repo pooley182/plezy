@@ -26,38 +26,6 @@ import '../../../widgets/optimized_media_image.dart';
 import '../../../widgets/settings_builder.dart';
 import '../../../widgets/video_controls/player_chrome_controller.dart';
 
-class VideoPlayerMacPipPlaceholder extends StatelessWidget {
-  const VideoPlayerMacPipPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: PipService().isPipActive,
-      builder: (context, isInPip, child) {
-        if (!isInPip) return const SizedBox.shrink();
-        return Positioned.fill(
-          child: Container(
-            color: Colors.black,
-            child: Center(
-              child: Column(
-                mainAxisSize: .min,
-                children: [
-                  AppIcon(Symbols.picture_in_picture_alt_rounded, size: 48, color: Colors.white.withValues(alpha: 0.5)),
-                  const SizedBox(height: 12),
-                  Text(
-                    t.videoControls.pipActive,
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
 /// The player's loading spinner.
 ///
 /// Labelled rather than silent: a bare [CircularProgressIndicator] contributes

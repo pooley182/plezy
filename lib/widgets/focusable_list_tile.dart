@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../focus/focusable_tile_mixin.dart';
 import '../utils/platform_detector.dart';
-import 'clickable_cursor.dart';
 
 /// A ListTile that accepts a FocusNode for keyboard/controller navigation.
 ///
@@ -164,22 +163,19 @@ class _FocusableSwitchListTileState extends State<FocusableSwitchListTile>
   @override
   Widget build(BuildContext context) {
     final automotive = PlatformDetector.isAutomotive();
-    return ClickableCursor(
-      enabled: widget.onChanged != null,
-      child: SwitchListTile(
-        title: widget.title,
-        subtitle: widget.subtitle,
-        secondary: widget.secondary,
-        value: widget.value,
-        onChanged: widget.onChanged,
-        dense: automotive ? false : widget.dense,
-        visualDensity: automotive ? VisualDensity.standard : widget.visualDensity,
-        contentPadding: widget.contentPadding,
-        focusNode: effectiveFocusNode,
-        autofocus: widget.autofocus,
-        horizontalTitleGap: widget.horizontalTitleGap,
-        minLeadingWidth: widget.minLeadingWidth,
-      ),
+    return SwitchListTile(
+      title: widget.title,
+      subtitle: widget.subtitle,
+      secondary: widget.secondary,
+      value: widget.value,
+      onChanged: widget.onChanged,
+      dense: automotive ? false : widget.dense,
+      visualDensity: automotive ? VisualDensity.standard : widget.visualDensity,
+      contentPadding: widget.contentPadding,
+      focusNode: effectiveFocusNode,
+      autofocus: widget.autofocus,
+      horizontalTitleGap: widget.horizontalTitleGap,
+      minLeadingWidth: widget.minLeadingWidth,
     );
   }
 }
@@ -229,22 +225,19 @@ class _FocusableCheckboxListTileState extends State<FocusableCheckboxListTile>
   @override
   Widget build(BuildContext context) {
     final automotive = PlatformDetector.isAutomotive();
-    return ClickableCursor(
-      enabled: widget.onChanged != null,
-      child: CheckboxListTile(
-        title: widget.title,
-        subtitle: widget.subtitle,
-        secondary: widget.secondary,
-        value: widget.value,
-        onChanged: widget.onChanged,
-        tristate: widget.tristate,
-        dense: automotive ? false : widget.dense,
-        visualDensity: automotive ? VisualDensity.standard : widget.visualDensity,
-        contentPadding: widget.contentPadding,
-        focusNode: effectiveFocusNode,
-        autofocus: widget.autofocus,
-        controlAffinity: widget.controlAffinity,
-      ),
+    return CheckboxListTile(
+      title: widget.title,
+      subtitle: widget.subtitle,
+      secondary: widget.secondary,
+      value: widget.value,
+      onChanged: widget.onChanged,
+      tristate: widget.tristate,
+      dense: automotive ? false : widget.dense,
+      visualDensity: automotive ? VisualDensity.standard : widget.visualDensity,
+      contentPadding: widget.contentPadding,
+      focusNode: effectiveFocusNode,
+      autofocus: widget.autofocus,
+      controlAffinity: widget.controlAffinity,
     );
   }
 }

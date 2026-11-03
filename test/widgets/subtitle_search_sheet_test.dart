@@ -40,15 +40,11 @@ void main() {
   group('sheet geometry', () {
     setUp(() {
       LocaleSettings.setLocaleSync(AppLocale.en);
-      // The 720 assertion below is the desktop-window ceiling, so pin both
-      // gates it reads rather than inheriting the host OS.
-      PlatformDetector.debugSetIsDesktopOSOverride(true);
-      TvDetectionService.debugSetAppleTVOverride(false);
+      TvDetectionService.debugSetTvOverride(false);
     });
 
     tearDown(() {
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
     });
 
     testWidgets('search body keeps a stable height so the focused field cannot slide', (tester) async {
@@ -62,7 +58,7 @@ void main() {
       // results area is empty. A shrink-wrapping body would collapse here.
       final emptyHeight = _sheetHeight(tester);
       final fieldTop = tester.getTopLeft(find.byType(TextField)).dy;
-      expect(emptyHeight, 720, reason: 'search surface fills the windowed height ceiling');
+      expect(emptyHeight, 1400 * 0.75, reason: 'search surface fills the default sheet height');
 
       // Switching to the language picker and filtering it down to a couple of
       // matches must not move the geometry either.

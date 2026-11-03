@@ -20,13 +20,13 @@ void main() {
   setUp(() async {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     TvDetectionService.debugSetAutomotiveOverride(false);
     await SettingsService.getInstance();
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     TvDetectionService.debugSetAutomotiveOverride(null);
     SettingsService.resetForTesting();
   });

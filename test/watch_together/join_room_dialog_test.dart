@@ -84,14 +84,12 @@ void main() {
     SettingsService.resetForTesting();
     await SettingsService.getInstance();
     LocaleSettings.setLocaleSync(AppLocale.en);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     _results = [];
   });
 
   tearDown(() {
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     BackKeyCoordinator.clear();
   });
 

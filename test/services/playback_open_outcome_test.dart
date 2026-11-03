@@ -4,10 +4,11 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/services/playback_open_outcome.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// A player whose load-scoped streams the test drives directly. [close] ends
 /// every stream at once, like a disposed player closing its controllers.
-class _StreamPlayer implements Player {
+class _StreamPlayer with AndroidPlayerNoops implements Player {
   final started = StreamController<void>.broadcast();
   final primaryReady = StreamController<void>.broadcast();
   final loaded = StreamController<void>.broadcast();

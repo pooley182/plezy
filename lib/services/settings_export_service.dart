@@ -86,7 +86,6 @@ class SettingsExportService {
   // Device-local storage state must never cross installations. Keep these as
   // exact keys so portable download behavior settings remain transferable.
   static const Set<String> _nonPortableDeviceStorageKeys = {'custom_download_path', 'custom_download_path_type'};
-  static const String _tvosDatabaseRecoveryPrefix = 'tvos_db_recovery_';
 
   /// Closed registry of portable, user-facing settings, keyed by preference
   /// key. [SettingsService.portablePrefs] is the source of truth for membership
@@ -145,7 +144,6 @@ class SettingsExportService {
   }
 
   static _PreferencePolicy? _policyFor(String baseKey) {
-    if (baseKey.startsWith(_tvosDatabaseRecoveryPrefix)) return null;
     if (_nonPortableDeviceStorageKeys.contains(baseKey)) return null;
     final exact = _portablePreferences[baseKey] ?? _userScopedPreferences[baseKey];
     if (exact != null) return exact;
@@ -460,7 +458,7 @@ class SettingsExportService {
 
     // Android TV has no document picker — write to the app docs dir and let
     // the caller surface the path.
-    if (Platform.isAndroid && PlatformDetector.isTV()) {
+    if (PlatformDetector.isTV()) {
       return _writeToAppDocuments(fileName, bytes);
     }
 

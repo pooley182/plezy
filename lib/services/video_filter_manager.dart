@@ -46,12 +46,6 @@ class VideoFilterManager {
 
   final Player player;
 
-  /// Whether [Player.setVideoZoom] scales the native video layer itself, so
-  /// the mpv `video-zoom` property must stay 0. On iOS/tvOS/macOS the avfoundation
-  /// VO re-renders zoomed frames through Core Image, which destroys HDR and
-  /// Dolby Vision passthrough — zoom must stay out of mpv's pipeline there.
-  final bool nativeVideoZoom;
-
   /// BoxFit mode state: 0=contain (letterbox), 1=cover (fill screen), 2=fill (stretch)
   int _boxFitMode;
 
@@ -91,7 +85,6 @@ class VideoFilterManager {
 
   VideoFilterManager({
     required this.player,
-    this.nativeVideoZoom = false,
     int initialBoxFitMode = 0,
     Size? initialPlayerSize,
     this.onBoxFitModeChanged,
@@ -278,7 +271,7 @@ class VideoFilterManager {
       await _applyProperty('video-aspect-override', aspectOverride);
       await _applyProperty('sub-ass-force-margins', coverMode || zoomScale > 1.0001 ? 'yes' : 'no');
       await _applyProperty('panscan', coverMode ? '1.0' : '0');
-      await _applyProperty('video-zoom', nativeVideoZoom ? '0.0' : videoZoomPropertyForScale(zoomScale).toString());
+      await _applyProperty('video-zoom', videoZoomPropertyForScale(zoomScale).toString());
     } catch (e) {
       appLogger.w('Failed to update video filter', error: e);
     }

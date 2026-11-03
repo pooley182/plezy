@@ -349,9 +349,6 @@ class _ObservedPlayer extends FakeSyncPlayer {
   Future<void> updateFrame() async {}
 
   @override
-  Future<void> awaitDisplayModeSwitch({int extraDelayMs = 0}) async {}
-
-  @override
   Future<bool> requestAudioFocus() async => true;
 
   @override

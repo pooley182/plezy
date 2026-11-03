@@ -197,9 +197,6 @@ class Translations$auth$en {
 	/// en: 'Quick Connect expired. Try again.'
 	String get quickConnectExpired => 'Quick Connect expired. Try again.';
 
-	/// en: 'Plezy could not safely recover local sign-in and pending playback data. Please sign in again.'
-	String get localDataRecoveryRequired => 'Plezy could not safely recover local sign-in and pending playback data. Please sign in again.';
-
 	/// en: 'The Plex PIN check was rejected'
 	String get pinCheckRejected => 'The Plex PIN check was rejected';
 }
@@ -340,12 +337,6 @@ class Translations$common$en {
 
 	/// en: 'Loading...'
 	String get loading => 'Loading...';
-
-	/// en: 'Fullscreen'
-	String get fullscreen => 'Fullscreen';
-
-	/// en: 'Exit fullscreen'
-	String get exitFullscreen => 'Exit fullscreen';
 
 	/// en: 'Press back again to exit'
 	String get pressBackAgainToExit => 'Press back again to exit';
@@ -761,15 +752,6 @@ class Translations$settings$en {
 	/// en: 'Direct play videos already within the quality limit instead of transcoding them'
 	String get directPlayCoveredQualityDescription => 'Direct play videos already within the quality limit instead of transcoding them';
 
-	/// en: 'Video Codecs'
-	String get videoCodecs => 'Video Codecs';
-
-	/// en: 'Unchecked codecs are transcoded by the server'
-	String get videoCodecsDescription => 'Unchecked codecs are transcoded by the server';
-
-	/// en: 'Always accepted'
-	String get videoCodecsAlwaysAccepted => 'Always accepted';
-
 	/// en: 'Music Quality'
 	String get musicQualityTitle => 'Music Quality';
 
@@ -844,21 +826,6 @@ class Translations$settings$en {
 
 	/// en: 'Click video to play/pause instead of showing controls.'
 	String get clickVideoTogglesPlaybackDescription => 'Click video to play/pause instead of showing controls.';
-
-	/// en: 'Video Player Controls'
-	String get videoPlayerControls => 'Video Player Controls';
-
-	/// en: 'Keyboard Shortcuts'
-	String get keyboardShortcuts => 'Keyboard Shortcuts';
-
-	/// en: 'Customize keyboard shortcuts'
-	String get keyboardShortcutsDescription => 'Customize keyboard shortcuts';
-
-	/// en: 'Video Player Navigation'
-	String get videoPlayerNavigation => 'Video Player Navigation';
-
-	/// en: 'Use arrow keys to navigate video player controls'
-	String get videoPlayerNavigationDescription => 'Use arrow keys to navigate video player controls';
 
 	/// en: 'Watch Together Relay'
 	String get watchTogetherRelay => 'Watch Together Relay';
@@ -938,12 +905,6 @@ class Translations$settings$en {
 	/// en: 'Sign in before importing settings'
 	String get importSettingsNoUser => 'Sign in before importing settings';
 
-	/// en: 'Shortcuts reset to defaults'
-	String get shortcutsReset => 'Shortcuts reset to defaults';
-
-	/// en: 'This will replace your custom shortcuts with the defaults. Continue?'
-	String get resetShortcutsConfirm => 'This will replace your custom shortcuts with the defaults. Continue?';
-
 	/// en: 'About'
 	String get about => 'About';
 
@@ -970,12 +931,6 @@ class Translations$settings$en {
 
 	/// en: 'Duration must be between ${min} and ${max} ${unit}'
 	String validationErrorDuration({required Object min, required Object max, required Object unit}) => 'Duration must be between ${min} and ${max} ${unit}';
-
-	/// en: 'Shortcut already assigned to ${action}'
-	String shortcutAlreadyAssigned({required Object action}) => 'Shortcut already assigned to ${action}';
-
-	/// en: 'Shortcut updated for ${action}'
-	String shortcutUpdated({required Object action}) => 'Shortcut updated for ${action}';
 
 	/// en: 'Could not save changes. Try again.'
 	String get saveFailed => 'Could not save changes. Try again.';
@@ -1121,12 +1076,6 @@ class Translations$settings$en {
 	/// en: '${percent}%'
 	String maxVolumePercent({required Object percent}) => '${percent}%';
 
-	/// en: 'Discord Rich Presence'
-	String get discordRichPresence => 'Discord Rich Presence';
-
-	/// en: 'Show what you're watching on Discord'
-	String get discordRichPresenceDescription => 'Show what you\'re watching on Discord';
-
 	/// en: 'Services'
 	String get services => 'Services';
 
@@ -1166,18 +1115,6 @@ class Translations$settings$en {
 	/// en: 'Switch the display to the video's native resolution so your TV handles upscaling. Menus and subtitles are upscaled too during playback'
 	String get matchContentResolutionDescription => 'Switch the display to the video\'s native resolution so your TV handles upscaling. Menus and subtitles are upscaled too during playback';
 
-	/// en: 'Match Refresh Rate'
-	String get matchRefreshRate => 'Match Refresh Rate';
-
-	/// en: 'Match display refresh rate in fullscreen'
-	String get matchRefreshRateDescription => 'Match display refresh rate in fullscreen';
-
-	/// en: 'Match Dynamic Range'
-	String get matchDynamicRange => 'Match Dynamic Range';
-
-	/// en: 'Switch HDR on for HDR content, then back to SDR'
-	String get matchDynamicRangeDescription => 'Switch HDR on for HDR content, then back to SDR';
-
 	/// en: 'Display Switch Delay'
 	String get displaySwitchDelay => 'Display Switch Delay';
 
@@ -1192,12 +1129,6 @@ class Translations$settings$en {
 
 	/// en: 'Send Dolby/DTS audio to your receiver or TV without re-encoding, preserving surround sound. Turn off if you have no sound.'
 	String get audioPassthroughDescription => 'Send Dolby/DTS audio to your receiver or TV without re-encoding, preserving surround sound. Turn off if you have no sound.';
-
-	/// en: 'Use Apple's native Dolby decoder for Dolby Digital Plus, including Atmos. DTS and TrueHD still play as multichannel PCM. Turn off if you have no sound.'
-	String get audioPassthroughDescriptionApple => 'Use Apple\'s native Dolby decoder for Dolby Digital Plus, including Atmos. DTS and TrueHD still play as multichannel PCM. Turn off if you have no sound.';
-
-	/// en: 'Use Apple's native Dolby decoder for Dolby Digital Plus, including Atmos. On iOS, iPadOS and tvOS 26 or later, TrueHD Atmos and DTS:X play as spatial audio. Other DTS and TrueHD tracks play as multichannel PCM. Turn off if you have no sound.'
-	String get audioPassthroughDescriptionAppleSpatial => 'Use Apple\'s native Dolby decoder for Dolby Digital Plus, including Atmos. On iOS, iPadOS and tvOS 26 or later, TrueHD Atmos and DTS:X play as spatial audio. Other DTS and TrueHD tracks play as multichannel PCM. Turn off if you have no sound.';
 
 	/// en: 'Off while loudness normalization is on'
 	String get audioPassthroughOverriddenByNormalization => 'Off while loudness normalization is on';
@@ -1340,18 +1271,6 @@ class Translations$settings$en {
 	/// en: 'Force TV layout. For devices that don't auto-detect. Requires restart.'
 	String get forceTvModeDescription => 'Force TV layout. For devices that don\'t auto-detect. Requires restart.';
 
-	/// en: 'Start in fullscreen'
-	String get startInFullscreen => 'Start in fullscreen';
-
-	/// en: 'Open Plezy in fullscreen mode at launch'
-	String get startInFullscreenDescription => 'Open Plezy in fullscreen mode at launch';
-
-	/// en: 'Exit fullscreen on player close'
-	String get exitFullscreenOnPlayerClose => 'Exit fullscreen on player close';
-
-	/// en: 'Automatically exit fullscreen when closing the video player'
-	String get exitFullscreenOnPlayerCloseDescription => 'Automatically exit fullscreen when closing the video player';
-
 	/// en: 'Auto-Hide Performance Overlay'
 	String get autoHidePerformanceOverlay => 'Auto-Hide Performance Overlay';
 
@@ -1402,9 +1321,6 @@ class Translations$settings$en {
 
 	/// en: 'Navigation'
 	String get navigation => 'Navigation';
-
-	/// en: 'Window'
-	String get window => 'Window';
 
 	/// en: 'Live TV'
 	String get liveTv => 'Live TV';
@@ -1614,23 +1530,8 @@ class Translations$hotkeys$en {
 
 	// Translations
 
-	/// en: 'Set Shortcut for ${actionName}'
-	String setShortcutFor({required Object actionName}) => 'Set Shortcut for ${actionName}';
-
-	/// en: 'Clear shortcut'
-	String get clearShortcut => 'Clear shortcut';
-
 	/// en: 'No shortcut set'
 	String get noShortcutSet => 'No shortcut set';
-
-	/// en: 'Current shortcut:'
-	String get currentShortcut => 'Current shortcut:';
-
-	/// en: 'Select to record a shortcut'
-	String get pressToRecord => 'Select to record a shortcut';
-
-	/// en: 'Press the shortcut now'
-	String get recordingShortcut => 'Press the shortcut now';
 
 	late final Translations$hotkeys$actions$en actions = Translations$hotkeys$actions$en.internal(_root);
 }
@@ -2408,15 +2309,6 @@ class Translations$videoControls$en {
 	/// en: 'Ambient lighting'
 	String get ambientLighting => 'Ambient lighting';
 
-	/// en: 'Enter fullscreen'
-	String get fullscreenButton => 'Enter fullscreen';
-
-	/// en: 'Exit fullscreen'
-	String get exitFullscreenButton => 'Exit fullscreen';
-
-	/// en: 'Always on top'
-	String get alwaysOnTopButton => 'Always on top';
-
 	/// en: 'Rotation lock'
 	String get rotationLockButton => 'Rotation lock';
 
@@ -2440,9 +2332,6 @@ class Translations$videoControls$en {
 
 	/// en: 'Ends at ${time}'
 	String endsAt({required Object time}) => 'Ends at ${time}';
-
-	/// en: 'Playing in Picture-in-Picture'
-	String get pipActive => 'Playing in Picture-in-Picture';
 
 	/// en: 'Picture-in-picture failed to start'
 	String get pipFailed => 'Picture-in-picture failed to start';
@@ -2886,9 +2775,6 @@ class Translations$mpvConfig$en {
 
 	/// en: 'Remove line'
 	String get removeLine => 'Remove line';
-
-	/// en: 'vo, gpu-context and gpu-api are ignored on Linux: embedded video always renders through vo=libmpv on the video plane, and gpu-next (which compute shaders like ArtCNN need) cannot run embedded.'
-	String get embeddedVoHint => 'vo, gpu-context and gpu-api are ignored on Linux: embedded video always renders through vo=libmpv on the video plane, and gpu-next (which compute shaders like ArtCNN need) cannot run embedded.';
 }
 
 // Path: dialog
@@ -3707,9 +3593,6 @@ class Translations$startup$en {
 
 	/// en: 'Your data was repaired, but Plezy has to start fresh before it can use it. Close Plezy and open it again.'
 	String get restartRequiredBody => 'Your data was repaired, but Plezy has to start fresh before it can use it. Close Plezy and open it again.';
-
-	/// en: 'Quit Plezy'
-	String get quitPlezy => 'Quit Plezy';
 
 	/// en: 'Repair failed'
 	String get repairFailed => 'Repair failed';
@@ -5145,47 +5028,14 @@ class Translations$videoSettings$en {
 	/// en: 'HDR'
 	String get hdr => 'HDR';
 
-	/// en: 'HDR isn't available here — this desktop compositor or video output can't carry it.'
-	String get hdrUnsupported => 'HDR isn\'t available here — this desktop compositor or video output can\'t carry it.';
-
-	/// en: 'HDR Tone Mapping'
-	String get hdrToneMapping => 'HDR Tone Mapping';
-
-	/// en: 'Compositor'
-	String get hdrToneMappingCompositor => 'Compositor';
-
-	/// en: 'Pass the source's HDR metadata through and let the desktop compositor map it.'
-	String get hdrToneMappingCompositorDescription => 'Pass the source\'s HDR metadata through and let the desktop compositor map it.';
-
-	/// en: 'Player'
-	String get hdrToneMappingPlayer => 'Player';
-
-	/// en: 'Map to the display's peak brightness in the player, then tell the compositor the result.'
-	String get hdrToneMappingPlayerDescription => 'Map to the display\'s peak brightness in the player, then tell the compositor the result.';
-
-	/// en: 'Couldn't change HDR tone mapping — the previous mode is still active.'
-	String get hdrToneMappingFailed => 'Couldn\'t change HDR tone mapping — the previous mode is still active.';
-
 	/// en: 'Audio Output'
 	String get audioOutput => 'Audio Output';
 
-	/// en: 'Performance Overlay'
-	String get performanceOverlay => 'Performance Overlay';
-
-	/// en: 'Dolby Atmos'
-	String get audioOutputDolbyAtmos => 'Dolby Atmos';
-
-	/// en: 'Dolby Audio'
-	String get audioOutputDolbyAudio => 'Dolby Audio';
-
-	/// en: 'Surround'
-	String get audioOutputSurround => 'Surround';
-
-	/// en: 'Spatial Audio'
-	String get audioOutputSpatial => 'Spatial Audio';
-
 	/// en: 'Stereo'
 	String get audioOutputStereo => 'Stereo';
+
+	/// en: 'Performance Overlay'
+	String get performanceOverlay => 'Performance Overlay';
 
 	/// en: 'Normalize Loudness'
 	String get audioNormalization => 'Normalize Loudness';
@@ -5399,9 +5249,6 @@ class Translations$externalPlayer$en {
 
 	/// en: 'My Player'
 	String get playerNameHint => 'My Player';
-
-	/// en: 'Command'
-	String get playerCommand => 'Command';
 
 	/// en: 'Package Name'
 	String get playerPackage => 'Package Name';
@@ -5927,9 +5774,6 @@ class Translations$services$en {
 
 	/// en: 'Sync watch progress and request new titles.'
 	String get hubSubtitle => 'Sync watch progress and request new titles.';
-
-	/// en: 'Integrations'
-	String get integrations => 'Integrations';
 
 	/// en: 'Not connected'
 	String get notConnected => 'Not connected';
@@ -6519,9 +6363,6 @@ class Translations$videoControls$pipErrors$en {
 
 	/// en: 'Requires Android 8.0 or newer'
 	String get androidVersion => 'Requires Android 8.0 or newer';
-
-	/// en: 'Requires iOS 15.0 or newer'
-	String get iosVersion => 'Requires iOS 15.0 or newer';
 
 	/// en: 'Picture-in-picture is disabled. Enable it in system settings.'
 	String get permissionDisabled => 'Picture-in-picture is disabled. Enable it in system settings.';
@@ -8157,7 +7998,6 @@ extension on Translations {
 			'auth.quickConnectWaiting' => 'Waiting for approval…',
 			'auth.quickConnectCancel' => 'Cancel',
 			'auth.quickConnectExpired' => 'Quick Connect expired. Try again.',
-			'auth.localDataRecoveryRequired' => 'Plezy could not safely recover local sign-in and pending playback data. Please sign in again.',
 			'auth.pinCheckRejected' => 'The Plex PIN check was rejected',
 			'common.cancel' => 'Cancel',
 			'common.save' => 'Save',
@@ -8202,8 +8042,6 @@ extension on Translations {
 			'common.connectingToServers' => 'Connecting to servers...',
 			'common.startingOfflineMode' => 'Starting offline mode...',
 			'common.loading' => 'Loading...',
-			'common.fullscreen' => 'Fullscreen',
-			'common.exitFullscreen' => 'Exit fullscreen',
 			'common.pressBackAgainToExit' => 'Press back again to exit',
 			'common.ratingSource.critic' => 'Critics',
 			'common.ratingSource.audience' => 'Audience',
@@ -8359,9 +8197,6 @@ extension on Translations {
 			'settings.cellularQualitySameAsDefault' => 'Same as Default Quality',
 			'settings.directPlayCoveredQuality' => 'Play Smaller Videos at Original Quality',
 			'settings.directPlayCoveredQualityDescription' => 'Direct play videos already within the quality limit instead of transcoding them',
-			'settings.videoCodecs' => 'Video Codecs',
-			'settings.videoCodecsDescription' => 'Unchecked codecs are transcoded by the server',
-			'settings.videoCodecsAlwaysAccepted' => 'Always accepted',
 			'settings.musicQualityTitle' => 'Music Quality',
 			'settings.subtitleStyling' => 'Subtitle Styling',
 			'settings.subtitleStylingDescription' => 'Customize subtitle appearance',
@@ -8387,11 +8222,6 @@ extension on Translations {
 			'settings.specialsOrderingLast' => 'After regular seasons',
 			'settings.clickVideoTogglesPlayback' => 'Click on video to toggle play/pause',
 			'settings.clickVideoTogglesPlaybackDescription' => 'Click video to play/pause instead of showing controls.',
-			'settings.videoPlayerControls' => 'Video Player Controls',
-			'settings.keyboardShortcuts' => 'Keyboard Shortcuts',
-			'settings.keyboardShortcutsDescription' => 'Customize keyboard shortcuts',
-			'settings.videoPlayerNavigation' => 'Video Player Navigation',
-			'settings.videoPlayerNavigationDescription' => 'Use arrow keys to navigate video player controls',
 			'settings.watchTogetherRelay' => 'Watch Together Relay',
 			'settings.watchTogetherRelayDescription' => 'Public Open Watch Party relays unless you set your own',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
@@ -8418,8 +8248,6 @@ extension on Translations {
 			'settings.importSettingsSuccess' => 'Settings imported',
 			'settings.importSettingsInvalidFile' => 'This file isn\'t a valid Plezy settings export',
 			'settings.importSettingsNoUser' => 'Sign in before importing settings',
-			'settings.shortcutsReset' => 'Shortcuts reset to defaults',
-			'settings.resetShortcutsConfirm' => 'This will replace your custom shortcuts with the defaults. Continue?',
 			'settings.about' => 'About',
 			'settings.aboutDescription' => 'App information and licenses',
 			'settings.updates' => 'Updates',
@@ -8429,8 +8257,6 @@ extension on Translations {
 			'settings.autoCheckUpdatesOnStartupDescription' => 'Notify when an update is available at launch',
 			'settings.validationErrorEnterNumber' => 'Please enter a valid number',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => 'Duration must be between ${min} and ${max} ${unit}',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'Shortcut already assigned to ${action}',
-			'settings.shortcutUpdated' => ({required Object action}) => 'Shortcut updated for ${action}',
 			'settings.saveFailed' => 'Could not save changes. Try again.',
 			'settings.autoPlayAndSkip' => 'Auto-Play & Skip',
 			'settings.autoPlayNextEpisode' => 'Auto-Play Next Episode',
@@ -8479,8 +8305,6 @@ extension on Translations {
 			'settings.maxVolume' => 'Maximum Volume',
 			'settings.maxVolumeDescription' => 'Allow volume boost above 100% for quiet media',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Show what you\'re watching on Discord',
 			'settings.services' => 'Services',
 			'settings.servicesDescription' => 'Connect Trakt, MyAnimeList, Seerr, and more',
 			'settings.manageLibrariesDescription' => 'Reorder and hide libraries',
@@ -8494,17 +8318,11 @@ extension on Translations {
 			'settings.matchContentFrameRateDescription' => 'Match display refresh rate to video content',
 			'settings.matchContentResolution' => 'Match Content Resolution',
 			'settings.matchContentResolutionDescription' => 'Switch the display to the video\'s native resolution so your TV handles upscaling. Menus and subtitles are upscaled too during playback',
-			'settings.matchRefreshRate' => 'Match Refresh Rate',
-			'settings.matchRefreshRateDescription' => 'Match display refresh rate in fullscreen',
-			'settings.matchDynamicRange' => 'Match Dynamic Range',
-			'settings.matchDynamicRangeDescription' => 'Switch HDR on for HDR content, then back to SDR',
 			'settings.displaySwitchDelay' => 'Display Switch Delay',
 			'settings.tunneledPlayback' => 'Tunneled Playback',
 			'settings.tunneledPlaybackDescription' => 'Use video tunneling. Disable if HDR playback shows black video or motion stutters.',
 			'settings.audioPassthrough' => 'Audio Passthrough',
 			'settings.audioPassthroughDescription' => 'Send Dolby/DTS audio to your receiver or TV without re-encoding, preserving surround sound. Turn off if you have no sound.',
-			'settings.audioPassthroughDescriptionApple' => 'Use Apple\'s native Dolby decoder for Dolby Digital Plus, including Atmos. DTS and TrueHD still play as multichannel PCM. Turn off if you have no sound.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Use Apple\'s native Dolby decoder for Dolby Digital Plus, including Atmos. On iOS, iPadOS and tvOS 26 or later, TrueHD Atmos and DTS:X play as spatial audio. Other DTS and TrueHD tracks play as multichannel PCM. Turn off if you have no sound.',
 			'settings.audioPassthroughOverriddenByNormalization' => 'Off while loudness normalization is on',
 			'settings.audioChannelLimit' => 'Audio Channels',
 			'settings.audioChannelLimitDescription' => 'Mix decoded audio down for speakers, headphones, or HDMI setups that cannot play every channel',
@@ -8552,10 +8370,6 @@ extension on Translations {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Show profile selection every time the app is opened',
 			'settings.forceTvMode' => 'Force TV mode',
 			'settings.forceTvModeDescription' => 'Force TV layout. For devices that don\'t auto-detect. Requires restart.',
-			'settings.startInFullscreen' => 'Start in fullscreen',
-			'settings.startInFullscreenDescription' => 'Open Plezy in fullscreen mode at launch',
-			'settings.exitFullscreenOnPlayerClose' => 'Exit fullscreen on player close',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'Automatically exit fullscreen when closing the video player',
 			'settings.autoHidePerformanceOverlay' => 'Auto-Hide Performance Overlay',
 			'settings.autoHidePerformanceOverlayDescription' => 'Fade the performance overlay with the playback controls',
 			'settings.showNavBarLabels' => 'Show Navigation Bar Labels',
@@ -8573,7 +8387,6 @@ extension on Translations {
 			'settings.libraryAndCards' => 'Library & Cards',
 			'settings.homeScreen' => 'Home Screen',
 			'settings.navigation' => 'Navigation',
-			'settings.window' => 'Window',
 			'settings.liveTv' => 'Live TV',
 			'settings.player' => 'Player',
 			'settings.videoAndDisplay' => 'Video & Display',
@@ -8622,8 +8435,6 @@ extension on Translations {
 			'themeEditor.slots.text' => 'Text',
 			'themeEditor.slots.textMuted' => 'Secondary text',
 			'themeEditor.slots.accent' => 'Accent',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => 'Opacity',
 			'themeEditor.hexHint' => '#RRGGBB or #AARRGGBB',
 			'themeEditor.fromOtherThemes' => 'From other themes',
@@ -8648,15 +8459,12 @@ extension on Translations {
 			'search.searchYourMedia' => 'Search your media',
 			'search.enterTitleActorOrKeyword' => 'Enter a title, actor, or keyword',
 			'search.people' => 'People',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => 'Set Shortcut for ${actionName}',
-			'hotkeys.clearShortcut' => 'Clear shortcut',
 			'hotkeys.noShortcutSet' => 'No shortcut set',
-			'hotkeys.currentShortcut' => 'Current shortcut:',
-			'hotkeys.pressToRecord' => 'Select to record a shortcut',
-			'hotkeys.recordingShortcut' => 'Press the shortcut now',
 			'hotkeys.actions.playPause' => 'Play/Pause',
 			'hotkeys.actions.volumeUp' => 'Volume Up',
 			'hotkeys.actions.volumeDown' => 'Volume Down',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Seek Forward (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Seek Backward (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Toggle Fullscreen',
@@ -8913,9 +8721,6 @@ extension on Translations {
 			'videoControls.pipButton' => 'Picture-in-Picture mode',
 			'videoControls.aspectRatioButton' => 'Aspect ratio',
 			'videoControls.ambientLighting' => 'Ambient lighting',
-			'videoControls.fullscreenButton' => 'Enter fullscreen',
-			'videoControls.exitFullscreenButton' => 'Exit fullscreen',
-			'videoControls.alwaysOnTopButton' => 'Always on top',
 			'videoControls.rotationLockButton' => 'Rotation lock',
 			'videoControls.lockScreen' => 'Lock screen',
 			'videoControls.screenLockButton' => 'Screen lock',
@@ -8924,14 +8729,12 @@ extension on Translations {
 			'videoControls.timelineSlider' => 'Video timeline',
 			'videoControls.volumeSlider' => 'Volume level',
 			'videoControls.endsAt' => ({required Object time}) => 'Ends at ${time}',
-			'videoControls.pipActive' => 'Playing in Picture-in-Picture',
 			'videoControls.pipFailed' => 'Picture-in-picture failed to start',
 			'videoControls.screenshotSaved' => 'Screenshot saved',
 			'videoControls.screenshotFailed' => 'Couldn\'t take a screenshot',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'Zoom ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => 'Volume ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Requires Android 8.0 or newer',
-			'videoControls.pipErrors.iosVersion' => 'Requires iOS 15.0 or newer',
 			'videoControls.pipErrors.permissionDisabled' => 'Picture-in-picture is disabled. Enable it in system settings.',
 			'videoControls.pipErrors.notSupported' => 'Device doesn\'t support picture-in-picture mode',
 			'videoControls.pipErrors.voSwitchFailed' => 'Failed to switch video output for picture-in-picture',
@@ -9070,7 +8873,6 @@ extension on Translations {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => 'Add line',
 			'mpvConfig.removeLine' => 'Remove line',
-			'mpvConfig.embeddedVoHint' => 'vo, gpu-context and gpu-api are ignored on Linux: embedded video always renders through vo=libmpv on the video plane, and gpu-next (which compute shaders like ArtCNN need) cannot run embedded.',
 			'dialog.confirmAction' => 'Confirm Action',
 			'profiles.addPlezyProfile' => 'Add Plezy profile',
 			'profiles.switchingProfile' => 'Switching profile…',
@@ -9136,8 +8938,6 @@ extension on Translations {
 			'profiles.pinExplain' => '4-digit PIN required to switch profiles.',
 			'profiles.continueButton' => 'Continue',
 			'profiles.pinsDontMatch' => 'PINs don\'t match',
-			_ => null,
-		} ?? switch (path) {
 			'profiles.tokenIdentityMismatch' => 'The Plex profile token resolved to an unexpected server',
 			'connections.sectionTitle' => 'Connections',
 			'connections.addConnection' => 'Add connection',
@@ -9177,6 +8977,8 @@ extension on Translations {
 			'accountPreferences.subtitleModes.alwaysDescription' => 'Turn on a subtitle track in the preferred language whenever one exists.',
 			'accountPreferences.subtitleModes.onlyForced' => 'Only forced subtitles',
 			'accountPreferences.subtitleModes.onlyForcedDescription' => 'Load only the tracks marked as forced.',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleModes.smart' => 'Shown with foreign audio',
 			'accountPreferences.subtitleModes.smartDescription' => 'Turn subtitles on only when the audio is in another language.',
 			'accountPreferences.subtitleAccessibility' => 'SDH subtitles',
@@ -9408,7 +9210,6 @@ extension on Translations {
 			'startup.repairSucceeded' => 'Storage repaired',
 			'startup.repairNeedsRestart' => 'Storage repaired — restart required',
 			'startup.restartRequiredBody' => 'Your data was repaired, but Plezy has to start fresh before it can use it. Close Plezy and open it again.',
-			'startup.quitPlezy' => 'Quit Plezy',
 			'startup.repairFailed' => 'Repair failed',
 			'startup.repairKeptSignIns' => 'Your servers and profiles are still signed in.',
 			'startup.repairLostSignIns' => 'The key protecting your saved sign-ins could not be recovered. You will have to sign in to every server and profile again.',
@@ -9650,8 +9451,6 @@ extension on Translations {
 			'liveTv.recordShow' => 'Record show',
 			'liveTv.recordSettings.startEarly' => 'Start early (seconds)',
 			'liveTv.recordSettings.endLate' => 'End late (seconds)',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.recordSettings.newOnly' => 'Only new episodes',
 			'liveTv.recordSettings.anyChannel' => 'Record on any channel',
 			'liveTv.recordSettings.anyTime' => 'Record at any time',
@@ -9692,6 +9491,8 @@ extension on Translations {
 			'playlists.playlistName' => 'Playlist Name',
 			'playlists.enterPlaylistName' => 'Enter playlist name',
 			'playlists.delete' => 'Delete Playlist',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.removeItem' => 'Remove from Playlist',
 			'playlists.smartPlaylist' => 'Smart Playlist',
 			'playlists.itemCount' => ({required Object count}) => '${count} items',
@@ -10103,20 +9904,9 @@ extension on Translations {
 			'videoSettings.audioSync' => 'Audio Sync',
 			'videoSettings.subtitleSync' => 'Subtitle Sync',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'HDR isn\'t available here — this desktop compositor or video output can\'t carry it.',
-			'videoSettings.hdrToneMapping' => 'HDR Tone Mapping',
-			'videoSettings.hdrToneMappingCompositor' => 'Compositor',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'Pass the source\'s HDR metadata through and let the desktop compositor map it.',
-			'videoSettings.hdrToneMappingPlayer' => 'Player',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'Map to the display\'s peak brightness in the player, then tell the compositor the result.',
-			'videoSettings.hdrToneMappingFailed' => 'Couldn\'t change HDR tone mapping — the previous mode is still active.',
 			'videoSettings.audioOutput' => 'Audio Output',
-			'videoSettings.performanceOverlay' => 'Performance Overlay',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'Surround',
-			'videoSettings.audioOutputSpatial' => 'Spatial Audio',
 			'videoSettings.audioOutputStereo' => 'Stereo',
+			'videoSettings.performanceOverlay' => 'Performance Overlay',
 			'videoSettings.audioNormalization' => 'Normalize Loudness',
 			'videoSettings.audioNormalizationDisablesPassthrough' => 'Decodes audio to PCM; passthrough is off while this is on',
 			'performanceOverlay.color' => 'Color',
@@ -10164,8 +9954,6 @@ extension on Translations {
 			'performanceOverlay.memory' => 'Memory',
 			'performanceOverlay.uiFps' => 'UI FPS',
 			'performanceOverlay.fps' => 'FPS',
-			_ => null,
-		} ?? switch (path) {
 			'performanceOverlay.decoderAndroidHw' => 'Android HW',
 			'performanceOverlay.decoderNvidiaHw' => 'NVIDIA HW',
 			'performanceOverlay.decoderQualcommHw' => 'Qualcomm HW',
@@ -10184,7 +9972,6 @@ extension on Translations {
 			'externalPlayer.addCustomPlayer' => 'Add Custom Player',
 			'externalPlayer.playerName' => 'Player Name',
 			'externalPlayer.playerNameHint' => 'My Player',
-			'externalPlayer.playerCommand' => 'Command',
 			'externalPlayer.playerPackage' => 'Package Name',
 			'externalPlayer.playerUrlScheme' => 'URL Scheme',
 			'externalPlayer.off' => 'Off',
@@ -10218,6 +10005,8 @@ extension on Translations {
 			'metadataEdit.imageUrl' => 'Image URL',
 			'metadataEdit.metadataUpdated' => 'Metadata updated',
 			'metadataEdit.metadataUpdateFailed' => 'Failed to update metadata',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.artworkUpdated' => 'Artwork updated',
 			'metadataEdit.artworkUpdateFailed' => 'Failed to update artwork',
 			'metadataEdit.noArtworkAvailable' => 'No artwork available',
@@ -10342,7 +10131,6 @@ extension on Translations {
 			'seerr.permissionRevoked' => 'You no longer have permission to request this',
 			'services.title' => 'Services',
 			'services.hubSubtitle' => 'Sync watch progress and request new titles.',
-			'services.integrations' => 'Integrations',
 			'services.notConnected' => 'Not connected',
 			'services.connectedAs' => ({required Object username}) => 'Connected as @${username}',
 			'services.scrobble' => 'Track progress automatically',

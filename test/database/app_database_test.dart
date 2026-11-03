@@ -1,25 +1,19 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/io_client.dart';
-import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plezy/database/app_database.dart';
 import 'package:plezy/database/download_collection_operations.dart';
 import 'package:plezy/database/download_operations.dart';
-import 'package:plezy/database/tvos_database_recovery_store.dart';
 import 'package:plezy/media/ids.dart';
 import 'package:plezy/models/download_models.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
-import 'package:plezy/services/credential_vault.dart';
 import 'package:plezy/services/download_manager_service.dart';
 import 'package:plezy/services/download_storage_service.dart';
 import 'package:plezy/services/plex_api_cache.dart';
 import 'package:plezy/utils/active_client_scope.dart';
 import 'package:plezy/utils/media_server_http_client.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import '../test_helpers/download_fixtures.dart';
 import '../test_helpers/prefs.dart';
@@ -143,15 +137,9 @@ class _AppDatabaseTestSuite {
         try {
           await wal.writeAsBytes([1, 2, 3]);
           await shm.writeAsBytes([4, 5, 6]);
-          final prefs = await BaseSharedPreferencesService.sharedCache();
 
-          final bootstrap = await AppDatabase.open(
-            isTvos: false,
-            databaseFile: file,
-            preferences: prefs,
-            executorFactory: (_) => NativeDatabase.memory(),
-          );
-          opened = bootstrap.database;
+          final bootstrap = await AppDatabase.open(databaseFile: file, executorFactory: (_) => NativeDatabase.memory());
+          opened = bootstrap;
 
           expect(await wal.exists(), isFalse);
           expect(await shm.exists(), isFalse);
@@ -177,15 +165,9 @@ class _AppDatabaseTestSuite {
           await file.writeAsBytes([0x50, 0x4c, 0x45, 0x5a, 0x59]);
           await wal.writeAsBytes([1, 2, 3]);
           await shm.writeAsBytes([4, 5, 6]);
-          final prefs = await BaseSharedPreferencesService.sharedCache();
 
-          final bootstrap = await AppDatabase.open(
-            isTvos: false,
-            databaseFile: file,
-            preferences: prefs,
-            executorFactory: (_) => NativeDatabase.memory(),
-          );
-          opened = bootstrap.database;
+          final bootstrap = await AppDatabase.open(databaseFile: file, executorFactory: (_) => NativeDatabase.memory());
+          opened = bootstrap;
 
           expect(await wal.readAsBytes(), [1, 2, 3]);
           expect(await shm.readAsBytes(), [4, 5, 6]);
@@ -536,104 +518,6 @@ class _AppDatabaseTestSuite {
           }
         },
       );
-      test('tvOS protects legacy connection and profile tokens before the first recovery snapshot', () async {
-        await db.close();
-        resetSharedPreferencesForTest();
-        CredentialVault.resetKeyForTesting();
-        final tempDir = await Directory.systemTemp.createTemp('plezy_db_credential_recovery_test_');
-        final file = File('${tempDir.path}/plezy_downloads.db');
-        final prefs = await BaseSharedPreferencesService.sharedCache();
-        AppDatabase? seeded;
-        AppDatabase? opened;
-        const accountToken = 'legacy-account-token-canary';
-        const serverToken = 'legacy-server-token-canary';
-        const profileToken = 'legacy-profile-token-canary';
-
-        Future<void> expectProtectedConfig(String configJson) async {
-          final config = jsonDecode(configJson) as Map<String, dynamic>;
-          final protectedAccountToken = config['accountToken'] as String;
-          final protectedServerToken =
-              ((config['servers'] as List).single as Map<String, dynamic>)['accessToken'] as String;
-          expect(CredentialVault.isProtected(protectedAccountToken), isTrue);
-          expect(CredentialVault.isProtected(protectedServerToken), isTrue);
-          expect(await CredentialVault.reveal(protectedAccountToken), accountToken);
-          expect(await CredentialVault.reveal(protectedServerToken), serverToken);
-        }
-
-        try {
-          seeded = AppDatabase.forTesting(NativeDatabase(file));
-          await seeded.select(seeded.connections).get();
-          await seeded
-              .into(seeded.connections)
-              .insert(
-                ConnectionsCompanion.insert(
-                  id: 'plex-account',
-                  kind: 'plex',
-                  displayName: 'Legacy Plex',
-                  configJson: jsonEncode({
-                    'accountToken': accountToken,
-                    'servers': [
-                      {'machineIdentifier': 'plex-server', 'accessToken': serverToken},
-                    ],
-                  }),
-                  createdAt: 1000,
-                ),
-              );
-          await seeded
-              .into(seeded.profiles)
-              .insert(
-                ProfilesCompanion.insert(
-                  id: 'profile-a',
-                  kind: 'local',
-                  displayName: 'Profile A',
-                  configJson: '{}',
-                  createdAt: 1000,
-                ),
-              );
-          await seeded
-              .into(seeded.profileConnections)
-              .insert(
-                ProfileConnectionsCompanion.insert(
-                  profileId: 'profile-a',
-                  connectionId: 'plex-account',
-                  userToken: const Value(profileToken),
-                  userIdentifier: 'plex-user',
-                ),
-              );
-          await seeded.close();
-          seeded = null;
-
-          final bootstrap = await AppDatabase.open(isTvos: true, databaseFile: file, preferences: prefs);
-          opened = bootstrap.database;
-          expect(bootstrap.recoveryOutcome, TvosDatabaseRecoveryOutcome.adoptedExistingDatabase);
-
-          final connectionRow = await opened.select(opened.connections).getSingle();
-          final profileConnectionRow = await opened.select(opened.profileConnections).getSingle();
-          await expectProtectedConfig(connectionRow.configJson);
-          expect(CredentialVault.isProtected(profileConnectionRow.userToken), isTrue);
-          expect(await CredentialVault.reveal(profileConnectionRow.userToken), profileToken);
-
-          final identityRaw = prefs.getString(TvosDatabaseRecoveryStore.identityKey);
-          expect(identityRaw, isNotNull);
-          expect(identityRaw, isNot(contains(accountToken)));
-          expect(identityRaw, isNot(contains(serverToken)));
-          expect(identityRaw, isNot(contains(profileToken)));
-          final envelope = jsonDecode(identityRaw!) as Map<String, dynamic>;
-          final recoveryRows = envelope['rows'] as Map<String, dynamic>;
-          final snapshotConnection = (recoveryRows['connections'] as List).single as Map<String, dynamic>;
-          final snapshotJoin = (recoveryRows['profileConnections'] as List).single as Map<String, dynamic>;
-          await expectProtectedConfig(snapshotConnection['configJson'] as String);
-          final snapshotProfileToken = snapshotJoin['userToken'] as String;
-          expect(CredentialVault.isProtected(snapshotProfileToken), isTrue);
-          expect(await CredentialVault.reveal(snapshotProfileToken), profileToken);
-        } finally {
-          await opened?.close();
-          await seeded?.close();
-          CredentialVault.resetKeyForTesting();
-          await tempDir.delete(recursive: true);
-          db = AppDatabase.forTesting(NativeDatabase.memory());
-        }
-      });
       test('v18 migration preserves v17 downloads and adds nullable SAF roots', () async {
         await db.close();
         final tempDir = await Directory.systemTemp.createTemp('plezy_db_v18_migration_test_');
@@ -842,15 +726,12 @@ class _AppDatabaseTestSuite {
           seeded = null;
 
           resetSharedPreferencesForTest();
-          final prefs = await BaseSharedPreferencesService.sharedCache();
           final openTracker = _EnsureOpenTrackingInterceptor();
           final bootstrap = await AppDatabase.open(
-            isTvos: false,
             databaseFile: file,
-            preferences: prefs,
             executorFactory: (databaseFile) => NativeDatabase(databaseFile).interceptWith(openTracker),
           );
-          reopened = bootstrap.database;
+          reopened = bootstrap;
           expect(openTracker.calls, greaterThanOrEqualTo(1));
           expect(openTracker.completed, isTrue);
           final owners = await reopened.select(reopened.downloadOwners).get();
@@ -1200,195 +1081,7 @@ class _AppDatabaseTestSuite {
     _registerLegacyDesktopMigrationTests();
   }
 
-  void _registerLegacyDesktopMigrationTests() {
-    group('legacy desktop DB migration', () {
-      late Directory tempDir;
-
-      setUp(() async {
-        tempDir = await Directory.systemTemp.createTemp('plezy_legacy_migration_test_');
-      });
-
-      tearDown(() async {
-        if (await tempDir.exists()) {
-          await tempDir.delete(recursive: true);
-        }
-      });
-
-      test('no-op when source does not exist', () async {
-        final source = File('${tempDir.path}/Documents/plezy_downloads.db');
-        final target = File('${tempDir.path}/AppData/plezy_downloads.db');
-        await target.parent.create(recursive: true);
-
-        await migrateLegacyDesktopDatabase(sourceOverride: source, target: target);
-
-        expect(await source.exists(), isFalse);
-        expect(await target.exists(), isFalse);
-      });
-
-      test('rename happy path moves the file and preserves content', () async {
-        final source = File('${tempDir.path}/Documents/plezy_downloads.db');
-        final target = File('${tempDir.path}/AppData/plezy_downloads.db');
-        await source.parent.create(recursive: true);
-        await target.parent.create(recursive: true);
-        await source.writeAsBytes([1, 2, 3, 4, 5]);
-
-        await migrateLegacyDesktopDatabase(sourceOverride: source, target: target);
-
-        expect(await source.exists(), isFalse);
-        expect(await target.exists(), isTrue);
-        expect(await target.readAsBytes(), [1, 2, 3, 4, 5]);
-      });
-
-      test('cross-drive rename failure falls back to copy + delete', () async {
-        // Simulate Windows ERROR_NOT_SAME_DEVICE by throwing the same
-        // exception shape `File.rename` would emit when source and target
-        // live on different volumes.
-        final source = File('${tempDir.path}/Documents/plezy_downloads.db');
-        final target = File('${tempDir.path}/AppData/plezy_downloads.db');
-        await source.parent.create(recursive: true);
-        await target.parent.create(recursive: true);
-        await source.writeAsBytes([9, 8, 7]);
-
-        await migrateLegacyDesktopDatabase(
-          sourceOverride: source,
-          target: target,
-          renameOverride: (_, _) => throw const FileSystemException(
-            'Cannot rename file across drives',
-            '',
-            OSError('The system cannot move the file to a different disk drive', 17),
-          ),
-        );
-
-        expect(await source.exists(), isFalse, reason: 'source should be deleted after successful copy');
-        expect(await target.exists(), isTrue);
-        expect(await target.readAsBytes(), [9, 8, 7]);
-      });
-
-      test('interrupted fallback copy leaves no canonical partial file and retry succeeds', () async {
-        final source = File('${tempDir.path}/Documents/plezy_downloads.db');
-        final target = File('${tempDir.path}/AppData/plezy_downloads.db');
-        const sourceBytes = [0xAA, 0xBB, 0xCC, 0xDD];
-        await source.parent.create(recursive: true);
-        await target.parent.create(recursive: true);
-        await source.writeAsBytes(sourceBytes);
-
-        File? partialTemporary;
-        await expectLater(
-          migrateLegacyDesktopDatabase(
-            sourceOverride: source,
-            target: target,
-            renameOverride: (_, _) => throw const FileSystemException('cross-drive', ''),
-            copyOverride: (_, temporary) async {
-              partialTemporary = temporary;
-              final output = await temporary.open(mode: FileMode.writeOnly);
-              try {
-                await output.writeFrom(sourceBytes, 0, 2);
-                await output.flush();
-              } finally {
-                await output.close();
-              }
-              throw const FileSystemException('interrupted copy', '');
-            },
-          ),
-          completes,
-        );
-
-        expect(await source.exists(), isTrue, reason: 'the intact legacy database must remain retryable');
-        expect(await source.readAsBytes(), sourceBytes);
-        expect(await target.exists(), isFalse, reason: 'a partial copy must never become canonical');
-        expect(partialTemporary, isNotNull);
-        expect(await partialTemporary!.exists(), isFalse, reason: 'failed temporary copies must be cleaned');
-
-        await migrateLegacyDesktopDatabase(
-          sourceOverride: source,
-          target: target,
-          renameOverride: (_, _) => throw const FileSystemException('cross-drive', ''),
-        );
-
-        expect(await source.exists(), isFalse, reason: 'successful retry removes the legacy database');
-        expect(await target.readAsBytes(), sourceBytes);
-      });
-
-      test('overlapping fallback publisher cannot replace canonical updates with its stale copy', () async {
-        final staleSource = File('${tempDir.path}/Documents/stale.db');
-        final winnerSource = File('${tempDir.path}/Documents/winner.db');
-        final target = File('${tempDir.path}/AppData/plezy_downloads.db');
-        const staleBytes = [0x10, 0x20, 0x30];
-        const winnerBytes = [0x40, 0x50, 0x60];
-        const updatedCanonicalBytes = [0x70, 0x80, 0x90];
-        await staleSource.parent.create(recursive: true);
-        await target.parent.create(recursive: true);
-        await staleSource.writeAsBytes(staleBytes);
-        await winnerSource.writeAsBytes(winnerBytes);
-
-        final staleCopyReady = Completer<void>();
-        final releaseStaleCopy = Completer<void>();
-        final staleCopyReleased = Completer<void>();
-        final winnerPublished = Completer<void>();
-        var stalePublishAttempted = false;
-
-        Future<void> failCrossDriveRename(File _, String _) async {
-          throw const FileSystemException('cross-drive', '');
-        }
-
-        final staleMigration = migrateLegacyDesktopDatabase(
-          sourceOverride: staleSource,
-          target: target,
-          renameOverride: failCrossDriveRename,
-          copyOverride: (source, temporary) async {
-            await temporary.writeAsBytes(await source.readAsBytes(), flush: true);
-            staleCopyReady.complete();
-            await releaseStaleCopy.future;
-            staleCopyReleased.complete();
-          },
-          publishOverride: (temporary, canonical) async {
-            stalePublishAttempted = true;
-            await temporary.rename(canonical.path);
-          },
-        );
-        await staleCopyReady.future;
-
-        final winnerMigration = migrateLegacyDesktopDatabase(
-          sourceOverride: winnerSource,
-          target: target,
-          renameOverride: failCrossDriveRename,
-          publishOverride: (temporary, canonical) async {
-            await temporary.rename(canonical.path);
-            winnerPublished.complete();
-            await staleCopyReleased.future;
-            await canonical.writeAsBytes(updatedCanonicalBytes, flush: true);
-          },
-        );
-        await winnerPublished.future;
-
-        releaseStaleCopy.complete();
-        await Future.wait([winnerMigration, staleMigration]);
-
-        expect(stalePublishAttempted, isFalse);
-        expect(await target.readAsBytes(), updatedCanonicalBytes);
-        expect(await winnerSource.exists(), isFalse, reason: 'the winning source is removed after publication');
-        expect(await staleSource.readAsBytes(), staleBytes, reason: 'the skipped stale source remains retryable');
-        final leakedTemporaries = target.parent.listSync().whereType<File>().where(
-          (file) => file.path.endsWith('.tmp'),
-        );
-        expect(leakedTemporaries, isEmpty, reason: 'both publishers clean their sibling temporary copies');
-      });
-
-      test('documents directory lookup failure is a silent no-op', () async {
-        final previousPathProvider = PathProviderPlatform.instance;
-        final target = File('${tempDir.path}/AppData/plezy_downloads.db');
-        PathProviderPlatform.instance = _ThrowingDocumentsPathProvider();
-
-        try {
-          await expectLater(migrateLegacyDesktopDatabase(target: target), completes);
-        } finally {
-          PathProviderPlatform.instance = previousPathProvider;
-        }
-
-        expect(await target.exists(), isFalse);
-      });
-    });
-  }
+  void _registerLegacyDesktopMigrationTests() {}
 
   void _registerApiCacheTests() {
     group('ApiCache', () {
@@ -2568,9 +2261,4 @@ Set<String> _recursiveJsonKeys(Object? value) {
     return {for (final nested in value) ..._recursiveJsonKeys(nested)};
   }
   return const {};
-}
-
-class _ThrowingDocumentsPathProvider extends PathProviderPlatform with MockPlatformInterfaceMixin {
-  @override
-  Future<String?> getApplicationDocumentsPath() async => throw Exception('documents unavailable');
 }

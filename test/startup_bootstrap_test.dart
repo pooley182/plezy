@@ -9,13 +9,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/database/app_database.dart';
 import 'package:plezy/database/download_operations.dart';
-import 'package:plezy/database/tvos_database_recovery_store.dart';
 import 'package:plezy/i18n/strings.g.dart';
 import 'package:plezy/main.dart';
 import 'package:plezy/media/ids.dart';
 import 'package:plezy/models/download_models.dart';
 import 'package:plezy/providers/theme_provider.dart';
-import 'package:plezy/services/base_shared_preferences_service.dart';
 import 'package:plezy/services/prefs_recovery.dart';
 import 'package:plezy/services/settings_service.dart' as settings;
 import 'package:plezy/services/startup_diagnostics.dart';
@@ -602,7 +600,6 @@ void main() {
     resetSharedPreferencesForTest();
     final tempDir = await Directory.systemTemp.createTemp('plezy_startup_storage_full_');
     final file = File('${tempDir.path}/plezy_downloads.db');
-    final prefs = await BaseSharedPreferencesService.sharedCache();
     final failedOpen = _OpenTrackingInterceptor(
       failure: const FileSystemException('write failed: No space left on device'),
     );
@@ -636,9 +633,7 @@ void main() {
       final bootstrap = await openAppDatabaseWithDownloadRecovery(
         openDatabase: () {
           return AppDatabase.open(
-            isTvos: false,
             databaseFile: file,
-            preferences: prefs,
             executorFactory: (databaseFile) {
               openAttempts++;
               final interceptor = openAttempts == 1 ? failedOpen : successfulOpen;
@@ -652,11 +647,10 @@ void main() {
         },
         storageFullMessage: 'Storage full',
       );
-      resultDatabase = bootstrap.database;
+      resultDatabase = bootstrap;
 
       final active = await resultDatabase.getDownloadedMedia('srv:active');
       final complete = await resultDatabase.getDownloadedMedia('srv:complete');
-      expect(bootstrap.recoveryOutcome, TvosDatabaseRecoveryOutcome.notApplicable);
       expect(openAttempts, 2);
       expect(recoveries, 1);
       expect(failedOpen.ensureOpenCalls, 1);
@@ -679,7 +673,6 @@ void main() {
     resetSharedPreferencesForTest();
     final tempDir = await Directory.systemTemp.createTemp('plezy_startup_recovery_update_failure_');
     final file = File('${tempDir.path}/plezy_downloads.db');
-    final prefs = await BaseSharedPreferencesService.sharedCache();
     final failedOpen = _OpenTrackingInterceptor(
       failure: const FileSystemException('write failed: No space left on device'),
     );
@@ -703,9 +696,7 @@ void main() {
       final open = openAppDatabaseWithDownloadRecovery(
         openDatabase: () {
           return AppDatabase.open(
-            isTvos: false,
             databaseFile: file,
-            preferences: prefs,
             executorFactory: (databaseFile) {
               openAttempts++;
               final interceptor = openAttempts == 1 ? failedOpen : reopened;
@@ -730,7 +721,6 @@ void main() {
     resetSharedPreferencesForTest();
     final tempDir = await Directory.systemTemp.createTemp('plezy_startup_open_error_');
     final file = File('${tempDir.path}/plezy_downloads.db');
-    final prefs = await BaseSharedPreferencesService.sharedCache();
     final error = StateError('injected database setup failure');
     final failedOpen = _OpenTrackingInterceptor(failure: error);
     var openAttempts = 0;
@@ -740,9 +730,7 @@ void main() {
       final open = openAppDatabaseWithDownloadRecovery(
         openDatabase: () {
           return AppDatabase.open(
-            isTvos: false,
             databaseFile: file,
-            preferences: prefs,
             executorFactory: (databaseFile) {
               openAttempts++;
               return NativeDatabase(databaseFile).interceptWith(failedOpen);

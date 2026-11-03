@@ -85,8 +85,8 @@ void main() {
   /// A desktop-sized window unless [size] says otherwise.
   Future<void> pumpDialog(WidgetTester tester, Widget dialog, {bool appleTV = false, Size? size}) async {
     useViewport(tester, size ?? const Size(1280, 900));
-    TvDetectionService.debugSetAppleTVOverride(appleTV);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(appleTV);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     await tester.pumpWidget(MaterialApp(home: Scaffold(body: dialog)));
   }
 
@@ -94,8 +94,8 @@ void main() {
   /// first profile.
   Future<void> openItemDialog(WidgetTester tester, MediaItem item, List<Profile> profiles) async {
     useViewport(tester, const Size(1280, 900));
-    TvDetectionService.debugSetAppleTVOverride(false);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(false);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     final profileSet = _Profiles(profiles);
     addTearDown(profileSet.dispose);
     await tester.pumpWidget(
@@ -255,15 +255,6 @@ void main() {
 
       expect(copied, 'plezy://play?type=show&tvdb=81189');
       expect(find.text(t.deepLinks.copied), findsOneWidget);
-    });
-
-    testWidgets('hides Copy on Apple TV, which has no clipboard, and still shows the QR code', (tester) async {
-      await pumpDialog(tester, ItemLinkDialog(item: _movie, client: null), appleTV: true);
-      await tester.pump();
-
-      expect(find.text(t.deepLinks.copy), findsNothing);
-      expect(find.text(t.common.close), findsOneWidget);
-      expect(find.byType(QrImageView), findsOneWidget);
     });
   });
 

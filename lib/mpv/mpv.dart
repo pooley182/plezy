@@ -9,7 +9,6 @@
 /// - Audio passthrough support for lossless audio
 /// - Subtitle rendering with libass
 /// - Hardware-accelerated decoding
-/// - Cross-platform support (macOS, iOS, Android, Windows, Linux)
 ///
 /// ## Usage
 ///
@@ -45,7 +44,6 @@ library;
 
 // Player
 export '../models/audio_channel_limit.dart';
-export 'player/audio_rendering_mode.dart';
 export 'player/player.dart';
 export 'player/player_state.dart';
 export 'player/player_streams.dart';

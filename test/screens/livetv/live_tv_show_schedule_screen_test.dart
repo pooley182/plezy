@@ -27,10 +27,10 @@ void main() {
 
   setUp(() {
     LocaleSettings.setLocaleSync(AppLocale.en);
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
   });
 
-  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   testWidgets('record action is D-pad reachable and invokes the recording flow once', (tester) async {
     final dvr = _FakeLiveTvDvr();

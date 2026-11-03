@@ -25,7 +25,7 @@ class OptionsChipDescriptor {
   final FocusNode focusNode;
 
   /// Key used to locate the chip's render box when anchoring a popup menu to
-  /// it — see `chipAnchorRect` in `anchored_option_menus.dart`.
+  /// it.
   final GlobalKey? anchorKey;
 
   /// Override for LEFT. Defaults to focusing the previous chip, or

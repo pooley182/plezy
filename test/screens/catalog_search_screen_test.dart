@@ -147,30 +147,6 @@ void main() {
     });
   }
 
-  testWidgets('catalog result menu uses an anchored desktop popup and dispatches its result', (tester) async {
-    final source = _FakeSearchSource();
-    await _pumpMenuSearch(tester, source, platform: TargetPlatform.macOS);
-    await _searchForMenuResult(tester);
-
-    final card = find.byType(MediaCard);
-    expect(card, findsOneWidget);
-    final cardRect = tester.getRect(card);
-    tester.state<MediaCardState>(card).showContextMenu();
-    await tester.pumpAndSettle();
-
-    expect(_adaptiveMenuSheet(), findsNothing);
-    expect(_appMenuList(), findsOneWidget);
-    final menuRect = tester.getRect(_appMenuList());
-    expect(menuRect.left, closeTo(cardRect.left, 0.01));
-    expect(menuRect.top, closeTo(cardRect.bottom + 4, 0.01));
-
-    await tester.tap(find.text(t.mediaMenu.viewDetails));
-    await tester.pumpAndSettle();
-
-    expect(_appMenuList(), findsNothing);
-    expect(find.byType(CatalogItemDetailScreen), findsOneWidget);
-  });
-
   testWidgets('catalog result menu exposes trailer and provider links', (tester) async {
     final source = _FakeSearchSource()
       ..result = const CatalogItem(

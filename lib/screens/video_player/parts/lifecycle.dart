@@ -56,7 +56,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
   }
 
   void _setAndroidAutoPipTransitionInFlight(bool value, {required String reason}) {
-    if (!Platform.isAndroid || _androidAutoPipTransitionInFlight == value) return;
+    if (_androidAutoPipTransitionInFlight == value) return;
     _androidAutoPipTransitionInFlight = value;
     _recordLifecycleState('pip_transition', action: '${value ? 'started' : 'cleared'}:$reason');
   }
@@ -154,7 +154,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
     }
 
     _hiddenForBackground = true;
-    await currentPlayer.setVisible(false, restoreOnWindowVisible: Platform.isMacOS);
+    await currentPlayer.setVisible(false, restoreOnWindowVisible: false);
     _recordLifecycleState('hidden', action: 'render_hidden');
   }
 
@@ -169,7 +169,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
       return;
     }
 
-    if (Platform.isAndroid && _androidAutoPipTransitionInFlight && !PipService().isPipActive.value) {
+    if (_androidAutoPipTransitionInFlight && !PipService().isPipActive.value) {
       _setAndroidAutoPipTransitionInFlight(false, reason: 'resume_without_pip');
     }
 
@@ -179,9 +179,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
     // video-output refresh before any auto-resume logic runs.
     if (_hiddenForBackground && currentPlayer != null && _isPlayerInitialized) {
       await currentPlayer.setVisible(true);
-      if (!Platform.isMacOS) {
-        await currentPlayer.updateFrame();
-      }
+      await currentPlayer.updateFrame();
 
       if (!mounted || _shuttingDown || currentPlayer != player) return;
 
@@ -201,11 +199,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
     // still destroy the surface. Kick the video output so a missed surface
     // callback can't leave the picture black: mpv re-attaches via
     // refreshVideoOutput, ExoPlayer just reapplies sizing/z-order.
-    else if (!_hiddenForBackground &&
-        Platform.isAndroid &&
-        PlatformDetector.isTV() &&
-        currentPlayer != null &&
-        _isPlayerInitialized) {
+    else if (!_hiddenForBackground && PlatformDetector.isTV() && currentPlayer != null && _isPlayerInitialized) {
       await currentPlayer.updateFrame();
       if (!mounted || _shuttingDown || currentPlayer != player) return;
       _recordLifecycleState('resumed', action: 'tv_video_output_kick');
@@ -226,7 +220,7 @@ extension _VideoPlayerLifecycleMethods on VideoPlayerScreenState {
   bool _armTvBackgroundPlayerSuspendTimer() {
     if (_shuttingDown) return false;
     if (!shouldSuspendPlayerForTvBackground(
-      isAndroid: Platform.isAndroid,
+      isAndroid: true,
       isTv: PlatformDetector.isTV(),
       isLive: widget.isLive,
       alreadySuspended: _tvSuspend.suspended,

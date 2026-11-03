@@ -367,7 +367,7 @@ extension _VideoPlayerLiveTvMethods on VideoPlayerScreenState {
   }
 
   /// Arm display negotiation for a live open that tunes a channel — the
-  /// launch and every zap. Android mpv and Apple TV open the stream paused
+  /// launch and every zap. mpv opens the stream paused
   /// and negotiate from what the player presents at its first frame, the way
   /// a VOD open does ([_firstFrameStartupPlan]). Broadcast is where
   /// interlaced video lives, and a MediaCodec decoder that deinterlaces by

@@ -449,8 +449,8 @@ void main() {
     });
 
     group('on TV, where a fresh install starts on OLED', () {
-      setUp(() => TvDetectionService.debugSetAppleTVOverride(true));
-      tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+      setUp(() => TvDetectionService.debugSetTvOverride(true));
+      tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
       test('a locked perk paints OLED and keeps the stored choice', () async {
         final svc = await _store(settings.ThemeMode.glacier);

@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
 import '../../media/media_item.dart';
 import '../../media/media_item_types.dart';
 import '../../media/media_server_client.dart';
 import '../../mpv/mpv.dart';
 import '../../services/media_controls_manager.dart';
-import '../../services/settings_service.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/platform_detector.dart';
 import '../../utils/player_utils.dart';
@@ -82,7 +80,7 @@ class MediaControlsScreenController {
   /// backgrounded on Android TV.
   bool get suspendedForTvBackground => _suspendedForTvBackground;
 
-  bool get shouldSuspendForTvBackground => Platform.isAndroid && PlatformDetector.isTV() && !_shouldSkipForPip();
+  bool get shouldSuspendForTvBackground => PlatformDetector.isTV() && !_shouldSkipForPip();
 
   Future<void> suspendForTvBackground(String reason) async {
     if (!shouldSuspendForTvBackground) return;
@@ -137,11 +135,6 @@ class MediaControlsScreenController {
       // skip would fall through to the VOD accumulator as an absolute seek
       // against a live playhead.
       canSkip: canControlPlayback && (!isLive || _hasLiveSeekWindow()),
-      // Video claims the lock-screen / remote-card side slots for ±skip
-      // (#1994); the step mirrors the in-player small skip. A mid-playback
-      // seekTimeSmall change applies on the next availability sync.
-      preferSkipOverTrackButtons: true,
-      skipInterval: Duration(seconds: SettingsService.instance.read(SettingsService.seekTimeSmall)),
       // Rate changes don't apply to a live stream.
       canSetSpeed: !isLive && canControlPlayback,
     );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../focus/focus_chrome.dart';
 import '../focus/focus_theme.dart';
 import '../focus/input_mode_tracker.dart';
-import 'clickable_cursor.dart';
 
 /// Shared builders for focusable widgets to reduce code duplication.
 ///
@@ -46,16 +45,14 @@ class FocusBuilders {
         selected: selected,
         onTap: onTap,
         excludeSemantics: true,
-        child: ClickableCursor(
-          child: GestureDetector(
-            onTap: onTap,
-            child: AnimatedContainer(
-              duration: duration,
-              curve: Curves.easeOutCubic,
-              padding: padding,
-              decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(borderRadius)),
-              child: child,
-            ),
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: duration,
+            curve: Curves.easeOutCubic,
+            padding: padding,
+            decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(borderRadius)),
+            child: child,
           ),
         ),
       ),
@@ -100,9 +97,7 @@ class FocusBuilders {
     // entirely. This saves ~2 element levels per card on ARM32 Android phones.
     if (!isKeyboardMode) {
       return (onTap != null || onLongPress != null)
-          ? ClickableCursor(
-              child: GestureDetector(onTap: onTap, onLongPress: onLongPress, child: child),
-            )
+          ? GestureDetector(onTap: onTap, onLongPress: onLongPress, child: child)
           : child;
     }
 
@@ -126,9 +121,7 @@ class FocusBuilders {
 
     // Wrap in GestureDetector if tap/long press handlers provided
     return (onTap != null || onLongPress != null)
-        ? ClickableCursor(
-            child: GestureDetector(onTap: onTap, onLongPress: onLongPress, child: focusedWidget),
-          )
+        ? GestureDetector(onTap: onTap, onLongPress: onLongPress, child: focusedWidget)
         : focusedWidget;
   }
 }

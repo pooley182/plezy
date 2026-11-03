@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui' show lerpDouble;
 import '../media/ids.dart';
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:plezy/widgets/app_icon.dart';
@@ -29,7 +28,6 @@ import '../utils/scroll_utils.dart';
 import '../utils/library_grouping.dart';
 import 'music/equalizer_icon.dart';
 import '../providers/multi_server_provider.dart';
-import '../services/fullscreen_state_manager.dart';
 import '../theme/mono_tokens.dart';
 import '../widgets/backend_badge.dart';
 import '../i18n/strings.g.dart';
@@ -474,7 +472,6 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
   static const _kDownloads = 'downloads';
   static const _kSettings = 'settings';
   static const _kReconnect = 'reconnect';
-  static const _kFullscreen = 'fullscreen';
   static const _kHiddenLibraries = 'hiddenLibraries';
   static const _kServerHeaderPrefix = 'serverHeader';
   static const _kLibraryItemPrefix = 'library';
@@ -497,11 +494,6 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
   /// edge shadow. Every docked shape — collapsed, always-open, or D-pad
   /// focus-expanded — displaces content instead and stays transparent on TV.
   bool get _isFloatingPanel => _interactionExpanded && !widget.alwaysExpanded;
-
-  bool get _showDownloads => !PlatformDetector.isAppleTV();
-
-  /// macOS has the system green button; mobile/TV have no OS fullscreen toggle.
-  bool get _showFullscreenToggle => Platform.isWindows || Platform.isLinux;
 
   @override
   void initState() {
@@ -640,7 +632,7 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
       case NavigationTabId.search:
         return _kSearch;
       case NavigationTabId.downloads:
-        return _showDownloads ? _kDownloads : null;
+        return _kDownloads;
       case NavigationTabId.settings:
         return _kSettings;
       case NavigationTabId.liveTv:
@@ -684,11 +676,10 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
       _kLibraries,
       if (hasExplore) _kExplore,
       _kSearch,
-      if (_showDownloads) _kDownloads,
+      _kDownloads,
       _kSettings,
       _kReconnect,
       if (hasHiddenLibraries) _kHiddenLibraries,
-      if (_showFullscreenToggle) _kFullscreen,
       if (hasLiveTv) 'liveTv',
       ..._focusKeysForLibraryRows(visibleRows),
       if (_hiddenLibrariesExpanded) ..._focusKeysForLibraryRows(hiddenRows),
@@ -780,9 +771,8 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
         if (hasExplore) _kExplore,
         _kSearch,
       ],
-      if (_showDownloads) _kDownloads,
+      _kDownloads,
       _kSettings,
-      if (_showFullscreenToggle) _kFullscreen,
     ];
   }
 
@@ -841,21 +831,7 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
     librariesProvider.refresh();
   }
 
-  /// Calculate top padding for macOS traffic lights
-  double _getTopPadding(BuildContext context) {
-    double basePadding = MediaQuery.paddingOf(context).top + 16;
-
-    // On macOS, add extra padding for traffic lights (when not fullscreen)
-    if (Platform.isMacOS) {
-      final isFullscreen = FullscreenStateManager().isFullscreen;
-      if (!isFullscreen) {
-        // Traffic lights area is approximately 52 pixels high
-        basePadding = basePadding < 52 ? 52 : basePadding;
-      }
-    }
-
-    return basePadding;
-  }
+  double _getTopPadding(BuildContext context) => MediaQuery.paddingOf(context).top + 16;
 
   @override
   Widget build(BuildContext context) {
@@ -891,12 +867,11 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
     final musicService = context.watch<MusicPlaybackService?>();
     final nowPlayingTrack = widget.isOfflineMode || !PlatformDetector.isTV() ? null : musicService?.currentTrack;
 
-    // Listen to fullscreen + the groupLibrariesByServer / showExploreTab
+    // Listen to the groupLibrariesByServer / showExploreTab
     // settings so the rail rebuilds when they are toggled in Appearance, and to
     // librariesSectionExpanded so the Libraries header toggle repaints.
     return ListenableBuilder(
       listenable: Listenable.merge([
-        FullscreenStateManager(),
         SettingsService.instance.listenable(SettingsService.groupLibrariesByServer),
         SettingsService.instance.listenable(SettingsService.showExploreTab),
         SettingsService.instance.listenable(SettingsService.librariesSectionExpanded),
@@ -1076,9 +1051,8 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
                                       ),
                                       const SizedBox(height: _itemGap),
                                     ],
-                                    // Downloads (hidden on Apple TV — no user
-                                    // file storage)
-                                    if (_showDownloads) ...[
+                                    // Downloads
+                                    ...[
                                       _buildNavItem(
                                         icon: Symbols.download_rounded,
                                         selectedIcon: Symbols.download_rounded,
@@ -1103,13 +1077,6 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
                                 ),
                               ),
                             ),
-                            if (_showFullscreenToggle)
-                              AnimatedPadding(
-                                padding: .fromLTRB(horizontalPadding, 0, horizontalPadding, 12),
-                                duration: expandDuration,
-                                curve: expandCurve,
-                                child: _buildFullscreenItem(isCollapsed: isCollapsed),
-                              ),
                           ],
                         ),
                       ),
@@ -1229,31 +1196,6 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
       // ignore: no-empty-block - no-op tap handler while reconnecting
       onTap: widget.isReconnecting ? () {} : () => widget.onReconnect?.call(),
       focusNode: _focusTracker.get(_kReconnect),
-      onNavigateRight: widget.onNavigateToContent,
-    );
-  }
-
-  Widget _buildFullscreenItem({required bool isCollapsed}) {
-    final t = tokens(context);
-    final isFullscreen = FullscreenStateManager().isFullscreen;
-    final label = isFullscreen
-        ? Translations.of(context).common.exitFullscreen
-        : Translations.of(context).common.fullscreen;
-
-    return NavigationRailItem(
-      icon: isFullscreen ? Symbols.fullscreen_exit_rounded : Symbols.fullscreen_rounded,
-      label: Text(
-        label,
-        style: const TextStyle(fontSize: 14, fontWeight: .w400),
-        overflow: .ellipsis,
-        maxLines: 1,
-      ),
-      labelColor: t.textMuted,
-      collapsedLabel: label,
-      isSelected: false,
-      isCollapsed: isCollapsed,
-      onTap: () => unawaited(FullscreenStateManager().toggleFullscreen()),
-      focusNode: _focusTracker.get(_kFullscreen),
       onNavigateRight: widget.onNavigateToContent,
     );
   }

@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/media_items.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -349,7 +350,7 @@ MediaItem _episode(String id, {required String title, int? viewCount}) {
   );
 }
 
-class _FakePlayer implements Player {
+class _FakePlayer with AndroidPlayerNoops implements Player {
   final List<Duration> seeks = [];
 
   @override

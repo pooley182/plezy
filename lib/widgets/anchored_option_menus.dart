@@ -9,26 +9,6 @@ import '../screens/libraries/filters_bottom_sheet.dart';
 import 'app_icon.dart';
 import 'app_menu.dart';
 
-/// Whether chip menus should open as anchored popups rather than sheets.
-///
-/// Mirrors [showAdaptiveAppMenu]'s platform split: iOS and Android (which
-/// also cover tvOS and Android TV) keep the bottom sheets; every other
-/// platform anchors dropdown popups to the chips.
-bool useAnchoredChipMenus(BuildContext context) {
-  final platform = Theme.of(context).platform;
-  return platform != TargetPlatform.iOS && platform != TargetPlatform.android;
-}
-
-/// Anchor rect for a chip popup, computed the way
-/// [AppMenuButtonState.showButtonMenu] computes its anchor. Returns null when
-/// the chip isn't laid out (hidden, or not yet built).
-Rect? chipAnchorRect(GlobalKey key) {
-  final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
-  if (renderBox == null || !renderBox.hasSize) return null;
-  final topLeft = renderBox.localToGlobal(Offset.zero);
-  return Rect.fromLTWH(topLeft.dx, topLeft.dy, renderBox.size.width, renderBox.size.height);
-}
-
 /// Chip popups focus their first item only in keyboard/D-pad sessions.
 bool _focusMenuFirstItem(BuildContext context) => InputModeTracker.isKeyboardMode(context, listen: false);
 

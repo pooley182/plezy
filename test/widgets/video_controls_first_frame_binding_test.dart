@@ -13,7 +13,6 @@ import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/providers/playback_state_provider.dart';
 import 'package:plezy/services/settings_service.dart';
 import 'package:plezy/services/video_volume_controller.dart';
-import 'package:plezy/utils/platform_detector.dart';
 import 'package:plezy/watch_together/providers/watch_together_provider.dart';
 import 'package:plezy/widgets/video_controls/player_chrome_controller.dart';
 import 'package:plezy/widgets/video_controls/video_controls.dart';
@@ -22,6 +21,7 @@ import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// The screen's first-frame gate outlives the controls: a failed open swaps
 /// the controls for the failure view, and Retry flips the gate again. The
@@ -47,7 +47,6 @@ void main() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     final settings = await SettingsService.getInstance();
-    PlatformDetector.debugSetIsDesktopOSOverride(true);
 
     database = AppDatabase.forTesting(NativeDatabase.memory());
     player = _StillPlayer();
@@ -60,7 +59,6 @@ void main() {
   });
 
   tearDown(() async {
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
     hasFirstFrame.dispose();
     volume.dispose();
     playbackState.dispose();
@@ -123,7 +121,7 @@ class _Gate extends ValueNotifier<bool> {
 }
 
 /// A [Player] that never moves; the controls only need its streams to exist.
-class _StillPlayer implements Player {
+class _StillPlayer with AndroidPlayerNoops implements Player {
   final StreamController<bool> _playingController = StreamController<bool>.broadcast();
 
   Future<void> close() => _playingController.close();

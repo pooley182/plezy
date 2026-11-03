@@ -18,11 +18,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   group('SliverSystemBottomInset', () {

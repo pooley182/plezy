@@ -7,7 +7,7 @@ import 'package:plezy/utils/platform_detector.dart';
 
 void main() {
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     TvDetectionService.setForceTVSync(false);
   });
 
@@ -331,7 +331,7 @@ void main() {
   });
 
   testWidgets('TV back closes keyboard, restores field focus, then cancels dialog', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await tester.binding.setSurfaceSize(const Size(1280, 720));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final hostContext = await _pumpHost(tester);

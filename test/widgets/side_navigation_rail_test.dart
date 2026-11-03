@@ -169,14 +169,14 @@ void main() {
   setUp(() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     TvDetectionService.setForceTVSync(false);
     LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
   testWidgets('closed TV rail is slim and keeps primary icons centered', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     await SettingsService.getInstance();
 
     final librariesProvider = LibrariesProvider();
@@ -276,8 +276,8 @@ void main() {
   });
 
   testWidgets('expanded TV rail keeps a transparent surface', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     await SettingsService.getInstance();
 
     final librariesProvider = LibrariesProvider();
@@ -774,63 +774,6 @@ void main() {
     final rail = find.descendant(of: find.byType(SideNavigationRail), matching: find.byType(AnimatedContainer)).first;
     expect(tester.getSize(rail).width, SideNavigationRailState.expandedWidth);
     expect(_railSurfaceOpacity(tester).opacity, 0.0);
-  });
-
-  testWidgets('Apple TV D-pad focus skips hidden downloads item', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
-    await SettingsService.getInstance();
-
-    final librariesProvider = LibrariesProvider();
-    addTearDown(librariesProvider.dispose);
-
-    final hiddenLibrariesProvider = HiddenLibrariesProvider();
-    await hiddenLibrariesProvider.ensureInitialized();
-    addTearDown(hiddenLibrariesProvider.dispose);
-
-    final manager = MultiServerManager();
-    final multiServerProvider = testMultiServerProvider(manager);
-    addTearDown(multiServerProvider.dispose);
-
-    final sideNavKey = GlobalKey<SideNavigationRailState>();
-    NavigationTabId? selectedTab;
-
-    await tester.pumpWidget(
-      TranslationProvider(
-        child: MultiProvider(
-          providers: [
-            ChangeNotifierProvider<LibrariesProvider>.value(value: librariesProvider),
-            ChangeNotifierProvider<HiddenLibrariesProvider>.value(value: hiddenLibrariesProvider),
-            ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
-          ],
-          child: MaterialApp(
-            theme: ThemeData(extensions: const [testMonoTokens]),
-            home: Scaffold(
-              body: SideNavigationRail(
-                key: sideNavKey,
-                selectedTab: NavigationTabId.discover,
-                isSidebarFocused: true,
-                alwaysExpanded: true,
-                onDestinationSelected: (tab) => selectedTab = tab,
-                onLibrarySelected: (_) {},
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    sideNavKey.currentState!.focusActiveItem();
-    await tester.pumpAndSettle();
-
-    // Home -> Libraries -> Search -> Settings. Downloads is hidden on Apple TV.
-    await _press(tester, LogicalKeyboardKey.arrowDown);
-    await _press(tester, LogicalKeyboardKey.arrowDown);
-    await _press(tester, LogicalKeyboardKey.arrowDown);
-    await _press(tester, LogicalKeyboardKey.enter);
-
-    expect(selectedTab, NavigationTabId.settings);
   });
 
   testWidgets('D-pad down from a hidden server header focuses that hidden server library', (tester) async {

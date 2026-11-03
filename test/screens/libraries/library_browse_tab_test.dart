@@ -26,7 +26,6 @@ import 'package:plezy/models/plex/plex_config.dart';
 import 'package:plezy/providers/multi_server_provider.dart';
 import 'package:plezy/screens/libraries/alpha_jump_bar.dart';
 import 'package:plezy/screens/libraries/alpha_scroll_handle.dart';
-import 'package:plezy/screens/libraries/sort_bottom_sheet.dart';
 import 'package:plezy/screens/libraries/state_messages.dart';
 import 'package:plezy/screens/libraries/tabs/library_browse_tab.dart';
 import 'package:plezy/services/jellyfin_mappers.dart';
@@ -39,6 +38,7 @@ import 'package:plezy/utils/library_content_notifier.dart';
 import 'package:plezy/utils/platform_detector.dart';
 import 'package:plezy/widgets/focusable_filter_chip.dart';
 import 'package:plezy/widgets/focusable_media_card.dart';
+import 'package:plezy/widgets/overlay_sheet.dart';
 
 import '../../test_helpers/backend_client_fixtures.dart';
 import '../../test_helpers/library_tab_scaffold.dart';
@@ -118,8 +118,8 @@ void main() {
   });
 
   testWidgets('retry accepts an empty current page and returns keyboard focus to library chrome', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     final emptyPage = Completer<LibraryPage<MediaItem>>();
     final clientA = _BrowseClient('server-a', 'Library A')
       ..pageResponses.add(() => Future<LibraryPage<MediaItem>>.error(StateError('temporary browse failure')))
@@ -145,66 +145,6 @@ void main() {
     expect(find.byType(EmptyStateWidget), findsOneWidget);
     expect(harness.loadedLibraries, [harness.libraryA.globalKey]);
     expect(groupingChip.focusNode!.hasFocus, isTrue);
-  });
-
-  testWidgets('desktop platform opens the sort chip as an anchored popup and applies the pick', (tester) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-
-    const sorts = [MediaSort(key: 'title', title: 'Title'), MediaSort(key: 'year', title: 'Year')];
-    final harness = _BrowseHarness(clientA: _BrowseClient('server-a', 'Library A', sortResponse: Future.value(sorts)));
-    addTearDown(harness.dispose);
-
-    await _pumpHarness(tester, harness);
-    await _pumpUntil(tester, () => harness.clientA.pageRequestCount >= 1);
-
-    // Grouping + sort chips are visible (no filters on this client); the sort
-    // chip is the last one.
-    await tester.tap(find.byType(FocusableFilterChip).last);
-    await tester.pumpAndSettle();
-
-    // Anchored popup, not the bottom sheet.
-    expect(find.byType(SortBottomSheet), findsNothing);
-    expect(find.text('Year'), findsOneWidget);
-
-    final requestsBefore = harness.clientA.pageRequestCount;
-    await tester.tap(find.text('Year'));
-    await tester.pumpAndSettle();
-
-    await _pumpUntil(tester, () => harness.clientA.pageRequestCount > requestsBefore);
-    final sort = harness.clientA.pageQueries.last.sort;
-    expect(sort?.field, 'year');
-
-    debugDefaultTargetPlatformOverride = null;
-  });
-
-  testWidgets('a sort change after a failed load clears the stale error', (tester) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-
-    const sorts = [MediaSort(key: 'title', title: 'Title'), MediaSort(key: 'year', title: 'Year')];
-    final client = _BrowseClient('server-a', 'Library A', sortResponse: Future.value(sorts));
-    final harness = _BrowseHarness(clientA: client);
-    addTearDown(harness.dispose);
-
-    await _pumpHarness(tester, harness);
-    await _pumpUntil(tester, () => client.pageRequestCount >= 1);
-
-    client.pageResponses.add(() => Future<LibraryPage<MediaItem>>.error(StateError('temporary browse failure')));
-    await tester.tap(find.byType(FocusableFilterChip).last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Year').last);
-    await tester.pumpAndSettle();
-    expect(find.byType(ErrorStateWidget), findsOneWidget);
-
-    client.pageResponses.add(() => Future.value(const LibraryPage<MediaItem>(items: [], totalCount: 0)));
-    await tester.tap(find.byType(FocusableFilterChip).last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Title').last);
-    await tester.pumpAndSettle();
-
-    expect(find.byType(ErrorStateWidget), findsNothing);
-    expect(find.byType(EmptyStateWidget), findsOneWidget);
-
-    debugDefaultTargetPlatformOverride = null;
   });
 
   testWidgets('mixed library all grouping applies its explicit root kinds', (tester) async {
@@ -368,8 +308,8 @@ void main() {
   });
 
   testWidgets('TV keeps the alpha bar off the screen edge and clear of a focused last-column card', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     await SettingsService.instance.write(SettingsService.tvFullCardLayout, true);
     const size = Size(1280, 720);
 
@@ -499,14 +439,16 @@ Future<void> _pumpHarness(WidgetTester tester, _BrowseHarness harness, {bool set
   await pumpLibraryTab(
     tester,
     provider: harness.provider,
-    tab: ValueListenableBuilder<MediaLibrary>(
-      valueListenable: harness.selectedLibrary,
-      builder: (context, library, _) => LibraryBrowseTab(
-        library: library,
-        canGroupByFolders: true,
-        isActive: true,
-        onDataLoaded: () => harness.loadedLibraries.add(library.globalKey),
-        onBack: () => harness.chromeFocusRequests++,
+    tab: OverlaySheetHost(
+      child: ValueListenableBuilder<MediaLibrary>(
+        valueListenable: harness.selectedLibrary,
+        builder: (context, library, _) => LibraryBrowseTab(
+          library: library,
+          canGroupByFolders: true,
+          isActive: true,
+          onDataLoaded: () => harness.loadedLibraries.add(library.globalKey),
+          onBack: () => harness.chromeFocusRequests++,
+        ),
       ),
     ),
   );

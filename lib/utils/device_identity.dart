@@ -12,12 +12,12 @@ import 'platform_detector.dart';
 /// user-facing device name (Plex dashboards show it as the "Player";
 /// Jellyfin as the "Device").
 class DeviceIdentity {
-  /// 'Android' | 'iOS' | 'tvOS' | 'macOS' | 'Windows' | 'Linux', falling back
-  /// to [Platform.operatingSystem] when detection fails.
+  /// 'Android', falling back to [Platform.operatingSystem] when detection
+  /// fails.
   final String platform;
 
-  /// Hardware model for `X-Plex-Device`, e.g. 'AFTKM' (Fire TV), 'iPhone',
-  /// 'Apple TV'. Null when unresolvable.
+  /// Hardware model for `X-Plex-Device`, e.g. 'AFTKM' (Fire TV). Null when
+  /// unresolvable.
   final String? deviceModel;
 
   /// Friendly, usually user-assigned name (Settings > About > Device name on
@@ -51,46 +51,14 @@ class DeviceIdentityService {
     final isTv = PlatformDetector.isTV();
 
     try {
-      if (Platform.isAndroid) {
-        final androidInfo = await deviceInfo.androidInfo;
-        final assignedName = await TvDetectionService.getAndroidDeviceName();
-        return DeviceIdentity(
-          platform: 'Android',
-          deviceModel: androidInfo.model,
-          deviceName: assignedName ?? '${androidInfo.brand} ${androidInfo.model}',
-          isTv: isTv,
-        );
-      }
-      if (Platform.isIOS) {
-        final iosInfo = await deviceInfo.iosInfo;
-        if (PlatformDetector.isAppleTV()) {
-          return DeviceIdentity(platform: 'tvOS', deviceModel: 'Apple TV', deviceName: iosInfo.name, isTv: true);
-        }
-        return DeviceIdentity(platform: 'iOS', deviceModel: iosInfo.model, deviceName: iosInfo.name, isTv: isTv);
-      }
-      if (Platform.isMacOS) {
-        final macInfo = await deviceInfo.macOsInfo;
-        return DeviceIdentity(
-          platform: 'macOS',
-          deviceModel: macInfo.model,
-          deviceName: macInfo.computerName,
-          isTv: isTv,
-        );
-      }
-      if (Platform.isWindows) {
-        final windowsInfo = await deviceInfo.windowsInfo;
-        return DeviceIdentity(
-          platform: 'Windows',
-          deviceModel: 'Windows',
-          deviceName: windowsInfo.computerName,
-          isTv: isTv,
-        );
-      }
-      if (Platform.isLinux) {
-        final host = Platform.localHostname.trim();
-        final name = (host.isNotEmpty && host != 'localhost') ? host : (await deviceInfo.linuxInfo).name;
-        return DeviceIdentity(platform: 'Linux', deviceModel: 'Linux', deviceName: name, isTv: isTv);
-      }
+      final androidInfo = await deviceInfo.androidInfo;
+      final assignedName = await TvDetectionService.getAndroidDeviceName();
+      return DeviceIdentity(
+        platform: 'Android',
+        deviceModel: androidInfo.model,
+        deviceName: assignedName ?? '${androidInfo.brand} ${androidInfo.model}',
+        isTv: isTv,
+      );
     } catch (e) {
       appLogger.w('DeviceIdentity: failed to resolve device info', error: e);
     }

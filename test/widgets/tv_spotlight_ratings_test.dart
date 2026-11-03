@@ -52,11 +52,11 @@ void main() {
   setUp(() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
-  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   testWidgets('dashboard spotlight badges every rating the listing carried', (tester) async {
     await _pumpSpotlight(

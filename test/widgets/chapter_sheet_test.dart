@@ -8,6 +8,7 @@ import 'package:plezy/widgets/overlay_sheet.dart';
 import 'package:plezy/widgets/video_controls/sheets/chapter_sheet.dart';
 
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   setUp(() => LocaleSettings.setLocaleSync(AppLocale.en));
@@ -71,7 +72,7 @@ Future<void> _pumpSheet(
   await tester.pumpAndSettle();
 }
 
-class _FakePlayer implements Player {
+class _FakePlayer with AndroidPlayerNoops implements Player {
   final List<Duration> seeks = [];
 
   @override

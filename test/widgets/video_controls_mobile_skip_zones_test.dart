@@ -23,6 +23,7 @@ import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// A skip in the mobile skip zones costs one full same-direction double tap.
 ///
@@ -51,8 +52,7 @@ void main() {
     await settings.write(SettingsService.seekTimeSmall, 10);
 
     // Phone layout: the skip zones only exist when PlatformDetector.isMobile.
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
 
     database = AppDatabase.forTesting(NativeDatabase.memory());
     player = _RecordingPlayer();
@@ -64,8 +64,7 @@ void main() {
   });
 
   tearDown(() async {
-    TvDetectionService.debugSetAppleTVOverride(null);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     volume.dispose();
     playbackState.dispose();
     watchTogether.dispose();
@@ -423,7 +422,7 @@ void main() {
 }
 
 /// Minimal [Player] recording seek targets against a fixed 45-minute item.
-class _RecordingPlayer implements Player {
+class _RecordingPlayer with AndroidPlayerNoops implements Player {
   final List<Duration> seeks = [];
   final StreamController<Duration?> _jumpController = StreamController<Duration?>.broadcast();
 

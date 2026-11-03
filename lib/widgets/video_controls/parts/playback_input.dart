@@ -660,7 +660,6 @@ extension _PlexVideoControlsPlaybackInputMethods on _PlexVideoControlsState {
     final now = DateTime.now();
     if (_lastSkipTapTime != null && now.difference(_lastSkipTapTime!) < kDoubleTapTimeout) {
       _lastSkipTapTime = null;
-      _toggleFullscreen();
       return;
     }
     _lastSkipTapTime = now;

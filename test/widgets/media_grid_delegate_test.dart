@@ -21,7 +21,7 @@ void main() {
     await SettingsService.getInstance();
   });
 
-  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   final movie = testMediaItem(
     id: 'movie_1',
@@ -135,13 +135,13 @@ void main() {
   });
 
   testWidgets('TV grids keep captioned artwork uncropped at every density and text scale', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     useViewport(tester, const Size(960, 540));
     await expectUncroppedArtwork(tester, surface: 'tv');
   });
 
   testWidgets('full-bleed TV grid cells are exactly the artwork', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     useViewport(tester, const Size(960, 540));
     for (final density in [LibraryDensity.min, LibraryDensity.max]) {
       for (final (wide, ratio) in [(false, 2 / 3), (true, 16 / 9)]) {

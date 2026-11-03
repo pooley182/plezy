@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -65,35 +64,8 @@ void main() {
       buildNumber: '45',
       buildSignature: '',
     );
-    final deviceInfo = DeviceInfoPlugin.setMockInitialValues(
-      linuxDeviceInfo: LinuxDeviceInfo(
-        name: 'Test Linux',
-        id: 'test-linux',
-        prettyName: 'Test Linux',
-        machineId: 'test-machine',
-      ),
-    );
-    const deviceInfoChannel = MethodChannel('dev.fluttercommunity.plus/device_info');
+    final deviceInfo = DeviceInfoPlugin.setMockInitialValues(androidDeviceInfo: _androidInfo());
     final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-    messenger.setMockMethodCallHandler(deviceInfoChannel, (call) async {
-      expect(call.method, 'getDeviceInfo');
-      return <String, dynamic>{
-        'computerName': 'test-mac',
-        'hostName': 'test-mac.local',
-        'arch': 'arm64',
-        'model': 'Mac15,3',
-        'modelName': 'Mac',
-        'kernelVersion': 'test',
-        'osRelease': '15.0',
-        'majorVersion': 15,
-        'minorVersion': 0,
-        'patchVersion': 0,
-        'activeCPUs': 8,
-        'memorySize': 16 * 1024 * 1024 * 1024,
-        'cpuFrequency': 0,
-        'systemGUID': 'test-guid',
-      };
-    });
     messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
       if (call.method == 'Clipboard.setData') {
         clipboardText = (call.arguments as Map<Object?, Object?>)['text'] as String?;
@@ -101,7 +73,6 @@ void main() {
       return null;
     });
     addTearDown(() {
-      messenger.setMockMethodCallHandler(deviceInfoChannel, null);
       messenger.setMockMethodCallHandler(SystemChannels.platform, null);
     });
 
@@ -243,35 +214,7 @@ void main() {
         buildNumber: '45',
         buildSignature: '',
       );
-      deviceInfo = DeviceInfoPlugin.setMockInitialValues(
-        linuxDeviceInfo: LinuxDeviceInfo(
-          name: 'Test Linux',
-          id: 'test-linux',
-          prettyName: 'Test Linux',
-          machineId: 'test-machine',
-        ),
-      );
-      const deviceInfoChannel = MethodChannel('dev.fluttercommunity.plus/device_info');
-      final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-      messenger.setMockMethodCallHandler(deviceInfoChannel, (call) async {
-        return <String, dynamic>{
-          'computerName': 'test-mac',
-          'hostName': 'test-mac.local',
-          'arch': 'arm64',
-          'model': 'Mac15,3',
-          'modelName': 'Mac',
-          'kernelVersion': 'test',
-          'osRelease': '15.0',
-          'majorVersion': 15,
-          'minorVersion': 0,
-          'patchVersion': 0,
-          'activeCPUs': 8,
-          'memorySize': 16 * 1024 * 1024 * 1024,
-          'cpuFrequency': 0,
-          'systemGUID': 'test-guid',
-        };
-      });
-      addTearDown(() => messenger.setMockMethodCallHandler(deviceInfoChannel, null));
+      deviceInfo = DeviceInfoPlugin.setMockInitialValues(androidDeviceInfo: _androidInfo());
     });
 
     // Stores entries without echoing thousands of lines to the test console.
@@ -304,35 +247,6 @@ void main() {
       }
     }
 
-    testWidgets('the desktop page refresh shortcut reloads the focused log selection', (tester) async {
-      PlatformDetector.debugSetIsDesktopOSOverride(true);
-      TvDetectionService.debugSetAppleTVOverride(false);
-      addTearDown(() {
-        PlatformDetector.debugSetIsDesktopOSOverride(null);
-        TvDetectionService.debugSetAppleTVOverride(null);
-      });
-
-      await pumpLogs(tester);
-      const marker = 'shortcut-refresh-marker';
-      seedLogs(const [marker]);
-      expect(find.textContaining(marker, findRichText: true), findsNothing);
-
-      final selectionArea = tester.widget<SelectionArea>(find.byType(SelectionArea));
-      selectionArea.focusNode!.requestFocus();
-      await tester.pump();
-
-      final modifier = defaultTargetPlatform == TargetPlatform.macOS
-          ? LogicalKeyboardKey.metaLeft
-          : LogicalKeyboardKey.controlLeft;
-      await tester.sendKeyDownEvent(modifier);
-      expect(await tester.sendKeyDownEvent(LogicalKeyboardKey.keyR), isTrue);
-      await tester.sendKeyUpEvent(LogicalKeyboardKey.keyR);
-      await tester.sendKeyUpEvent(modifier);
-      await tester.pump();
-
-      expect(find.textContaining(marker, findRichText: true), findsOneWidget);
-    }, variant: TargetPlatformVariant.desktop());
-
     testWidgets('lays out only the visible slice of a large buffer', (tester) async {
       // Rendering the whole buffer as one paragraph froze the frame for tens
       // of seconds and OOM-killed low-memory devices; offscreen entries must
@@ -352,36 +266,6 @@ void main() {
         await tester.pump();
       }
       expect(find.textContaining('oldest-entry-marker', findRichText: true), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('iOS status-bar tap scrolls the log back to the newest entry', (tester) async {
-      seedLogs([for (var i = 0; i < 400; i++) 'entry-$i payload']);
-
-      await tester.pumpWidget(
-        TranslationProvider(
-          child: InputModeTracker(
-            child: MaterialApp(
-              theme: ThemeData(platform: TargetPlatform.iOS),
-              home: MediaQuery(
-                data: const MediaQueryData(padding: EdgeInsets.only(top: 25)),
-                child: LogsScreen(deviceInfoPlugin: deviceInfo),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final position = tester.state<ScrollableState>(find.byType(Scrollable).first).position;
-      position.jumpTo(position.maxScrollExtent);
-      await tester.pump();
-      expect(position.pixels, greaterThan(0));
-
-      tester.simulateStatusBarTap();
-      await tester.pumpAndSettle();
-
-      expect(position.pixels, 0);
       expect(tester.takeException(), isNull);
     });
 
@@ -497,7 +381,7 @@ void main() {
     // Android TV: `defaultTargetPlatform` is already Android under
     // `flutter test`, which is what selects the Android text-editing shortcuts.
     setUp(() async {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       await TvDetectionService.getInstance(forceTv: true);
       TvDetectionService.setForceTVSync(true);
       PackageInfo.setMockInitialValues(
@@ -510,7 +394,7 @@ void main() {
     });
 
     tearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       TvDetectionService.setForceTVSync(false);
     });
 
@@ -587,3 +471,38 @@ void main() {
     });
   });
 }
+
+AndroidDeviceInfo _androidInfo() => AndroidDeviceInfo.setMockInitialValues(
+  version: AndroidBuildVersion.setMockInitialValues(
+    codename: 'REL',
+    incremental: '1',
+    previewSdkInt: 0,
+    release: '14',
+    sdkInt: 34,
+  ),
+  board: 'test',
+  bootloader: 'test',
+  brand: 'Test',
+  device: 'test',
+  display: 'test',
+  fingerprint: 'test',
+  hardware: 'test',
+  host: 'test',
+  id: 'test',
+  manufacturer: 'Test',
+  model: 'TV Box',
+  product: 'test',
+  name: 'Test TV',
+  supported32BitAbis: const [],
+  supported64BitAbis: const [],
+  supportedAbis: const [],
+  tags: 'release-keys',
+  type: 'user',
+  isPhysicalDevice: true,
+  freeDiskSize: 0,
+  totalDiskSize: 0,
+  systemFeatures: const [],
+  isLowRamDevice: false,
+  physicalRamSize: 0,
+  availableRamSize: 0,
+);

@@ -9,6 +9,7 @@ import 'package:plezy/services/settings_service.dart';
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   late SettingsService settings;
@@ -59,7 +60,7 @@ void main() {
   });
 }
 
-class _RecordingPlayer implements Player {
+class _RecordingPlayer with AndroidPlayerNoops implements Player {
   final List<(String, String)> writes = [];
 
   @override

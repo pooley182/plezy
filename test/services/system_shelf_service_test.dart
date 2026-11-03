@@ -12,10 +12,8 @@ import 'package:plezy/media/media_server_client.dart';
 import 'package:plezy/media/server_capabilities.dart';
 import 'package:plezy/services/jellyfin_api_cache.dart';
 import 'package:plezy/services/plex_api_cache.dart';
-import 'package:plezy/services/settings_service.dart' show EpisodePosterMode;
 import 'package:plezy/services/system_shelf_service.dart';
 
-import '../test_helpers/backend_client_fixtures.dart';
 import '../test_helpers/media_items.dart';
 
 class _ShelfClient implements MediaServerClient {
@@ -203,55 +201,10 @@ void main() {
     serverName: 'Server',
   );
 
-  for (final (mode, posters) in [
-    (EpisodePosterMode.seasonPoster, ['/season-poster', '/series-poster', '/episode-still']),
-    // Every other setting gets the series poster, as in Plex's own Top Shelf
-    // (#2377): an episode still cannot fill a 2:3 slot.
-    (EpisodePosterMode.seriesPoster, ['/series-poster', '/series-poster', '/episode-still']),
-    (EpisodePosterMode.episodeThumbnail, ['/series-poster', '/series-poster', '/episode-still']),
-  ]) {
-    test('tvOS target with ${mode.name} walks its poster chain at 600x900 and skips the spoiler override', () async {
-      messenger.setMockMethodCallHandler(channel, (call) async => true);
-      final client = _ShelfClient();
-      final service = SystemShelfService.forTesting(
-        channel: channel,
-        isSupported: () async => true,
-        isTvosTarget: () => true,
-      );
-      service.beginProfileSession('owner-a');
-
-      expect(
-        await service.syncFromContinueWatching(
-          'owner-a',
-          [
-            shelfEpisode(parentThumbPath: '/season-poster', grandparentThumbPath: '/series-poster'),
-            shelfEpisode(grandparentThumbPath: '/series-poster'),
-            shelfEpisode(),
-          ],
-          (_) => client,
-          // Unwatched episodes would take the spoiler-safe art on Android;
-          // posters cannot spoil, so tvOS must ignore the flag entirely.
-          hideSpoilers: true,
-          episodePosterMode: mode,
-        ),
-        isTrue,
-      );
-
-      expect(client.thumbnailRequests.map((request) => request.path), posters);
-      for (final request in client.thumbnailRequests) {
-        expect((request.width, request.height), (600, 900));
-      }
-    });
-  }
-
   test('non-tvOS target keeps 640x360 episode thumbnails and the spoiler-safe override', () async {
     messenger.setMockMethodCallHandler(channel, (call) async => true);
     final client = _ShelfClient();
-    final service = SystemShelfService.forTesting(
-      channel: channel,
-      isSupported: () async => true,
-      isTvosTarget: () => false,
-    );
+    final service = SystemShelfService.forTesting(channel: channel, isSupported: () async => true);
     service.beginProfileSession('owner-a');
     final episode = shelfEpisode(parentThumbPath: '/season-poster', grandparentThumbPath: '/series-poster');
 
@@ -262,127 +215,5 @@ void main() {
     for (final request in client.thumbnailRequests) {
       expect((request.width, request.height), (640, 360));
     }
-  });
-
-  test('updateSources publishes per-kind descriptors and skips unusable clients', () async {
-    final calls = <MethodCall>[];
-    messenger.setMockMethodCallHandler(channel, (call) async {
-      calls.add(call);
-      return true;
-    });
-    final service = SystemShelfService.forTesting(channel: channel, isTvosTarget: () => true);
-    service.beginProfileSession('owner-a');
-
-    final plex = testPlexClient(
-      serverId: ServerId('plex-1'),
-      serverName: 'Plex Server',
-      baseUrl: 'https://plex.example.com',
-      token: 'plex-token',
-    );
-    final jellyfin = testJellyfinClient(
-      connection: testJellyfinConnection(
-        machineId: 'jf-1',
-        userId: 'user-7',
-        serverName: 'Jellyfin Server',
-        baseUrl: 'https://jf.example.com',
-        accessToken: 'jf-token',
-      ),
-    );
-    final emby = testEmbyClient(
-      connection: testEmbyConnection(machineId: 'emby-1', userId: 'emby-user', accessToken: 'emby-token'),
-    );
-    final tokenlessPlex = testPlexClient(serverId: ServerId('plex-2'), token: null);
-    final tokenlessJellyfin = testJellyfinClient(
-      connection: testJellyfinConnection(machineId: 'jf-2', accessToken: ''),
-    );
-    final unknownBackend = _ShelfClient();
-
-    expect(
-      await service.syncServerSources('owner-a', [
-        plex,
-        jellyfin,
-        emby,
-        tokenlessPlex,
-        tokenlessJellyfin,
-        unknownBackend,
-      ]),
-      isTrue,
-    );
-
-    expect(calls.single.method, 'updateSources');
-    final envelope = calls.single.arguments as Map;
-    expect(envelope['schemaVersion'], 3);
-    expect(envelope['ownerId'], 'owner-a');
-    expect(envelope['generation'], 1);
-    expect(envelope['maxItems'], 20);
-    expect(envelope['sectionTitle'], 'Continue Watching');
-    expect(envelope['episodePoster'], 'series');
-    final servers = (envelope['servers'] as List).cast<Map>();
-    expect(servers, hasLength(3));
-    expect(servers[0], {
-      'serverId': 'plex-1',
-      'kind': 'plex',
-      'name': 'Plex Server',
-      'baseUrl': 'https://plex.example.com',
-      'token': 'plex-token',
-    });
-    expect(servers[1], {
-      'serverId': 'jf-1',
-      'kind': 'jellyfin',
-      'name': 'Jellyfin Server',
-      'baseUrl': 'https://jf.example.com',
-      'token': 'jf-token',
-      'userId': 'user-7',
-    });
-    expect(servers[2]['kind'], 'emby');
-    expect(servers[2]['userId'], 'emby-user');
-    expect(servers[2]['token'], 'emby-token');
-  });
-
-  test('updateSources tells the extension to use season posters only under that setting', () async {
-    final calls = <MethodCall>[];
-    messenger.setMockMethodCallHandler(channel, (call) async {
-      calls.add(call);
-      return true;
-    });
-    final service = SystemShelfService.forTesting(channel: channel, isTvosTarget: () => true);
-    service.beginProfileSession('owner-a');
-    final plex = testPlexClient(baseUrl: 'https://plex.example.com', token: 'plex-token');
-
-    for (final mode in EpisodePosterMode.values) {
-      expect(await service.syncServerSources('owner-a', [plex], episodePosterMode: mode), isTrue);
-    }
-
-    expect(calls.map((call) => (call.arguments as Map)['episodePoster']), ['series', 'season', 'series']);
-  });
-
-  test('syncServerSources is a no-op off tvOS', () async {
-    var nativeCalls = 0;
-    messenger.setMockMethodCallHandler(channel, (call) async {
-      nativeCalls++;
-      return true;
-    });
-    final service = SystemShelfService.forTesting(channel: channel, isTvosTarget: () => false);
-    service.beginProfileSession('owner-a');
-
-    expect(await service.syncServerSources('owner-a', [testPlexClient()]), isFalse);
-    expect(nativeCalls, 0);
-  });
-
-  test('sources built for an invalidated owner are never dispatched', () async {
-    final calls = <MethodCall>[];
-    messenger.setMockMethodCallHandler(channel, (call) async {
-      calls.add(call);
-      return true;
-    });
-    final service = SystemShelfService.forTesting(channel: channel, isTvosTarget: () => true);
-    service.beginProfileSession('owner-a');
-
-    final pending = service.syncServerSources('owner-a', [testPlexClient()]);
-    final ended = service.endProfileSession('owner-a');
-
-    expect(await pending, isFalse);
-    await ended;
-    expect(calls.map((call) => call.method), ['clear']);
   });
 }

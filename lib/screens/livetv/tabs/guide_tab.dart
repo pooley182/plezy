@@ -33,7 +33,6 @@ import '../../../utils/platform_detector.dart';
 import '../../../utils/tone_mapped_logo_image.dart';
 import '../../../widgets/app_icon.dart';
 import '../../../widgets/app_menu.dart';
-import '../../../widgets/clickable_cursor.dart';
 import '../../../widgets/optimized_media_image.dart';
 import '../livetv_styles.dart';
 
@@ -1456,24 +1455,22 @@ class GuideTabState extends State<GuideTab>
               children: [
                 _timeNavFocusWrap(
                   index: 1,
-                  child: ClickableCursor(
-                    child: GestureDetector(
-                      key: _dayPickerKey,
-                      onTap: _showDayPicker,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: tokens(context).text.withValues(alpha: 0.08),
-                          borderRadius: const BorderRadius.all(Radius.circular(MonoTokens.radiusFull)),
-                        ),
-                        child: Row(
-                          mainAxisSize: .min,
-                          children: [
-                            Text(dayLabel, style: theme.textTheme.labelLarge),
-                            const SizedBox(width: 2),
-                            AppIcon(Symbols.arrow_drop_down_rounded, size: 18, color: theme.colorScheme.onSurface),
-                          ],
-                        ),
+                  child: GestureDetector(
+                    key: _dayPickerKey,
+                    onTap: _showDayPicker,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: tokens(context).text.withValues(alpha: 0.08),
+                        borderRadius: const BorderRadius.all(Radius.circular(MonoTokens.radiusFull)),
+                      ),
+                      child: Row(
+                        mainAxisSize: .min,
+                        children: [
+                          Text(dayLabel, style: theme.textTheme.labelLarge),
+                          const SizedBox(width: 2),
+                          AppIcon(Symbols.arrow_drop_down_rounded, size: 18, color: theme.colorScheme.onSurface),
+                        ],
                       ),
                     ),
                   ),

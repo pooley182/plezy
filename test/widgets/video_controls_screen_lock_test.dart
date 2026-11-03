@@ -22,6 +22,7 @@ import '../test_helpers/media_items.dart';
 import '../test_helpers/player_streams.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// The touch lock has to hold against a small child. It used to unlock on a
 /// long press anywhere on the picture, which is exactly what a child holding
@@ -48,8 +49,7 @@ void main() {
     final settings = await SettingsService.getInstance();
 
     // Phone layout: the screen lock button exists only on mobile, not TV.
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
 
     database = AppDatabase.forTesting(NativeDatabase.memory());
     player = _RecordingPlayer();
@@ -62,8 +62,7 @@ void main() {
   });
 
   tearDown(() async {
-    TvDetectionService.debugSetAppleTVOverride(null);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     volume.dispose();
     playbackState.dispose();
     watchTogether.dispose();
@@ -256,7 +255,7 @@ void main() {
 }
 
 /// Minimal [Player] tracking playback state against a fixed 45-minute item.
-class _RecordingPlayer implements Player {
+class _RecordingPlayer with AndroidPlayerNoops implements Player {
   bool _playing = true;
 
   @override

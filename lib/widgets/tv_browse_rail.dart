@@ -29,7 +29,6 @@ import '../utils/provider_extensions.dart';
 import 'animated_dim_scrim.dart';
 import 'app_icon.dart';
 import 'card_inflation_budget.dart';
-import 'clickable_cursor.dart';
 import 'focus_builders.dart';
 import 'horizontal_scroll_with_arrows.dart';
 import 'listenable_selector.dart';
@@ -2072,25 +2071,23 @@ class TvBrowseRailState extends State<TvBrowseRail> with TickerProviderStateMixi
       key: _leadingMenuKeyFor(hub),
       item: leadingItem,
       onRefresh: widget.onRefresh,
-      child: ClickableCursor(
-        child: GestureDetector(
-          onTap: () {
-            _selectHubItem(hub, hubIndex, 0);
-            _showLeadingContextMenu(hub);
-          },
-          onSecondaryTapDown: (details) => tapPosition = details.globalPosition,
-          onSecondaryTap: () {
-            _selectHubItem(hub, hubIndex, 0);
-            _showLeadingContextMenu(hub, position: tapPosition);
-          },
-          child: _buildActionCard(
-            context,
-            metrics: metrics,
-            isFocused: isFocused,
-            scale: scale,
-            icon: Symbols.more_horiz_rounded,
-            label: t.common.options,
-          ),
+      child: GestureDetector(
+        onTap: () {
+          _selectHubItem(hub, hubIndex, 0);
+          _showLeadingContextMenu(hub);
+        },
+        onSecondaryTapDown: (details) => tapPosition = details.globalPosition,
+        onSecondaryTap: () {
+          _selectHubItem(hub, hubIndex, 0);
+          _showLeadingContextMenu(hub, position: tapPosition);
+        },
+        child: _buildActionCard(
+          context,
+          metrics: metrics,
+          isFocused: isFocused,
+          scale: scale,
+          icon: Symbols.more_horiz_rounded,
+          label: t.common.options,
         ),
       ),
     );
@@ -2109,37 +2106,33 @@ class TvBrowseRailState extends State<TvBrowseRail> with TickerProviderStateMixi
       case TvRailTrailing.loading:
         return _buildActionCard(context, metrics: metrics, isFocused: isFocused, scale: scale, spinner: true);
       case TvRailTrailing.error:
-        return ClickableCursor(
-          child: GestureDetector(
-            onTap: () {
-              _selectHubItem(hub, hubIndex, itemIndex);
-              widget.onRetryHub?.call(hub);
-            },
-            child: _buildActionCard(
-              context,
-              metrics: metrics,
-              isFocused: isFocused,
-              scale: scale,
-              icon: Symbols.refresh_rounded,
-              label: t.common.retry,
-            ),
+        return GestureDetector(
+          onTap: () {
+            _selectHubItem(hub, hubIndex, itemIndex);
+            widget.onRetryHub?.call(hub);
+          },
+          child: _buildActionCard(
+            context,
+            metrics: metrics,
+            isFocused: isFocused,
+            scale: scale,
+            icon: Symbols.refresh_rounded,
+            label: t.common.retry,
           ),
         );
       case TvRailTrailing.viewAll:
-        return ClickableCursor(
-          child: GestureDetector(
-            onTap: () {
-              _selectHubItem(hub, hubIndex, itemIndex);
-              _navigateToHubDetail(hub);
-            },
-            child: _buildActionCard(
-              context,
-              metrics: metrics,
-              isFocused: isFocused,
-              scale: scale,
-              icon: Symbols.arrow_forward_rounded,
-              label: t.common.viewAll,
-            ),
+        return GestureDetector(
+          onTap: () {
+            _selectHubItem(hub, hubIndex, itemIndex);
+            _navigateToHubDetail(hub);
+          },
+          child: _buildActionCard(
+            context,
+            metrics: metrics,
+            isFocused: isFocused,
+            scale: scale,
+            icon: Symbols.arrow_forward_rounded,
+            label: t.common.viewAll,
           ),
         );
       case TvRailTrailing.none:

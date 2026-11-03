@@ -83,16 +83,6 @@ void main() {
     expect(calls, isEmpty);
   });
 
-  testWidgets('register is a no-op off Android', (tester) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-    handler.register();
-    debugDefaultTargetPlatformOverride = null;
-
-    expect(await tester.sendKeyDownEvent(LogicalKeyboardKey.mediaPlayPause), isFalse);
-    expect(await tester.sendKeyUpEvent(LogicalKeyboardKey.mediaPlayPause), isFalse);
-    expect(calls, isEmpty);
-  });
-
   testWidgets('unregister stops handling and is idempotent', (tester) async {
     handler.register();
     expect(await tester.sendKeyDownEvent(LogicalKeyboardKey.mediaPlayPause), isTrue);

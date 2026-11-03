@@ -493,7 +493,7 @@ class _HubDetailScreenState extends State<HubDetailScreen>
         // Host owns sheet + system back: a back with a sheet open closes it;
         // otherwise focus the app bar first, then pop (handleBackNavigation).
         // canPop preserves the iOS interactive swipe-back.
-        canPop: PlatformDetector.isHandheldIOS(context),
+        canPop: false,
         onSystemBack: () {
           if (BackKeyCoordinator.consumeIfHandled()) return;
           if (handleBackNavigation() && mounted) Navigator.pop(context);

@@ -39,6 +39,7 @@ import '../test_helpers/watch_together_fakes.dart';
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -317,33 +318,16 @@ void main() {
   group('classifyPlayerNavigationKey', () {
     test('reserves only physical keyboard Escape for fullscreen', () {
       expect(
-        classifyPlayerNavigationKey(
-          _navigationKeyDown(LogicalKeyboardKey.escape, ui.KeyEventDeviceType.keyboard),
-          isAppleTV: false,
-        ),
+        classifyPlayerNavigationKey(_navigationKeyDown(LogicalKeyboardKey.escape, ui.KeyEventDeviceType.keyboard)),
         PlayerNavigationKey.physicalEscape,
       );
       expect(
-        classifyPlayerNavigationKey(
-          _navigationKeyDown(LogicalKeyboardKey.escape, ui.KeyEventDeviceType.gamepad),
-          isAppleTV: false,
-        ),
+        classifyPlayerNavigationKey(_navigationKeyDown(LogicalKeyboardKey.escape, ui.KeyEventDeviceType.gamepad)),
         PlayerNavigationKey.back,
       );
       expect(
         classifyPlayerNavigationKey(
           _navigationKeyDown(LogicalKeyboardKey.escape, ui.KeyEventDeviceType.directionalPad),
-          isAppleTV: false,
-        ),
-        PlayerNavigationKey.back,
-      );
-    });
-
-    test('treats tvOS keyboard Escape as semantic Back', () {
-      expect(
-        classifyPlayerNavigationKey(
-          _navigationKeyDown(LogicalKeyboardKey.escape, ui.KeyEventDeviceType.keyboard),
-          isAppleTV: true,
         ),
         PlayerNavigationKey.back,
       );
@@ -352,7 +336,7 @@ void main() {
     test('recognizes controller and browser Back keys', () {
       for (final key in [LogicalKeyboardKey.gameButtonB, LogicalKeyboardKey.goBack, LogicalKeyboardKey.browserBack]) {
         expect(
-          classifyPlayerNavigationKey(_navigationKeyDown(key, ui.KeyEventDeviceType.gamepad), isAppleTV: false),
+          classifyPlayerNavigationKey(_navigationKeyDown(key, ui.KeyEventDeviceType.gamepad)),
           PlayerNavigationKey.back,
         );
       }
@@ -361,18 +345,14 @@ void main() {
     test('recognizes only bare physical Backspace as player Back', () {
       final event = _navigationKeyDown(LogicalKeyboardKey.backspace, ui.KeyEventDeviceType.keyboard);
 
-      expect(classifyPlayerNavigationKey(event, isAppleTV: false, hasModifiers: false), PlayerNavigationKey.back);
-      expect(classifyPlayerNavigationKey(event, isAppleTV: false, hasModifiers: true), PlayerNavigationKey.none);
+      expect(classifyPlayerNavigationKey(event, hasModifiers: false), PlayerNavigationKey.back);
+      expect(classifyPlayerNavigationKey(event, hasModifiers: true), PlayerNavigationKey.none);
     });
 
     test('recognizes bare keyboard and browser Home', () {
       for (final key in [LogicalKeyboardKey.home, LogicalKeyboardKey.browserHome]) {
         expect(
-          classifyPlayerNavigationKey(
-            _navigationKeyDown(key, ui.KeyEventDeviceType.keyboard),
-            isAppleTV: false,
-            hasModifiers: false,
-          ),
+          classifyPlayerNavigationKey(_navigationKeyDown(key, ui.KeyEventDeviceType.keyboard), hasModifiers: false),
           PlayerNavigationKey.home,
         );
       }
@@ -382,11 +362,11 @@ void main() {
       final event = _navigationKeyDown(LogicalKeyboardKey.backspace, ui.KeyEventDeviceType.keyboard);
 
       expect(
-        classifyPlayerNavigationKey(event, isAppleTV: false, hasModifiers: false, textEditingActive: true),
+        classifyPlayerNavigationKey(event, hasModifiers: false, textEditingActive: true),
         PlayerNavigationKey.none,
       );
       expect(
-        classifyPlayerNavigationKey(event, isAppleTV: false, hasModifiers: false, textEditingActive: false),
+        classifyPlayerNavigationKey(event, hasModifiers: false, textEditingActive: false),
         PlayerNavigationKey.back,
       );
     });
@@ -395,7 +375,7 @@ void main() {
       expect(
         classifyPlayerNavigationKey(
           _navigationKeyDown(LogicalKeyboardKey.home, ui.KeyEventDeviceType.keyboard),
-          isAppleTV: false,
+
           hasModifiers: false,
           textEditingActive: true,
         ),
@@ -405,7 +385,7 @@ void main() {
       expect(
         classifyPlayerNavigationKey(
           _navigationKeyDown(LogicalKeyboardKey.browserHome, ui.KeyEventDeviceType.keyboard),
-          isAppleTV: false,
+
           hasModifiers: false,
           textEditingActive: true,
         ),
@@ -418,7 +398,7 @@ void main() {
         expect(
           classifyPlayerNavigationKey(
             _navigationKeyDown(LogicalKeyboardKey.home, deviceType),
-            isAppleTV: false,
+
             hasModifiers: false,
             textEditingActive: true,
           ),
@@ -491,7 +471,6 @@ void main() {
         focusNode: playerFocus,
         playerReady: false,
         isCurrentRoute: true,
-        isAppleTV: false,
       );
       await tester.pump();
 
@@ -523,7 +502,6 @@ void main() {
         focusNode: playerFocus,
         playerReady: true,
         isCurrentRoute: true,
-        isAppleTV: false,
       );
       await tester.pump();
 
@@ -555,7 +533,6 @@ void main() {
         focusNode: playerFocus,
         playerReady: false,
         isCurrentRoute: false,
-        isAppleTV: false,
       );
       await tester.pump();
 
@@ -570,9 +547,6 @@ void main() {
       bool Function()? isPromptOpen,
       VoidCallback? dismissPrompt,
       bool Function()? isChromePresented,
-      Future<bool> Function()? exitFullscreenIfActive,
-      bool physicalEscapeExitsFullscreen = true,
-      bool Function()? physicalEscapeExitsFullscreenProvider,
       bool Function()? exitPlayerBeforeChrome,
       bool Function()? backLeavesPrompt,
       VoidCallback? exitPlayer,
@@ -584,8 +558,6 @@ void main() {
         isPromptOpen: isPromptOpen ?? () => false,
         dismissPrompt: dismissPrompt ?? () {},
         isChromePresented: isChromePresented ?? () => chromeController.controlsPresented,
-        exitFullscreenIfActive: exitFullscreenIfActive ?? () async => false,
-        physicalEscapeExitsFullscreen: physicalEscapeExitsFullscreenProvider ?? () => physicalEscapeExitsFullscreen,
         exitPlayerBeforeChrome: exitPlayerBeforeChrome,
         backLeavesPrompt: backLeavesPrompt,
         exitPlayer: exitPlayer ?? () {},
@@ -600,7 +572,7 @@ void main() {
           home: Focus(
             autofocus: true,
             onKeyEvent: (_, event) {
-              final navigationKey = classifyPlayerNavigationKey(event, isAppleTV: false);
+              final navigationKey = classifyPlayerNavigationKey(event);
               return handlePlayerNavigationKeyAction(event, navigationKey, () => coordinator.handle(navigationKey));
             },
             child: const SizedBox.expand(),
@@ -679,14 +651,11 @@ void main() {
       expect(exits, 0);
     });
 
-    for (final (label, key, escapeOwnsFullscreen, leaves) in [
-      ('Back', LogicalKeyboardKey.gameButtonB, true, true),
-      ('a windowed physical Escape', LogicalKeyboardKey.escape, false, true),
-      ('a fullscreen physical Escape', LogicalKeyboardKey.escape, true, false),
+    for (final (label, key) in [
+      ('Back', LogicalKeyboardKey.gameButtonB),
+      ('a physical Escape', LogicalKeyboardKey.escape),
     ]) {
-      testWidgets('$label on a finished-item prompt ${leaves ? 'leaves the player' : 'only dismisses it'} (#2686)', (
-        tester,
-      ) async {
+      testWidgets('$label on a finished-item prompt leaves the player (#2686)', (tester) async {
         final chromeController = PlayerChromeController();
         addTearDown(chromeController.dispose);
         var promptDismissals = 0;
@@ -696,7 +665,6 @@ void main() {
           isPromptOpen: () => true,
           backLeavesPrompt: () => true,
           dismissPrompt: () => promptDismissals++,
-          physicalEscapeExitsFullscreen: escapeOwnsFullscreen,
           exitPlayer: () => exits++,
         );
         await pumpNavigationFocus(tester, coordinator);
@@ -704,11 +672,25 @@ void main() {
         await tester.sendKeyEvent(key);
         await tester.pump();
 
-        expect(exits, leaves ? 1 : 0, reason: 'nothing is left to watch behind Play Next');
-        expect(promptDismissals, leaves ? 0 : 1, reason: 'an Escape that owns fullscreen keeps its staged role');
+        expect(exits, 1, reason: 'nothing is left to watch behind Play Next');
+        expect(promptDismissals, 0);
         expect(chromeController.controlsVisible, isTrue, reason: 'no staged chrome hide on the way out');
       });
     }
+
+    testWidgets('physical Escape hides presented chrome without exiting', (tester) async {
+      final chromeController = PlayerChromeController();
+      addTearDown(chromeController.dispose);
+      var exits = 0;
+      final coordinator = coordinatorFor(chromeController, exitPlayer: () => exits++);
+      await pumpNavigationFocus(tester, coordinator);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+
+      expect(chromeController.controlsVisible, isFalse);
+      expect(exits, 0);
+    });
 
     testWidgets('Back exits on the first press when the route opened with no chrome', (tester) async {
       final chromeController = PlayerChromeController(initiallyVisible: false);
@@ -720,147 +702,6 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.gameButtonB);
 
       expect(exits, 1, reason: 'a TV start has no chrome to hide, so back belongs to the route (#1765)');
-    });
-
-    testWidgets('physical Escape outside fullscreen hides presented chrome without exiting', (tester) async {
-      final chromeController = PlayerChromeController();
-      addTearDown(chromeController.dispose);
-      var fullscreenChecks = 0;
-      var exits = 0;
-      final coordinator = coordinatorFor(
-        chromeController,
-        exitFullscreenIfActive: () async {
-          fullscreenChecks++;
-          return false;
-        },
-        exitPlayer: () => exits++,
-      );
-      await pumpNavigationFocus(tester, coordinator);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await tester.pump();
-
-      expect(fullscreenChecks, 1);
-      expect(chromeController.controlsVisible, isFalse);
-      expect(exits, 0);
-    });
-
-    testWidgets('physical Escape preserves event-time chrome presentation across fullscreen check', (tester) async {
-      final chromeController = PlayerChromeController();
-      addTearDown(chromeController.dispose);
-      final fullscreenResult = Completer<bool>();
-      var exits = 0;
-      final coordinator = coordinatorFor(
-        chromeController,
-        exitFullscreenIfActive: () => fullscreenResult.future,
-        exitPlayer: () => exits++,
-      );
-      await pumpNavigationFocus(tester, coordinator);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      chromeController.hide();
-      chromeController.markControlsHidden();
-      fullscreenResult.complete(false);
-      await tester.pump();
-
-      expect(chromeController.controlsVisible, isFalse);
-      expect(chromeController.controlsPresented, isFalse);
-      expect(exits, 0);
-    });
-
-    testWidgets('physical Escape exits native fullscreen before chrome', (tester) async {
-      final chromeController = PlayerChromeController();
-      addTearDown(chromeController.dispose);
-      var exits = 0;
-      final coordinator = coordinatorFor(
-        chromeController,
-        exitFullscreenIfActive: () async => true,
-        exitPlayer: () => exits++,
-      );
-      await pumpNavigationFocus(tester, coordinator);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await tester.pump();
-
-      expect(chromeController.controlsVisible, isTrue);
-      expect(exits, 0);
-    });
-
-    testWidgets('enabling player navigation makes physical Escape preserve fullscreen', (tester) async {
-      final chromeController = PlayerChromeController();
-      addTearDown(chromeController.dispose);
-      var physicalEscapeExitsFullscreen = true;
-      var fullscreenChecks = 0;
-      var exits = 0;
-      final coordinator = coordinatorFor(
-        chromeController,
-        exitFullscreenIfActive: () async {
-          fullscreenChecks++;
-          return true;
-        },
-        physicalEscapeExitsFullscreenProvider: () => physicalEscapeExitsFullscreen,
-        exitPlayer: () => exits++,
-      );
-      physicalEscapeExitsFullscreen = false;
-      await pumpNavigationFocus(tester, coordinator);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-
-      expect(fullscreenChecks, 0);
-      expect(chromeController.controlsVisible, isFalse);
-      expect(exits, 0);
-    });
-
-    testWidgets('macOS physical Escape stages through chrome and player without leaving fullscreen', (tester) async {
-      final chromeController = PlayerChromeController();
-      addTearDown(chromeController.dispose);
-      var fullscreenChecks = 0;
-      var exits = 0;
-      final coordinator = coordinatorFor(
-        chromeController,
-        exitFullscreenIfActive: () async {
-          fullscreenChecks++;
-          return true;
-        },
-        physicalEscapeExitsFullscreen: false,
-        exitPlayer: () => exits++,
-      );
-      await pumpNavigationFocus(tester, coordinator);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-
-      expect(fullscreenChecks, 0);
-      expect(chromeController.controlsVisible, isFalse);
-      expect(exits, 0);
-
-      chromeController.markControlsHidden();
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-
-      expect(fullscreenChecks, 0);
-      expect(exits, 1);
-    });
-
-    testWidgets('physical Escape does nothing after its player route is disposed', (tester) async {
-      final chromeController = PlayerChromeController();
-      addTearDown(chromeController.dispose);
-      final fullscreenResult = Completer<bool>();
-      var active = true;
-      var exits = 0;
-      final coordinator = coordinatorFor(
-        chromeController,
-        exitFullscreenIfActive: () => fullscreenResult.future,
-        exitPlayer: () => exits++,
-        isActive: () => active,
-      );
-      await pumpNavigationFocus(tester, coordinator);
-
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      active = false;
-      fullscreenResult.complete(false);
-      await tester.pump();
-
-      expect(chromeController.controlsVisible, isTrue);
-      expect(exits, 0);
     });
 
     testWidgets('Back closes the content strip without hiding chrome or exiting', (tester) async {
@@ -909,7 +750,7 @@ void main() {
       var globalEvents = 0;
       var exits = 0;
       bool globalHandler(KeyEvent event) {
-        if (classifyPlayerNavigationKey(event, isAppleTV: false) != PlayerNavigationKey.none) {
+        if (classifyPlayerNavigationKey(event) != PlayerNavigationKey.none) {
           globalEvents++;
         }
         return false;
@@ -936,25 +777,6 @@ void main() {
           controlsVisible: true,
         ),
         PlayerBackDisposition.closeContentStrip,
-      );
-    });
-
-    test('checks fullscreen only for physical Escape', () {
-      expect(
-        resolvePlayerBackDisposition(
-          navigationKey: PlayerNavigationKey.physicalEscape,
-          contentStripVisible: false,
-          controlsVisible: false,
-        ),
-        PlayerBackDisposition.exitFullscreenIfActive,
-      );
-      expect(
-        resolvePlayerBackDisposition(
-          navigationKey: PlayerNavigationKey.back,
-          contentStripVisible: false,
-          controlsVisible: false,
-        ),
-        PlayerBackDisposition.exitPlayer,
       );
     });
   });
@@ -1012,51 +834,7 @@ void main() {
     });
   });
 
-  group('shouldPhysicalEscapeExitFullscreen', () {
-    test('uses fullscreen-first behavior for normal Windows and Linux navigation', () {
-      expect(
-        shouldPhysicalEscapeExitFullscreen(
-          isMacOS: false,
-          videoPlayerNavigationEnabled: false,
-          playerEnteredFullscreen: true,
-        ),
-        isTrue,
-      );
-    });
-
-    test('preserves fullscreen when HTPC-style player navigation is enabled', () {
-      expect(
-        shouldPhysicalEscapeExitFullscreen(
-          isMacOS: false,
-          videoPlayerNavigationEnabled: true,
-          playerEnteredFullscreen: true,
-        ),
-        isFalse,
-      );
-    });
-
-    test('preserves native fullscreen inside the macOS player', () {
-      expect(
-        shouldPhysicalEscapeExitFullscreen(
-          isMacOS: true,
-          videoPlayerNavigationEnabled: false,
-          playerEnteredFullscreen: true,
-        ),
-        isFalse,
-      );
-    });
-
-    test('preserves app-owned fullscreen the player did not enter', () {
-      expect(
-        shouldPhysicalEscapeExitFullscreen(
-          isMacOS: false,
-          videoPlayerNavigationEnabled: false,
-          playerEnteredFullscreen: false,
-        ),
-        isFalse,
-      );
-    });
-  });
+  group('shouldPhysicalEscapeExitFullscreen', () {});
 
   group('SkipMarkerButton', () {
     testWidgets('tap activates skip', (tester) async {
@@ -2418,7 +2196,7 @@ Future<void> _pumpSkipMarkerButton(
   );
 }
 
-class _FakeSyncPlayer implements Player {
+class _FakeSyncPlayer with AndroidPlayerNoops implements Player {
   _FakeSyncPlayer({this.onSetProperty});
 
   final Future<void> Function(String name, String value)? onSetProperty;
@@ -2435,7 +2213,7 @@ class _FakeSyncPlayer implements Player {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _FakeSubtitleVisibilityPlayer implements Player {
+class _FakeSubtitleVisibilityPlayer with AndroidPlayerNoops implements Player {
   _FakeSubtitleVisibilityPlayer({required this.writes});
 
   final List<Completer<void>> writes;

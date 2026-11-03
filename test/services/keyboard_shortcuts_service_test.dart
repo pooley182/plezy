@@ -15,6 +15,7 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 import 'package:shared_preferences_platform_interface/types.dart';
 
 import '../test_helpers/prefs.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   setUp(() {
@@ -771,7 +772,7 @@ void main() {
   });
 }
 
-class _FakePlayer implements Player {
+class _FakePlayer with AndroidPlayerNoops implements Player {
   _FakePlayer({this.volume = 100, this.rate = 1});
 
   final commands = <List<String>>[];

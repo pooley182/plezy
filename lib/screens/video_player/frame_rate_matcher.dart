@@ -23,8 +23,7 @@ class FrameRateMatcher {
 
   /// While non-null, the first frame must stay behind the loading UI: the
   /// open is negotiating the display from what mpv presents, and revealing
-  /// the frame first would freeze it on screen through the HDMI blank (and
-  /// the Apple TV mode-switch wait) instead of the spinner the pre-load
+  /// the frame first would freeze it on screen through the HDMI blank instead of the spinner the pre-load
   /// switch used to hide it behind. Resolves true when the negotiation
   /// settled and the frame may show; false when a newer open or disposal
   /// abandoned it, in which case the waiter must not reveal anything — the

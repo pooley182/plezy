@@ -212,7 +212,7 @@ class _ExpressiveButtonGroupState<T> extends State<ExpressiveButtonGroup<T>> {
       );
       // Hover tracking + click cursor; skipped on TV like ClickableCursor,
       // except on desktop (force-TV mode there still has a real mouse).
-      if (!PlatformDetector.isTV() || PlatformDetector.isDesktopOS()) {
+      if (!PlatformDetector.isTV()) {
         child = MouseRegion(
           cursor: SystemMouseCursors.click,
           onEnter: (_) => setState(() => _hoveredIndex = i),

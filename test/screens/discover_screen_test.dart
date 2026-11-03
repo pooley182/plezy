@@ -61,12 +61,12 @@ void main() {
   setUp(() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('TV tab focus returns to discover browse rail instead of reload action', (tester) async {
@@ -595,7 +595,7 @@ void main() {
   });
 
   testWidgets('non-TV hero keeps indicators visible in keyboard mode and fades to solid bg', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     await SettingsService.getInstance();
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
@@ -1043,7 +1043,7 @@ Future<_GatedDiscover> _pumpGatedDiscover(WidgetTester tester, {bool underRootCo
 /// one test can compare the TV and non-TV chrome without rebuilding it twice.
 /// Takes ownership of [watchTogether].
 Future<void> _pumpDiscoverShell(WidgetTester tester, {required bool isTv, WatchTogetherProvider? watchTogether}) async {
-  TvDetectionService.debugSetAppleTVOverride(isTv);
+  TvDetectionService.debugSetTvOverride(isTv);
   await SettingsService.getInstance();
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = const Size(1280, 720);

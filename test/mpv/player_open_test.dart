@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -958,9 +957,7 @@ void main() {
               'https://example.test/movie.mkv',
               'replace',
               '-1',
-              Platform.isWindows
-                  ? r'sub-files=%31%/subs/a\b.srt;/subs/c\:d\;e.srt,sid=no,secondary-sid=no'
-                  : r'sub-files=%31%/subs/a\b.srt:/subs/c\\:d;e.srt,sid=no,secondary-sid=no',
+              r'sub-files=%31%/subs/a\b.srt:/subs/c\\:d;e.srt,sid=no,secondary-sid=no',
             ]);
           } finally {
             await player.dispose();
@@ -1725,7 +1722,7 @@ Iterable<MethodCall> _commandCalls(List<MethodCall> calls, String command) {
 }
 
 String _fixedLengthPathList(List<String> values) {
-  final separator = Platform.isWindows ? ';' : ':';
+  const separator = ':';
   final escaped = values.map((value) => _escapePathListEntry(value, separator)).join(separator);
   return '%${utf8.encode(escaped).length}%$escaped';
 }

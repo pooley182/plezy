@@ -67,6 +67,7 @@ import '../test_helpers/http_fixtures.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/profile_stack.dart';
 import '../test_helpers/stub_music_playback_service.dart';
+import '../test_helpers/empty_download_provider.dart';
 
 void main() {
   testWidgets('cancelled media menu restores its live captured item', (tester) async {
@@ -425,7 +426,7 @@ void main() {
       );
 
       await _openMenu(tester, menuKey);
-      await tester.tap(find.text(t.common.addTo));
+      await _tapMenuEntry(tester, t.common.addTo);
       await tester.pumpAndSettle();
 
       expect(find.text(t.playlists.playlist), findsOneWidget);
@@ -946,8 +947,8 @@ void main() {
   group('MediaContextMenu actions', () {
     testWidgets('audio playlist play and shuffle actions use music playback', (tester) async {
       LocaleSettings.setLocaleSync(AppLocale.en);
-      TvDetectionService.debugSetAppleTVOverride(true);
-      addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+      TvDetectionService.debugSetTvOverride(true);
+      addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
       final tracks = [
         testMediaItem(
@@ -990,6 +991,7 @@ void main() {
         TranslationProvider(
           child: MultiProvider(
             providers: [
+              ChangeNotifierProvider<DownloadProvider>.value(value: emptyDownloadProvider()),
               ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
               ChangeNotifierProvider<ActiveProfileProvider>.value(value: stack.active),
               ChangeNotifierProvider<MusicPlaybackService>.value(value: music),
@@ -1057,8 +1059,8 @@ void main() {
 
     testWidgets('Jellyfin video playlist context Play exposes cancellable loading', (tester) async {
       LocaleSettings.setLocaleSync(AppLocale.en);
-      TvDetectionService.debugSetAppleTVOverride(true);
-      addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+      TvDetectionService.debugSetTvOverride(true);
+      addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
       final client = _AudioPlaylistClient([
         testMediaItem(
@@ -1092,6 +1094,7 @@ void main() {
         TranslationProvider(
           child: MultiProvider(
             providers: [
+              ChangeNotifierProvider<DownloadProvider>.value(value: emptyDownloadProvider()),
               ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
               ChangeNotifierProvider<ActiveProfileProvider>.value(value: stack.active),
               ChangeNotifierProvider<PlaybackStateProvider>.value(value: playback),
@@ -1132,8 +1135,8 @@ void main() {
 
     testWidgets('file info client resolution failure shows an error without popping another route', (tester) async {
       LocaleSettings.setLocaleSync(AppLocale.en);
-      TvDetectionService.debugSetAppleTVOverride(true);
-      addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+      TvDetectionService.debugSetTvOverride(true);
+      addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
       final manager = MultiServerManager();
       final multiServerProvider = testMultiServerProvider(manager);
@@ -1157,6 +1160,7 @@ void main() {
         TranslationProvider(
           child: MultiProvider(
             providers: [
+              ChangeNotifierProvider<DownloadProvider>.value(value: emptyDownloadProvider()),
               ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
               ChangeNotifierProvider<ActiveProfileProvider>.value(value: stack.active),
             ],
@@ -1189,8 +1193,8 @@ void main() {
 
     testWidgets('file info spinner is dismissed when the launching card unmounts mid-fetch', (tester) async {
       LocaleSettings.setLocaleSync(AppLocale.en);
-      TvDetectionService.debugSetAppleTVOverride(true);
-      addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+      TvDetectionService.debugSetTvOverride(true);
+      addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
       // Gate the item detail fetch so the launching card can be unmounted
       // while getFileInfo is still pending.
@@ -1232,6 +1236,7 @@ void main() {
         TranslationProvider(
           child: MultiProvider(
             providers: [
+              ChangeNotifierProvider<DownloadProvider>.value(value: emptyDownloadProvider()),
               ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
               ChangeNotifierProvider<ActiveProfileProvider>.value(value: stack.active),
               ChangeNotifierProvider<OfflineModeProvider>.value(value: offlineMode),
@@ -1367,7 +1372,7 @@ void main() {
       await tester.pump();
       expect(Focus.of(tester.element(find.text(t.common.createNew))).hasFocus, isTrue);
 
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.escape);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
 
       expect(find.text(t.playlists.selectPlaylist), findsNothing);
@@ -1726,8 +1731,8 @@ Future<GlobalKey<MediaContextMenuState>> _pumpPlexMovieMenu(
   MediaItem? item,
 }) async {
   LocaleSettings.setLocaleSync(AppLocale.en);
-  TvDetectionService.debugSetAppleTVOverride(true);
-  addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  TvDetectionService.debugSetTvOverride(true);
+  addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   final db = AppDatabase.forTesting(NativeDatabase.memory());
   PlexApiCache.initialize(db);
@@ -1793,6 +1798,7 @@ Future<GlobalKey<MediaContextMenuState>> _pumpPlexMovieMenu(
     TranslationProvider(
       child: MultiProvider(
         providers: [
+          ChangeNotifierProvider<DownloadProvider>.value(value: emptyDownloadProvider()),
           ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
           ChangeNotifierProvider<ActiveProfileProvider>.value(value: stack.active),
         ],
@@ -1948,8 +1954,8 @@ Future<GlobalKey<MediaContextMenuState>> _pumpJellyfinItemMenu(
   bool onPushedRoute = false,
 }) async {
   LocaleSettings.setLocaleSync(AppLocale.en);
-  TvDetectionService.debugSetAppleTVOverride(true);
-  addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  TvDetectionService.debugSetTvOverride(true);
+  addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   final client = JellyfinClient.forTesting(
     connection: testJellyfinConnection(isAdministrator: isAdministrator),
@@ -1984,6 +1990,7 @@ Future<GlobalKey<MediaContextMenuState>> _pumpJellyfinItemMenu(
     TranslationProvider(
       child: MultiProvider(
         providers: [
+          ChangeNotifierProvider<DownloadProvider>.value(value: emptyDownloadProvider()),
           ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
           ChangeNotifierProvider<ActiveProfileProvider>.value(value: stack.active),
           ChangeNotifierProvider<OfflineModeProvider>.value(value: offlineMode),
@@ -2363,8 +2370,8 @@ class _SeedIdsClient implements MediaServerClient {
 Future<({GlobalKey<MediaContextMenuState> menuKey, MediaItem item, CatalogSourcesProvider catalogSources})>
 _pumpWatchlistMenu(WidgetTester tester, {required List<CatalogSource> sources, List<String> guids = const []}) async {
   LocaleSettings.setLocaleSync(AppLocale.en);
-  TvDetectionService.debugSetAppleTVOverride(true);
-  addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  TvDetectionService.debugSetTvOverride(true);
+  addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   final db = AppDatabase.forTesting(NativeDatabase.memory());
   PlexApiCache.initialize(db);
@@ -2411,6 +2418,7 @@ _pumpWatchlistMenu(WidgetTester tester, {required List<CatalogSource> sources, L
     TranslationProvider(
       child: MultiProvider(
         providers: [
+          ChangeNotifierProvider<DownloadProvider>.value(value: emptyDownloadProvider()),
           ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
           ChangeNotifierProvider<ActiveProfileProvider>.value(value: stack.active),
           ChangeNotifierProvider<OfflineModeProvider>.value(value: offlineMode),

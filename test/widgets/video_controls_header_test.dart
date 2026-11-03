@@ -17,18 +17,16 @@ void main() {
     await initializeDateFormatting('en');
   });
 
-  testWidgets('title-less mapped movie builds with localized fallback in both layouts', (tester) async {
+  testWidgets('title-less mapped movie builds with localized fallback', (tester) async {
     final item = _mappedItem({'Id': 'movie-without-name', 'Type': 'Movie'});
 
-    for (final style in VideoHeaderStyle.values) {
-      await _pumpHeader(tester, metadata: item, style: style);
+    await _pumpHeader(tester, metadata: item);
 
-      expect(find.text(t.common.unknown), findsOneWidget, reason: style.name);
-      expect(tester.takeException(), isNull, reason: style.name);
-    }
+    expect(find.text(t.common.unknown), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
-  testWidgets('title-less mapped episode keeps series identity and uses fallback in both layouts', (tester) async {
+  testWidgets('title-less mapped episode keeps series identity and uses fallback', (tester) async {
     final item = _mappedItem({
       'Id': 'episode-without-name',
       'Type': 'Episode',
@@ -37,19 +35,13 @@ void main() {
       'IndexNumber': 3,
     });
 
-    for (final style in VideoHeaderStyle.values) {
-      await _pumpHeader(tester, metadata: item, style: style);
+    await _pumpHeader(tester, metadata: item);
 
-      final expectedEpisodeLine = switch (style) {
-        VideoHeaderStyle.singleLine => 'Mapped Series · S2E3 · ${t.common.unknown}',
-        VideoHeaderStyle.multiLine => 'S2 · E3 · ${t.common.unknown}',
-      };
-      expect(find.text(expectedEpisodeLine), findsOneWidget, reason: style.name);
-      expect(tester.takeException(), isNull, reason: style.name);
-    }
+    expect(find.text('S2 · E3 · ${t.common.unknown}'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
-  testWidgets('ordinary mapped episode wording remains unchanged in both layouts', (tester) async {
+  testWidgets('ordinary mapped episode wording remains unchanged', (tester) async {
     final item = _mappedItem({
       'Id': 'titled-episode',
       'Type': 'Episode',
@@ -59,16 +51,10 @@ void main() {
       'IndexNumber': 4,
     });
 
-    for (final style in VideoHeaderStyle.values) {
-      await _pumpHeader(tester, metadata: item, style: style);
+    await _pumpHeader(tester, metadata: item);
 
-      final expectedEpisodeLine = switch (style) {
-        VideoHeaderStyle.singleLine => 'Mapped Series · S1E4 · The Arrival',
-        VideoHeaderStyle.multiLine => 'S1 · E4 · The Arrival',
-      };
-      expect(find.text(expectedEpisodeLine), findsOneWidget, reason: style.name);
-      expect(find.text(t.common.unknown), findsNothing, reason: style.name);
-    }
+    expect(find.text('S1 · E4 · The Arrival'), findsOneWidget);
+    expect(find.text(t.common.unknown), findsNothing);
   });
 }
 
@@ -81,7 +67,7 @@ MediaItem _mappedItem(Map<String, dynamic> json) {
   )!;
 }
 
-Future<void> _pumpHeader(WidgetTester tester, {required MediaItem metadata, required VideoHeaderStyle style}) async {
+Future<void> _pumpHeader(WidgetTester tester, {required MediaItem metadata}) async {
   final watchTogether = WatchTogetherProvider();
   addTearDown(watchTogether.dispose);
 
@@ -94,7 +80,7 @@ Future<void> _pumpHeader(WidgetTester tester, {required MediaItem metadata, requ
             backgroundColor: Colors.black,
             body: SizedBox(
               width: 900,
-              child: VideoControlsHeader(metadata: metadata, style: style, onBack: () {}),
+              child: VideoControlsHeader(metadata: metadata, onBack: () {}),
             ),
           ),
         ),

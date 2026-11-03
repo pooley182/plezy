@@ -20,7 +20,6 @@ import 'app_logger.dart';
 import 'content_utils.dart';
 import 'dialogs.dart';
 import 'download_version_utils.dart';
-import 'platform_detector.dart';
 import 'snackbar_helper.dart';
 import '../utils/error_message_utils.dart';
 
@@ -587,8 +586,7 @@ Future<void> removeSyncRuleAndSnack(
 
 /// The download / manage-sync-rule app-bar pair shared by the collection and
 /// playlist detail screens: one entry that downloads (or edits the existing
-/// rule) and, when a rule exists, one that removes it. Both are hidden on
-/// Apple TV, which has no downloads UI.
+/// rule) and, when a rule exists, one that removes it.
 ///
 /// [hasRule] stays caller-computed so each screen keeps its own
 /// `context.select` short-circuit, and [showDownload] carries the screen's
@@ -601,7 +599,6 @@ List<FocusableAction> buildSyncRuleActions(
   required bool showDownload,
   required VoidCallback onDownload,
 }) {
-  if (PlatformDetector.isAppleTV()) return const [];
   return [
     if (showDownload)
       FocusableAction(

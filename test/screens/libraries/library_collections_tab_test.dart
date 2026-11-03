@@ -72,16 +72,16 @@ void main() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     CardInflationBudget.reset();
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     await SettingsService.getInstance();
   });
 
-  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   testWidgets('music library collections use square grid geometry and square cards', (tester) async {
     final harness = _CollectionHarness.plex();
     addTearDown(harness.dispose);
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await SettingsService.instance.write(SettingsService.tvFullCardLayout, true);
 
     await _pumpTab(tester, harness: harness, library: _musicLibrary);
@@ -95,7 +95,7 @@ void main() {
   testWidgets('Jellyfin video collections keep poster geometry when opened from a music library', (tester) async {
     final harness = _CollectionHarness.jellyfin();
     addTearDown(harness.dispose);
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await SettingsService.instance.write(SettingsService.tvFullCardLayout, true);
 
     await _pumpTab(tester, harness: harness, library: _jellyfinMusicLibrary);
@@ -154,7 +154,7 @@ void main() {
 
   for (final hostedMenu in [true, false]) {
     testWidgets('a ${hostedMenu ? 'hosted menu' : 'root dialog'} restores the moved collection', (tester) async {
-      TvDetectionService.debugSetAppleTVOverride(true);
+      TvDetectionService.debugSetTvOverride(true);
       var first = 1;
       var count = 3;
       Completer<void>? gate;

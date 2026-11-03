@@ -8,6 +8,7 @@ import 'package:plezy/services/ambient_lighting_service.dart';
 import 'package:plezy/services/shader_service.dart';
 
 import '../test_helpers/io_fakes.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -86,7 +87,7 @@ void main() {
   });
 }
 
-class _AmbientPlayer implements Player {
+class _AmbientPlayer with AndroidPlayerNoops implements Player {
   final List<(String, String)> propertyWrites = [];
   final List<List<String>> commands = [];
   Object? setPropertyError;

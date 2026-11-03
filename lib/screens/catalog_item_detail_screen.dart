@@ -35,7 +35,6 @@ import '../services/catalog/seerr_catalog_source.dart';
 import '../services/data_aggregation_service.dart';
 import '../utils/app_logger.dart';
 import '../utils/catalog_navigation_helper.dart';
-import '../utils/desktop_window_padding.dart';
 import '../utils/formatters.dart';
 import '../utils/country_codes.dart';
 import '../utils/language_codes.dart';
@@ -1548,10 +1547,7 @@ class _CatalogItemDetailScreenState extends State<CatalogItemDetailScreen> {
                 Positioned(
                   top: 0,
                   left: 0,
-                  child: DesktopAppBarHelper.buildAdjustedLeading(
-                    AppBarBackButton(style: BackButtonStyle.circular, focusNode: _backButtonFocusNode),
-                    context: hostContext,
-                  )!,
+                  child: AppBarBackButton(style: BackButtonStyle.circular, focusNode: _backButtonFocusNode),
                 ),
               ],
             ),

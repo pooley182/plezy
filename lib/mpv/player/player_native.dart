@@ -1,6 +1,5 @@
 import 'dart:async' show unawaited;
 import 'dart:convert';
-import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show mapEquals, visibleForTesting;
 import 'package:flutter/services.dart';
@@ -9,7 +8,6 @@ import '../../models/audio_channel_limit.dart';
 import '../../services/settings_service.dart';
 import '../../utils/app_logger.dart';
 import '../models.dart';
-import 'audio_rendering_mode.dart';
 import 'player_base.dart';
 
 typedef _AudioStateRequest = ({
@@ -51,9 +49,6 @@ class PlayerNative extends PlayerBase {
   /// `initialize` for the Android core's vo decision.
   final bool _hardwareDecoding;
 
-  String _dvConversionMode = 'auto';
-  String _dvConversionLog = 'no';
-
   // Gapless-audio arming state (audioOnly). The native playlist is always
   // [current, next?]; these track whether entry 1 exists and what it plays.
   // _armedNextUri keeps the ORIGINAL media URI (the music service matches
@@ -73,29 +68,6 @@ class PlayerNative extends PlayerBase {
   /// unreachable; forces the conversion regardless of platform.
   @visibleForTesting
   static bool debugForceContentFdConversion = false;
-
-  /// Overrides the Linux video-plane detection in host tests.
-  @visibleForTesting
-  static bool? debugUseLinuxVideoPlane;
-
-  /// Whether this process drives video through the Linux Wayland plane, which
-  /// is `Platform.isLinux` and nothing finer — Linux has no other render path.
-  ///
-  /// The one place the test override is resolved, so production code and host
-  /// tests agree on which path is live without reading a test-only field.
-  static bool get usesLinuxVideoPlane => debugUseLinuxVideoPlane ?? Platform.isLinux;
-
-  /// Overrides the Apple audio-output detection in host tests.
-  @visibleForTesting
-  static bool? debugUseAppleAudioOutput;
-
-  /// Whether audio leaves through mpv's Apple outputs (iPhone, iPad, Apple TV,
-  /// Mac). There, passthrough hands AC3/EAC3 to the system Dolby decoder
-  /// behind ao_avfoundation instead of bitstreaming to a device: it takes
-  /// Dolby Digital (Plus) only and never needs the device claimed.
-  ///
-  /// Resolved in one place for the same reason as [usesLinuxVideoPlane].
-  static bool get usesAppleAudioOutput => debugUseAppleAudioOutput ?? (Platform.isIOS || Platform.isMacOS);
 
   /// First successful (positive) [getHeapSize] result; the device heap is
   /// immutable per process, so one channel round trip serves every caller.
@@ -144,32 +116,11 @@ class PlayerNative extends PlayerBase {
   String get playerType => 'mpv';
 
   @override
-  bool get providesNativeStats => Platform.isAndroid;
-
-  // The Android plugin no-ops a dispose whose instanceId is not the core's
-  // creator; other platforms' handlers do not read the token yet.
-  @override
-  bool get nativeDisposeIsStaleGuarded => Platform.isAndroid;
+  bool get providesNativeStats => true;
 
   /// Node properties are returned as structured maps on desktop and Apple
   /// platforms, but as JSON strings on Android.
-  static final String _nodeFormat = Platform.isAndroid ? 'string' : 'node';
-
-  static String _normalizeDvConversionMode(String value) {
-    return switch (value.toLowerCase()) {
-      'disabled' || 'native' => 'disabled',
-      'dv81' || 'p8' || 'p7_to_p8' || 'p7-to-p8' => 'dv81',
-      'hevc' || 'hevc_strip' || 'p7_to_hevc' || 'p7-to-hevc' => 'hevc_strip',
-      _ => 'auto',
-    };
-  }
-
-  static String _normalizeBoolProperty(String value) {
-    return switch (value.toLowerCase()) {
-      '1' || 'true' || 'yes' || 'on' => 'yes',
-      _ => 'no',
-    };
-  }
+  static final String _nodeFormat = 'string';
 
   static String _fixedLengthQuote(String value) {
     return '%${utf8.encode(value).length}%$value';
@@ -189,7 +140,7 @@ class PlayerNative extends PlayerBase {
   static String _escapePathListEntry(String value, String separator) => value.replaceAll(separator, '\\$separator');
 
   static String? _externalSubtitlesLoadfileOption(List<SubtitleTrack>? externalSubtitles) {
-    final separator = Platform.isWindows ? ';' : ':';
+    final separator = ':';
     final escapedUris = externalSubtitles
         ?.map((subtitle) => subtitle.uri)
         .whereType<String>()
@@ -265,11 +216,11 @@ class PlayerNative extends PlayerBase {
       // ignore them.
       final result = await invoke<Object>('initialize', {
         if (!audioOnly) 'hardwareDecoding': _hardwareDecoding,
-        if (!audioOnly && Platform.isAndroid)
+        if (!audioOnly)
           'subtitleRenderScale': SettingsService.instance
               .read(SettingsService.subtitleRenderResolution)
               .androidRenderScale,
-        if (Platform.isAndroid) 'logLevel': _requestedLogLevel,
+        'logLevel': _requestedLogLevel,
         'instanceId': nativeInstanceId,
       });
       if (result != true) {
@@ -295,19 +246,6 @@ class PlayerNative extends PlayerBase {
         // rides the file-loaded event instead — see _handleAudioFileLoaded
         // for why property edges are unreliable.
         await observeProperty('playlist-pos', _nodeFormat);
-        // ao_audiounit requests mixWithOthers unless audio-exclusive is set,
-        // and a mixable session disqualifies the app from iOS Now Playing —
-        // no lock-screen/headphone controls (#1921). AVFoundation, the first
-        // output on iPhone/iPad, never mixes, but audiounit is still their
-        // fallback and the tvOS PCM output. Same contract as the video path
-        // (VideoPlayerScreen sets it at playback start). iOS-only:
-        // elsewhere audio-exclusive means exclusive device access (hog-mode
-        // CoreAudio on macOS, exclusive WASAPI on Windows). Direct invoke —
-        // setProperty() would await _ensureInitialized and deadlock on the
-        // memoized future of this very _doInitialize call.
-        if (Platform.isIOS) {
-          await invoke('setProperty', {'name': 'audio-exclusive', 'value': 'yes'});
-        }
       } else {
         await observeCoreProperties(trackListFormat: _nodeFormat);
         await observeProperty('secondary-sid', 'string');
@@ -357,7 +295,7 @@ class PlayerNative extends PlayerBase {
   /// boundary — setNext must fail loudly so the music service falls back to
   /// an explicit open.
   Future<(String, int?)> _toPlayableUri(String uri, {bool strict = false}) async {
-    final convert = (Platform.isAndroid || debugForceContentFdConversion) && uri.startsWith('content://');
+    final convert = uri.startsWith('content://');
     if (!convert) return (uri, null);
     final fd = await _openContentFd(uri);
     if (fd == null) {
@@ -855,40 +793,11 @@ class PlayerNative extends PlayerBase {
     await setProperty('audio-device', device.name);
   }
 
-  /// The system's resolved audio rendering mode, used for the Dolby playback
-  /// badge. Apple populates `AVAudioSession.renderingMode` for CarPlay and
-  /// AirPlay routes, so an Apple TV on HDMI is expected to report
-  /// `notApplicable` — treat that as unknown, never as "not Dolby".
-  /// Returns null on platforms without the native method.
-  @override
-  Future<AudioRenderingMode?> getAudioRenderingMode() async {
-    if (!Platform.isIOS || _nativeCoreUnavailable) return null;
-    try {
-      final raw = await invoke<Map<Object?, Object?>>('getAudioRenderingMode', const {});
-      if (raw == null) return null;
-      return AudioRenderingMode(
-        name: raw['name'] as String? ?? 'unknown',
-        rawValue: (raw['rawValue'] as num?)?.toInt() ?? 0,
-        route: raw['route'] as String? ?? 'none',
-        outputChannels: (raw['outputChannels'] as num?)?.toInt() ?? 0,
-        maxOutputChannels: (raw['maxOutputChannels'] as num?)?.toInt() ?? 0,
-      );
-    } on PlatformException {
-      return null;
-    } on MissingPluginException {
-      return null;
-    }
-  }
-
   @override
   Future<void> setProperty(String name, String value) => _setProperty(name, value, synchronizeRate: true);
 
   Future<void> _setProperty(String name, String value, {required bool synchronizeRate}) async {
     if (_nativeCoreUnavailable) return;
-    final updatesDvMode = (Platform.isIOS || Platform.isMacOS) && name == 'dv-conversion-mode';
-    final updatesDvLog = (Platform.isIOS || Platform.isMacOS) && name == 'dv-conversion-log';
-    if (updatesDvMode) value = _normalizeDvConversionMode(value);
-    if (updatesDvLog) value = _normalizeBoolProperty(value);
 
     await _ensureInitialized();
     try {
@@ -904,8 +813,6 @@ class PlayerNative extends PlayerBase {
       return;
     }
     if (_nativeCoreUnavailable) return;
-    if (updatesDvMode) _dvConversionMode = value;
-    if (updatesDvLog) _dvConversionLog = value;
     if (synchronizeRate && name == 'speed') {
       final rate = double.tryParse(value);
       if (rate != null && rate.isFinite) {
@@ -931,19 +838,13 @@ class PlayerNative extends PlayerBase {
   @override
   Future<String?> getProperty(String name) async {
     if (_nativeCoreUnavailable) return null;
-    if ((Platform.isIOS || Platform.isMacOS) && name == 'dv-conversion-mode') {
-      return _dvConversionMode;
-    }
-    if ((Platform.isIOS || Platform.isMacOS) && name == 'dv-conversion-log') {
-      return _dvConversionLog;
-    }
     await _ensureInitialized();
     return await invoke<String>('getProperty', {'name': name});
   }
 
   @override
   Future<Map<String, dynamic>> getStats() async {
-    if (_nativeCoreUnavailable || !Platform.isAndroid) return super.getStats();
+    if (_nativeCoreUnavailable) return super.getStats();
     await _ensureInitialized();
     final result = await invoke<Map>('getStats');
     return Map<String, dynamic>.from(result ?? const {});
@@ -994,32 +895,21 @@ class PlayerNative extends PlayerBase {
   }
 
   @override
-  bool get needsDecoderRefreshAfterDisplaySwitch => Platform.isAndroid;
-
-  @override
-  Future<void> awaitDisplayModeSwitch({int extraDelayMs = 0}) async {
-    if (_nativeCoreUnavailable || audioOnly || !Platform.isIOS) return;
-    await _ensureInitialized();
-    await invoke('awaitDisplayModeSwitch', {'extraDelayMs': extraDelayMs});
-  }
+  bool get needsDecoderRefreshAfterDisplaySwitch => true;
 
   @override
   Future<void> setLogLevel(String level) async {
     if (_nativeCoreUnavailable) return;
-    if (Platform.isAndroid) {
-      // Carry the preference into native creation, even if another operation
-      // starts initialization before this ordered runtime write gets its turn.
-      _requestedLogLevel = level;
-      final request = _logLevelTail.then((_) async {
-        if (_nativeCoreUnavailable) return;
-        await _ensureInitialized();
-        await invoke('setLogLevel', {'level': level});
-      });
-      _logLevelTail = request.catchError((Object _) {});
-      return request;
-    }
-    await _ensureInitialized();
-    await invoke('setLogLevel', {'level': level});
+    // Carry the preference into native creation, even if another operation
+    // starts initialization before this ordered runtime write gets its turn.
+    _requestedLogLevel = level;
+    final request = _logLevelTail.then((_) async {
+      if (_nativeCoreUnavailable) return;
+      await _ensureInitialized();
+      await invoke('setLogLevel', {'level': level});
+    });
+    _logLevelTail = request.catchError((Object _) {});
+    return request;
   }
 
   @override
@@ -1061,24 +951,7 @@ class PlayerNative extends PlayerBase {
   @override
   bool get audioPassthroughActive => _passthroughActive;
 
-  /// Codecs the platform can take as a bitstream. On macOS compressed audio
-  /// goes through the system Dolby decoder ([usesAppleAudioOutput]), which
-  /// only handles Dolby Digital (Plus); a DTS or TrueHD entry would just cost
-  /// an output probe before decoding to PCM. Windows and Linux do real device
-  /// passthrough for the full list.
-  ///
-  /// iPhone, iPad and Apple TV ask their plugin instead: from 26 it adds
-  /// TrueHD and DTS-HD for mpv-build's spatial output, which renders TrueHD
-  /// Atmos and DTS:X as Apple spatial audio.
-  ///
-  /// Android does not use this list: mpv's audiotrack AO only opens stereo
-  /// IEC 61937 tracks at the 48kHz mixer rate, so naming a codec the route
-  /// cannot carry that way strands playback on a dead audio output (#1991).
-  /// The plugin derives the value from the current audio route instead.
-  static String get _passthroughCodecs => usesAppleAudioOutput ? 'ac3,eac3' : 'ac3,eac3,dts,dts-hd,truehd';
-
   Future<String> _resolvePassthroughCodecs() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return _passthroughCodecs;
     try {
       return await invoke<String>('getAudioSpdifCodecs') ?? '';
     } catch (error, stackTrace) {
@@ -1238,22 +1111,11 @@ class PlayerNative extends PlayerBase {
     if (_nativeCoreUnavailable) return;
 
     // audio-spdif is the authoritative transition. Publish only after mpv
-    // accepts it; audio-exclusive below is an independent device-mode hint.
+    // accepts it.
     _passthroughActive = enabled;
-    // audio-exclusive claims the device for bitstreaming on Windows and Linux
-    // (exclusive WASAPI on Windows). Apple passthrough decodes in the system
-    // and must not claim it: on macOS the hint would push every CoreAudio
-    // open, the PCM fallback included, into hog-mode coreaudio_exclusive, and
-    // on iOS/tvOS it is set once at playback start and must not be clobbered.
-    // Android's audiotrack and opensles outputs ignore it, yet every change
-    // makes mpv reload the audio output mid-playback (#2530).
-    if (!usesAppleAudioOutput && !Platform.isAndroid) {
-      try {
-        await setProperty('audio-exclusive', enabled ? 'yes' : 'no');
-      } catch (error, stackTrace) {
-        appLogger.w('MPV: failed to update exclusive-audio hint', error: error, stackTrace: stackTrace);
-      }
-    }
+    // audio-exclusive is never set: Android's audiotrack and opensles outputs
+    // ignore it, yet every change makes mpv reload the audio output
+    // mid-playback (#2530).
   }
 
   @override
@@ -1275,19 +1137,7 @@ class PlayerNative extends PlayerBase {
   @override
   Future<void> updateFrame() async {
     if (_nativeCoreUnavailable || !initialized) return;
-    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS || Platform.isLinux) {
-      await invoke('updateFrame');
-    }
-  }
-
-  /// iOS/tvOS and macOS scale the native display layer instead of mpv's
-  /// `video-zoom`: on the avfoundation VO a nonzero zoom re-renders every
-  /// frame through Core Image, which destroys HDR/Dolby Vision passthrough
-  /// (DV renders near-black on tvOS).
-  @override
-  Future<void> setVideoZoom(double scale) async {
-    if (_nativeCoreUnavailable || audioOnly || !(Platform.isIOS || Platform.isMacOS) || !initialized) return;
-    await invoke('setVideoZoom', {'scale': scale});
+    await invoke('updateFrame');
   }
 
   @override
@@ -1299,7 +1149,7 @@ class PlayerNative extends PlayerBase {
     int videoHeight = 0,
     bool matchResolution = false,
   }) async {
-    if (_nativeCoreUnavailable || !Platform.isAndroid || !initialized) return false;
+    if (_nativeCoreUnavailable || !initialized) return false;
     final result = await invoke<bool>('setVideoFrameRate', {
       'fps': fps,
       'duration': durationMs,
@@ -1313,41 +1163,20 @@ class PlayerNative extends PlayerBase {
 
   @override
   Future<void> clearVideoFrameRate() async {
-    if (_nativeCoreUnavailable || !Platform.isAndroid || !initialized) return;
+    if (_nativeCoreUnavailable || !initialized) return;
     await invoke('clearVideoFrameRate');
   }
 
   @override
   Future<bool> requestAudioFocus() async {
     if (_nativeCoreUnavailable) return false;
-    if (!Platform.isAndroid) return true;
     await _ensureInitialized();
     return await invoke<bool>('requestAudioFocus') ?? false;
   }
 
   @override
   Future<void> abandonAudioFocus() async {
-    if (_nativeCoreUnavailable || !Platform.isAndroid || !initialized) return;
+    if (_nativeCoreUnavailable || !initialized) return;
     await invoke('abandonAudioFocus');
-  }
-
-  /// See [Player.isHdrOutputSupported] for why this is a query and not a constant.
-  ///
-  /// Only Linux delegates to the native side, because only there does the answer
-  /// move: it folds in the output the plane currently sits on. Everywhere else it
-  /// is a platform constant. Windows has a native query of its own, but nothing
-  /// consults this method there - the settings sheet offers HDR on Windows
-  /// unconditionally - so asking would only let the two disagree about the same
-  /// platform. Nothing is cached on either path.
-  @override
-  Future<bool> isHdrOutputSupported() async {
-    // No video plane without video, on any platform, so this precedes the
-    // platform question rather than sitting inside one branch of it.
-    if (_nativeCoreUnavailable || audioOnly) return false;
-    // Asked through usesLinuxVideoPlane, not Platform.isLinux, so this and the
-    // settings sheet's _probesHdrSupport resolve the same way under the test
-    // override; on a real Linux host the two are the same answer.
-    if (usesLinuxVideoPlane) return await invoke<bool>('isHDRSupported') ?? false;
-    return Platform.isIOS || Platform.isMacOS || Platform.isWindows;
   }
 }

@@ -165,7 +165,7 @@ Future<_FakeCatalogSourcesProvider> _pumpExplore(
   int? traktTotalResults,
   CatalogHubStyle? plexHubStyle,
 }) async {
-  if (tv != null) TvDetectionService.debugSetAppleTVOverride(tv);
+  if (tv != null) TvDetectionService.debugSetTvOverride(tv);
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = const Size(1280, 720);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -233,11 +233,11 @@ void main() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     await SettingsService.getInstance();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('TV source switcher is reachable from the browse rail and changes source', (tester) async {
@@ -268,7 +268,7 @@ void main() {
   });
 
   testWidgets('source switcher announces the active source as its value', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     final semantics = tester.ensureSemantics();
     final sources = await _pumpExplore(tester);
 

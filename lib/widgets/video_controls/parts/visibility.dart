@@ -71,15 +71,15 @@ extension _PlexVideoControlsVisibilityMethods on _PlexVideoControlsState {
     if (const bool.fromEnvironment('PLEZY_MAESTRO_E2E')) {
       return const Duration(seconds: 30);
     }
-    final isMobile = (Platform.isIOS || Platform.isAndroid) && !PlatformDetector.isTV();
+    final isMobile = !PlatformDetector.isTV();
     if (isMobile || playerDirectionalNavigationEnabled()) {
       return const Duration(seconds: 5);
     }
     return const Duration(seconds: 3);
   }
 
-  /// Hide the controls. Notifying the parent, updating the traffic lights and
-  /// restoring focus all moved into [ChromeController.hide].
+  /// Hide the controls. Notifying the parent and restoring focus live in
+  /// [ChromeController.hide].
   void _hideControls() {
     if (!mounted) return;
     widget.chromeController.hide();
@@ -156,17 +156,6 @@ extension _PlexVideoControlsVisibilityMethods on _PlexVideoControlsState {
     widget.chromeController.show();
   }
 
-  void _updateTrafficLightVisibility() async {
-    final generation = ++_trafficLightVisibilityGeneration;
-    // When maximized or fullscreen, always keep traffic lights visible so the
-    // user can reach them without the controls-hide-on-mouse-leave race.
-    // In normal windowed mode, toggle with controls as before.
-    final isMaximizedOrFullscreen = await windowManager.isMaximized() || await MacOSWindowService.isFullscreen();
-    if (!mounted || generation != _trafficLightVisibilityGeneration) return;
-    final visible = isMaximizedOrFullscreen || _showControls;
-    await MacOSWindowService.setTrafficLightsVisible(visible);
-  }
-
   Future<void> _checkPipSupport() async {
     if (!PlatformDetector.supportsPictureInPicture()) {
       return;
@@ -182,40 +171,6 @@ extension _PlexVideoControlsVisibilityMethods on _PlexVideoControlsState {
     } catch (e) {
       return;
     }
-  }
-
-  Future<void> _toggleFullscreen() async {
-    if (!PlatformDetector.isDesktopOS()) return;
-    await FullscreenStateManager().toggleFullscreen();
-  }
-
-  /// Initialize always-on-top state (desktop only). The toggle is remembered
-  /// across player sessions via [SettingsService.playerAlwaysOnTop] (#931) —
-  /// including episode transitions, which rebuild these controls — while the
-  /// window flag itself is only held while a player is open (dispose drops
-  /// the flag without touching the pref).
-  Future<void> _initAlwaysOnTopState() async {
-    final remembered = SettingsService.instance.read(SettingsService.playerAlwaysOnTop);
-    if (remembered) await windowManager.setAlwaysOnTop(true);
-    final isOnTop = remembered || await windowManager.isAlwaysOnTop();
-    if (mounted && isOnTop != _isAlwaysOnTop) {
-      _setControlsState(() {
-        _isAlwaysOnTop = isOnTop;
-      });
-    }
-  }
-
-  /// Toggle always-on-top window mode (desktop only)
-  Future<void> _toggleAlwaysOnTop() async {
-    if (!PlatformDetector.isDesktopOS()) return;
-
-    final newValue = !_isAlwaysOnTop;
-    await windowManager.setAlwaysOnTop(newValue);
-    unawaited(SettingsService.instance.write(SettingsService.playerAlwaysOnTop, newValue));
-    if (!mounted) return;
-    _setControlsState(() {
-      _isAlwaysOnTop = newValue;
-    });
   }
 
   /// Show controls and optionally focus play/pause on keyboard input (desktop only)
@@ -302,10 +257,6 @@ extension _PlexVideoControlsVisibilityMethods on _PlexVideoControlsState {
         _controlsMounted = true;
         _controlsOpaque = true;
       });
-    }
-
-    if (visibilityChanged && Platform.isMacOS) {
-      _updateTrafficLightVisibility();
     }
 
     if (focusPlayPause) {

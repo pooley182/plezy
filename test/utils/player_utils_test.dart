@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/mpv/mpv.dart' show Player, PlayerState;
 import 'package:plezy/utils/player_utils.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   group('shouldRestartBeforePreviousItem', () {
@@ -35,7 +36,7 @@ void main() {
   });
 }
 
-class _FakePlayer implements Player {
+class _FakePlayer with AndroidPlayerNoops implements Player {
   _FakePlayer({required Duration duration}) : _state = PlayerState(duration: duration);
 
   final PlayerState _state;

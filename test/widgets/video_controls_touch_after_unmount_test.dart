@@ -21,6 +21,7 @@ import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Flutter keeps routing a held finger's move, up and cancel events to
 /// the hit-test path captured at pointer down, so they reach the controls'
@@ -51,8 +52,7 @@ void main() {
 
     // Phone layout: the touch pointer pipeline is wired only when
     // isMobile(context) && !isTV().
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
 
     adjustmentCalls = <MethodCall>[];
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(adjustmentChannel, (
@@ -76,8 +76,7 @@ void main() {
 
   tearDown(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(adjustmentChannel, null);
-    TvDetectionService.debugSetAppleTVOverride(null);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     volume.dispose();
     playbackState.dispose();
     watchTogether.dispose();
@@ -178,7 +177,7 @@ void main() {
 }
 
 /// Minimal [Player] against a fixed 45-minute item that counts toggles.
-class _RecordingPlayer implements Player {
+class _RecordingPlayer with AndroidPlayerNoops implements Player {
   int playOrPauseCalls = 0;
 
   @override

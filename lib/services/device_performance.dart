@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -44,7 +43,6 @@ class DevicePerformance {
       _singleton.getInstance(() => DevicePerformance._().._override = override, (instance) => instance._detect());
 
   Future<void> _detect() async {
-    if (!Platform.isAndroid) return; // tvOS/iOS/desktop: always full tier
     try {
       final result = await deviceChannel.invokeMapMethod<dynamic, dynamic>('getPerformanceSignals');
       if (result == null) return;
@@ -161,10 +159,7 @@ class DevicePerformance {
   static void applyImageCacheBudget() {
     _detectDisplayBudget();
     final cache = PaintingBinding.instance.imageCache;
-    if (PlatformDetector.isDesktopOS()) {
-      cache.maximumSize = 1000;
-      cache.maximumSizeBytes = 150 << 20; // 150MB
-    } else if (isReduced) {
+    if (isReduced) {
       // Tiles decode at full TV DPR even on this tier (#2020), so the byte
       // budget matches the TV baseline. The display budget factor is pinned
       // to 1.0 here, keeping the ceiling fixed.
@@ -218,7 +213,7 @@ class DevicePerformance {
     if (instance == null) return 'unknown';
     final tier = isReduced ? 'reduced' : 'full';
     final signals = <String>[
-      if (instance._is64Bit != null) (instance._is64Bit! ? '64-bit' : '32-bit'),
+      if (instance._is64Bit != null) instance._is64Bit! ? '64-bit' : '32-bit',
       if (instance._isLowRam != null) 'lowRam:${instance._isLowRam}',
       if (instance._totalMemBytes != null) '${(instance._totalMemBytes! / (1024 * 1024 * 1024)).toStringAsFixed(1)}GiB',
     ];

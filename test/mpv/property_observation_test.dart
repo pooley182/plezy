@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/mpv/player/platform/player_android.dart';
@@ -114,7 +112,7 @@ void main() {
     final registered = names(observations);
     expect(registered, containsAll(coreNames));
     expect(registered, containsAll({'secondary-sid', 'demuxer-cache-state', 'audio-device-list', 'audio-device'}));
-    final structuredFormat = Platform.isAndroid ? 'string' : 'node';
+    final structuredFormat = 'string';
     for (final call in observations.where((call) {
       final name = (call.arguments as Map)['name'];
       return name == 'track-list' || name == 'demuxer-cache-state' || name == 'audio-device-list';
@@ -133,6 +131,6 @@ void main() {
 
     expect(names(observations), {'time-pos', 'duration', 'pause', 'eof-reached', 'playlist-pos'});
     final playlistPos = observations.singleWhere((call) => (call.arguments as Map)['name'] == 'playlist-pos');
-    expect((playlistPos.arguments as Map)['format'], Platform.isAndroid ? 'string' : 'node');
+    expect((playlistPos.arguments as Map)['format'], 'string');
   });
 }

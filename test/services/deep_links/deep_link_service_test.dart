@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/profiles/profile.dart';
-import 'package:plezy/services/deep_links/deep_link.dart';
 import 'package:plezy/services/deep_links/deep_link_service.dart';
 
 Profile _local(String id, String name) => Profile.local(id: id, displayName: name, createdAt: DateTime(2026));
@@ -51,20 +50,11 @@ void main() {
   final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
   late List<String> reports;
-  late List<Uri> playerReturns;
   late DeepLinkService service;
 
   setUp(() {
     reports = [];
-    playerReturns = [];
-    service = DeepLinkService.forTesting(
-      channel,
-      report: reports.add,
-      handleExternalPlayerReturn: (uri) async {
-        playerReturns.add(uri);
-        return true;
-      },
-    );
+    service = DeepLinkService.forTesting(channel, report: reports.add);
   });
 
   tearDown(() {
@@ -243,18 +233,5 @@ void main() {
 
       expect(session.launched, ['plezy://play?server=s1&id=1']);
     });
-  });
-
-  test('external player return links go to the player service, not a session', () async {
-    service.host = _FakeHost(activeProfileId: 'parents');
-    final session = _Session('parents');
-    service.attach(session.session);
-
-    const url = 'plezy://external-player/success/s1?position=12';
-    service.receive(url);
-    await pumpEventQueue();
-    expect(playerReturns.single.toString(), url);
-    expect(session.launched, isEmpty);
-    expect(DeepLink.tryParse(url), isA<ExternalPlayerReturnLink>());
   });
 }

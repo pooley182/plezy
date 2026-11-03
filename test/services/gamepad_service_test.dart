@@ -7,7 +7,7 @@ import 'package:universal_gamepad/universal_gamepad.dart';
 void main() {
   testWidgets('gamepad disconnect stops held-direction repeat and releases held keys', (tester) async {
     final events = await _pumpKeyEventRecorder(tester);
-    final service = GamepadService.forTesting(duplicateInputGuard: GamepadDuplicateInputGuard(enabled: () => false));
+    final service = GamepadService.forTesting();
 
     service.debugHandleGamepadEvent(_button(GamepadButton.dpadRight, pressed: true));
     service.debugHandleGamepadEvent(_button(GamepadButton.a, pressed: true));
@@ -47,7 +47,7 @@ void main() {
 
   testWidgets('gamepad disconnect clears stick latches so a reconnected stick navigates again', (tester) async {
     final events = await _pumpKeyEventRecorder(tester);
-    final service = GamepadService.forTesting(duplicateInputGuard: GamepadDuplicateInputGuard(enabled: () => false));
+    final service = GamepadService.forTesting();
 
     service.debugHandleGamepadEvent(_axis(GamepadAxis.leftStickY, 1.0));
     await tester.pump();

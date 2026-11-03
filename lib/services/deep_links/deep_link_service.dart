@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +7,6 @@ import '../../i18n/strings.g.dart';
 import '../../profiles/profile.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/snackbar_helper.dart';
-import '../external_player_service.dart';
 import 'deep_link.dart';
 
 /// Switches profiles for links. Lives at the root of the widget tree, which
@@ -44,33 +42,26 @@ class DeepLinkSession {
 /// ([claimStartupProfile]), and later by the [host]. Only then does the
 /// attached [DeepLinkSession] of that profile get the link.
 class DeepLinkService {
-  DeepLinkService._(this._channel, this._platformDelivers)
-    : _report = showMainSnackBar,
-      _handleExternalPlayerReturn = ExternalPlayerService.handleCallbackUrl {
+  DeepLinkService._(this._channel, this._platformDelivers) : _report = showMainSnackBar {
     if (_platformDelivers) _channel.setMethodCallHandler(_handleMethodCall);
   }
 
   @visibleForTesting
-  DeepLinkService.forTesting(
-    this._channel, {
-    void Function(String message)? report,
-    Future<bool> Function(Uri uri)? handleExternalPlayerReturn,
-  }) : _platformDelivers = true,
-       _report = report ?? ((_) {}),
-       _handleExternalPlayerReturn = handleExternalPlayerReturn ?? ((_) async => false) {
+  DeepLinkService.forTesting(this._channel, {void Function(String message)? report})
+    : _platformDelivers = true,
+      _report = report ?? ((_) {}) {
     _channel.setMethodCallHandler(_handleMethodCall);
   }
 
   static final DeepLinkService instance = DeepLinkService._(
     const MethodChannel('com.plezy/deep_link'),
     // Windows and Linux register no URL scheme yet.
-    Platform.isAndroid || Platform.isIOS || Platform.isMacOS,
+    true,
   );
 
   final MethodChannel _channel;
   final bool _platformDelivers;
   final void Function(String message) _report;
-  final Future<bool> Function(Uri uri) _handleExternalPlayerReturn;
 
   /// Applies a link's profile once startup is over. Installed by the app root.
   DeepLinkProfileHost? host;
@@ -129,24 +120,12 @@ class DeepLinkService {
       return;
     }
     appLogger.i('Deep link: ${link.runtimeType}');
-    if (link is ExternalPlayerReturnLink) {
-      unawaited(_returnFromExternalPlayer(link));
-      return;
-    }
     _pending = _PendingLink(link);
     _pump();
   }
 
   /// How long an identical URL counts as the same delivery.
   static const duplicateWindow = Duration(seconds: 2);
-
-  Future<void> _returnFromExternalPlayer(ExternalPlayerReturnLink link) async {
-    try {
-      await _handleExternalPlayerReturn(link.uri);
-    } catch (e, stackTrace) {
-      appLogger.w('Deep link: external player return failed', error: e, stackTrace: stackTrace);
-    }
-  }
 
   /// For SetupScreen, before the first bind: the profile the pending link
   /// names. Startup activates it in place of the previously active profile

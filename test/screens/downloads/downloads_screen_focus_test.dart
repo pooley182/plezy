@@ -321,14 +321,16 @@ Finder _activeDownloadsScrollView() =>
 
 void _expectBoundedSingleScrollViewport(WidgetTester tester, Finder scrollView) {
   final renderBox = tester.renderObject<RenderBox>(scrollView);
-  expect(renderBox.constraints, const BoxConstraints(minWidth: 1200, maxWidth: 1200, minHeight: 744, maxHeight: 744));
-  expect(tester.getSize(scrollView), const Size(1200, 744));
+  // Bounded by the tab view, whatever height the app bar above leaves it.
+  expect(renderBox.constraints.isTight, isTrue);
+  expect(renderBox.constraints.maxWidth, 1200);
+  expect(tester.getSize(scrollView), renderBox.constraints.biggest);
 
   final scrollable = find.descendant(of: scrollView, matching: find.byType(Scrollable));
   expect(scrollable, findsOneWidget);
   final position = tester.state<ScrollableState>(scrollable).position;
   expect(position.hasContentDimensions, isTrue);
-  expect(position.viewportDimension, 744);
+  expect(position.viewportDimension, renderBox.constraints.maxHeight);
   expect(position.minScrollExtent, 0);
   expect(position.maxScrollExtent, 0);
   expect(position.pixels, 0);

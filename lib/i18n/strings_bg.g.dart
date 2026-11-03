@@ -145,7 +145,6 @@ class _Translations$auth$bg extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Изчакване на одобрение…';
 	@override String get quickConnectCancel => 'Отказ';
 	@override String get quickConnectExpired => 'Quick Connect изтече. Опитайте отново.';
-	@override String get localDataRecoveryRequired => 'Plezy не успя безопасно да възстанови локалните данни за вход и несинхронизираните данни за възпроизвеждане. Моля, влезте отново.';
 	@override String get pinCheckRejected => 'Проверката на PIN кода на Plex беше отхвърлена';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$bg extends Translations$common$en {
 	@override String get connectingToServers => 'Свързване със сървърите...';
 	@override String get startingOfflineMode => 'Стартиране на офлайн режим...';
 	@override String get loading => 'Зареждане...';
-	@override String get fullscreen => 'На цял екран';
-	@override String get exitFullscreen => 'Изход от цял екран';
 	@override String get pressBackAgainToExit => 'Натиснете Назад отново, за да излезете';
 	@override late final _Translations$common$ratingSource$bg ratingSource = _Translations$common$ratingSource$bg._(_root);
 	@override String get notAvailable => 'Н/Д';
@@ -364,9 +361,6 @@ class _Translations$settings$bg extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => 'Същото като качеството по подразбиране';
 	@override String get directPlayCoveredQuality => 'Пускай по-малките видеа в оригинално качество';
 	@override String get directPlayCoveredQualityDescription => 'Възпроизвеждай директно видеата, които вече са в рамките на лимита за качество, вместо да ги транскодираш';
-	@override String get videoCodecs => 'Видео кодеци';
-	@override String get videoCodecsDescription => 'Сървърът транскодира кодеците без отметка';
-	@override String get videoCodecsAlwaysAccepted => 'Винаги се приема';
 	@override String get musicQualityTitle => 'Качество на музиката';
 	@override String get subtitleStyling => 'Стил на субтитрите';
 	@override String get subtitleStylingDescription => 'Настройване на вида на субтитрите';
@@ -392,11 +386,6 @@ class _Translations$settings$bg extends Translations$settings$en {
 	@override String get specialsOrderingLast => 'След редовните сезони';
 	@override String get clickVideoTogglesPlayback => 'Клик върху видеото превключва възпроизвеждане/пауза';
 	@override String get clickVideoTogglesPlaybackDescription => 'Клик върху видеото пуска/паузира вместо да показва контролите.';
-	@override String get videoPlayerControls => 'Контроли на видео плейъра';
-	@override String get keyboardShortcuts => 'Клавишни комбинации';
-	@override String get keyboardShortcutsDescription => 'Настройване на клавишните комбинации';
-	@override String get videoPlayerNavigation => 'Навигация във видео плейъра';
-	@override String get videoPlayerNavigationDescription => 'Използвай стрелките за навигация в контролите на видео плейъра';
 	@override String get watchTogetherRelay => 'Релеен сървър за гледане заедно';
 	@override String get watchTogetherRelayDescription => 'Публичните релейни сървъри на Open Watch Party, освен ако не зададете свой';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
@@ -423,8 +412,6 @@ class _Translations$settings$bg extends Translations$settings$en {
 	@override String get importSettingsSuccess => 'Настройките са импортирани';
 	@override String get importSettingsInvalidFile => 'Този файл не е валиден експорт на настройки от Plezy';
 	@override String get importSettingsNoUser => 'Влезте, преди да импортирате настройки';
-	@override String get shortcutsReset => 'Клавишните комбинации са нулирани до подразбиране';
-	@override String get resetShortcutsConfirm => 'Това ще замени персонализираните ви клавишни комбинации с тези по подразбиране. Искате ли да продължите?';
 	@override String get about => 'Относно';
 	@override String get aboutDescription => 'Информация за приложението и лицензи';
 	@override String get updates => 'Актуализации';
@@ -434,8 +421,6 @@ class _Translations$settings$bg extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => 'Уведомявай, когато има актуализация при стартиране';
 	@override String get validationErrorEnterNumber => 'Моля, въведете валидно число';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => 'Продължителността трябва да е между ${min} и ${max} ${unit}';
-	@override String shortcutAlreadyAssigned({required Object action}) => 'Клавишната комбинация вече е назначена за ${action}';
-	@override String shortcutUpdated({required Object action}) => 'Клавишната комбинация е обновена за ${action}';
 	@override String get saveFailed => 'Промените не можаха да бъдат запазени. Опитайте отново.';
 	@override String get autoPlayAndSkip => 'Автоматично пускане и прескачане';
 	@override String get autoPlayNextEpisode => 'Автоматично пускане на следващия епизод';
@@ -484,8 +469,6 @@ class _Translations$settings$bg extends Translations$settings$en {
 	@override String get maxVolume => 'Максимална сила на звука';
 	@override String get maxVolumeDescription => 'Позволи усилване на звука над 100% за тихи медии';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Показвай какво гледате в Discord';
 	@override String get services => 'Услуги';
 	@override String get servicesDescription => 'Свържи Trakt, MyAnimeList, Seerr и още';
 	@override String get manageLibrariesDescription => 'Пренареждай и скривай библиотеки';
@@ -499,17 +482,11 @@ class _Translations$settings$bg extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => 'Напасни честотата на опресняване на дисплея към видео съдържанието';
 	@override String get matchContentResolution => 'Съобразяване с разделителната способност на съдържанието';
 	@override String get matchContentResolutionDescription => 'Превключва дисплея към собствената разделителна способност на видеото, за да се погрижи телевизорът за мащабирането. По време на възпроизвеждане менютата и субтитрите също се мащабират';
-	@override String get matchRefreshRate => 'Напасване на честотата на опресняване';
-	@override String get matchRefreshRateDescription => 'Напасни честотата на опресняване на дисплея при цял екран';
-	@override String get matchDynamicRange => 'Напасване на динамичния диапазон';
-	@override String get matchDynamicRangeDescription => 'Включи HDR за HDR съдържание, после върни към SDR';
 	@override String get displaySwitchDelay => 'Забавяне при смяна на дисплея';
 	@override String get tunneledPlayback => 'Тунелно възпроизвеждане';
 	@override String get tunneledPlaybackDescription => 'Използвай видео тунелиране. Изключете, ако HDR възпроизвеждането показва черен екран или движението прекъсва.';
 	@override String get audioPassthrough => 'Директно предаване на аудио';
 	@override String get audioPassthroughDescription => 'Изпращай Dolby/DTS звук към приемника или телевизора без прекодиране, за да запазиш съраунд звука. Изключи настройката, ако няма звук.';
-	@override String get audioPassthroughDescriptionApple => 'Използвай вградения декодер на Apple за Dolby Digital Plus, включително Atmos. DTS и TrueHD продължават да се възпроизвеждат като многоканален PCM. Изключи настройката, ако няма звук.';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Използвай вградения декодер на Apple за Dolby Digital Plus, включително Atmos. На iOS, iPadOS и tvOS 26 или по-нова версия TrueHD Atmos и DTS:X се възпроизвеждат като пространствено аудио. Останалите DTS и TrueHD пътечки се възпроизвеждат като многоканален PCM. Изключи настройката, ако няма звук.';
 	@override String get audioPassthroughOverriddenByNormalization => 'Изключено, докато е включено нормализирането на силата на звука';
 	@override String get audioChannelLimit => 'Аудио канали';
 	@override String get audioChannelLimitDescription => 'Смесва декодираното аудио до по-малко канали за тонколони, слушалки или HDMI системи, които не могат да възпроизвеждат всички канали';
@@ -557,10 +534,6 @@ class _Translations$settings$bg extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Показвай избор на профил всеки път при отваряне на приложението';
 	@override String get forceTvMode => 'Принуди TV режим';
 	@override String get forceTvModeDescription => 'Принуди ТВ оформление. За устройства, които не се разпознават автоматично. Изисква рестарт.';
-	@override String get startInFullscreen => 'Стартирай на цял екран';
-	@override String get startInFullscreenDescription => 'Отваряй Plezy в режим цял екран при стартиране';
-	@override String get exitFullscreenOnPlayerClose => 'Изход от цял екран при затваряне на плейъра';
-	@override String get exitFullscreenOnPlayerCloseDescription => 'Автоматично излиза от режим цял екран при затваряне на видео плейъра';
 	@override String get autoHidePerformanceOverlay => 'Автоматично скриване на оверлея за производителност';
 	@override String get autoHidePerformanceOverlayDescription => 'Скривай постепенно оверлея за производителност заедно с контролите за възпроизвеждане';
 	@override String get showNavBarLabels => 'Показвай етикети в навигационната лента';
@@ -578,7 +551,6 @@ class _Translations$settings$bg extends Translations$settings$en {
 	@override String get libraryAndCards => 'Библиотека и карти';
 	@override String get homeScreen => 'Начален екран';
 	@override String get navigation => 'Навигация';
-	@override String get window => 'Прозорец';
 	@override String get liveTv => 'Телевизия на живо';
 	@override String get player => 'Плейър';
 	@override String get videoAndDisplay => 'Видео и дисплей';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$bg extends Translations$hotkeys$en {
 	final TranslationsBg _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => 'Задай клавишна комбинация за ${actionName}';
-	@override String get clearShortcut => 'Изчисти клавишната комбинация';
 	@override String get noShortcutSet => 'Няма зададена клавишна комбинация';
-	@override String get currentShortcut => 'Текуща комбинация:';
-	@override String get pressToRecord => 'Избери, за да запишеш клавишна комбинация';
-	@override String get recordingShortcut => 'Натисни клавишната комбинация сега';
 	@override late final _Translations$hotkeys$actions$bg actions = _Translations$hotkeys$actions$bg._(_root);
 }
 
@@ -980,16 +947,12 @@ class _Translations$videoControls$bg extends Translations$videoControls$en {
 	@override String get pipButton => 'Режим картина в картината';
 	@override String get aspectRatioButton => 'Съотношение на страните';
 	@override String get ambientLighting => 'Амбиентно осветление';
-	@override String get fullscreenButton => 'Влез на цял екран';
-	@override String get exitFullscreenButton => 'Излез от цял екран';
-	@override String get alwaysOnTopButton => 'Винаги отгоре';
 	@override String get rotationLockButton => 'Заключване на завъртането';
 	@override String get lockScreen => 'Заключи екрана';
 	@override String get screenLockButton => 'Заключване на екрана';
 	@override String get timelineSlider => 'Видео времева линия';
 	@override String get volumeSlider => 'Ниво на звука';
 	@override String endsAt({required Object time}) => 'Свършва в ${time}';
-	@override String get pipActive => 'Възпроизвеждане в режим картина в картината';
 	@override String get pipFailed => 'Режимът картина в картината не успя да стартира';
 	@override String get screenshotSaved => 'Екранната снимка е запазена';
 	@override String get screenshotFailed => 'Екранната снимка не можа да бъде направена';
@@ -1157,7 +1120,6 @@ class _Translations$mpvConfig$bg extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => 'Добави ред';
 	@override String get removeLine => 'Премахни ред';
-	@override String get embeddedVoHint => 'vo, gpu-context и gpu-api се игнорират на Linux: вграденото видео винаги се рендерира през vo=libmpv върху видео равнината, а gpu-next (който е нужен за compute шейдъри като ArtCNN) не може да работи вградено.';
 }
 
 // Path: dialog
@@ -1507,7 +1469,6 @@ class _Translations$startup$bg extends Translations$startup$en {
 	@override String get repairSucceeded => 'Хранилището е ремонтирано';
 	@override String get repairNeedsRestart => 'Хранилището е ремонтирано — изисква се рестартиране';
 	@override String get restartRequiredBody => 'Данните ви бяха ремонтирани, но Plezy трябва да стартира наново, преди да ги използва. Затворете Plezy и го отворете отново.';
-	@override String get quitPlezy => 'Изход от Plezy';
 	@override String get repairFailed => 'Ремонтът се провали';
 	@override String get repairKeptSignIns => 'Сървърите и профилите ви са все още вписани.';
 	@override String get repairLostSignIns => 'Ключът, защитаващ запазените ви вписвания, не можа да бъде възстановен. Ще трябва да се впишете отново във всеки сървър и профил.';
@@ -2078,20 +2039,9 @@ class _Translations$videoSettings$bg extends Translations$videoSettings$en {
 	@override String get audioSync => 'Синхронизация на аудио';
 	@override String get subtitleSync => 'Синхронизация на субтитри';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => 'HDR не е наличен тук — този композитор на работния плот или видеоизходът не може да го предава.';
-	@override String get hdrToneMapping => 'Тонално преобразуване на HDR';
-	@override String get hdrToneMappingCompositor => 'Композитор';
-	@override String get hdrToneMappingCompositorDescription => 'Предава HDR метаданните на източника без промяна и оставя композитора на работния плот да извърши тоналното преобразуване.';
-	@override String get hdrToneMappingPlayer => 'Плейър';
-	@override String get hdrToneMappingPlayerDescription => 'Извършва тоналното преобразуване в плейъра според пиковата яркост на дисплея, след което указва резултата на композитора.';
-	@override String get hdrToneMappingFailed => 'Тоналното преобразуване на HDR не можа да бъде променено — предишният режим остава активен.';
 	@override String get audioOutput => 'Аудио изход';
-	@override String get performanceOverlay => 'Оверлей за производителност';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => 'Съраунд';
-	@override String get audioOutputSpatial => 'Пространствено аудио';
 	@override String get audioOutputStereo => 'Стерео';
+	@override String get performanceOverlay => 'Оверлей за производителност';
 	@override String get audioNormalization => 'Нормализиране на силата на звука';
 	@override String get audioNormalizationDisablesPassthrough => 'Декодира аудиото до PCM; директното предаване е изключено, докато това е включено';
 }
@@ -2174,7 +2124,6 @@ class _Translations$externalPlayer$bg extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => 'Добави потребителски плейър';
 	@override String get playerName => 'Име на плейъра';
 	@override String get playerNameHint => 'Моят плеър';
-	@override String get playerCommand => 'Команда';
 	@override String get playerPackage => 'Име на пакет';
 	@override String get playerUrlScheme => 'URL схема';
 	@override String get off => 'Изключено';
@@ -2386,7 +2335,6 @@ class _Translations$services$bg extends Translations$services$en {
 	// Translations
 	@override String get title => 'Услуги';
 	@override String get hubSubtitle => 'Синхронизирай прогреса на гледане и заявявай нови заглавия.';
-	@override String get integrations => 'Интеграции';
 	@override String get notConnected => 'Няма връзка';
 	@override String connectedAs({required Object username}) => 'Свързан като @${username}';
 	@override String get scrobble => 'Проследявай прогреса автоматично';
@@ -2621,7 +2569,6 @@ class _Translations$videoControls$pipErrors$bg extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Изисква Android 8.0 или по-нова версия';
-	@override String get iosVersion => 'Изисква iOS 15.0 или по-нова версия';
 	@override String get permissionDisabled => 'Режимът картина в картината е изключен. Включете го от системните настройки.';
 	@override String get notSupported => 'Устройството не поддържа режим картина в картината';
 	@override String get voSwitchFailed => 'Неуспешна смяна на видео изхода за режим картина в картината';
@@ -3442,7 +3389,6 @@ extension on TranslationsBg {
 			'auth.quickConnectWaiting' => 'Изчакване на одобрение…',
 			'auth.quickConnectCancel' => 'Отказ',
 			'auth.quickConnectExpired' => 'Quick Connect изтече. Опитайте отново.',
-			'auth.localDataRecoveryRequired' => 'Plezy не успя безопасно да възстанови локалните данни за вход и несинхронизираните данни за възпроизвеждане. Моля, влезте отново.',
 			'auth.pinCheckRejected' => 'Проверката на PIN кода на Plex беше отхвърлена',
 			'common.cancel' => 'Отказ',
 			'common.save' => 'Запази',
@@ -3487,8 +3433,6 @@ extension on TranslationsBg {
 			'common.connectingToServers' => 'Свързване със сървърите...',
 			'common.startingOfflineMode' => 'Стартиране на офлайн режим...',
 			'common.loading' => 'Зареждане...',
-			'common.fullscreen' => 'На цял екран',
-			'common.exitFullscreen' => 'Изход от цял екран',
 			'common.pressBackAgainToExit' => 'Натиснете Назад отново, за да излезете',
 			'common.ratingSource.critic' => 'Критици',
 			'common.ratingSource.audience' => 'Публика',
@@ -3644,9 +3588,6 @@ extension on TranslationsBg {
 			'settings.cellularQualitySameAsDefault' => 'Същото като качеството по подразбиране',
 			'settings.directPlayCoveredQuality' => 'Пускай по-малките видеа в оригинално качество',
 			'settings.directPlayCoveredQualityDescription' => 'Възпроизвеждай директно видеата, които вече са в рамките на лимита за качество, вместо да ги транскодираш',
-			'settings.videoCodecs' => 'Видео кодеци',
-			'settings.videoCodecsDescription' => 'Сървърът транскодира кодеците без отметка',
-			'settings.videoCodecsAlwaysAccepted' => 'Винаги се приема',
 			'settings.musicQualityTitle' => 'Качество на музиката',
 			'settings.subtitleStyling' => 'Стил на субтитрите',
 			'settings.subtitleStylingDescription' => 'Настройване на вида на субтитрите',
@@ -3672,11 +3613,6 @@ extension on TranslationsBg {
 			'settings.specialsOrderingLast' => 'След редовните сезони',
 			'settings.clickVideoTogglesPlayback' => 'Клик върху видеото превключва възпроизвеждане/пауза',
 			'settings.clickVideoTogglesPlaybackDescription' => 'Клик върху видеото пуска/паузира вместо да показва контролите.',
-			'settings.videoPlayerControls' => 'Контроли на видео плейъра',
-			'settings.keyboardShortcuts' => 'Клавишни комбинации',
-			'settings.keyboardShortcutsDescription' => 'Настройване на клавишните комбинации',
-			'settings.videoPlayerNavigation' => 'Навигация във видео плейъра',
-			'settings.videoPlayerNavigationDescription' => 'Използвай стрелките за навигация в контролите на видео плейъра',
 			'settings.watchTogetherRelay' => 'Релеен сървър за гледане заедно',
 			'settings.watchTogetherRelayDescription' => 'Публичните релейни сървъри на Open Watch Party, освен ако не зададете свой',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
@@ -3703,8 +3639,6 @@ extension on TranslationsBg {
 			'settings.importSettingsSuccess' => 'Настройките са импортирани',
 			'settings.importSettingsInvalidFile' => 'Този файл не е валиден експорт на настройки от Plezy',
 			'settings.importSettingsNoUser' => 'Влезте, преди да импортирате настройки',
-			'settings.shortcutsReset' => 'Клавишните комбинации са нулирани до подразбиране',
-			'settings.resetShortcutsConfirm' => 'Това ще замени персонализираните ви клавишни комбинации с тези по подразбиране. Искате ли да продължите?',
 			'settings.about' => 'Относно',
 			'settings.aboutDescription' => 'Информация за приложението и лицензи',
 			'settings.updates' => 'Актуализации',
@@ -3714,8 +3648,6 @@ extension on TranslationsBg {
 			'settings.autoCheckUpdatesOnStartupDescription' => 'Уведомявай, когато има актуализация при стартиране',
 			'settings.validationErrorEnterNumber' => 'Моля, въведете валидно число',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => 'Продължителността трябва да е между ${min} и ${max} ${unit}',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'Клавишната комбинация вече е назначена за ${action}',
-			'settings.shortcutUpdated' => ({required Object action}) => 'Клавишната комбинация е обновена за ${action}',
 			'settings.saveFailed' => 'Промените не можаха да бъдат запазени. Опитайте отново.',
 			'settings.autoPlayAndSkip' => 'Автоматично пускане и прескачане',
 			'settings.autoPlayNextEpisode' => 'Автоматично пускане на следващия епизод',
@@ -3764,8 +3696,6 @@ extension on TranslationsBg {
 			'settings.maxVolume' => 'Максимална сила на звука',
 			'settings.maxVolumeDescription' => 'Позволи усилване на звука над 100% за тихи медии',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Показвай какво гледате в Discord',
 			'settings.services' => 'Услуги',
 			'settings.servicesDescription' => 'Свържи Trakt, MyAnimeList, Seerr и още',
 			'settings.manageLibrariesDescription' => 'Пренареждай и скривай библиотеки',
@@ -3779,17 +3709,11 @@ extension on TranslationsBg {
 			'settings.matchContentFrameRateDescription' => 'Напасни честотата на опресняване на дисплея към видео съдържанието',
 			'settings.matchContentResolution' => 'Съобразяване с разделителната способност на съдържанието',
 			'settings.matchContentResolutionDescription' => 'Превключва дисплея към собствената разделителна способност на видеото, за да се погрижи телевизорът за мащабирането. По време на възпроизвеждане менютата и субтитрите също се мащабират',
-			'settings.matchRefreshRate' => 'Напасване на честотата на опресняване',
-			'settings.matchRefreshRateDescription' => 'Напасни честотата на опресняване на дисплея при цял екран',
-			'settings.matchDynamicRange' => 'Напасване на динамичния диапазон',
-			'settings.matchDynamicRangeDescription' => 'Включи HDR за HDR съдържание, после върни към SDR',
 			'settings.displaySwitchDelay' => 'Забавяне при смяна на дисплея',
 			'settings.tunneledPlayback' => 'Тунелно възпроизвеждане',
 			'settings.tunneledPlaybackDescription' => 'Използвай видео тунелиране. Изключете, ако HDR възпроизвеждането показва черен екран или движението прекъсва.',
 			'settings.audioPassthrough' => 'Директно предаване на аудио',
 			'settings.audioPassthroughDescription' => 'Изпращай Dolby/DTS звук към приемника или телевизора без прекодиране, за да запазиш съраунд звука. Изключи настройката, ако няма звук.',
-			'settings.audioPassthroughDescriptionApple' => 'Използвай вградения декодер на Apple за Dolby Digital Plus, включително Atmos. DTS и TrueHD продължават да се възпроизвеждат като многоканален PCM. Изключи настройката, ако няма звук.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Използвай вградения декодер на Apple за Dolby Digital Plus, включително Atmos. На iOS, iPadOS и tvOS 26 или по-нова версия TrueHD Atmos и DTS:X се възпроизвеждат като пространствено аудио. Останалите DTS и TrueHD пътечки се възпроизвеждат като многоканален PCM. Изключи настройката, ако няма звук.',
 			'settings.audioPassthroughOverriddenByNormalization' => 'Изключено, докато е включено нормализирането на силата на звука',
 			'settings.audioChannelLimit' => 'Аудио канали',
 			'settings.audioChannelLimitDescription' => 'Смесва декодираното аудио до по-малко канали за тонколони, слушалки или HDMI системи, които не могат да възпроизвеждат всички канали',
@@ -3837,10 +3761,6 @@ extension on TranslationsBg {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Показвай избор на профил всеки път при отваряне на приложението',
 			'settings.forceTvMode' => 'Принуди TV режим',
 			'settings.forceTvModeDescription' => 'Принуди ТВ оформление. За устройства, които не се разпознават автоматично. Изисква рестарт.',
-			'settings.startInFullscreen' => 'Стартирай на цял екран',
-			'settings.startInFullscreenDescription' => 'Отваряй Plezy в режим цял екран при стартиране',
-			'settings.exitFullscreenOnPlayerClose' => 'Изход от цял екран при затваряне на плейъра',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'Автоматично излиза от режим цял екран при затваряне на видео плейъра',
 			'settings.autoHidePerformanceOverlay' => 'Автоматично скриване на оверлея за производителност',
 			'settings.autoHidePerformanceOverlayDescription' => 'Скривай постепенно оверлея за производителност заедно с контролите за възпроизвеждане',
 			'settings.showNavBarLabels' => 'Показвай етикети в навигационната лента',
@@ -3858,7 +3778,6 @@ extension on TranslationsBg {
 			'settings.libraryAndCards' => 'Библиотека и карти',
 			'settings.homeScreen' => 'Начален екран',
 			'settings.navigation' => 'Навигация',
-			'settings.window' => 'Прозорец',
 			'settings.liveTv' => 'Телевизия на живо',
 			'settings.player' => 'Плейър',
 			'settings.videoAndDisplay' => 'Видео и дисплей',
@@ -3907,8 +3826,6 @@ extension on TranslationsBg {
 			'themeEditor.slots.text' => 'Текст',
 			'themeEditor.slots.textMuted' => 'Вторичен текст',
 			'themeEditor.slots.accent' => 'Акцент',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => 'Непрозрачност',
 			'themeEditor.hexHint' => '#RRGGBB или #AARRGGBB',
 			'themeEditor.fromOtherThemes' => 'От други теми',
@@ -3933,15 +3850,12 @@ extension on TranslationsBg {
 			'search.searchYourMedia' => 'Търсете в медийното си съдържание',
 			'search.enterTitleActorOrKeyword' => 'Въведете заглавие, актьор или ключова дума',
 			'search.people' => 'Хора',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => 'Задай клавишна комбинация за ${actionName}',
-			'hotkeys.clearShortcut' => 'Изчисти клавишната комбинация',
 			'hotkeys.noShortcutSet' => 'Няма зададена клавишна комбинация',
-			'hotkeys.currentShortcut' => 'Текуща комбинация:',
-			'hotkeys.pressToRecord' => 'Избери, за да запишеш клавишна комбинация',
-			'hotkeys.recordingShortcut' => 'Натисни клавишната комбинация сега',
 			'hotkeys.actions.playPause' => 'Пускане/пауза',
 			'hotkeys.actions.volumeUp' => 'Увеличи звука',
 			'hotkeys.actions.volumeDown' => 'Намали звука',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Превърти напред (${seconds} сек.)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Превърти назад (${seconds} сек.)',
 			'hotkeys.actions.fullscreenToggle' => 'Превключи цял екран',
@@ -4198,23 +4112,18 @@ extension on TranslationsBg {
 			'videoControls.pipButton' => 'Режим картина в картината',
 			'videoControls.aspectRatioButton' => 'Съотношение на страните',
 			'videoControls.ambientLighting' => 'Амбиентно осветление',
-			'videoControls.fullscreenButton' => 'Влез на цял екран',
-			'videoControls.exitFullscreenButton' => 'Излез от цял екран',
-			'videoControls.alwaysOnTopButton' => 'Винаги отгоре',
 			'videoControls.rotationLockButton' => 'Заключване на завъртането',
 			'videoControls.lockScreen' => 'Заключи екрана',
 			'videoControls.screenLockButton' => 'Заключване на екрана',
 			'videoControls.timelineSlider' => 'Видео времева линия',
 			'videoControls.volumeSlider' => 'Ниво на звука',
 			'videoControls.endsAt' => ({required Object time}) => 'Свършва в ${time}',
-			'videoControls.pipActive' => 'Възпроизвеждане в режим картина в картината',
 			'videoControls.pipFailed' => 'Режимът картина в картината не успя да стартира',
 			'videoControls.screenshotSaved' => 'Екранната снимка е запазена',
 			'videoControls.screenshotFailed' => 'Екранната снимка не можа да бъде направена',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'Мащаб ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => 'Звук ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Изисква Android 8.0 или по-нова версия',
-			'videoControls.pipErrors.iosVersion' => 'Изисква iOS 15.0 или по-нова версия',
 			'videoControls.pipErrors.permissionDisabled' => 'Режимът картина в картината е изключен. Включете го от системните настройки.',
 			'videoControls.pipErrors.notSupported' => 'Устройството не поддържа режим картина в картината',
 			'videoControls.pipErrors.voSwitchFailed' => 'Неуспешна смяна на видео изхода за режим картина в картината',
@@ -4352,7 +4261,6 @@ extension on TranslationsBg {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => 'Добави ред',
 			'mpvConfig.removeLine' => 'Премахни ред',
-			'mpvConfig.embeddedVoHint' => 'vo, gpu-context и gpu-api се игнорират на Linux: вграденото видео винаги се рендерира през vo=libmpv върху видео равнината, а gpu-next (който е нужен за compute шейдъри като ArtCNN) не може да работи вградено.',
 			'dialog.confirmAction' => 'Потвърждение на действие',
 			'profiles.addPlezyProfile' => 'Добави Plezy профил',
 			'profiles.switchingProfile' => 'Смяна на профил…',
@@ -4421,8 +4329,6 @@ extension on TranslationsBg {
 			'profiles.tokenIdentityMismatch' => 'Токенът на профила в Plex съответства на неочакван сървър',
 			'connections.sectionTitle' => 'Връзки',
 			'connections.addConnection' => 'Добави връзка',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Влезте с Plex или свържете Jellyfin или Emby сървър',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => 'Добави към ${displayName}: Plex, Jellyfin, Emby или връзка от друг профил',
 			'connections.sessionExpiredOne' => ({required Object name}) => 'Сесията за ${name} е изтекла',
@@ -4462,6 +4368,8 @@ extension on TranslationsBg {
 			'accountPreferences.subtitleModes.smart' => 'Показване при чуждоезично аудио',
 			'accountPreferences.subtitleModes.smartDescription' => 'Включвай субтитри само когато аудиото е на друг език.',
 			'accountPreferences.subtitleAccessibility' => 'SDH субтитри',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Предпочитай субтитри без SDH',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Предпочитай SDH субтитри',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Само SDH субтитри',
@@ -4686,7 +4594,6 @@ extension on TranslationsBg {
 			'startup.repairSucceeded' => 'Хранилището е ремонтирано',
 			'startup.repairNeedsRestart' => 'Хранилището е ремонтирано — изисква се рестартиране',
 			'startup.restartRequiredBody' => 'Данните ви бяха ремонтирани, но Plezy трябва да стартира наново, преди да ги използва. Затворете Plezy и го отворете отново.',
-			'startup.quitPlezy' => 'Изход от Plezy',
 			'startup.repairFailed' => 'Ремонтът се провали',
 			'startup.repairKeptSignIns' => 'Сървърите и профилите ви са все още вписани.',
 			'startup.repairLostSignIns' => 'Ключът, защитаващ запазените ви вписвания, не можа да бъде възстановен. Ще трябва да се впишете отново във всеки сървър и профил.',
@@ -4935,8 +4842,6 @@ extension on TranslationsBg {
 			'liveTv.recordSettings.keepUpToHint' => '0 запазва всички епизоди',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => 'Започва след ${minutes} мин',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day} в ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product} върна невалидни данни за възпроизвеждане на телевизия на живо',
 			'liveTv.failedToStartChannel' => 'Каналът на живо не можа да бъде пуснат',
 			'liveTv.failedToBuildStreamUrl' => 'URL за потока не можа да бъде създаден',
@@ -4977,6 +4882,8 @@ extension on TranslationsBg {
 			'playlists.deleteConfirm' => 'Да се изтрие ли плейлистът?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Сигурни ли сте, че искате да изтриете "${name}"?',
 			'playlists.created' => 'Плейлистът е създаден',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => 'Плейлистът е изтрит',
 			'playlists.itemAdded' => 'Добавено към плейлист',
 			'playlists.itemRemoved' => 'Премахнато от плейлист',
@@ -5380,20 +5287,9 @@ extension on TranslationsBg {
 			'videoSettings.audioSync' => 'Синхронизация на аудио',
 			'videoSettings.subtitleSync' => 'Синхронизация на субтитри',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'HDR не е наличен тук — този композитор на работния плот или видеоизходът не може да го предава.',
-			'videoSettings.hdrToneMapping' => 'Тонално преобразуване на HDR',
-			'videoSettings.hdrToneMappingCompositor' => 'Композитор',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'Предава HDR метаданните на източника без промяна и оставя композитора на работния плот да извърши тоналното преобразуване.',
-			'videoSettings.hdrToneMappingPlayer' => 'Плейър',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'Извършва тоналното преобразуване в плейъра според пиковата яркост на дисплея, след което указва резултата на композитора.',
-			'videoSettings.hdrToneMappingFailed' => 'Тоналното преобразуване на HDR не можа да бъде променено — предишният режим остава активен.',
 			'videoSettings.audioOutput' => 'Аудио изход',
-			'videoSettings.performanceOverlay' => 'Оверлей за производителност',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'Съраунд',
-			'videoSettings.audioOutputSpatial' => 'Пространствено аудио',
 			'videoSettings.audioOutputStereo' => 'Стерео',
+			'videoSettings.performanceOverlay' => 'Оверлей за производителност',
 			'videoSettings.audioNormalization' => 'Нормализиране на силата на звука',
 			'videoSettings.audioNormalizationDisablesPassthrough' => 'Декодира аудиото до PCM; директното предаване е изключено, докато това е включено',
 			'performanceOverlay.color' => 'Цвят',
@@ -5449,8 +5345,6 @@ extension on TranslationsBg {
 			'performanceOverlay.decoderHardware' => 'Хардуерен',
 			'performanceOverlay.tunnelingActive' => 'Активно',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted} (неуспешни: ${failures})',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => 'Външен плеър',
 			'externalPlayer.useExternalPlayer' => 'Използвай външен плеър',
 			'externalPlayer.useExternalPlayerDescription' => 'Отваряй видеата в друго приложение',
@@ -5460,7 +5354,6 @@ extension on TranslationsBg {
 			'externalPlayer.addCustomPlayer' => 'Добави потребителски плейър',
 			'externalPlayer.playerName' => 'Име на плейъра',
 			'externalPlayer.playerNameHint' => 'Моят плеър',
-			'externalPlayer.playerCommand' => 'Команда',
 			'externalPlayer.playerPackage' => 'Име на пакет',
 			'externalPlayer.playerUrlScheme' => 'URL схема',
 			'externalPlayer.off' => 'Изключено',
@@ -5503,6 +5396,8 @@ extension on TranslationsBg {
 			'metadataEdit.libraryDefault' => 'По подразбиране за библиотеката',
 			'metadataEdit.accountDefault' => 'По подразбиране за акаунта',
 			'metadataEdit.seriesDefault' => 'По подразбиране за сериала',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Сортиране на епизоди',
 			'metadataEdit.oldestFirst' => 'Най-старите първо',
 			'metadataEdit.newestFirst' => 'Най-новите първо',
@@ -5618,7 +5513,6 @@ extension on TranslationsBg {
 			'seerr.permissionRevoked' => 'Вече нямате разрешение да заявявате това',
 			'services.title' => 'Услуги',
 			'services.hubSubtitle' => 'Синхронизирай прогреса на гледане и заявявай нови заглавия.',
-			'services.integrations' => 'Интеграции',
 			'services.notConnected' => 'Няма връзка',
 			'services.connectedAs' => ({required Object username}) => 'Свързан като @${username}',
 			'services.scrobble' => 'Проследявай прогреса автоматично',

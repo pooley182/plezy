@@ -164,12 +164,11 @@ void main() {
     expect(client.queries, ['movie']);
 
     // Returning to the input is the D-pad-up path from the first result
-    // (search_screen.dart onNavigateUp), so it must not re-raise the system
-    // keyboard; Select does. The field's first focus already opened it once.
+    // (search_screen.dart onNavigateUp); Android TV's docked IME reopens there.
     searchInput.focusSearchInput();
     await tester.pumpAndSettle();
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'SearchInput');
-    expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isTrue);
+    expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isFalse);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await tester.pumpAndSettle();
@@ -832,7 +831,7 @@ Future<(_FakeMediaServerClient, GlobalKey<State<SearchScreen>>)> _pumpTvSearchSc
   HiddenLibrariesProvider? hiddenLibraries,
   List<MediaLibrary> libraries = const [],
 }) async {
-  TvDetectionService.debugSetAppleTVOverride(tv);
+  TvDetectionService.debugSetTvOverride(tv);
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = const Size(1280, 720);
   addTearDown(() {
@@ -973,7 +972,7 @@ void _resetGlobalTestState() {
   SelectKeyUpSuppressor.clearSuppression();
   BackKeyUpSuppressor.clearSuppression();
   BackKeyCoordinator.clear();
-  TvDetectionService.debugSetAppleTVOverride(null);
+  TvDetectionService.debugSetTvOverride(null);
   TvDetectionService.setForceTVSync(false);
   SettingsService.resetForTesting();
 }

@@ -322,25 +322,6 @@ class _TileTapRegion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!PlatformDetector.isDesktopOS()) {
-      return GestureDetector(excludeFromSemantics: true, behavior: HitTestBehavior.opaque, onTap: onTap, child: child);
-    }
-    return Stack(
-      fit: StackFit.passthrough,
-      children: [
-        child,
-        Positioned.fill(
-          child: Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              excludeFromSemantics: true,
-              mouseCursor: SystemMouseCursors.click,
-              canRequestFocus: false,
-              onTap: onTap,
-            ),
-          ),
-        ),
-      ],
-    );
+    return GestureDetector(excludeFromSemantics: true, behavior: HitTestBehavior.opaque, onTap: onTap, child: child);
   }
 }

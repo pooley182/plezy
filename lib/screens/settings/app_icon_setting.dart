@@ -1,7 +1,5 @@
-import 'dart:io' show Platform;
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -140,7 +138,7 @@ class _AppIconPickerSheetState extends State<AppIconPickerSheet> {
                     );
                   },
                 ),
-                if (Platform.isAndroid) ...[
+                ...[
                   const SizedBox(height: 16),
                   Text(
                     PlatformDetector.isTVDevice() ? t.appIcon.tvLauncherHint : t.appIcon.launcherHint,
@@ -256,23 +254,14 @@ class _AppIconPreview extends StatelessWidget {
 class _DefaultIconPreview extends StatelessWidget {
   const _DefaultIconPreview();
 
-  static const _iosFill = Color(0xFFF1F1F1);
   static const _androidDayFill = Color(0xFFFFFFFF);
   static const _androidNightFill = Color(0xFF1A1A1A);
 
   @override
   Widget build(BuildContext context) {
-    final tvPreview = PlatformDetector.isAppleTV()
-        ? defaultAppIconTvosPreview
-        : PlatformDetector.isTVDevice()
-        ? defaultAppIconAndroidTvPreview
-        : null;
+    final tvPreview = PlatformDetector.isTVDevice() ? defaultAppIconAndroidTvPreview : null;
     if (tvPreview != null) return Image.asset(tvPreview, fit: BoxFit.cover, filterQuality: FilterQuality.medium);
-    final fill = defaultTargetPlatform != TargetPlatform.android
-        ? _iosFill
-        : MediaQuery.platformBrightnessOf(context) == Brightness.dark
-        ? _androidNightFill
-        : _androidDayFill;
+    final fill = MediaQuery.platformBrightnessOf(context) == Brightness.dark ? _androidNightFill : _androidDayFill;
     return ColoredBox(
       color: fill,
       child: SvgPicture.asset('assets/plezy_adaptive_foreground.svg', fit: BoxFit.contain),

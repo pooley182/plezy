@@ -42,18 +42,6 @@ final class _InvokingPlayerNative extends PlayerNative {
   Future<T?> debugInvoke<T>(String method) => invoke<T>(method);
 }
 
-final class _GuardedPlayerNative extends PlayerNative {
-  @override
-  bool get nativeDisposeIsStaleGuarded => true;
-}
-
-final class _GuardedInvokingPlayerNative extends PlayerNative {
-  @override
-  bool get nativeDisposeIsStaleGuarded => true;
-
-  Future<T?> debugInvoke<T>(String method) => invoke<T>(method);
-}
-
 /// Delivers [event] on the player event channel, waiting for the platform
 /// reply and one microtask turn so the stream handler has run before the
 /// caller's next statement.
@@ -75,12 +63,7 @@ void main() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     await SettingsService.getInstance();
-    // Passthrough expectations below model a Windows/Linux device bitstream;
-    // the Apple system-decoder path opts in explicitly.
-    PlayerNative.debugUseAppleAudioOutput = false;
   });
-
-  tearDown(() => PlayerNative.debugUseAppleAudioOutput = null);
 
   test('MPV coalesces concurrent Dart initialization requests', () async {
     final initialize = Completer<bool>();
@@ -126,6 +109,7 @@ void main() {
         methodHandler: (call) async {
           calls.add(call);
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           return null;
         },
         testBody: () async {
@@ -133,7 +117,12 @@ void main() {
           try {
             await player.setLogLevel('warn');
             final init = calls.singleWhere((call) => call.method == 'initialize');
-            expect(init.arguments, {'hardwareDecoding': hardwareDecoding, 'instanceId': player.nativeInstanceId});
+            expect(init.arguments, {
+              'hardwareDecoding': hardwareDecoding,
+              'subtitleRenderScale': 1.0,
+              'logLevel': 'warn',
+              'instanceId': player.nativeInstanceId,
+            });
           } finally {
             await player.dispose();
           }
@@ -148,6 +137,7 @@ void main() {
       methodHandler: (call) async {
         audioCalls.add(call);
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         return null;
       },
       testBody: () async {
@@ -155,7 +145,7 @@ void main() {
         try {
           await player.setLogLevel('warn');
           final init = audioCalls.singleWhere((call) => call.method == 'initialize');
-          expect(init.arguments, {'instanceId': player.nativeInstanceId});
+          expect(init.arguments, {'logLevel': 'warn', 'instanceId': player.nativeInstanceId});
         } finally {
           await player.dispose();
         }
@@ -178,6 +168,7 @@ void main() {
       methodHandler: (call) async {
         calls.add(call);
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'dispose') {
           switch (nativeDisposeCount++) {
             case 0:
@@ -252,89 +243,6 @@ void main() {
     );
   });
 
-  test('dispose does not wait forever for a predecessor that never releases the native channel', () async {
-    PlayerBase.debugNativeOwnershipDisposeTimeout = const Duration(milliseconds: 5);
-    addTearDown(() => PlayerBase.debugNativeOwnershipDisposeTimeout = const Duration(seconds: 3));
-    final stalledNativeDispose = Completer<void>();
-    final calls = <MethodCall>[];
-
-    await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
-      methodHandler: (call) {
-        calls.add(call);
-        if (call.method == 'initialize') return Future.value(true);
-        if (call.method == 'dispose' && !stalledNativeDispose.isCompleted) return stalledNativeDispose.future;
-        return Future.value(null);
-      },
-      testBody: () async {
-        final first = PlayerNative();
-        final second = PlayerNative();
-        Future<void>? firstDisposal;
-        try {
-          await first.setLogLevel('warn');
-          firstDisposal = first.dispose();
-          await Future<void>.delayed(Duration.zero);
-
-          await second.dispose().timeout(const Duration(seconds: 1));
-
-          expect(calls.where((call) => call.method == 'dispose'), hasLength(1));
-        } finally {
-          if (!stalledNativeDispose.isCompleted) stalledNativeDispose.complete();
-          await firstDisposal;
-          await second.dispose();
-        }
-      },
-    );
-  });
-
-  test('invoke returns null when a predecessor release remains stalled', () async {
-    PlayerBase.debugNativeOwnershipDisposeTimeout = const Duration(milliseconds: 5);
-    PlayerBase.debugNativeOwnershipInvokeTimeout = const Duration(milliseconds: 5);
-    addTearDown(() {
-      PlayerBase.debugNativeOwnershipDisposeTimeout = const Duration(seconds: 3);
-      PlayerBase.debugNativeOwnershipInvokeTimeout = const Duration(seconds: 8);
-    });
-    final stalledNativeDispose = Completer<void>();
-    final calls = <MethodCall>[];
-
-    await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
-      methodHandler: (call) {
-        calls.add(call);
-        if (call.method == 'initialize') return Future.value(true);
-        if (call.method == 'dispose' && !stalledNativeDispose.isCompleted) return stalledNativeDispose.future;
-        return Future.value(null);
-      },
-      testBody: () async {
-        final first = PlayerNative();
-        final second = PlayerNative();
-        final third = _InvokingPlayerNative();
-        Future<void>? firstDisposal;
-        try {
-          await first.setLogLevel('warn');
-          firstDisposal = first.dispose();
-          await Future<void>.delayed(Duration.zero);
-          await second.dispose();
-
-          expect(await third.debugInvoke<Object>('probe'), isNull);
-          expect(calls.where((call) => call.method == 'probe'), isEmpty);
-
-          stalledNativeDispose.complete();
-          await firstDisposal;
-          await third.setLogLevel('warn');
-          expect(calls.where((call) => call.method == 'initialize'), hasLength(2));
-        } finally {
-          if (!stalledNativeDispose.isCompleted) stalledNativeDispose.complete();
-          await firstDisposal;
-          await second.dispose();
-          await third.dispose();
-        }
-      },
-    );
-  });
-
   test('a stale-guarded backend force-disposes past a hung predecessor and frees the channel', () async {
     PlayerBase.debugNativeOwnershipDisposeTimeout = const Duration(milliseconds: 5);
     PlayerBase.debugNativeOwnershipInvokeTimeout = const Duration(milliseconds: 50);
@@ -363,9 +271,9 @@ void main() {
         return Future.value(null);
       },
       testBody: () async {
-        final first = _GuardedPlayerNative();
-        final second = _GuardedPlayerNative();
-        final third = _GuardedInvokingPlayerNative();
+        final first = PlayerNative();
+        final second = PlayerNative();
+        final third = _InvokingPlayerNative();
         Future<void>? firstDisposal;
         try {
           await first.setLogLevel('warn');
@@ -432,6 +340,7 @@ void main() {
       methodHandler: (call) async {
         calls.add(call);
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty' && (call.arguments as Map)['name'] == 'speed') {
           speedStarted.complete();
           await releaseSpeed.future;
@@ -497,6 +406,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty' && (call.arguments as Map)['name'] == 'pause') {
           pauseReached.complete();
           await refusePause.future;
@@ -526,6 +436,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty' && (call.arguments as Map)['name'] == 'pause') {
           throw PlatformException(code: 'SET_PROPERTY_FAILED', message: 'MPV property write was rejected');
         }
@@ -545,139 +456,6 @@ void main() {
     );
   });
 
-  test('a Linux video plane that cannot start fails initialization by name', () async {
-    PlayerNative.debugUseLinuxVideoPlane = true;
-    addTearDown(() => PlayerNative.debugUseLinuxVideoPlane = null);
-    final calls = <MethodCall>[];
-    final errors = <String>[];
-
-    await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
-      methodHandler: (call) async {
-        calls.add(call);
-        if (call.method == 'initialize') {
-          throw PlatformException(
-            code: 'VIDEO_PLANE_UNSUPPORTED',
-            message: 'compositor does not advertise wl_subcompositor',
-          );
-        }
-        return null;
-      },
-      testBody: () async {
-        final player = PlayerNative();
-        final subscription = player.streams.error.listen((error) => errors.add(error.message));
-        try {
-          await expectLater(
-            player.setLogLevel('warn'),
-            throwsA(
-              isA<PlatformException>()
-                  .having((error) => error.code, 'code', 'VIDEO_PLANE_UNSUPPORTED')
-                  .having((error) => error.message, 'message', contains('wl_subcompositor')),
-            ),
-          );
-
-          // There is no second video path to degrade onto, so the only correct
-          // outcome is a refusal that names its cause. Nothing may run past it:
-          // a player that observed properties or accepted commands here would be
-          // one playing audio at a black window.
-          expect(calls.map((call) => call.method), ['initialize']);
-          // The refusal reaches the error stream a turn behind the throw.
-          await Future<void>.delayed(Duration.zero);
-          expect(errors.single, contains('wl_subcompositor'));
-
-          // Nor is the failure cached as a half-open player: the next caller
-          // asks the plane again and is refused by name again, rather than
-          // sliding through on a memoized "already initialized".
-          await expectLater(player.setLogLevel('warn'), throwsA(isA<PlatformException>()));
-          expect(calls.map((call) => call.method), ['initialize', 'initialize']);
-        } finally {
-          await subscription.cancel();
-          await player.dispose();
-        }
-      },
-    );
-  });
-
-  test('the native hdr-output-changed event reaches the stream, and a typeless envelope does not', () async {
-    // The only notice Dart gets that dragging the window changed the answer to
-    // isHdrOutputSupported: Wayland raises no lifecycle event for it. Asserted
-    // on the real event channel rather than a fake stream because the failure
-    // mode is a rename on one side of the wire, which a fake cannot see.
-    var changes = 0;
-
-    await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
-      testBody: () async {
-        final player = PlayerNative();
-        final subscription = player.streams.hdrOutputChanged.listen((_) => changes++);
-        try {
-          await player.setLogLevel('warn');
-          await _sendPlatformEvent(const {'type': 'event', 'name': 'hdr-output-changed'});
-          expect(changes, 1);
-
-          // The envelope needs both keys. Omitting `type` is not hypothetical -
-          // it is exactly what the native side once sent, and the event was
-          // dropped in silence, so the settings sheet kept whatever HDR verdict
-          // it had from before the window moved.
-          await _sendPlatformEvent(const {'name': 'hdr-output-changed'});
-          expect(changes, 1);
-
-          // And the channel is still live afterwards: a malformed sibling must
-          // not take the subscription down with it.
-          await _sendPlatformEvent(const {'type': 'event', 'name': 'hdr-output-changed'});
-          expect(changes, 2);
-        } finally {
-          await subscription.cancel();
-          await player.dispose();
-        }
-      },
-    );
-  });
-
-  test('the HDR output probe asks the plane by name and answers what it said', () async {
-    // The name is half the contract: nothing else in the app invokes
-    // isHDRSupported on the player channel, so a misspelling here would simply
-    // answer null forever and hide the HDR controls on every Linux session.
-    PlayerNative.debugUseLinuxVideoPlane = true;
-    addTearDown(() => PlayerNative.debugUseLinuxVideoPlane = null);
-    final calls = <MethodCall>[];
-    Object? reply;
-
-    await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
-      methodHandler: (call) async {
-        calls.add(call);
-        if (call.method == 'initialize') return true;
-        if (call.method == 'isHDRSupported') return reply;
-        return null;
-      },
-      testBody: () async {
-        final player = PlayerNative();
-        try {
-          reply = true;
-          expect(await player.isHdrOutputSupported(), isTrue);
-
-          // Not cached: the output under the window is what the answer folds in,
-          // and that changes without Dart asking anything.
-          reply = false;
-          expect(await player.isHdrOutputSupported(), isFalse);
-
-          // A native that does not implement the method answers null, which is
-          // "no HDR" rather than a crash or an optimistic yes.
-          reply = null;
-          expect(await player.isHdrOutputSupported(), isFalse);
-
-          expect(calls.where((call) => call.method == 'isHDRSupported'), hasLength(3));
-        } finally {
-          await player.dispose();
-        }
-      },
-    );
-  });
-
   test('MPV accepts nested node observations and null unsupported values', () async {
     final observations = <String, int>{};
     await withMockPlayerChannels(
@@ -685,6 +463,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'observeProperty') {
           final arguments = call.arguments as Map;
           observations[arguments['name'] as String] = arguments['id'] as int;
@@ -803,6 +582,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'observeProperty') {
           final arguments = call.arguments as Map;
           observations[arguments['name'] as String] = arguments['id'] as int;
@@ -878,6 +658,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'command') {
           throw PlatformException(code: 'COMMAND_FAILED', message: 'mpv command failed');
         }
@@ -901,6 +682,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setLogLevel') {
           throw PlatformException(code: 'SET_LOG_LEVEL_FAILED');
         }
@@ -998,6 +780,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           if (arguments['name'] == 'speed') {
@@ -1036,6 +819,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           if (arguments['name'] == 'speed') {
@@ -1070,6 +854,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           final name = arguments['name'] as String;
@@ -1127,6 +912,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           final name = arguments['name'] as String;
@@ -1170,6 +956,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty' && (call.arguments as Map)['name'] == 'audio-spdif') {
           throw PlatformException(code: 'SET_PROPERTY_FAILED');
         }
@@ -1194,6 +981,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           final name = arguments['name'] as String;
@@ -1216,11 +1004,11 @@ void main() {
           // Passthrough leaves before loudnorm lands, and loudnorm clears
           // before passthrough re-engages: mpv never filters a bitstream.
           expect(audioWrites, [
-            ('audio-spdif', 'ac3,eac3,dts,dts-hd,truehd'),
+            ('audio-spdif', _spdifCodecs),
             ('audio-spdif', ''),
-            ('af', 'loudnorm=I=-14:TP=-3:LRA=4,format=srate=48000:format=floatp'),
+            ('af', _normalizationFilter),
             ('af', ''),
-            ('audio-spdif', 'ac3,eac3,dts,dts-hd,truehd'),
+            ('audio-spdif', _spdifCodecs),
           ]);
         } finally {
           await player.dispose();
@@ -1236,6 +1024,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           final name = arguments['name'] as String;
@@ -1259,7 +1048,7 @@ void main() {
           expect(player.audioPassthroughActive, isTrue);
 
           expect(audioWrites, [
-            ('audio-spdif', 'ac3,eac3,dts,dts-hd,truehd'),
+            ('audio-spdif', _spdifCodecs),
             // The center stays its own channel in a 5.1 fold, so no boost.
             ('audio-swresample-o', ''),
             ('audio-channels', 'auto-safe'),
@@ -1270,7 +1059,7 @@ void main() {
             ('audio-channels', 'stereo'),
             ('audio-channels', 'auto-safe'),
             ('audio-swresample-o', ''),
-            ('audio-spdif', 'ac3,eac3,dts,dts-hd,truehd'),
+            ('audio-spdif', _spdifCodecs),
           ]);
         } finally {
           await player.dispose();
@@ -1286,6 +1075,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           final name = arguments['name'] as String;
@@ -1300,7 +1090,7 @@ void main() {
           await player.setAudioPassthrough(true);
 
           expect(player.audioPassthroughActive, isFalse);
-          expect(audioWrites, [('af', 'loudnorm=I=-14:TP=-3:LRA=4,format=srate=48000:format=floatp')]);
+          expect(audioWrites, [('af', _normalizationFilter)]);
         } finally {
           await player.dispose();
         }
@@ -1316,6 +1106,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           final write = (arguments['name'] as String, arguments['value'] as String);
@@ -1334,9 +1125,9 @@ void main() {
           await expectLater(player.setAudioNormalization(false), throwsA(isA<PlatformException>()));
 
           expect(propertyWrites.where((write) => write.$1 == 'af').map((write) => write.$2), [
-            'loudnorm=I=-14:TP=-3:LRA=4,format=srate=48000:format=floatp',
+            _normalizationFilter,
             '',
-            'loudnorm=I=-14:TP=-3:LRA=4,format=srate=48000:format=floatp',
+            _normalizationFilter,
           ]);
           expect(player.audioPassthroughActive, isFalse);
         } finally {
@@ -1352,6 +1143,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty' && (call.arguments as Map)['name'] == 'audio-exclusive') {
           throw PlatformException(code: 'SET_PROPERTY_FAILED');
         }
@@ -1369,39 +1161,6 @@ void main() {
     );
   });
 
-  test('Apple passthrough hands only Dolby to the system decoder and never claims the device', () async {
-    PlayerNative.debugUseAppleAudioOutput = true;
-    final audioWrites = <(String, String)>[];
-    await withMockPlayerChannels(
-      methodChannelName: 'com.plezy/mpv_player',
-      eventChannelName: 'com.plezy/mpv_player/events',
-      methodHandler: (call) async {
-        if (call.method == 'initialize') return true;
-        if (call.method == 'setProperty') {
-          final arguments = call.arguments as Map;
-          final name = arguments['name'] as String;
-          if (name == 'audio-spdif' || name == 'audio-exclusive') audioWrites.add((name, arguments['value'] as String));
-        }
-        return null;
-      },
-      testBody: () async {
-        final player = PlayerNative();
-        try {
-          await player.setAudioPassthrough(true);
-          expect(player.audioPassthroughActive, isTrue);
-          await player.setAudioPassthrough(false);
-          expect(player.audioPassthroughActive, isFalse);
-
-          // On macOS an exclusive hint would push every CoreAudio open, the
-          // PCM fallback included, into hog-mode coreaudio_exclusive.
-          expect(audioWrites, [('audio-spdif', 'ac3,eac3'), ('audio-spdif', '')]);
-        } finally {
-          await player.dispose();
-        }
-      },
-    );
-  });
-
   test('failed rate write restores accepted passthrough state', () async {
     var rejectSpeed = false;
     final propertyWrites = <(String, String)>[];
@@ -1410,6 +1169,7 @@ void main() {
       eventChannelName: 'com.plezy/mpv_player/events',
       methodHandler: (call) async {
         if (call.method == 'initialize') return true;
+        if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
         if (call.method == 'setProperty') {
           final arguments = call.arguments as Map;
           final name = arguments['name'] as String;
@@ -1432,9 +1192,9 @@ void main() {
 
           expect(player.audioPassthroughActive, isTrue);
           expect(propertyWrites.where((write) => write.$1 == 'audio-spdif').map((write) => write.$2), [
-            'ac3,eac3,dts,dts-hd,truehd',
+            _spdifCodecs,
             '',
-            'ac3,eac3,dts,dts-hd,truehd',
+            _spdifCodecs,
           ]);
         } finally {
           await player.dispose();
@@ -1456,6 +1216,7 @@ void main() {
           methodHandler: (call) async {
             calls.add(call);
             if (call.method == 'initialize') return true;
+            if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
             if (call.method == 'setProperty') {
               final arguments = call.arguments as Map;
               if (arguments['name'] == 'unsupported-property') {
@@ -1491,6 +1252,7 @@ void main() {
           eventChannelName: channel.events,
           methodHandler: (call) async {
             if (call.method == 'initialize') return true;
+            if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
             if (call.method == 'setProperty') {
               final arguments = call.arguments as Map;
               if (arguments['name'] == 'volume') {
@@ -1523,6 +1285,7 @@ void main() {
           eventChannelName: channel.events,
           methodHandler: (call) async {
             if (call.method == 'initialize') return true;
+            if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
             if (call.method == 'setProperty') {
               final arguments = call.arguments as Map;
               if (arguments['name'] == 'volume') {
@@ -1583,6 +1346,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'command') {
             throw PlatformException(code: 'COMMAND_FAILED', message: 'player not ready');
           }
@@ -1621,6 +1385,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'command') {
             player.handlePropertyChange('time-pos', 20.0);
             throw PlatformException(code: 'COMMAND_FAILED', message: 'player not ready');
@@ -1669,6 +1434,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'command' && commands++ == 0) {
             firstReached.complete();
             await releaseFirst.future;
@@ -1724,6 +1490,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'command') {
             final isFirst = commands++ == 0;
             if (isFirst) {
@@ -1837,6 +1604,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
             return '123.5';
           }
@@ -1879,6 +1647,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
             return '400.0';
           }
@@ -1933,6 +1702,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
             return '400.0';
           }
@@ -1988,6 +1758,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
             return '400.0';
           }
@@ -2041,6 +1812,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
             // The newer command settles first, so it reads its cue first.
             return readBackIndex++ == 0 ? '200.0' : '100.0';
@@ -2101,6 +1873,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'command') {
             final args = List<String>.from((call.arguments as Map)['args'] as List);
             if (args.first == 'seek') {
@@ -2152,6 +1925,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           // Accepted command, unreadable position.
           if (call.method == 'getProperty') return null;
           if (call.method == 'command') {
@@ -2201,6 +1975,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'getProperty' && (call.arguments as Map)['name'] == 'time-pos') {
             return '400.0';
           }
@@ -2257,6 +2032,7 @@ void main() {
           eventChannelName: 'com.plezy/mpv_player/events',
           methodHandler: (call) async {
             if (call.method == 'initialize') return true;
+            if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
             if (call.method == 'command') await Future<void>.delayed(inFlight);
             return null;
           },
@@ -2333,6 +2109,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'getProperty') {
             readReached.complete();
             await releaseRead.future;
@@ -2915,6 +2692,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'getProperty') return null; // accepted, unreadable
           if (call.method == 'command') {
             final args = List<String>.from((call.arguments as Map)['args'] as List);
@@ -2984,6 +2762,7 @@ void main() {
         eventChannelName: 'com.plezy/mpv_player/events',
         methodHandler: (call) async {
           if (call.method == 'initialize') return true;
+          if (call.method == 'getAudioSpdifCodecs') return _spdifCodecs;
           if (call.method == 'command') {
             commandReached.complete();
             await releaseCommand.future;
@@ -3017,3 +2796,11 @@ void main() {
     });
   });
 }
+
+/// What the mock audio route reports for passthrough (`getAudioSpdifCodecs`).
+const _spdifCodecs = 'ac3,eac3,dts,dts-hd,truehd';
+
+/// PlayerBase's Android loudness-normalization filter chain.
+const _normalizationFilter =
+    'acompressor=threshold=-34dB:ratio=4:knee=6dB:attack=30:release=300:makeup=15dB:link=maximum,'
+    'alimiter=limit=-3dB:attack=1:release=60:level=false';

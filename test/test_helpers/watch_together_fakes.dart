@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:plezy/mpv/mpv.dart';
+import 'android_player_noops.dart';
 
 /// Rich fake [Player] for player and Watch Together tests.
 ///
@@ -8,7 +9,7 @@ import 'package:plezy/mpv/mpv.dart';
 /// microtask (mirroring the real command-ack-then-property-event ordering);
 /// drive externally-caused transitions with the `emit*` helpers. Designed to
 /// run under `fakeAsync` — nothing here uses wall-clock time.
-class FakeSyncPlayer implements Player {
+class FakeSyncPlayer with AndroidPlayerNoops implements Player {
   FakeSyncPlayer({
     bool playing = false,
     bool buffering = false,

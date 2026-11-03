@@ -9,7 +9,6 @@ import '../focus/key_event_utils.dart';
 import '../i18n/strings.g.dart';
 import '../utils/platform_detector.dart';
 import 'app_icon.dart';
-import 'clickable_cursor.dart';
 import 'listenable_selector.dart';
 
 bool _keyboardTextWarmedUp = false;
@@ -772,22 +771,20 @@ class _TvVirtualKeyboardDialogState extends State<_TvVirtualKeyboardDialog> {
             ? colorScheme.onSecondaryContainer
             : colorScheme.onSurface;
 
-        return ClickableCursor(
-          child: GestureDetector(
-            onTap: () {
-              _selection.value = (row: row, column: column);
-              _activate(key);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              width: metrics.keySize,
-              height: metrics.keySize,
-              alignment: .center,
-              decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(metrics.keyRadius)),
-              child: Padding(
-                padding: .symmetric(horizontal: metrics.keySize * 0.04),
-                child: _buildKeyContent(context, key, foreground, metrics),
-              ),
+        return GestureDetector(
+          onTap: () {
+            _selection.value = (row: row, column: column);
+            _activate(key);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            width: metrics.keySize,
+            height: metrics.keySize,
+            alignment: .center,
+            decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(metrics.keyRadius)),
+            child: Padding(
+              padding: .symmetric(horizontal: metrics.keySize * 0.04),
+              child: _buildKeyContent(context, key, foreground, metrics),
             ),
           ),
         );

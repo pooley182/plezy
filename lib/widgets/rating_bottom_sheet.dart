@@ -23,7 +23,6 @@ import 'app_icon.dart';
 import 'backend_badge.dart';
 import 'bottom_sheet_page_scaffold.dart';
 import 'catalog_source_logo.dart';
-import 'clickable_cursor.dart';
 
 class RatingBottomSheet extends StatefulWidget {
   final MediaItem item;
@@ -734,39 +733,32 @@ class _StarRatingControlState extends State<_StarRatingControl> {
       builder: (context, constraints) {
         final starWidth = (constraints.maxWidth / 5).clamp(0.0, 27.0).toDouble();
         final iconSize = (starWidth * 0.9).clamp(0.0, 24.0).toDouble();
-        return ClickableCursor(
-          enabled: widget.enabled,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTapDown: widget.enabled ? (details) => _setFromDx(details.localPosition.dx, constraints.maxWidth) : null,
-            onTapUp: widget.enabled ? (_) => widget.onSubmitValue(_pointerValue ?? widget.value) : null,
-            onPanUpdate: widget.enabled
-                ? (details) => _setFromDx(details.localPosition.dx, constraints.maxWidth)
-                : null,
-            onPanEnd: widget.enabled ? (_) => widget.onSubmitValue(_pointerValue ?? widget.value) : null,
-            child: SizedBox(
-              height: 34,
-              child: Row(
-                mainAxisAlignment: .end,
-                children: List.generate(5, (i) {
-                  final threshold = (i + 1) * 2;
-                  final filled = widget.value >= threshold;
-                  final half = widget.value == threshold - 1;
-                  return SizedBox(
-                    width: starWidth,
-                    child: Center(
-                      child: AppIcon(
-                        half ? Symbols.star_half_rounded : Symbols.star_rounded,
-                        fill: filled || half ? 1 : 0,
-                        color: filled || half
-                            ? Colors.amber
-                            : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.34),
-                        size: iconSize,
-                      ),
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: widget.enabled ? (details) => _setFromDx(details.localPosition.dx, constraints.maxWidth) : null,
+          onTapUp: widget.enabled ? (_) => widget.onSubmitValue(_pointerValue ?? widget.value) : null,
+          onPanUpdate: widget.enabled ? (details) => _setFromDx(details.localPosition.dx, constraints.maxWidth) : null,
+          onPanEnd: widget.enabled ? (_) => widget.onSubmitValue(_pointerValue ?? widget.value) : null,
+          child: SizedBox(
+            height: 34,
+            child: Row(
+              mainAxisAlignment: .end,
+              children: List.generate(5, (i) {
+                final threshold = (i + 1) * 2;
+                final filled = widget.value >= threshold;
+                final half = widget.value == threshold - 1;
+                return SizedBox(
+                  width: starWidth,
+                  child: Center(
+                    child: AppIcon(
+                      half ? Symbols.star_half_rounded : Symbols.star_rounded,
+                      fill: filled || half ? 1 : 0,
+                      color: filled || half ? Colors.amber : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.34),
+                      size: iconSize,
                     ),
-                  );
-                }),
-              ),
+                  ),
+                );
+              }),
             ),
           ),
         );
@@ -793,37 +785,34 @@ class _FavoriteControl extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return ClickableCursor(
-      enabled: enabled,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: enabled ? () => onToggle(!value) : null,
-        child: Container(
-          height: 32,
-          decoration: BoxDecoration(
-            color: scheme.surfaceContainerHighest.withValues(alpha: 0.54),
-            borderRadius: const BorderRadius.all(Radius.circular(100)),
-          ),
-          child: Row(
-            mainAxisAlignment: .center,
-            children: [
-              AppIcon(
-                Symbols.favorite_rounded,
-                fill: value ? 1 : 0,
-                color: value ? Colors.redAccent : (enabled ? scheme.onSurfaceVariant : theme.disabledColor),
-                size: 18,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: enabled ? () => onToggle(!value) : null,
+      child: Container(
+        height: 32,
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.54),
+          borderRadius: const BorderRadius.all(Radius.circular(100)),
+        ),
+        child: Row(
+          mainAxisAlignment: .center,
+          children: [
+            AppIcon(
+              Symbols.favorite_rounded,
+              fill: value ? 1 : 0,
+              color: value ? Colors.redAccent : (enabled ? scheme.onSurfaceVariant : theme.disabledColor),
+              size: 18,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                value ? t.rateSheet.favorited : t.rateSheet.favorite,
+                maxLines: 1,
+                overflow: .ellipsis,
+                style: theme.textTheme.labelMedium?.copyWith(fontWeight: .w700),
               ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  value ? t.rateSheet.favorited : t.rateSheet.favorite,
-                  maxLines: 1,
-                  overflow: .ellipsis,
-                  style: theme.textTheme.labelMedium?.copyWith(fontWeight: .w700),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

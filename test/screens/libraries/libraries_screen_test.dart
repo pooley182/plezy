@@ -102,10 +102,10 @@ void main() {
 
   setUp(() {
     resetSharedPreferencesForTest();
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
   });
 
-  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   testWidgets('a sidebar selection at first mount survives initialization', (tester) async {
     final preferences = _GatedPreferences({'selected_library_key': _libraryA.globalKey});
@@ -329,7 +329,7 @@ void main() {
     ]);
   });
   testWidgets('switching through the TV Recommended backdrop keeps sibling tabs mounted', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final client = _HubClient();
     final harness = await _Harness.create(
       _GatedPreferences({'selected_library_key': _libraryA.globalKey}),

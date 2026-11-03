@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -37,8 +36,7 @@ Future<void> showSupporterSheet(BuildContext context) async {
 
 /// Whether this platform ships the alternate app icons perk: iOS, iPadOS and
 /// tvOS (which reports iOS) and Android.
-bool supporterOffersAppIcons() =>
-    defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android;
+bool supporterOffersAppIcons() => true;
 
 class SupporterSheet extends StatefulWidget {
   const SupporterSheet({super.key, required this.supporter});

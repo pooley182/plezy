@@ -22,6 +22,7 @@ import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Regression coverage for #1765: a player route that opens with its chrome
 /// down must stay down across the whole startup sequence. Auto-hide cannot arm
@@ -49,8 +50,7 @@ void main() {
       SettingsService.resetForTesting();
       final settings = await SettingsService.getInstance();
 
-      TvDetectionService.debugSetAppleTVOverride(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
+      TvDetectionService.debugSetTvOverride(true);
 
       database = AppDatabase.forTesting(NativeDatabase.memory());
       player = _PlayingPlayer();
@@ -65,8 +65,7 @@ void main() {
     });
 
     tearDown(() async {
-      TvDetectionService.debugSetAppleTVOverride(null);
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       hasFirstFrame.dispose();
       screenFocusNode.dispose();
       volume.dispose();
@@ -202,7 +201,7 @@ void main() {
 
 /// Minimal [Player] that reports steady playback, the state a startup sequence
 /// settles into once the media opens.
-class _PlayingPlayer implements Player {
+class _PlayingPlayer with AndroidPlayerNoops implements Player {
   final List<Duration> seeks = [];
   Duration _position = Duration.zero;
 

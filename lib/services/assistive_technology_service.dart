@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -39,7 +38,7 @@ class AssistiveTechnologyService with WidgetsBindingObserver {
   /// Begins observing. Idempotent; a no-op off Android and under a binding
   /// without the gate (tests, or a fresh binding subclass).
   void ensureStarted() {
-    if (_started || defaultTargetPlatform != TargetPlatform.android) return;
+    if (_started) return;
     final binding = WidgetsBinding.instance;
     if (binding is! SemanticsTreeGate) return;
     final gate = binding as SemanticsTreeGate;

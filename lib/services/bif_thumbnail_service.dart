@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'scrub_preview_source.dart';
 import '../utils/app_logger.dart';
-import '../utils/platform_detector.dart';
 
 /// A single BIF thumbnail entry: timestamp in milliseconds + JPEG bytes.
 typedef BifEntry = ({int timestampMs, Uint8List imageBytes});
@@ -67,7 +66,7 @@ class BifThumbnailService implements ScrubPreviewSource {
 
   /// Largest BIF this service holds. The whole file stays in memory while the
   /// player is open, so an item whose BIF is larger goes without previews.
-  static int get _maxFileBytes => PlatformDetector.isDesktopOS() ? 200 * 1024 * 1024 : 50 * 1024 * 1024;
+  static int get _maxFileBytes => 50 * 1024 * 1024;
 
   /// Download and parse the BIF file through [fetchBytes] (Plex's
   /// `/library/parts/{id}/indexes/sd`, Emby's `/Videos/{id}/index.bif`).

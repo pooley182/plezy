@@ -110,8 +110,6 @@ bool isRelocatedRootTaskDirectory({
   return true;
 }
 
-const bool _tvosBuild = bool.fromEnvironment('TVOS_BUILD');
-
 class _DownloadContext {
   final MediaItem metadata;
   final DownloadQueueItem queueItem;
@@ -240,10 +238,7 @@ class DownloadManagerService {
   int _consecutiveQueueFailures = 0;
   static const _maxConsecutiveFailures = 3;
 
-  static bool get platformDownloadsSupported => downloadsSupportedFor(tvosBuild: _tvosBuild);
-
-  @visibleForTesting
-  static bool downloadsSupportedFor({required bool tvosBuild}) => !tvosBuild;
+  static bool get platformDownloadsSupported => true;
 
   /// Cancels native work and discards resumable partial files so startup can
   /// recover enough space to reopen the application database.

@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import '../../test_helpers/media_items.dart';
 import '../../test_helpers/mock_player_channels.dart';
 import '../../test_helpers/prefs.dart';
+import '../../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -90,7 +91,7 @@ Widget _screen(GlobalKey<VideoPlayerScreenState> key) {
   );
 }
 
-class _ControlledSeekPlayer implements Player {
+class _ControlledSeekPlayer with AndroidPlayerNoops implements Player {
   _ControlledSeekPlayer({required Duration position})
     : _state = PlayerState(position: position, duration: const Duration(minutes: 10), seekable: true);
 

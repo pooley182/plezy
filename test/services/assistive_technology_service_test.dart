@@ -112,16 +112,4 @@ void main() {
     expect(queries, 1, reason: 'no query while the platform has semantics off');
     finish();
   }, semanticsEnabled: false);
-
-  testWidgets('is a no-op off Android', (tester) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    await pumpApp(tester);
-    consumes = false;
-    service.ensureStarted();
-    platformSemantics(true);
-    await tester.pump();
-    expect(queries, 0);
-    expect(owner(), isNotNull);
-    finish();
-  }, semanticsEnabled: false);
 }

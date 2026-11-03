@@ -22,12 +22,13 @@ import 'package:plezy/utils/active_client_scope.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/media_items.dart';
 import '../test_helpers/playback_report_fakes.dart';
+import '../test_helpers/android_player_noops.dart';
 
 // fake_async drives periodic routing, threshold, scrobble, coalescing, backoff,
 // resume, and disposal behavior through observable calls.
 
 /// Fake Player whose state is mutable from the test.
-class _FakePlayer implements Player {
+class _FakePlayer with AndroidPlayerNoops implements Player {
   PlayerState _state;
   final PlayerStreams _streams = const PlayerStreams(
     playing: Stream<bool>.empty(),

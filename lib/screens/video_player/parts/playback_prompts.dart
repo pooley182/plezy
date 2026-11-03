@@ -36,7 +36,6 @@ extension _VideoPlayerPlaybackPromptMethods on VideoPlayerScreenState {
     // meanwhile and ends `completed` from _retireLaunchObserver when the
     // screen leaves on this item.
     _mediaControls.pushPlaybackState();
-    unawaited(DiscordRPCService.instance.pausePlayback());
     // The item finished, so real-time trackers get a terminal report now rather
     // than whenever the screen happens to tear down: a completion prompt or
     // end-of-video sleep timer can leave it open for minutes, and until then

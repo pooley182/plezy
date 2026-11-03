@@ -7,7 +7,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../focus/focusable_button.dart';
 import '../focus/focusable_wrapper.dart';
 import '../i18n/strings.g.dart';
-import '../utils/platform_detector.dart';
 import '../utils/snackbar_helper.dart';
 import 'app_icon.dart';
 import 'dialog_action_button.dart';
@@ -17,12 +16,11 @@ import 'loading_indicator_box.dart';
 ///
 /// Every flow gets the same affordances: a QR code for [url], a readable
 /// copyable URL underneath it, the service-specific [children], a button that
-/// launches [url] in the browser (hidden on Apple TV, which has none), and a
+/// launches [url] in the browser, and a
 /// "waiting for authorization…" spinner while the poll loop runs.
 ///
-/// On wide viewports (TV, desktop, phone landscape) the QR pane sits beside
-/// the instructions so the dialog stays short enough for TV screens — tvOS
-/// renders at 540 logical pixels of height, where the stacked layout clips.
+/// On wide viewports (TV, phone landscape) the QR pane sits beside the
+/// instructions so the dialog stays short enough for TV screens.
 /// Every dismissal — the Cancel button, a system back, or a programmatic pop —
 /// routes through one [PopScope], which calls [onCancel] exactly once per pop
 /// so the provider can abort the poll.
@@ -109,21 +107,18 @@ class PendingAuthDialog extends StatelessWidget {
     );
 
     final bodyText = Text(body, style: theme.textTheme.bodyMedium);
-    // tvOS has no browser, so a launch button would be a dead focus target.
-    final openButton = PlatformDetector.isAppleTV()
-        ? null
-        : SizedBox(
-            width: double.infinity,
-            child: FocusableButton(
-              onPressed: _open,
-              useBackgroundFocus: true,
-              child: FilledButton.icon(
-                icon: const AppIcon(Symbols.open_in_new_rounded),
-                label: Text(openLabel),
-                onPressed: _open,
-              ),
-            ),
-          );
+    final openButton = SizedBox(
+      width: double.infinity,
+      child: FocusableButton(
+        onPressed: _open,
+        useBackgroundFocus: true,
+        child: FilledButton.icon(
+          icon: const AppIcon(Symbols.open_in_new_rounded),
+          label: Text(openLabel),
+          onPressed: _open,
+        ),
+      ),
+    );
     final waitingRow = Row(
       children: [
         const LoadingIndicatorBox(size: 16),
@@ -170,7 +165,8 @@ class PendingAuthDialog extends StatelessWidget {
                             child: urlChip(textAlign: TextAlign.start),
                           ),
                           const SizedBox(height: 12),
-                          if (openButton != null) ...[openButton, const SizedBox(height: 16)],
+                          openButton,
+                          const SizedBox(height: 16),
                           waitingRow,
                         ],
                       ),
@@ -199,7 +195,8 @@ class PendingAuthDialog extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (openButton != null) ...[openButton, const SizedBox(height: 16)],
+                  openButton,
+                  const SizedBox(height: 16),
                   waitingRow,
                 ],
               ),

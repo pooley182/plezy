@@ -113,7 +113,7 @@ mixin FocusableDetailScreenMixin<T extends StatefulWidget> on State<T>, GridFocu
     return PrimaryScrollController(
       controller: scrollController,
       child: OverlaySheetHost(
-        canPop: PlatformDetector.isHandheldIOS(context),
+        canPop: false,
         onSystemBack: () {
           if (BackKeyCoordinator.consumeIfHandled()) return;
           if (handleBackNavigation() && mounted) {

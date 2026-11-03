@@ -1,15 +1,10 @@
-import 'dart:io' show Platform;
-
 import '../../models/audio_channel_limit.dart';
 import '../../media/playback_rate.dart';
 import '../models.dart';
-import 'audio_rendering_mode.dart';
 import 'platform/player_android.dart';
 import 'player_native.dart';
 import 'player_state.dart';
 import 'player_streams.dart';
-import 'platform/player_linux.dart';
-import 'platform/player_windows.dart';
 
 export 'player_base.dart';
 
@@ -200,13 +195,6 @@ abstract class Player {
   /// [args] - Command and arguments as a list of strings.
   Future<void> command(List<String> args);
 
-  /// Wait out a display-mode switch the decoded stream triggered. On Apple
-  /// TV the native core hands mpv's stream properties to AVDisplayManager as
-  /// they arrive; this resolves once the resulting HDMI mode switch (if any)
-  /// has ended, plus the settle and [extraDelayMs] for TVs or AVRs that need
-  /// extra time. Immediate on every other platform.
-  Future<void> awaitDisplayModeSwitch({int extraDelayMs = 0});
-
   /// Configure subtitle fonts for libass rendering.
   ///
   /// Extracts a comprehensive Unicode font (Go Noto) to the cache directory
@@ -220,9 +208,6 @@ abstract class Player {
   /// normalization takes precedence: while it is on, every track decodes to
   /// PCM and passthrough stays off until normalization is turned off again.
   Future<void> setAudioPassthrough(bool enabled);
-
-  /// The system's resolved audio rendering mode (Apple only); null elsewhere.
-  Future<AudioRenderingMode?> getAudioRenderingMode();
 
   /// Enable or disable loudness normalization.
   ///
@@ -251,30 +236,13 @@ abstract class Player {
 
   /// Show or hide the video rendering layer.
   ///
-  /// On macOS, this controls the video display layer visibility.
-  /// On other platforms, this may have no effect.
-  ///
-  /// When [restoreOnWindowVisible] is true, macOS may restore the layer as soon
-  /// as AppKit reports the window visible again instead of waiting for Dart's
-  /// lifecycle resume callback.
-  ///
   /// Returns true if the operation was successful.
   Future<bool> setVisible(bool visible, {bool restoreOnWindowVisible = false});
 
   /// Update the video frame/surface dimensions.
   ///
-  /// On iOS/macOS, this updates the video display layer's frame to match the current
-  /// window size. Call this when the layout changes (e.g., device rotation).
-  /// On other platforms, this is a no-op.
+  /// Call this when the layout changes.
   Future<void> updateFrame();
-
-  /// Whether this player's video output can currently carry HDR.
-  ///
-  /// A query rather than a constant because on Linux it genuinely varies: the
-  /// native side needs a 10-bit plane, a compositor advertising the source's
-  /// transfer function and BT.2020, and an output the compositor reports as
-  /// being in HDR. Moving the window to an SDR monitor changes the answer.
-  Future<bool> isHdrOutputSupported();
 
   /// Set the video frame rate for display refresh rate matching.
   ///
@@ -336,10 +304,8 @@ abstract class Player {
 
   /// Apply custom zoom to the native video layer.
   ///
-  /// ExoPlayer scales its frame layout; iOS/tvOS/macOS scale the AVFoundation video
-  /// container (mpv's `video-zoom` would force vo_avfoundation's Core Image
-  /// path and destroy HDR/Dolby Vision passthrough). Other mpv backends are a
-  /// no-op here and zoom via the `video-zoom` property.
+  /// ExoPlayer scales its frame layout; mpv is a no-op here and zooms via the
+  /// `video-zoom` property.
   Future<void> setVideoZoom(double scale);
 
   /// Aggregated native playback stats (codecs, dimensions, dropped frames…).
@@ -384,13 +350,8 @@ abstract class Player {
 
   /// Creates a new player instance.
   ///
-  /// Returns a platform-specific implementation:
-  /// - macOS/iOS: [PlayerNative] using MPVKit/libmpv with the AVFoundation video output
-  /// - Android: [PlayerNative] using MPV (default) or [PlayerAndroid] using ExoPlayer (opt-in)
-  /// - Windows: [PlayerWindows] using libmpv with native window embedding
-  /// - Linux: [PlayerLinux] using libmpv on a native Wayland video plane
-  ///
-  /// On Android, pass [useExoPlayer] to override the default:
+  /// Returns [PlayerNative] using MPV (default) or [PlayerAndroid] using
+  /// ExoPlayer. Pass [useExoPlayer] to override the default:
   /// - false: Use MPV (default, more features, ASS subtitle rendering)
   /// - true: Use ExoPlayer (the escape hatch for devices MPV mishandles)
   ///
@@ -400,25 +361,13 @@ abstract class Player {
   /// software ones, where DV reshaping can actually happen (see
   /// MpvPlayerCore.initialVideoOutput; #2010).
   factory Player({bool? useExoPlayer, bool hardwareDecoding = true}) {
-    if (Platform.isAndroid) {
-      // Default to MPV on Android, with ExoPlayer as the opt-in alternative.
-      // The caller should pass useExoPlayer based on SettingsService.useExoPlayer.
-      final useExo = useExoPlayer ?? false;
-      if (useExo) {
-        return PlayerAndroid(); // ExoPlayer (opt-in)
-      }
-      return PlayerNative(hardwareDecoding: hardwareDecoding); // MPV (default)
+    // Default to MPV on Android, with ExoPlayer as the opt-in alternative.
+    // The caller should pass useExoPlayer based on SettingsService.useExoPlayer.
+    final useExo = useExoPlayer ?? false;
+    if (useExo) {
+      return PlayerAndroid(); // ExoPlayer (opt-in)
     }
-    if (Platform.isMacOS || Platform.isIOS) {
-      return PlayerNative();
-    }
-    if (Platform.isWindows) {
-      return PlayerWindows();
-    }
-    if (Platform.isLinux) {
-      return PlayerLinux();
-    }
-    throw UnsupportedError('Player is not supported on this platform');
+    return PlayerNative(hardwareDecoding: hardwareDecoding); // MPV (default)
   }
 
   /// Creates the dedicated audio-only player used for music playback.
@@ -433,9 +382,6 @@ abstract class Player {
   /// `PlaybackCoordinator`), and the video core only exists while the video
   /// player screen is open.
   factory Player.audio() {
-    if (Platform.isAndroid || Platform.isMacOS || Platform.isIOS || Platform.isWindows || Platform.isLinux) {
-      return PlayerNative.audio();
-    }
-    throw UnsupportedError('Player is not supported on this platform');
+    return PlayerNative.audio();
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -93,80 +91,12 @@ void main() {
     expect(calls, isEmpty);
   });
 
-  test('video-style sync advertises skip with intervals on iOS and resends only on change', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+  test('skip is advertised alongside play and stop', () async {
     final manager = MediaControlsManager();
     addTearDown(manager.dispose);
 
-    Future<void> syncVideoStyle(Duration interval) => manager.setControlsEnabled(
-      canPlayPause: true,
-      canGoNext: true,
-      canGoPrevious: true,
-      canSeek: true,
-      canStop: true,
-      canSkip: true,
-      canSetSpeed: true,
-      preferSkipOverTrackButtons: true,
-      skipInterval: interval,
-    );
+    await manager.setControlsEnabled(canPlayPause: true, canStop: true, canSkip: true);
 
-    await syncVideoStyle(const Duration(seconds: 10));
-    expect(calls.map((c) => c.method), ['setSkipIntervals', 'enableControls']);
-    expect(calls[0].arguments, {'forward': 10, 'backward': 10});
-    expect(calls[1].arguments, containsAll(['skipForward', 'skipBackward']));
-
-    // Unchanged snapshot: nothing crosses the channel again.
-    calls.clear();
-    await syncVideoStyle(const Duration(seconds: 10));
-    expect(calls, isEmpty);
-
-    // An interval change alone re-advertises the new step.
-    await syncVideoStyle(const Duration(seconds: 30));
-    expect(calls.map((c) => c.method), ['setSkipIntervals']);
-    expect(calls[0].arguments, {'forward': 30, 'backward': 30});
-
-    // clear() drops the cached interval; the next session re-sends it.
-    await manager.clear();
-    calls.clear();
-    await syncVideoStyle(const Duration(seconds: 30));
-    expect(calls.map((c) => c.method), ['setSkipIntervals', 'enableControls']);
-  });
-
-  test('music-style sync keeps skip un-advertised on iOS so next/previous hold the lock screen', () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-    final manager = MediaControlsManager();
-    addTearDown(manager.dispose);
-
-    await manager.setControlsEnabled(
-      canPlayPause: true,
-      canGoNext: true,
-      canGoPrevious: true,
-      canSeek: true,
-      canStop: true,
-      canSkip: true,
-      skipInterval: const Duration(seconds: 10),
-    );
-
-    _expectControlTransition(
-      calls,
-      enabled: const ['play', 'pause', 'previous', 'next', 'seek', 'stop'],
-      disabled: const ['skipForward', 'skipBackward', 'changeSpeed'],
-    );
-  });
-
-  test('skip intervals never cross the channel on Android', () async {
-    final manager = MediaControlsManager();
-    addTearDown(manager.dispose);
-
-    await manager.setControlsEnabled(
-      canPlayPause: true,
-      canStop: true,
-      canSkip: true,
-      preferSkipOverTrackButtons: true,
-      skipInterval: const Duration(seconds: 10),
-    );
-
-    expect(calls.map((c) => c.method), isNot(contains('setSkipIntervals')));
     expect(calls.map((c) => c.method), ['enableControls', 'disableControls']);
     expect(calls[0].arguments, containsAll(['skipForward', 'skipBackward']));
   });
@@ -190,57 +120,8 @@ void main() {
         if (call.method == 'setMetadata') call.arguments as Map<Object?, Object?>,
     ];
 
-    test('Linux publishes artwork bytes instead of the token-bearing URL', () async {
-      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
-      final requested = <String>[];
-      final manager = MediaControlsManager(
-        artworkBytesLoader: (url) async {
-          requested.add(url);
-          return Uint8List.fromList([1, 2, 3]);
-        },
-      );
-      addTearDown(manager.dispose);
-
-      await manager.updateMetadata(metadata: movie, client: client);
-      await pumpEventQueue();
-
-      expect(requested.single, contains('secret-token'));
-      final published = metadataCalls();
-      expect(published, hasLength(2));
-      expect(published.first['title'], 'Movie');
-      expect(published.map((m) => m['artworkUrl']), everyElement(isNull));
-      expect(published.last['artwork'], [1, 2, 3]);
-    });
-
-    test('late Linux artwork never lands on a newer item or a cleared session', () async {
-      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
-      final pending = <Completer<Uint8List?>>[];
-      final manager = MediaControlsManager(
-        artworkBytesLoader: (_) {
-          final completer = Completer<Uint8List?>();
-          pending.add(completer);
-          return completer.future;
-        },
-      );
-      addTearDown(manager.dispose);
-
-      await manager.updateMetadata(metadata: movie, client: client);
-      await manager.updateMetadata(
-        metadata: testMediaItem(id: 'item-2', title: 'Next', thumbPath: '/library/metadata/2/thumb/3'),
-        client: client,
-      );
-      pending.first.complete(Uint8List.fromList([1]));
-      await pumpEventQueue();
-      expect(metadataCalls().map((m) => m['title']), ['Movie', 'Next']);
-
-      await manager.clear();
-      pending.last.complete(Uint8List.fromList([2]));
-      await pumpEventQueue();
-      expect(metadataCalls().map((m) => m['title']), ['Movie', 'Next']);
-    });
-
-    test('other platforms keep handing the artwork URL to the plugin', () async {
-      final manager = MediaControlsManager(artworkBytesLoader: (_) async => fail('no download expected'));
+    test('hands the artwork URL to the plugin', () async {
+      final manager = MediaControlsManager();
       addTearDown(manager.dispose);
 
       await manager.updateMetadata(metadata: movie, client: client);

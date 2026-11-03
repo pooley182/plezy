@@ -183,11 +183,9 @@ void main() {
   });
 
   testWidgets('keeps the focused tile highlighted when the list re-sorts after first paint', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
+    TvDetectionService.debugSetTvOverride(true);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
     });
 
     final db = AppDatabase.forTesting(NativeDatabase.memory());

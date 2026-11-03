@@ -48,11 +48,11 @@ void main() {
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('full bleed grid delegates use scaled gutters', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     tester.view.devicePixelRatio = 1.0;
     tester.view.physicalSize = const Size(1280, 720);
     addTearDown(() {
@@ -103,7 +103,7 @@ void main() {
 
     expect(find.text('Hidden Movie'), findsNothing);
     expect(find.text('2024'), findsNothing);
-    expect(tester.getSize(find.byType(InkWell)), const Size(200, 300));
+    expect(tester.getSize(find.byType(MediaCard)), const Size(200, 300));
   });
 
   testWidgets('standard grid media cards still show text', (tester) async {
@@ -421,7 +421,7 @@ void main() {
   });
 
   testWidgets('full bleed focusable media card lifts the glow into an overlay above siblings', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final focusNode = FocusNode(debugLabel: 'full_bleed_card');
     addTearDown(focusNode.dispose);
 
@@ -459,7 +459,7 @@ void main() {
   });
 
   testWidgets('non full bleed card does not use the overlay glow', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final focusNode = FocusNode();
     addTearDown(focusNode.dispose);
 
@@ -473,7 +473,7 @@ void main() {
   });
 
   testWidgets('overlay glow fades out and unmounts when focus is lost', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final focusNode = FocusNode();
     addTearDown(focusNode.dispose);
 
@@ -491,7 +491,7 @@ void main() {
   });
 
   testWidgets('touch mode shows no overlay glow on a full bleed card', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(false); // pointer mode
+    TvDetectionService.debugSetTvOverride(false); // pointer mode
     final focusNode = FocusNode();
     addTearDown(focusNode.dispose);
 
@@ -606,7 +606,7 @@ void main() {
 
   testWidgets('TV cards keep focus semantics only for accessible navigation', (tester) async {
     final semantics = tester.ensureSemantics();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final focusNode = FocusNode(debugLabel: 'semantic_card');
     addTearDown(focusNode.dispose);
     final item = testMediaItem(id: 'focus_semantic_movie', kind: MediaKind.movie, title: 'Focus Semantic Movie');
@@ -654,7 +654,7 @@ void main() {
 
   testWidgets('TV cards collapse pointer-only detail semantics without a screen reader', (tester) async {
     final semantics = tester.ensureSemantics();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final item = testMediaItem(
       id: 'tv_semantic_movie',
       kind: MediaKind.movie,
@@ -682,7 +682,7 @@ void main() {
 
   testWidgets('TV cards preserve detail semantics for accessible navigation', (tester) async {
     final semantics = tester.ensureSemantics();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final item = testMediaItem(id: 'tv_accessible_movie', kind: MediaKind.movie, title: 'Accessible TV Movie');
 
     await tester.pumpWidget(

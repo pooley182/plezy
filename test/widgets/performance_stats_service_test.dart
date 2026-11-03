@@ -5,9 +5,10 @@ import 'package:plezy/i18n/strings.g.dart';
 import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/widgets/video_controls/widgets/performance_overlay/performance_stats.dart';
 import 'package:plezy/widgets/video_controls/widgets/performance_overlay/performance_stats_service.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Player fake that answers mpv property queries from a fixed map.
-class _PropertyPlayer implements Player {
+class _PropertyPlayer with AndroidPlayerNoops implements Player {
   _PropertyPlayer(this.properties);
 
   final Map<String, String> properties;

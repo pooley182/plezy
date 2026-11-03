@@ -21,6 +21,7 @@ import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Remember Brightness Level (#2178): with the gestures-menu toggle on, the
 /// level a brightness swipe settled on is persisted and reapplied when the
@@ -51,8 +52,7 @@ void main() {
 
     // Phone layout: the touch pointer pipeline and the post-frame device
     // adjustment hook are wired only when isMobile(context) && !isTV().
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
 
     adjustmentCalls = <MethodCall>[];
     nativeBrightness = 0.5;
@@ -84,8 +84,7 @@ void main() {
 
   tearDown(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(adjustmentChannel, null);
-    TvDetectionService.debugSetAppleTVOverride(null);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     volume.dispose();
     playbackState.dispose();
     watchTogether.dispose();
@@ -245,7 +244,7 @@ void main() {
 }
 
 /// Minimal [Player] with a fixed playing state against a 45-minute item.
-class _RecordingPlayer implements Player {
+class _RecordingPlayer with AndroidPlayerNoops implements Player {
   @override
   String get playerType => 'mpv';
 

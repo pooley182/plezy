@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../test_helpers/media_items.dart';
 import '../../test_helpers/mock_player_channels.dart';
 import '../../test_helpers/prefs.dart';
+import '../../test_helpers/android_player_noops.dart';
 
 /// Regression coverage for #1797: while the screen node holds primary focus,
 /// its self-heal answers an actionable key by raising the chrome onto the
@@ -25,11 +26,11 @@ void main() {
     SettingsService.resetForTesting();
     final settings = await SettingsService.getInstance();
     await settings.write(SettingsService.seekTimeSmall, 10);
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('an arrow is left to the playback shortcuts when player navigation is off', (tester) async {
@@ -129,7 +130,7 @@ Future<bool> _selfHealFocusesPlayPauseFor(WidgetTester tester, LogicalKeyboardKe
   return focusedPlayPause;
 }
 
-class _SeekRecordingPlayer implements Player {
+class _SeekRecordingPlayer with AndroidPlayerNoops implements Player {
   _SeekRecordingPlayer({required Duration position})
     : _state = PlayerState(position: position, duration: const Duration(minutes: 45), seekable: true);
 

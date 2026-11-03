@@ -103,11 +103,6 @@ class OverlaySheetController {
     _state._autoFocus(clearSelectSuppression: false);
   }
 
-  /// Absolute height ceiling for resizable desktop windows. Without it a 4K
-  /// window yields a 1620px sheet, which reads as a wall of list rather than a
-  /// sheet.
-  static const _windowedMaxHeight = 720.0;
-
   /// Sizing applied when a caller supplies no explicit constraints: three
   /// quarters of the viewport height everywhere, the capped width on wide
   /// viewports, and the absolute height ceiling on desktop windows only.
@@ -120,12 +115,8 @@ class OverlaySheetController {
   static BoxConstraints _defaultSheetConstraints(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final isWideViewport = size.width > 600;
-    final isDesktopWindow = isWideViewport && PlatformDetector.isDesktopOS() && !PlatformDetector.isTV();
     final maxHeight = size.height * 0.75;
-    return BoxConstraints(
-      maxWidth: isWideViewport ? 700 : double.infinity,
-      maxHeight: isDesktopWindow ? math.min(maxHeight, _windowedMaxHeight) : maxHeight,
-    );
+    return BoxConstraints(maxWidth: isWideViewport ? 700 : double.infinity, maxHeight: maxHeight);
   }
 
   /// Show a sheet using the overlay system if available, otherwise fall back
@@ -303,8 +294,6 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
   BoxConstraints? _constraints;
   Color? _explicitBackgroundColor;
   Alignment _alignment = Alignment.bottomCenter;
-  Offset? _lastPointerPosition;
-  double? _sheetHorizontalAnchor;
 
   /// Bumped on every [_show]. Keys the resize animation so a freshly opened
   /// sheet adopts its own height immediately instead of animating down from
@@ -379,7 +368,6 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
 
     final completer = Completer<T?>();
     final entry = _OverlaySheetEntry(builder: builder, completer: completer, initialFocusNode: initialFocusNode);
-    final horizontalAnchor = _resolveSheetHorizontalAnchor(alignment);
 
     setState(() {
       _pageStack.add(entry);
@@ -391,7 +379,6 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
       _constraints = constraints;
       _explicitBackgroundColor = backgroundColor;
       _alignment = alignment;
-      _sheetHorizontalAnchor = horizontalAnchor;
       _dragOffset = 0;
       _isDragging = false;
     });
@@ -457,23 +444,10 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
         _isClosing = false;
         _dragOffset = 0;
         _isDragging = false;
-        _sheetHorizontalAnchor = null;
       });
       widget.onOpenChanged?.call(false);
       OverlaySheetController.openSheetCount.value--;
     });
-  }
-
-  void _rememberPointerPosition(PointerEvent event) {
-    if (event.kind != PointerDeviceKind.mouse) return;
-    _lastPointerPosition = event.localPosition;
-  }
-
-  double? _resolveSheetHorizontalAnchor(Alignment alignment) {
-    if (!PlatformDetector.isDesktopOS() || PlatformDetector.isTV()) return null;
-    if (InputModeTracker.isKeyboardMode(context, listen: false)) return null;
-    if (alignment.x != 0 || alignment.y <= 0) return null;
-    return _lastPointerPosition?.dx;
   }
 
   void _autoFocus({bool clearSelectSuppression = true}) {
@@ -558,38 +532,33 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Listener(
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: _rememberPointerPosition,
-      onPointerHover: _rememberPointerPosition,
-      child: Stack(
-        children: [
-          widget.child,
-          // Barrier + sheet only when open
-          if (_isOpen) ...[
-            Positioned.fill(
-              // The barrier swallows every pointer event behind it, so the
-              // screen underneath must leave the semantics tree too. Without
-              // this, assistive tech (and UI automation) still reads rows that
-              // cannot be activated — including through the ~250ms close, where
-              // a tap on a "visible" row lands on the barrier instead. Flutter's
-              // own ModalBarrier blocks semantics for the same reason.
-              child: BlockSemantics(
-                child: AnimatedBuilder(
-                  animation: _barrierAnimation,
-                  builder: (context, child) {
-                    return GestureDetector(
-                      onTap: _barrierDismissible ? () => _close() : null,
-                      child: ColoredBox(color: Colors.black.withValues(alpha: _barrierAnimation.value)),
-                    );
-                  },
-                ),
+    Widget content = Stack(
+      children: [
+        widget.child,
+        // Barrier + sheet only when open
+        if (_isOpen) ...[
+          Positioned.fill(
+            // The barrier swallows every pointer event behind it, so the
+            // screen underneath must leave the semantics tree too. Without
+            // this, assistive tech (and UI automation) still reads rows that
+            // cannot be activated — including through the ~250ms close, where
+            // a tap on a "visible" row lands on the barrier instead. Flutter's
+            // own ModalBarrier blocks semantics for the same reason.
+            child: BlockSemantics(
+              child: AnimatedBuilder(
+                animation: _barrierAnimation,
+                builder: (context, child) {
+                  return GestureDetector(
+                    onTap: _barrierDismissible ? () => _close() : null,
+                    child: ColoredBox(color: Colors.black.withValues(alpha: _barrierAnimation.value)),
+                  );
+                },
               ),
             ),
-            _buildSheet(context),
-          ],
+          ),
+          _buildSheet(context),
         ],
-      ),
+      ],
     );
 
     // When a screen opts in via [canPop], the host owns the system/route back
@@ -787,7 +756,6 @@ class _OverlaySheetHostState extends State<OverlaySheetHost> with SingleTickerPr
         child: CustomSingleChildLayout(
           delegate: _OverlaySheetLayoutDelegate(
             alignment: _alignment,
-            horizontalAnchor: _sheetHorizontalAnchor,
             edgePadding: isDesktop ? _OverlaySheetLayoutDelegate.desktopEdgePadding : 0,
           ),
           child: AnimatedBuilder(
@@ -873,14 +841,9 @@ class _OverlaySheetLayoutDelegate extends SingleChildLayoutDelegate {
   static const desktopEdgePadding = 16.0;
 
   final Alignment alignment;
-  final double? horizontalAnchor;
   final double edgePadding;
 
-  const _OverlaySheetLayoutDelegate({
-    required this.alignment,
-    required this.horizontalAnchor,
-    required this.edgePadding,
-  });
+  const _OverlaySheetLayoutDelegate({required this.alignment, required this.edgePadding});
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
@@ -894,9 +857,7 @@ class _OverlaySheetLayoutDelegate extends SingleChildLayoutDelegate {
     final hasHorizontalPadding = edgePadding > 0 && size.width > childSize.width + edgePadding * 2;
     final minLeft = hasHorizontalPadding ? edgePadding : 0.0;
     final maxLeft = hasHorizontalPadding ? size.width - childSize.width - edgePadding : minLeft;
-    final left = horizontalAnchor == null
-        ? minLeft + (maxLeft - minLeft) * (alignment.x + 1) / 2
-        : (horizontalAnchor! - childSize.width / 2).clamp(minLeft, maxLeft).toDouble();
+    final left = minLeft + (maxLeft - minLeft) * (alignment.x + 1) / 2;
 
     final maxTop = size.height > childSize.height ? size.height - childSize.height : 0.0;
     final top = maxTop * (alignment.y + 1) / 2;
@@ -906,8 +867,6 @@ class _OverlaySheetLayoutDelegate extends SingleChildLayoutDelegate {
 
   @override
   bool shouldRelayout(_OverlaySheetLayoutDelegate oldDelegate) {
-    return alignment != oldDelegate.alignment ||
-        horizontalAnchor != oldDelegate.horizontalAnchor ||
-        edgePadding != oldDelegate.edgePadding;
+    return alignment != oldDelegate.alignment || edgePadding != oldDelegate.edgePadding;
   }
 }

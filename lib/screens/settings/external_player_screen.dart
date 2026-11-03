@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -56,8 +54,6 @@ class ExternalPlayerScreen extends StatelessWidget {
                     final detected = snapshot.data;
                     if (detected == null) return const SizedBox.shrink();
                     final players = _withSelected(detected, selected.id);
-                    // Apple TV has no System Default, so with no known player
-                    // installed only the custom group remains.
                     if (players.isEmpty) return const SizedBox.shrink();
                     return SettingsGroup(
                       title: t.externalPlayer.selectPlayer,
@@ -181,10 +177,7 @@ class _AddCustomPlayerDialogState extends State<_AddCustomPlayerDialog> {
   final _valueController = TextEditingController();
   final _valueFocusNode = FocusNode(debugLabel: 'CustomExternalPlayerValue');
   final _saveFocusNode = FocusNode(debugLabel: 'CustomExternalPlayerSave');
-  // iOS and tvOS apps can only be reached through their URL scheme; there is
-  // no process to spawn and no package to target.
-  final _urlSchemeOnly = Platform.isIOS;
-  late CustomPlayerType _selectedType = _urlSchemeOnly ? CustomPlayerType.urlScheme : CustomPlayerType.command;
+  CustomPlayerType _selectedType = CustomPlayerType.command;
 
   @override
   void dispose() {
@@ -206,10 +199,7 @@ class _AddCustomPlayerDialogState extends State<_AddCustomPlayerDialog> {
     if (_selectedType == CustomPlayerType.urlScheme) {
       return (label: t.externalPlayer.playerUrlScheme, hint: 'myplayer://play?url=');
     }
-    if (Platform.isAndroid) {
-      return (label: t.externalPlayer.playerPackage, hint: 'com.example.player');
-    }
-    return (label: t.externalPlayer.playerCommand, hint: Platform.isMacOS ? 'mpv' : '/usr/bin/player');
+    return (label: t.externalPlayer.playerPackage, hint: 'com.example.player');
   }
 
   @override
@@ -232,20 +222,15 @@ class _AddCustomPlayerDialogState extends State<_AddCustomPlayerDialog> {
               textInputAction: TextInputAction.next,
               onSubmitted: (_) => _valueFocusNode.requestFocus(),
             ),
-            if (!_urlSchemeOnly) ...[
-              const SizedBox(height: 16),
-              ExpressiveButtonGroup<CustomPlayerType>(
-                segments: [
-                  ButtonSegment(
-                    value: CustomPlayerType.command,
-                    label: Text(Platform.isAndroid ? t.externalPlayer.playerPackage : t.externalPlayer.playerCommand),
-                  ),
-                  ButtonSegment(value: CustomPlayerType.urlScheme, label: Text(t.externalPlayer.playerUrlScheme)),
-                ],
-                selected: _selectedType,
-                onChanged: (value) => setState(() => _selectedType = value),
-              ),
-            ],
+            const SizedBox(height: 16),
+            ExpressiveButtonGroup<CustomPlayerType>(
+              segments: [
+                ButtonSegment(value: CustomPlayerType.command, label: Text(t.externalPlayer.playerPackage)),
+                ButtonSegment(value: CustomPlayerType.urlScheme, label: Text(t.externalPlayer.playerUrlScheme)),
+              ],
+              selected: _selectedType,
+              onChanged: (value) => setState(() => _selectedType = value),
+            ),
             const SizedBox(height: 16),
             FocusableTextField(
               controller: _valueController,

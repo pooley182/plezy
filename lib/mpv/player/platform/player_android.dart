@@ -55,11 +55,6 @@ class PlayerAndroid extends PlayerBase {
   @override
   String get playerType => 'exoplayer';
 
-  // ExoPlayerPlugin no-ops a dispose whose instanceId is not the core's
-  // creator, so a timed-out ownership wait may still force-dispose.
-  @override
-  bool get nativeDisposeIsStaleGuarded => true;
-
   @override
   bool get supportsSecondarySubtitles => false;
 

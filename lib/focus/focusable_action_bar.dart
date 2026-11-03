@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../widgets/app_icon.dart';
-import '../widgets/clickable_cursor.dart';
 import 'focus_theme.dart';
 import 'input_mode_tracker.dart';
 import 'key_event_utils.dart';
@@ -336,24 +335,21 @@ class FocusableActionBarState extends State<FocusableActionBar> {
           trapHorizontalEdges: true,
         )(node, event);
       },
-      child: ClickableCursor(
-        enabled: enabled,
-        child: AnimatedOpacity(
-          opacity: showFocus ? 1.0 : opacity,
-          duration: duration,
-          child:
-              customChild ??
-              Container(
-                decoration: FocusTheme.focusBackgroundDecoration(context, isFocused: showFocus, borderRadius: 20),
-                child:
-                    action.child ??
-                    IconButton(
-                      icon: AppIcon(action.icon, size: action.iconSize, fill: action.iconFill, color: action.iconColor),
-                      tooltip: action.tooltip,
-                      onPressed: action.onPressed,
-                    ),
-              ),
-        ),
+      child: AnimatedOpacity(
+        opacity: showFocus ? 1.0 : opacity,
+        duration: duration,
+        child:
+            customChild ??
+            Container(
+              decoration: FocusTheme.focusBackgroundDecoration(context, isFocused: showFocus, borderRadius: 20),
+              child:
+                  action.child ??
+                  IconButton(
+                    icon: AppIcon(action.icon, size: action.iconSize, fill: action.iconFill, color: action.iconColor),
+                    tooltip: action.tooltip,
+                    onPressed: action.onPressed,
+                  ),
+            ),
       ),
     );
   }

@@ -145,7 +145,6 @@ class _Translations$auth$nl extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Wachten op goedkeuring…';
 	@override String get quickConnectCancel => 'Annuleren';
 	@override String get quickConnectExpired => 'Quick Connect is verlopen. Probeer opnieuw.';
-	@override String get localDataRecoveryRequired => 'Plezy kon lokale aanmeldings- en openstaande afspeelgegevens niet veilig herstellen. Meld je opnieuw aan.';
 	@override String get pinCheckRejected => 'De controle van de Plex-pincode is geweigerd';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$nl extends Translations$common$en {
 	@override String get connectingToServers => 'Verbinden met servers...';
 	@override String get startingOfflineMode => 'Offlinemodus starten...';
 	@override String get loading => 'Laden...';
-	@override String get fullscreen => 'Volledig scherm';
-	@override String get exitFullscreen => 'Volledig scherm verlaten';
 	@override String get pressBackAgainToExit => 'Druk nogmaals op terug om af te sluiten';
 	@override late final _Translations$common$ratingSource$nl ratingSource = _Translations$common$ratingSource$nl._(_root);
 	@override String get notAvailable => 'N/A';
@@ -364,9 +361,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => 'Zelfde als standaardkwaliteit';
 	@override String get directPlayCoveredQuality => 'Kleinere video\'s op originele kwaliteit afspelen';
 	@override String get directPlayCoveredQualityDescription => 'Speel video\'s die al binnen de kwaliteitslimiet vallen direct af in plaats van ze te transcoderen';
-	@override String get videoCodecs => 'Videocodecs';
-	@override String get videoCodecsDescription => 'Niet-aangevinkte codecs worden door de server getranscodeerd';
-	@override String get videoCodecsAlwaysAccepted => 'Altijd geaccepteerd';
 	@override String get musicQualityTitle => 'Muziekkwaliteit';
 	@override String get subtitleStyling => 'Ondertitelopmaak';
 	@override String get subtitleStylingDescription => 'Pas de weergave van ondertitels aan';
@@ -392,11 +386,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get specialsOrderingLast => 'Na reguliere seizoenen';
 	@override String get clickVideoTogglesPlayback => 'Klik op de video om afspelen of pauzeren te wisselen';
 	@override String get clickVideoTogglesPlaybackDescription => 'Klik op de video om af te spelen of te pauzeren in plaats van de bediening te tonen.';
-	@override String get videoPlayerControls => 'Videospelerbediening';
-	@override String get keyboardShortcuts => 'Toetsenbordsneltoetsen';
-	@override String get keyboardShortcutsDescription => 'Pas de toetsenbordsneltoetsen aan';
-	@override String get videoPlayerNavigation => 'Videospelernavigatie';
-	@override String get videoPlayerNavigationDescription => 'Gebruik de pijltjestoetsen om door de videospelerbediening te navigeren';
 	@override String get watchTogetherRelay => 'Relay voor Samen kijken';
 	@override String get watchTogetherRelayDescription => 'Openbare Open Watch Party-relays, tenzij je een eigen relay instelt';
 	@override String get watchTogetherRelayHint => 'https://mijn-relay.voorbeeld.nl';
@@ -423,8 +412,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get importSettingsSuccess => 'Instellingen geïmporteerd';
 	@override String get importSettingsInvalidFile => 'Dit bestand is geen geldige Plezy-export';
 	@override String get importSettingsNoUser => 'Meld je aan voordat je instellingen importeert';
-	@override String get shortcutsReset => 'Sneltoetsen gereset naar standaard';
-	@override String get resetShortcutsConfirm => 'Hiermee worden je aangepaste sneltoetsen vervangen door de standaardinstellingen. Doorgaan?';
 	@override String get about => 'Over';
 	@override String get aboutDescription => 'App-informatie en licenties';
 	@override String get updates => 'Updates';
@@ -434,8 +421,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => 'Melden wanneer er bij start een update beschikbaar is';
 	@override String get validationErrorEnterNumber => 'Voer een geldig nummer in';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => 'Duur moet tussen ${min} en ${max} ${unit} zijn';
-	@override String shortcutAlreadyAssigned({required Object action}) => 'Sneltoets al toegewezen aan ${action}';
-	@override String shortcutUpdated({required Object action}) => 'Sneltoets bijgewerkt voor ${action}';
 	@override String get saveFailed => 'Wijzigingen konden niet worden opgeslagen. Probeer het opnieuw.';
 	@override String get autoPlayAndSkip => 'Automatisch afspelen en overslaan';
 	@override String get autoPlayNextEpisode => 'Volgende aflevering automatisch afspelen';
@@ -484,8 +469,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get maxVolume => 'Maximaal volume';
 	@override String get maxVolumeDescription => 'Volume boven 100% toestaan voor stille media';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Toon op Discord wat je aan het kijken bent';
 	@override String get services => 'Diensten';
 	@override String get servicesDescription => 'Koppel Trakt, MyAnimeList, Seerr en meer';
 	@override String get manageLibrariesDescription => 'Bibliotheken herordenen en verbergen';
@@ -499,17 +482,11 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => 'Stem schermverversing af op videocontent';
 	@override String get matchContentResolution => 'Aanpassen aan resolutie van content';
 	@override String get matchContentResolutionDescription => 'Schakelt het beeldscherm naar de eigen resolutie van de video, zodat je tv het opschalen doet. Menu\'s en ondertitels worden tijdens het afspelen ook opgeschaald';
-	@override String get matchRefreshRate => 'Verversingssnelheid afstemmen';
-	@override String get matchRefreshRateDescription => 'Stem schermverversing af in volledig scherm';
-	@override String get matchDynamicRange => 'Dynamisch bereik afstemmen';
-	@override String get matchDynamicRangeDescription => 'Schakel HDR in voor HDR-content en daarna terug naar SDR';
 	@override String get displaySwitchDelay => 'Vertraging bij schermwisseling';
 	@override String get tunneledPlayback => 'Getunnelde weergave';
 	@override String get tunneledPlaybackDescription => 'Gebruik videotunneling. Schakel uit als HDR-afspelen zwart beeld geeft of beweging hapert.';
 	@override String get audioPassthrough => 'Audio-doorvoer';
 	@override String get audioPassthroughDescription => 'Stuur Dolby/DTS-audio zonder hercodering naar je receiver of tv en behoud surroundgeluid. Schakel uit als je geen geluid hebt.';
-	@override String get audioPassthroughDescriptionApple => 'Gebruik de ingebouwde Dolby-decoder van Apple voor Dolby Digital Plus, inclusief Atmos. DTS en TrueHD worden nog steeds als meerkanaals-PCM afgespeeld. Schakel dit uit als je geen geluid hoort.';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Gebruik de ingebouwde Dolby-decoder van Apple voor Dolby Digital Plus, inclusief Atmos. Op iOS, iPadOS en tvOS 26 of nieuwer worden TrueHD Atmos en DTS:X als ruimtelijke audio afgespeeld. Andere DTS- en TrueHD-sporen worden als meerkanaals-PCM afgespeeld. Schakel dit uit als je geen geluid hoort.';
 	@override String get audioPassthroughOverriddenByNormalization => 'Uit zolang volumenormalisatie aan staat';
 	@override String get audioChannelLimit => 'Audiokanalen';
 	@override String get audioChannelLimitDescription => 'Downmix gedecodeerde audio voor luidsprekers, koptelefoons of HDMI-opstellingen die niet elk kanaal kunnen afspelen';
@@ -557,10 +534,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Toon profielselectie telkens wanneer de app wordt geopend';
 	@override String get forceTvMode => 'Tv-modus afdwingen';
 	@override String get forceTvModeDescription => 'Dwing de tv-indeling af op apparaten zonder automatische detectie. Herstart vereist.';
-	@override String get startInFullscreen => 'Starten in volledig scherm';
-	@override String get startInFullscreenDescription => 'Open Plezy bij het starten in volledig scherm';
-	@override String get exitFullscreenOnPlayerClose => 'Volledig scherm verlaten bij sluiten van speler';
-	@override String get exitFullscreenOnPlayerCloseDescription => 'Verlaat automatisch de volledigschermmodus wanneer de videospeler wordt gesloten';
 	@override String get autoHidePerformanceOverlay => 'Prestatie-overlay automatisch verbergen';
 	@override String get autoHidePerformanceOverlayDescription => 'Laat de prestatie-overlay samen met de afspeelknoppen vervagen';
 	@override String get showNavBarLabels => 'Labels op navigatiebalk tonen';
@@ -578,7 +551,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get libraryAndCards => 'Bibliotheek en kaarten';
 	@override String get homeScreen => 'Startscherm';
 	@override String get navigation => 'Navigatie';
-	@override String get window => 'Venster';
 	@override String get liveTv => 'Live-tv';
 	@override String get player => 'Speler';
 	@override String get videoAndDisplay => 'Video en weergave';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$nl extends Translations$hotkeys$en {
 	final TranslationsNl _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => 'Stel sneltoets in voor ${actionName}';
-	@override String get clearShortcut => 'Wis sneltoets';
 	@override String get noShortcutSet => 'Geen sneltoets ingesteld';
-	@override String get currentShortcut => 'Huidige sneltoets:';
-	@override String get pressToRecord => 'Selecteer om een sneltoets op te nemen';
-	@override String get recordingShortcut => 'Druk nu op de sneltoets';
 	@override late final _Translations$hotkeys$actions$nl actions = _Translations$hotkeys$actions$nl._(_root);
 }
 
@@ -980,16 +947,12 @@ class _Translations$videoControls$nl extends Translations$videoControls$en {
 	@override String get pipButton => 'Beeld-in-beeldmodus';
 	@override String get aspectRatioButton => 'Beeldverhouding';
 	@override String get ambientLighting => 'Omgevingsverlichting';
-	@override String get fullscreenButton => 'Volledig scherm activeren';
-	@override String get exitFullscreenButton => 'Volledig scherm verlaten';
-	@override String get alwaysOnTopButton => 'Altijd bovenop';
 	@override String get rotationLockButton => 'Rotatievergrendeling';
 	@override String get lockScreen => 'Scherm vergrendelen';
 	@override String get screenLockButton => 'Schermvergrendeling';
 	@override String get timelineSlider => 'Videotijdlijn';
 	@override String get volumeSlider => 'Volumeniveau';
 	@override String endsAt({required Object time}) => 'Eindigt om ${time}';
-	@override String get pipActive => 'Afspelen in beeld-in-beeld';
 	@override String get pipFailed => 'Beeld-in-beeld kon niet worden gestart';
 	@override String get screenshotSaved => 'Schermafbeelding opgeslagen';
 	@override String get screenshotFailed => 'Schermafbeelding maken mislukt';
@@ -1157,7 +1120,6 @@ class _Translations$mpvConfig$nl extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => 'Regel toevoegen';
 	@override String get removeLine => 'Regel verwijderen';
-	@override String get embeddedVoHint => 'vo, gpu-context en gpu-api worden genegeerd op Linux: ingebedde video wordt altijd weergegeven via vo=libmpv op het videovlak, en gpu-next (nodig voor compute-shaders zoals ArtCNN) kan niet ingebed draaien.';
 }
 
 // Path: dialog
@@ -1507,7 +1469,6 @@ class _Translations$startup$nl extends Translations$startup$en {
 	@override String get repairSucceeded => 'Opslag gerepareerd';
 	@override String get repairNeedsRestart => 'Opslag gerepareerd — herstart vereist';
 	@override String get restartRequiredBody => 'Je gegevens zijn gerepareerd, maar Plezy moet opnieuw starten voordat het ze kan gebruiken. Sluit Plezy en open het opnieuw.';
-	@override String get quitPlezy => 'Plezy afsluiten';
 	@override String get repairFailed => 'Repareren mislukt';
 	@override String get repairKeptSignIns => 'Je servers en profielen zijn nog steeds aangemeld.';
 	@override String get repairLostSignIns => 'De sleutel die je opgeslagen aanmeldingen beschermt, kon niet worden hersteld. Je moet je opnieuw aanmelden bij elke server en elk profiel.';
@@ -2078,20 +2039,9 @@ class _Translations$videoSettings$nl extends Translations$videoSettings$en {
 	@override String get audioSync => 'Audiosynchronisatie';
 	@override String get subtitleSync => 'Ondertitelsynchronisatie';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => 'HDR is hier niet beschikbaar — deze desktopcompositor of video-uitvoer kan HDR niet doorgeven.';
-	@override String get hdrToneMapping => 'HDR-tonemapping';
-	@override String get hdrToneMappingCompositor => 'Compositor';
-	@override String get hdrToneMappingCompositorDescription => 'Geef de HDR-metadata van de bron ongewijzigd door en laat de desktopcompositor de mapping uitvoeren.';
-	@override String get hdrToneMappingPlayer => 'Speler';
-	@override String get hdrToneMappingPlayerDescription => 'Laat de speler de mapping naar de piekhelderheid van het scherm uitvoeren en geef het resultaat vervolgens door aan de compositor.';
-	@override String get hdrToneMappingFailed => 'Kon HDR-tonemapping niet wijzigen — de vorige modus is nog actief.';
 	@override String get audioOutput => 'Audio-uitvoer';
-	@override String get performanceOverlay => 'Prestatie-overlay';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => 'Surround';
-	@override String get audioOutputSpatial => 'Ruimtelijke audio';
 	@override String get audioOutputStereo => 'Stereo';
+	@override String get performanceOverlay => 'Prestatie-overlay';
 	@override String get audioNormalization => 'Volume normaliseren';
 	@override String get audioNormalizationDisablesPassthrough => 'Decodeert audio naar PCM; doorvoer is uit zolang dit aan staat';
 }
@@ -2174,7 +2124,6 @@ class _Translations$externalPlayer$nl extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => 'Aangepaste speler toevoegen';
 	@override String get playerName => 'Spelernaam';
 	@override String get playerNameHint => 'Mijn speler';
-	@override String get playerCommand => 'Commando';
 	@override String get playerPackage => 'Pakketnaam';
 	@override String get playerUrlScheme => 'URL-schema';
 	@override String get off => 'Uit';
@@ -2386,7 +2335,6 @@ class _Translations$services$nl extends Translations$services$en {
 	// Translations
 	@override String get title => 'Diensten';
 	@override String get hubSubtitle => 'Synchroniseer kijkvoortgang en vraag nieuwe titels aan.';
-	@override String get integrations => 'Integraties';
 	@override String get notConnected => 'Niet verbonden';
 	@override String connectedAs({required Object username}) => 'Verbonden als @${username}';
 	@override String get scrobble => 'Voortgang automatisch volgen';
@@ -2621,7 +2569,6 @@ class _Translations$videoControls$pipErrors$nl extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Vereist Android 8.0 of nieuwer';
-	@override String get iosVersion => 'Vereist iOS 15.0 of nieuwer';
 	@override String get permissionDisabled => 'Beeld-in-beeld is uitgeschakeld. Schakel het in via de systeeminstellingen.';
 	@override String get notSupported => 'Dit apparaat ondersteunt de beeld-in-beeldmodus niet';
 	@override String get voSwitchFailed => 'Omschakelen van de video-uitvoer voor beeld-in-beeld is mislukt';
@@ -3442,7 +3389,6 @@ extension on TranslationsNl {
 			'auth.quickConnectWaiting' => 'Wachten op goedkeuring…',
 			'auth.quickConnectCancel' => 'Annuleren',
 			'auth.quickConnectExpired' => 'Quick Connect is verlopen. Probeer opnieuw.',
-			'auth.localDataRecoveryRequired' => 'Plezy kon lokale aanmeldings- en openstaande afspeelgegevens niet veilig herstellen. Meld je opnieuw aan.',
 			'auth.pinCheckRejected' => 'De controle van de Plex-pincode is geweigerd',
 			'common.cancel' => 'Annuleren',
 			'common.save' => 'Opslaan',
@@ -3487,8 +3433,6 @@ extension on TranslationsNl {
 			'common.connectingToServers' => 'Verbinden met servers...',
 			'common.startingOfflineMode' => 'Offlinemodus starten...',
 			'common.loading' => 'Laden...',
-			'common.fullscreen' => 'Volledig scherm',
-			'common.exitFullscreen' => 'Volledig scherm verlaten',
 			'common.pressBackAgainToExit' => 'Druk nogmaals op terug om af te sluiten',
 			'common.ratingSource.critic' => 'Critici',
 			'common.ratingSource.audience' => 'Publiek',
@@ -3644,9 +3588,6 @@ extension on TranslationsNl {
 			'settings.cellularQualitySameAsDefault' => 'Zelfde als standaardkwaliteit',
 			'settings.directPlayCoveredQuality' => 'Kleinere video\'s op originele kwaliteit afspelen',
 			'settings.directPlayCoveredQualityDescription' => 'Speel video\'s die al binnen de kwaliteitslimiet vallen direct af in plaats van ze te transcoderen',
-			'settings.videoCodecs' => 'Videocodecs',
-			'settings.videoCodecsDescription' => 'Niet-aangevinkte codecs worden door de server getranscodeerd',
-			'settings.videoCodecsAlwaysAccepted' => 'Altijd geaccepteerd',
 			'settings.musicQualityTitle' => 'Muziekkwaliteit',
 			'settings.subtitleStyling' => 'Ondertitelopmaak',
 			'settings.subtitleStylingDescription' => 'Pas de weergave van ondertitels aan',
@@ -3672,11 +3613,6 @@ extension on TranslationsNl {
 			'settings.specialsOrderingLast' => 'Na reguliere seizoenen',
 			'settings.clickVideoTogglesPlayback' => 'Klik op de video om afspelen of pauzeren te wisselen',
 			'settings.clickVideoTogglesPlaybackDescription' => 'Klik op de video om af te spelen of te pauzeren in plaats van de bediening te tonen.',
-			'settings.videoPlayerControls' => 'Videospelerbediening',
-			'settings.keyboardShortcuts' => 'Toetsenbordsneltoetsen',
-			'settings.keyboardShortcutsDescription' => 'Pas de toetsenbordsneltoetsen aan',
-			'settings.videoPlayerNavigation' => 'Videospelernavigatie',
-			'settings.videoPlayerNavigationDescription' => 'Gebruik de pijltjestoetsen om door de videospelerbediening te navigeren',
 			'settings.watchTogetherRelay' => 'Relay voor Samen kijken',
 			'settings.watchTogetherRelayDescription' => 'Openbare Open Watch Party-relays, tenzij je een eigen relay instelt',
 			'settings.watchTogetherRelayHint' => 'https://mijn-relay.voorbeeld.nl',
@@ -3703,8 +3639,6 @@ extension on TranslationsNl {
 			'settings.importSettingsSuccess' => 'Instellingen geïmporteerd',
 			'settings.importSettingsInvalidFile' => 'Dit bestand is geen geldige Plezy-export',
 			'settings.importSettingsNoUser' => 'Meld je aan voordat je instellingen importeert',
-			'settings.shortcutsReset' => 'Sneltoetsen gereset naar standaard',
-			'settings.resetShortcutsConfirm' => 'Hiermee worden je aangepaste sneltoetsen vervangen door de standaardinstellingen. Doorgaan?',
 			'settings.about' => 'Over',
 			'settings.aboutDescription' => 'App-informatie en licenties',
 			'settings.updates' => 'Updates',
@@ -3714,8 +3648,6 @@ extension on TranslationsNl {
 			'settings.autoCheckUpdatesOnStartupDescription' => 'Melden wanneer er bij start een update beschikbaar is',
 			'settings.validationErrorEnterNumber' => 'Voer een geldig nummer in',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => 'Duur moet tussen ${min} en ${max} ${unit} zijn',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'Sneltoets al toegewezen aan ${action}',
-			'settings.shortcutUpdated' => ({required Object action}) => 'Sneltoets bijgewerkt voor ${action}',
 			'settings.saveFailed' => 'Wijzigingen konden niet worden opgeslagen. Probeer het opnieuw.',
 			'settings.autoPlayAndSkip' => 'Automatisch afspelen en overslaan',
 			'settings.autoPlayNextEpisode' => 'Volgende aflevering automatisch afspelen',
@@ -3764,8 +3696,6 @@ extension on TranslationsNl {
 			'settings.maxVolume' => 'Maximaal volume',
 			'settings.maxVolumeDescription' => 'Volume boven 100% toestaan voor stille media',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Toon op Discord wat je aan het kijken bent',
 			'settings.services' => 'Diensten',
 			'settings.servicesDescription' => 'Koppel Trakt, MyAnimeList, Seerr en meer',
 			'settings.manageLibrariesDescription' => 'Bibliotheken herordenen en verbergen',
@@ -3779,17 +3709,11 @@ extension on TranslationsNl {
 			'settings.matchContentFrameRateDescription' => 'Stem schermverversing af op videocontent',
 			'settings.matchContentResolution' => 'Aanpassen aan resolutie van content',
 			'settings.matchContentResolutionDescription' => 'Schakelt het beeldscherm naar de eigen resolutie van de video, zodat je tv het opschalen doet. Menu\'s en ondertitels worden tijdens het afspelen ook opgeschaald',
-			'settings.matchRefreshRate' => 'Verversingssnelheid afstemmen',
-			'settings.matchRefreshRateDescription' => 'Stem schermverversing af in volledig scherm',
-			'settings.matchDynamicRange' => 'Dynamisch bereik afstemmen',
-			'settings.matchDynamicRangeDescription' => 'Schakel HDR in voor HDR-content en daarna terug naar SDR',
 			'settings.displaySwitchDelay' => 'Vertraging bij schermwisseling',
 			'settings.tunneledPlayback' => 'Getunnelde weergave',
 			'settings.tunneledPlaybackDescription' => 'Gebruik videotunneling. Schakel uit als HDR-afspelen zwart beeld geeft of beweging hapert.',
 			'settings.audioPassthrough' => 'Audio-doorvoer',
 			'settings.audioPassthroughDescription' => 'Stuur Dolby/DTS-audio zonder hercodering naar je receiver of tv en behoud surroundgeluid. Schakel uit als je geen geluid hebt.',
-			'settings.audioPassthroughDescriptionApple' => 'Gebruik de ingebouwde Dolby-decoder van Apple voor Dolby Digital Plus, inclusief Atmos. DTS en TrueHD worden nog steeds als meerkanaals-PCM afgespeeld. Schakel dit uit als je geen geluid hoort.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Gebruik de ingebouwde Dolby-decoder van Apple voor Dolby Digital Plus, inclusief Atmos. Op iOS, iPadOS en tvOS 26 of nieuwer worden TrueHD Atmos en DTS:X als ruimtelijke audio afgespeeld. Andere DTS- en TrueHD-sporen worden als meerkanaals-PCM afgespeeld. Schakel dit uit als je geen geluid hoort.',
 			'settings.audioPassthroughOverriddenByNormalization' => 'Uit zolang volumenormalisatie aan staat',
 			'settings.audioChannelLimit' => 'Audiokanalen',
 			'settings.audioChannelLimitDescription' => 'Downmix gedecodeerde audio voor luidsprekers, koptelefoons of HDMI-opstellingen die niet elk kanaal kunnen afspelen',
@@ -3837,10 +3761,6 @@ extension on TranslationsNl {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Toon profielselectie telkens wanneer de app wordt geopend',
 			'settings.forceTvMode' => 'Tv-modus afdwingen',
 			'settings.forceTvModeDescription' => 'Dwing de tv-indeling af op apparaten zonder automatische detectie. Herstart vereist.',
-			'settings.startInFullscreen' => 'Starten in volledig scherm',
-			'settings.startInFullscreenDescription' => 'Open Plezy bij het starten in volledig scherm',
-			'settings.exitFullscreenOnPlayerClose' => 'Volledig scherm verlaten bij sluiten van speler',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'Verlaat automatisch de volledigschermmodus wanneer de videospeler wordt gesloten',
 			'settings.autoHidePerformanceOverlay' => 'Prestatie-overlay automatisch verbergen',
 			'settings.autoHidePerformanceOverlayDescription' => 'Laat de prestatie-overlay samen met de afspeelknoppen vervagen',
 			'settings.showNavBarLabels' => 'Labels op navigatiebalk tonen',
@@ -3858,7 +3778,6 @@ extension on TranslationsNl {
 			'settings.libraryAndCards' => 'Bibliotheek en kaarten',
 			'settings.homeScreen' => 'Startscherm',
 			'settings.navigation' => 'Navigatie',
-			'settings.window' => 'Venster',
 			'settings.liveTv' => 'Live-tv',
 			'settings.player' => 'Speler',
 			'settings.videoAndDisplay' => 'Video en weergave',
@@ -3907,8 +3826,6 @@ extension on TranslationsNl {
 			'themeEditor.slots.text' => 'Tekst',
 			'themeEditor.slots.textMuted' => 'Secundaire tekst',
 			'themeEditor.slots.accent' => 'Accent',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => 'Dekking',
 			'themeEditor.hexHint' => '#RRGGBB of #AARRGGBB',
 			'themeEditor.fromOtherThemes' => 'Uit andere thema\'s',
@@ -3933,15 +3850,12 @@ extension on TranslationsNl {
 			'search.searchYourMedia' => 'Zoek in je media',
 			'search.enterTitleActorOrKeyword' => 'Voer een titel, acteur of trefwoord in',
 			'search.people' => 'Personen',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => 'Stel sneltoets in voor ${actionName}',
-			'hotkeys.clearShortcut' => 'Wis sneltoets',
 			'hotkeys.noShortcutSet' => 'Geen sneltoets ingesteld',
-			'hotkeys.currentShortcut' => 'Huidige sneltoets:',
-			'hotkeys.pressToRecord' => 'Selecteer om een sneltoets op te nemen',
-			'hotkeys.recordingShortcut' => 'Druk nu op de sneltoets',
 			'hotkeys.actions.playPause' => 'Afspelen/Pauzeren',
 			'hotkeys.actions.volumeUp' => 'Volume omhoog',
 			'hotkeys.actions.volumeDown' => 'Volume omlaag',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Vooruitspoelen (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Terugspoelen (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Volledig scherm',
@@ -4198,23 +4112,18 @@ extension on TranslationsNl {
 			'videoControls.pipButton' => 'Beeld-in-beeldmodus',
 			'videoControls.aspectRatioButton' => 'Beeldverhouding',
 			'videoControls.ambientLighting' => 'Omgevingsverlichting',
-			'videoControls.fullscreenButton' => 'Volledig scherm activeren',
-			'videoControls.exitFullscreenButton' => 'Volledig scherm verlaten',
-			'videoControls.alwaysOnTopButton' => 'Altijd bovenop',
 			'videoControls.rotationLockButton' => 'Rotatievergrendeling',
 			'videoControls.lockScreen' => 'Scherm vergrendelen',
 			'videoControls.screenLockButton' => 'Schermvergrendeling',
 			'videoControls.timelineSlider' => 'Videotijdlijn',
 			'videoControls.volumeSlider' => 'Volumeniveau',
 			'videoControls.endsAt' => ({required Object time}) => 'Eindigt om ${time}',
-			'videoControls.pipActive' => 'Afspelen in beeld-in-beeld',
 			'videoControls.pipFailed' => 'Beeld-in-beeld kon niet worden gestart',
 			'videoControls.screenshotSaved' => 'Schermafbeelding opgeslagen',
 			'videoControls.screenshotFailed' => 'Schermafbeelding maken mislukt',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'Zoom ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => 'Volume ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Vereist Android 8.0 of nieuwer',
-			'videoControls.pipErrors.iosVersion' => 'Vereist iOS 15.0 of nieuwer',
 			'videoControls.pipErrors.permissionDisabled' => 'Beeld-in-beeld is uitgeschakeld. Schakel het in via de systeeminstellingen.',
 			'videoControls.pipErrors.notSupported' => 'Dit apparaat ondersteunt de beeld-in-beeldmodus niet',
 			'videoControls.pipErrors.voSwitchFailed' => 'Omschakelen van de video-uitvoer voor beeld-in-beeld is mislukt',
@@ -4352,7 +4261,6 @@ extension on TranslationsNl {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => 'Regel toevoegen',
 			'mpvConfig.removeLine' => 'Regel verwijderen',
-			'mpvConfig.embeddedVoHint' => 'vo, gpu-context en gpu-api worden genegeerd op Linux: ingebedde video wordt altijd weergegeven via vo=libmpv op het videovlak, en gpu-next (nodig voor compute-shaders zoals ArtCNN) kan niet ingebed draaien.',
 			'dialog.confirmAction' => 'Bevestig actie',
 			'profiles.addPlezyProfile' => 'Plezy-profiel toevoegen',
 			'profiles.switchingProfile' => 'Profiel wisselen…',
@@ -4421,8 +4329,6 @@ extension on TranslationsNl {
 			'profiles.tokenIdentityMismatch' => 'Het token van het Plex-profiel bleek bij een onverwachte server te horen',
 			'connections.sectionTitle' => 'Verbindingen',
 			'connections.addConnection' => 'Verbinding toevoegen',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Meld je aan met Plex of verbind een Jellyfin- of Emby-server',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => 'Toevoegen aan ${displayName}: Plex, Jellyfin, Emby of een andere profielverbinding',
 			'connections.sessionExpiredOne' => ({required Object name}) => 'Sessie verlopen voor ${name}',
@@ -4462,6 +4368,8 @@ extension on TranslationsNl {
 			'accountPreferences.subtitleModes.smart' => 'Weergeven bij anderstalig geluid',
 			'accountPreferences.subtitleModes.smartDescription' => 'Schakel ondertitels alleen in wanneer de audio in een andere taal is.',
 			'accountPreferences.subtitleAccessibility' => 'SDH-ondertitels',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Voorkeur voor niet-SDH-ondertitels',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Voorkeur voor SDH-ondertitels',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Alleen SDH-ondertitels',
@@ -4686,7 +4594,6 @@ extension on TranslationsNl {
 			'startup.repairSucceeded' => 'Opslag gerepareerd',
 			'startup.repairNeedsRestart' => 'Opslag gerepareerd — herstart vereist',
 			'startup.restartRequiredBody' => 'Je gegevens zijn gerepareerd, maar Plezy moet opnieuw starten voordat het ze kan gebruiken. Sluit Plezy en open het opnieuw.',
-			'startup.quitPlezy' => 'Plezy afsluiten',
 			'startup.repairFailed' => 'Repareren mislukt',
 			'startup.repairKeptSignIns' => 'Je servers en profielen zijn nog steeds aangemeld.',
 			'startup.repairLostSignIns' => 'De sleutel die je opgeslagen aanmeldingen beschermt, kon niet worden hersteld. Je moet je opnieuw aanmelden bij elke server en elk profiel.',
@@ -4935,8 +4842,6 @@ extension on TranslationsNl {
 			'liveTv.recordSettings.keepUpToHint' => '0 bewaart alle afleveringen',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => 'Begint over ${minutes} min',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day} om ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product} heeft ongeldige afspeelgegevens voor Live-tv geretourneerd',
 			'liveTv.failedToStartChannel' => 'Kon de livezender niet starten',
 			'liveTv.failedToBuildStreamUrl' => 'Kon de stream-URL niet samenstellen',
@@ -4977,6 +4882,8 @@ extension on TranslationsNl {
 			'playlists.deleteConfirm' => 'Afspeellijst verwijderen?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Weet je zeker dat je "${name}" wilt verwijderen?',
 			'playlists.created' => 'Afspeellijst gemaakt',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => 'Afspeellijst verwijderd',
 			'playlists.itemAdded' => 'Toegevoegd aan afspeellijst',
 			'playlists.itemRemoved' => 'Verwijderd uit afspeellijst',
@@ -5380,20 +5287,9 @@ extension on TranslationsNl {
 			'videoSettings.audioSync' => 'Audiosynchronisatie',
 			'videoSettings.subtitleSync' => 'Ondertitelsynchronisatie',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'HDR is hier niet beschikbaar — deze desktopcompositor of video-uitvoer kan HDR niet doorgeven.',
-			'videoSettings.hdrToneMapping' => 'HDR-tonemapping',
-			'videoSettings.hdrToneMappingCompositor' => 'Compositor',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'Geef de HDR-metadata van de bron ongewijzigd door en laat de desktopcompositor de mapping uitvoeren.',
-			'videoSettings.hdrToneMappingPlayer' => 'Speler',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'Laat de speler de mapping naar de piekhelderheid van het scherm uitvoeren en geef het resultaat vervolgens door aan de compositor.',
-			'videoSettings.hdrToneMappingFailed' => 'Kon HDR-tonemapping niet wijzigen — de vorige modus is nog actief.',
 			'videoSettings.audioOutput' => 'Audio-uitvoer',
-			'videoSettings.performanceOverlay' => 'Prestatie-overlay',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'Surround',
-			'videoSettings.audioOutputSpatial' => 'Ruimtelijke audio',
 			'videoSettings.audioOutputStereo' => 'Stereo',
+			'videoSettings.performanceOverlay' => 'Prestatie-overlay',
 			'videoSettings.audioNormalization' => 'Volume normaliseren',
 			'videoSettings.audioNormalizationDisablesPassthrough' => 'Decodeert audio naar PCM; doorvoer is uit zolang dit aan staat',
 			'performanceOverlay.color' => 'Kleur',
@@ -5449,8 +5345,6 @@ extension on TranslationsNl {
 			'performanceOverlay.decoderHardware' => 'Hardware',
 			'performanceOverlay.tunnelingActive' => 'Actief',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted} (${failures} mislukt)',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => 'Externe speler',
 			'externalPlayer.useExternalPlayer' => 'Externe speler gebruiken',
 			'externalPlayer.useExternalPlayerDescription' => 'Open video\'s in een andere app',
@@ -5460,7 +5354,6 @@ extension on TranslationsNl {
 			'externalPlayer.addCustomPlayer' => 'Aangepaste speler toevoegen',
 			'externalPlayer.playerName' => 'Spelernaam',
 			'externalPlayer.playerNameHint' => 'Mijn speler',
-			'externalPlayer.playerCommand' => 'Commando',
 			'externalPlayer.playerPackage' => 'Pakketnaam',
 			'externalPlayer.playerUrlScheme' => 'URL-schema',
 			'externalPlayer.off' => 'Uit',
@@ -5503,6 +5396,8 @@ extension on TranslationsNl {
 			'metadataEdit.libraryDefault' => 'Standaard van de bibliotheek',
 			'metadataEdit.accountDefault' => 'Standaard van het account',
 			'metadataEdit.seriesDefault' => 'Standaard van de serie',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Afleveringen sorteren',
 			'metadataEdit.oldestFirst' => 'Oudste eerst',
 			'metadataEdit.newestFirst' => 'Nieuwste eerst',
@@ -5618,7 +5513,6 @@ extension on TranslationsNl {
 			'seerr.permissionRevoked' => 'Je hebt geen toestemming meer om dit aan te vragen',
 			'services.title' => 'Diensten',
 			'services.hubSubtitle' => 'Synchroniseer kijkvoortgang en vraag nieuwe titels aan.',
-			'services.integrations' => 'Integraties',
 			'services.notConnected' => 'Niet verbonden',
 			'services.connectedAs' => ({required Object username}) => 'Verbonden als @${username}',
 			'services.scrobble' => 'Voortgang automatisch volgen',

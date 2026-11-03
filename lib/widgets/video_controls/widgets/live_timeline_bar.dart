@@ -7,7 +7,6 @@ import '../../../mpv/mpv.dart';
 import '../../../focus/card_focus_scope.dart';
 import '../../../focus/focusable_wrapper.dart';
 import '../../../utils/formatters.dart';
-import '../../clickable_cursor.dart';
 import '../helpers/eager_horizontal_drag_recognizer.dart';
 import '../helpers/render_geometry.dart';
 import 'player_focus_disc.dart';
@@ -196,49 +195,42 @@ class _LiveTimelineBarState extends State<LiveTimelineBar> {
       disableScale: true,
       child: Builder(
         builder: (context) {
-          return ClickableCursor(
-            enabled: widget.enabled,
-            // Eager claim: a touch that lands on the scrubber belongs to it
-            // from pointer-down, so ancestor recognizers can't steal the drag
-            // (#1302). A plain tap is onStart+onEnd, which seeks to the
-            // tapped position.
-            child: Semantics(
-              label: t.videoControls.timelineSlider,
-              slider: true,
-              value: _semanticEpochValue(normalizedDisplayPos, isCurrent: true),
-              increasedValue: canIncrease ? _semanticEpochValue(_semanticTarget(normalizedDisplayPos, 10)) : null,
-              decreasedValue: canDecrease ? _semanticEpochValue(_semanticTarget(normalizedDisplayPos, -10)) : null,
-              enabled: semanticsEnabled,
-              onIncrease: canIncrease ? () => _semanticSeekBy(normalizedDisplayPos, 10) : null,
-              onDecrease: canDecrease ? () => _semanticSeekBy(normalizedDisplayPos, -10) : null,
-              child: RawGestureDetector(
-                behavior: HitTestBehavior.opaque,
-                excludeFromSemantics: true,
-                gestures: widget.enabled
-                    ? <Type, GestureRecognizerFactory>{
-                        EagerHorizontalDragGestureRecognizer:
-                            GestureRecognizerFactoryWithHandlers<EagerHorizontalDragGestureRecognizer>(
-                              () =>
-                                  EagerHorizontalDragGestureRecognizer(debugOwner: this)
-                                    ..dragStartBehavior = DragStartBehavior.down,
-                              (instance) {
-                                instance.onStart = (details) => _onDragStart(details, renderBoxSizeOf(context).width);
-                                instance.onUpdate = (details) => _onDragUpdate(details, renderBoxSizeOf(context).width);
-                                instance.onEnd = (_) => _onDragEnd();
-                                instance.onCancel = _onDragEnd;
-                              },
-                            ),
-                      }
-                    : const <Type, GestureRecognizerFactory>{},
-                child: ExcludeSemantics(
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 24,
-                    child: CustomPaint(
-                      painter: _LiveTimelinePainter(
-                        positionFraction: positionFraction,
-                        showFocusKnob: CardFocusScope.maybeOf(context) ?? false,
-                      ),
+          return Semantics(
+            label: t.videoControls.timelineSlider,
+            slider: true,
+            value: _semanticEpochValue(normalizedDisplayPos, isCurrent: true),
+            increasedValue: canIncrease ? _semanticEpochValue(_semanticTarget(normalizedDisplayPos, 10)) : null,
+            decreasedValue: canDecrease ? _semanticEpochValue(_semanticTarget(normalizedDisplayPos, -10)) : null,
+            enabled: semanticsEnabled,
+            onIncrease: canIncrease ? () => _semanticSeekBy(normalizedDisplayPos, 10) : null,
+            onDecrease: canDecrease ? () => _semanticSeekBy(normalizedDisplayPos, -10) : null,
+            child: RawGestureDetector(
+              behavior: HitTestBehavior.opaque,
+              excludeFromSemantics: true,
+              gestures: widget.enabled
+                  ? <Type, GestureRecognizerFactory>{
+                      EagerHorizontalDragGestureRecognizer:
+                          GestureRecognizerFactoryWithHandlers<EagerHorizontalDragGestureRecognizer>(
+                            () =>
+                                EagerHorizontalDragGestureRecognizer(debugOwner: this)
+                                  ..dragStartBehavior = DragStartBehavior.down,
+                            (instance) {
+                              instance.onStart = (details) => _onDragStart(details, renderBoxSizeOf(context).width);
+                              instance.onUpdate = (details) => _onDragUpdate(details, renderBoxSizeOf(context).width);
+                              instance.onEnd = (_) => _onDragEnd();
+                              instance.onCancel = _onDragEnd;
+                            },
+                          ),
+                    }
+                  : const <Type, GestureRecognizerFactory>{},
+              child: ExcludeSemantics(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 24,
+                  child: CustomPaint(
+                    painter: _LiveTimelinePainter(
+                      positionFraction: positionFraction,
+                      showFocusKnob: CardFocusScope.maybeOf(context) ?? false,
                     ),
                   ),
                 ),

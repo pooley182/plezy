@@ -39,7 +39,6 @@ enum StartupPhase {
   preferences('preferences'),
   crashReporting('crash-reporting'),
   locale('locale'),
-  windowManager('window-manager'),
   deviceCapabilities('device-capabilities'),
   certificateTrust('certificate-trust'),
   storage('storage'),

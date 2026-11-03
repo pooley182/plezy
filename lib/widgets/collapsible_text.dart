@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../focus/focusable_wrapper.dart';
 import '../i18n/strings.g.dart';
-import 'clickable_cursor.dart';
 
 class CollapsibleText extends StatefulWidget {
   final String text;
@@ -147,9 +146,7 @@ class _CollapsibleTextState extends State<CollapsibleText> {
           result = ExcludeFocusTraversal(child: result);
         }
 
-        return ClickableCursor(
-          child: GestureDetector(onTap: _toggleExpanded, excludeFromSemantics: true, child: result),
-        );
+        return GestureDetector(onTap: _toggleExpanded, excludeFromSemantics: true, child: result);
       },
     );
   }

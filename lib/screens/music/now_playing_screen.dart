@@ -27,7 +27,6 @@ import '../../services/music/music_playback_service.dart';
 import '../../theme/mono_motion.dart';
 import '../../theme/mono_tokens.dart';
 import '../../utils/formatters.dart';
-import '../../utils/desktop_window_padding.dart';
 import '../../utils/media_image_helper.dart';
 import '../../utils/music_navigation.dart';
 import '../../utils/platform_detector.dart';
@@ -281,7 +280,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
     final client = context.tryGetMediaClientWithFallback(serverIdOrNull(track.serverId));
     final isTV = PlatformDetector.isTV();
 
-    Widget content = Stack(
+    final Widget content = Stack(
       fit: StackFit.expand,
       children: [
         _Background(track: track, client: client, heavyScrim: isTV),
@@ -296,13 +295,6 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
         ),
       ],
     );
-
-    if (PlatformDetector.isDesktopOS() && !isTV) {
-      content = CallbackShortcuts(
-        bindings: {const SingleActivator(LogicalKeyboardKey.space): () => unawaited(service.togglePlayPause())},
-        child: FocusScope(child: Focus(autofocus: true, skipTraversal: true, child: content)),
-      );
-    }
 
     // Own OverlaySheetHost so the queue / sleep-timer sheets have a host on
     // TV; the host also owns system back (a back with a sheet open closes
@@ -341,16 +333,14 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
     // Touch only — desktop keeps mouse drags for text selection and the
     // lyrics pane. A drag starting on the lyrics scrollable still scrolls
     // (the descendant recognizer wins the arena).
-    if (!PlatformDetector.isDesktopOS()) {
-      upper = GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onVerticalDragStart: _onDismissDragStart,
-        onVerticalDragUpdate: _onDismissDragUpdate,
-        onVerticalDragEnd: _onDismissDragEnd,
-        onVerticalDragCancel: _onDismissDragCancel,
-        child: upper,
-      );
-    }
+    upper = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onVerticalDragStart: _onDismissDragStart,
+      onVerticalDragUpdate: _onDismissDragUpdate,
+      onVerticalDragEnd: _onDismissDragEnd,
+      onVerticalDragCancel: _onDismissDragCancel,
+      child: upper,
+    );
     return Column(
       children: [
         Expanded(child: upper),
@@ -477,44 +467,31 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
   Widget _buildTopBar(MediaItem track, MusicPlayContext? playContext) {
     final tk = tokens(context);
     final sourceTitle = _playingFromTitle(track, playContext);
-    // macOS pins the traffic lights at y=21 (16pt buttons → center 29, see
-    // WindowUtilsPlugin.customButtonPositions); a fixed 58px row centers the
-    // close button on that line regardless of the platform visual density
-    // shrinking the IconButton box.
-    final isMacOS = Theme.of(context).platform == TargetPlatform.macOS;
     return Padding(
-      padding: EdgeInsets.fromLTRB(8, isMacOS ? 0 : 4, 8, 0),
-      child: SizedBox(
-        height: isMacOS ? 58 : null,
-        child: Row(
-          children: [
-            // Inset past the macOS traffic lights — this screen is a fullscreen
-            // route, so the close button would otherwise sit underneath them.
-            DesktopAppBarHelper.buildAdjustedLeading(
-              FocusableButton(
-                onPressed: _pop,
-                child: IconButton(
-                  icon: AppIcon(Symbols.keyboard_arrow_down_rounded, fill: 1, color: tk.text),
-                  tooltip: t.common.close,
-                  onPressed: _pop,
-                ),
-              ),
-              context: context,
-            )!,
-            Expanded(
-              child: sourceTitle == null
-                  ? const SizedBox.shrink()
-                  : Text(
-                      t.music.playingFrom(title: sourceTitle),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: .ellipsis,
-                      style: TextStyle(fontSize: 13, color: tk.textMuted),
-                    ),
+      padding: EdgeInsets.fromLTRB(8, 4, 8, 0),
+      child: Row(
+        children: [
+          FocusableButton(
+            onPressed: _pop,
+            child: IconButton(
+              icon: AppIcon(Symbols.keyboard_arrow_down_rounded, fill: 1, color: tk.text),
+              tooltip: t.common.close,
+              onPressed: _pop,
             ),
-            _buildOverflowButton(track),
-          ],
-        ),
+          ),
+          Expanded(
+            child: sourceTitle == null
+                ? const SizedBox.shrink()
+                : Text(
+                    t.music.playingFrom(title: sourceTitle),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: .ellipsis,
+                    style: TextStyle(fontSize: 13, color: tk.textMuted),
+                  ),
+          ),
+          _buildOverflowButton(track),
+        ],
       ),
     );
   }

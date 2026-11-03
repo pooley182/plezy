@@ -44,41 +44,9 @@ void main() {
     }
   });
 
-  test('every alternate has an iOS icon set and a layered tvOS image stack', () {
-    for (final id in alternates) {
-      final ios = File('ios/Runner/AlternateAppIcons.xcassets/AppIcon-$id.appiconset/icon.png');
-      expect(ios.existsSync(), isTrue, reason: '$id is missing ${ios.path}');
-
-      for (final layer in ['Front', 'Back']) {
-        final imageset = Directory(
-          'tvos/Runner/AlternateAppIcons.xcassets/AppIcon-$id.imagestack/$layer.imagestacklayer/Content.imageset',
-        );
-        final images = imageset.existsSync()
-            ? imageset.listSync().where((entry) => entry.path.endsWith('.png')).toList()
-            : const <FileSystemEntity>[];
-        expect(images, isNotEmpty, reason: '$id is missing its tvOS $layer layer in ${imageset.path}');
-      }
-    }
-  });
-
-  test('tvOS Info.plist names exactly the alternates, as the array tvOS requires', () {
-    final plist = File('tvos/Runner/Info.plist').readAsStringSync();
-    final array = RegExp(r'<key>CFBundleAlternateIcons</key>\s*<array>(.*?)</array>', dotAll: true).firstMatch(plist);
-    expect(array, isNotNull, reason: 'tvOS Info.plist has no CFBundleAlternateIcons array');
-    final declared = RegExp(r'<string>AppIcon-([a-z0-9_]+)</string>').allMatches(array![1]!).map((m) => m[1]).toList();
-
-    expect(declared, unorderedEquals(alternates));
-  });
-
   test('every alternate has a bundled picker thumbnail', () {
     for (final option in appIconCatalog.where((option) => !option.isDefault)) {
       expect(File(option.previewAsset!).existsSync(), isTrue, reason: '${option.id} has no picker thumbnail');
-    }
-  });
-
-  test('the default has a thumbnail for each TV launcher, which draws it on a dark plate', () {
-    for (final preview in [defaultAppIconTvosPreview, defaultAppIconAndroidTvPreview]) {
-      expect(File(preview).existsSync(), isTrue, reason: 'missing $preview');
     }
   });
 }

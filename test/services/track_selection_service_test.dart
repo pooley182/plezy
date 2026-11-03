@@ -9,6 +9,7 @@ import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/services/subtitle_preference.dart';
 import 'package:plezy/services/track_selection_service.dart';
 import '../test_helpers/media_items.dart';
+import '../test_helpers/android_player_noops.dart';
 
 // Covers the pure language, track-matching, and audio/subtitle priority helpers,
 // including fallback and ambiguity rules. `selectAndApplyTracks` is excluded
@@ -129,7 +130,7 @@ MediaSourceInfo _info({
 
 /// Minimal Player stub — TrackSelectionService never reads from the player
 /// in any of the public-pure helpers we test.
-class _StubPlayer implements Player {
+class _StubPlayer with AndroidPlayerNoops implements Player {
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

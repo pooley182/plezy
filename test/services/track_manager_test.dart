@@ -18,6 +18,7 @@ import 'package:plezy/services/track_manager.dart';
 
 import '../test_helpers/prefs.dart';
 import '../test_helpers/media_items.dart';
+import '../test_helpers/android_player_noops.dart';
 
 // NOTE on coverage scope:
 // `TrackManager` orchestrates the player + Plex client + SettingsService
@@ -46,7 +47,7 @@ import '../test_helpers/media_items.dart';
 MediaItem _meta() => testMediaItem(id: 'rk1', backend: MediaBackend.plex, kind: MediaKind.movie);
 
 /// Player that records calls and can be configured per-test.
-class _FakePlayer with PlayerStreamControllersMixin implements Player {
+class _FakePlayer with PlayerStreamControllersMixin, AndroidPlayerNoops implements Player {
   PlayerState _state;
   _FakePlayer({Tracks tracks = const Tracks(), TrackSelection track = const TrackSelection()})
     : _state = PlayerState(tracks: tracks, track: track);

@@ -127,8 +127,7 @@ class MediaImageHelper {
   }
 
   /// The display's true device pixel ratio, corrected where the reported value
-  /// doesn't reflect physical density (Linux X11 with compositor scaling) and
-  /// floored on TV. This is the paint density; anything that fetches or
+  /// doesn't reflect physical density, and floored on TV. This is the paint density; anything that fetches or
   /// decodes artwork wants [artworkPixelRatio].
   static double _displayPixelRatio(BuildContext context) {
     final reportedDpr = MediaQuery.devicePixelRatioOf(context);

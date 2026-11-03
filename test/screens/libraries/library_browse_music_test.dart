@@ -45,11 +45,11 @@ void main() {
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('TV full-card preference keeps music browse captions visible', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await SettingsService.instance.write(SettingsService.tvFullCardLayout, true);
     final harness = _MusicBrowseHarness();
     addTearDown(harness.dispose);
@@ -64,7 +64,7 @@ void main() {
   });
 
   testWidgets('D-pad down focuses Retry and select reloads music browse', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final harness = _MusicBrowseHarness(failFirstBrowse: true);
     addTearDown(harness.dispose);
 

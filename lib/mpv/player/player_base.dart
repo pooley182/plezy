@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
@@ -12,7 +11,6 @@ import '../../utils/track_label_builder.dart';
 import '../font_loader.dart';
 import '../models.dart';
 import 'mpv_node_decoder.dart';
-import 'audio_rendering_mode.dart';
 import 'player.dart';
 import 'player_state.dart';
 import 'player_stream_controllers.dart';
@@ -289,6 +287,11 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
   /// the final cancel gets an engine "No active stream to cancel" error.
   /// Only the instance recorded here may send the native cancel.
   static final Map<String, PlayerBase> _eventChannelOwners = {};
+
+  /// Forgets every channel owner, so a player a test never disposed cannot
+  /// hold up the next test's player.
+  @visibleForTesting
+  static void debugResetNativeOwnership() => _eventChannelOwners.clear();
 
   void _setupEventListener() {
     _eventChannelOwners[eventChannel.name] = this;
@@ -697,10 +700,6 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
             sourceReadyController.add(PlayerSourceReady(sourceId: sourceId, position: position));
           }
         }
-        break;
-
-      case 'hdr-output-changed':
-        hdrOutputChangedController.add(null);
         break;
 
       case 'log-message':
@@ -1268,9 +1267,6 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
   }
 
   @override
-  Future<void> awaitDisplayModeSwitch({int extraDelayMs = 0}) async {}
-
-  @override
   Future<bool> setVisible(bool visible, {bool restoreOnWindowVisible = false}) async {
     if (_disposed) return false;
     try {
@@ -1285,9 +1281,6 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
   @override
   // ignore: no-empty-block - base no-op, overridden by platform subclasses
   Future<void> updateFrame() async {}
-
-  @override
-  Future<bool> isHdrOutputSupported() async => false;
 
   @override
   Future<bool> setVideoFrameRate(
@@ -1366,21 +1359,6 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
   // ignore: no-empty-block - base no-op, overridden by platform subclasses
   Future<void> setAudioPassthrough(bool enabled) async {}
 
-  @override
-  Future<AudioRenderingMode?> getAudioRenderingMode() async => null;
-
-  /// mpv loudnorm targeting streaming-style loudness; Android uses
-  /// [_androidNormalizationFilter] instead.
-  ///
-  /// Dynamic-mode loudnorm always outputs float64 at 192 kHz, which made the
-  /// AO open at f64/192k and forced the OS mixer to convert/resample on the
-  /// deadline-critical path (~4x the per-cycle DSP work), underrunning during
-  /// playback startup (#1720). The trailing mpv-native format filter pins the
-  /// chain back to 48 kHz float, so the conversion runs once on the buffered
-  /// decode side. mpv's own `format` filter is used instead of lavfi
-  /// `aformat` because the bundled Linux ffmpeg prunes lavfi filters.
-  static const String _loudnormFilter = 'loudnorm=I=-14:TP=-3:LRA=4,format=srate=48000:format=floatp';
-
   /// Android's normalization: acompressor as a slow AGC toward -14 LUFS, then
   /// alimiter as the -3 dB ceiling, with the parameters of ExoPlayer's
   /// DynamicsProcessing (AudioNormalizationEffect.kt). `link=maximum` drives
@@ -1401,7 +1379,7 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
 
   @override
   Future<void> setAudioNormalization(bool enabled) async {
-    final filter = Platform.isAndroid ? _androidNormalizationFilter : _loudnormFilter;
+    final filter = _androidNormalizationFilter;
     await setProperty('af', enabled ? filter : '');
   }
 
@@ -1627,39 +1605,21 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
     errorController.add(PlayerError('HTTP $status', cause: cause));
   }
 
-  /// Whether this backend's native `dispose` handler validates the
-  /// `instanceId` token and no-ops a stale one. Only a guarded handler may
-  /// receive a dispose after the ownership wait times out — an unguarded
-  /// handler would tear down whatever core is current, including a
-  /// successor's. Unguarded platforms keep the historical skip-and-chain
-  /// behavior (and with it the theoretical wedge) until they gain the guard.
-  @protected
-  bool get nativeDisposeIsStaleGuarded => false;
-
-  /// Returns whether the native `dispose` may be sent.
-  Future<bool> _waitForNativeOwnershipForDispose() async {
+  /// Returns whether the native `dispose` may be sent. Both native plugins
+  /// no-op a dispose whose `instanceId` is not the core's creator, so a
+  /// timed-out ownership wait still force-disposes.
+  Future<void> _waitForNativeOwnershipForDispose() async {
     final ready = _nativeOwnershipReady;
-    if (ready == null) return true;
+    if (ready == null) return;
     try {
       await ready.timeout(debugNativeOwnershipDisposeTimeout);
-      return true;
     } on TimeoutException catch (error, stackTrace) {
-      if (nativeDisposeIsStaleGuarded) {
-        appLogger.w(
-          'Timed out waiting for the previous player to release the native channel; '
-          'force-disposing with a stale-guarded token',
-          error: error,
-          stackTrace: stackTrace,
-        );
-        return true;
-      }
       appLogger.w(
-        'Timed out waiting for the previous player to release the native channel; skipping native dispose',
+        'Timed out waiting for the previous player to release the native channel; '
+        'force-disposing with a stale-guarded token',
         error: error,
         stackTrace: stackTrace,
       );
-      if (!_nativeRelease.isCompleted) _nativeRelease.complete(ready);
-      return false;
     }
   }
 
@@ -1689,40 +1649,32 @@ abstract class PlayerBase with PlayerStreamControllersMixin implements Player {
     }
     _eventSubscription = null;
     await _logSubscription?.cancel();
-    final sendNativeDispose = await _waitForNativeOwnershipForDispose();
+    await _waitForNativeOwnershipForDispose();
     try {
-      if (sendNativeDispose) {
-        // Sent even when the ownership wait timed out on a guarded backend:
-        // the token makes a stale dispose provable, so the native side no-ops
-        // it rather than tearing down a successor's core. Skipping instead
-        // used to chain this release onto a predecessor that might never
-        // complete, wedging every future playback session until the app was
-        // killed.
-        await methodChannel.invokeMethod('dispose', {
-          'preserveDisplayMode': preserveDisplayMode,
-          'instanceId': nativeInstanceId,
-        }); // Direct call — invoke() is disabled once _disposed is set.
-      }
+      // Sent even when the ownership wait timed out: the token makes a stale
+      // dispose provable, so the native side no-ops it rather than tearing
+      // down a successor's core. Skipping instead used to chain this release
+      // onto a predecessor that might never complete, wedging every future
+      // playback session until the app was killed.
+      await methodChannel.invokeMethod('dispose', {
+        'preserveDisplayMode': preserveDisplayMode,
+        'instanceId': nativeInstanceId,
+      }); // Direct call — invoke() is disabled once _disposed is set.
     } on PlatformException catch (e, st) {
       appLogger.w('Player native dispose failed during teardown', error: e, stackTrace: st);
     } on MissingPluginException catch (e, st) {
       appLogger.w('Player native dispose plugin missing during teardown', error: e, stackTrace: st);
     } finally {
-      if (sendNativeDispose && !_nativeRelease.isCompleted) _nativeRelease.complete();
+      if (!_nativeRelease.isCompleted) _nativeRelease.complete();
     }
 
-    // On the skip path the release above was completed *with* the
-    // predecessor's future, so the ownership slot stays occupied until that
-    // chain settles; on every other path it settles in the finally.
-    if (_nativeRelease.isCompleted) {
-      unawaited(
-        _nativeRelease.future.whenComplete(() {
-          if (identical(_eventChannelOwners[channelName], this)) {
-            _eventChannelOwners.remove(channelName);
-          }
-        }),
-      );
-    }
+    unawaited(
+      _nativeRelease.future.whenComplete(() {
+        if (identical(_eventChannelOwners[channelName], this)) {
+          _eventChannelOwners.remove(channelName);
+        }
+      }),
+    );
     await closeStreamControllers();
   }
 }

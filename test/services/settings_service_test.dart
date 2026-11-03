@@ -19,7 +19,7 @@ void main() {
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     TvDetectionService.debugSetAutomotiveOverride(null);
   });
 
@@ -377,8 +377,6 @@ void main() {
   group('SettingsService platform gates', () {
     test('audio passthrough defaults off on a non-TV host and honors explicit writes', () async {
       final settings = await SettingsService.getInstance();
-      // The Android-TV default-on branch depends on Platform.isAndroid, which
-      // is false (and unmockable) on the test host, so the default is off here.
       expect(settings.read(SettingsService.audioPassthrough), isFalse);
 
       await settings.write(SettingsService.audioPassthrough, true);
@@ -388,9 +386,9 @@ void main() {
       expect(settings.read(SettingsService.audioPassthrough), isFalse);
     });
 
-    test('audio passthrough defaults on for Apple TV until the viewer turns it off (#1300)', () async {
+    test('audio passthrough defaults on for TV until the viewer turns it off (#1300)', () async {
       final settings = await SettingsService.getInstance();
-      TvDetectionService.debugSetAppleTVOverride(true);
+      TvDetectionService.debugSetTvOverride(true);
 
       expect(settings.read(SettingsService.audioPassthrough), isTrue);
 
@@ -398,11 +396,11 @@ void main() {
       expect(settings.read(SettingsService.audioPassthrough), isFalse);
     });
 
-    test('forces auto PiP off on Apple TV even when stored enabled', () async {
+    test('forces auto PiP off on TV even when stored enabled', () async {
       final settings = await SettingsService.getInstance();
       await settings.write(SettingsService.autoPip, true);
 
-      TvDetectionService.debugSetAppleTVOverride(true);
+      TvDetectionService.debugSetTvOverride(true);
 
       expect(settings.read(SettingsService.autoPip), isFalse);
     });
@@ -411,13 +409,7 @@ void main() {
       final settings = await SettingsService.getInstance();
       await settings.write(SettingsService.autoPip, true);
 
-      // The pref can only surface a stored true where the host itself supports
-      // PiP. That term is Platform.isAndroid/isIOS/isMacOS, unmockable and false
-      // on the Linux and Windows CI hosts, where the gate pins the pref off no
-      // matter what is stored. pictureInPictureAllowed covers the automotive
-      // veto itself on every host.
-      final hostSupportsPip = PlatformDetector.supportsPictureInPicture();
-      expect(settings.read(SettingsService.autoPip), hostSupportsPip ? isTrue : isFalse);
+      expect(settings.read(SettingsService.autoPip), isTrue);
 
       TvDetectionService.debugSetAutomotiveOverride(true);
 

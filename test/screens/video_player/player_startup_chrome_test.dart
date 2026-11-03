@@ -24,11 +24,11 @@ void main() {
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('the TV player route opens with the chrome down and unpresented', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
 
     final chrome = await _openPlayerChrome(tester);
 
@@ -39,7 +39,7 @@ void main() {
   });
 
   testWidgets('pointer and touch routes keep the chrome over the loading surface', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
 
     final chrome = await _openPlayerChrome(tester);
 
@@ -48,7 +48,7 @@ void main() {
   });
 
   testWidgets('the route announces loading from its first frame, with or without chrome', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final semantics = tester.ensureSemantics();
 
     // The Maestro TV flows replaced the Pause button with this label as their

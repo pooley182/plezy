@@ -174,7 +174,6 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
     // Back handling (sheet-close + player exit) is owned by the OverlaySheetHost
     // that wraps this widget — see video_player_screen.dart (canPop/onSystemBack).
     return Scaffold(
-      // Use transparent background on macOS when native video layer is active
       backgroundColor: Colors.transparent,
       body: GestureDetector(
         behavior: HitTestBehavior.translucent, // Allow taps to pass through to controls
@@ -230,9 +229,6 @@ extension _VideoPlayerBuildMethods on VideoPlayerScreenState {
           hideOnExit: hideChromeOnMouseExit,
           child: Stack(
             children: [
-              // macOS PiP placeholder — video is in PiP window, show background with icon
-              // Placed before Video so controls render on top
-              if (Platform.isMacOS) const VideoPlayerMacPipPlaceholder(),
               Center(
                 child: LayoutBuilder(
                   builder: (context, constraints) {

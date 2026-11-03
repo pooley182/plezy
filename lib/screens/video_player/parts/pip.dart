@@ -36,10 +36,6 @@ extension _VideoPlayerPipMethods on VideoPlayerScreenState {
     if (needsVideoFilter && _videoFilterManager == null && settings != null) {
       _videoFilterManager = VideoFilterManager(
         player: currentPlayer,
-        // iOS/tvOS and macOS zoom the native video layer; mpv's video-zoom
-        // would force vo_avfoundation's Core Image path and kill HDR/DV
-        // passthrough.
-        nativeVideoZoom: Platform.isIOS || Platform.isMacOS,
         initialBoxFitMode: ScopedPlayerPrefs.resolve(ScopedPlayerPrefs.boxFitMode, _currentMetadata),
         initialPlayerSize: initialPlayerSize,
         // Reads _currentMetadata at invocation time so a cycle after an
@@ -69,13 +65,11 @@ extension _VideoPlayerPipMethods on VideoPlayerScreenState {
       return;
     }
 
-    // Reset video filter to contain mode before entering PiP. Android, iOS,
-    // and macOS all reuse the inline video surface/layer for PiP.
-    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
-      if (_pipInitialized) _preparePipFiltersForEntry();
-      // Wait a frame for the filter change to take effect
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
+    // Reset video filter to contain mode before entering PiP: Android reuses
+    // the inline video surface for PiP.
+    if (_pipInitialized) _preparePipFiltersForEntry();
+    // Wait a frame for the filter change to take effect
+    await Future.delayed(const Duration(milliseconds: 50));
 
     final dims = await _getVideoDimensions();
     final result = await PipService.enter(width: dims.$1, height: dims.$2);

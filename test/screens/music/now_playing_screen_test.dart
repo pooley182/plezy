@@ -125,13 +125,11 @@ void main() {
 
   setUp(() {
     LocaleSettings.setLocaleSync(AppLocale.en);
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(false);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   Future<void> pumpNowPlaying(WidgetTester tester, _FakeMusicService service, {required bool isTv}) async {
@@ -140,8 +138,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPhysicalSize);
 
-    TvDetectionService.debugSetAppleTVOverride(isTv);
-    PlatformDetector.debugSetIsDesktopOSOverride(!isTv);
+    TvDetectionService.debugSetTvOverride(isTv);
 
     addTearDown(service.dispose);
     final multiServerProvider = testMultiServer().provider;
@@ -195,7 +192,6 @@ void main() {
     tester.view.physicalSize = const Size(1200, 700);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPhysicalSize);
-    PlatformDetector.debugSetIsDesktopOSOverride(true);
 
     final service = _FakeMusicService(
       track: _track(id: 'one', title: 'First Track', album: 'First Album', year: 1973),

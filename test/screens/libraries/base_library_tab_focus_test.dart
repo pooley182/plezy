@@ -83,11 +83,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() {
     resetSharedPreferencesForTest();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   Future<_ProbeTabState> pumpProbe(

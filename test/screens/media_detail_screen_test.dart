@@ -63,6 +63,7 @@ import '../test_helpers/prefs.dart';
 import '../test_helpers/profile_navigation.dart';
 import '../test_helpers/media_items.dart';
 import '../test_helpers/multi_server_fixtures.dart';
+import '../test_helpers/empty_download_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -70,12 +71,12 @@ void main() {
   setUp(() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('TV detail scales fallback title to fit logo bounds', (tester) async {
@@ -95,10 +96,13 @@ void main() {
     );
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          theme: monoTheme(MonoPalette.dark),
-          home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: MaterialApp(
+            theme: monoTheme(MonoPalette.dark),
+            home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+          ),
         ),
       ),
     );
@@ -131,10 +135,13 @@ void main() {
     );
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          theme: monoTheme(MonoPalette.dark),
-          home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: MaterialApp(
+            theme: monoTheme(MonoPalette.dark),
+            home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+          ),
         ),
       ),
     );
@@ -190,10 +197,13 @@ void main() {
     );
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          theme: monoTheme(MonoPalette.dark),
-          home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: MaterialApp(
+            theme: monoTheme(MonoPalette.dark),
+            home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+          ),
         ),
       ),
     );
@@ -243,10 +253,13 @@ void main() {
     );
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          theme: monoTheme(MonoPalette.dark),
-          home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: MaterialApp(
+            theme: monoTheme(MonoPalette.dark),
+            home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+          ),
         ),
       ),
     );
@@ -284,10 +297,13 @@ void main() {
     );
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          theme: monoTheme(MonoPalette.dark),
-          home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: MaterialApp(
+            theme: monoTheme(MonoPalette.dark),
+            home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+          ),
         ),
       ),
     );
@@ -322,10 +338,13 @@ void main() {
     );
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          theme: monoTheme(MonoPalette.dark),
-          home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: MaterialApp(
+            theme: monoTheme(MonoPalette.dark),
+            home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+          ),
         ),
       ),
     );
@@ -382,12 +401,15 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          theme: monoTheme(MonoPalette.dark),
-          home: ChangeNotifierProvider<MultiServerProvider>.value(
-            value: provider,
-            child: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: MaterialApp(
+            theme: monoTheme(MonoPalette.dark),
+            home: ChangeNotifierProvider<MultiServerProvider>.value(
+              value: provider,
+              child: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+            ),
           ),
         ),
       ),
@@ -505,13 +527,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -595,13 +620,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -680,13 +708,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -736,10 +767,13 @@ void main() {
     final theme = monoTheme(MonoPalette.light);
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          theme: theme,
-          home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: MaterialApp(
+            theme: theme,
+            home: withProfileNavigationScope(child: MediaDetailScreen(metadata: movie)),
+          ),
         ),
       ),
     );
@@ -819,13 +853,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -914,13 +951,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -1003,13 +1043,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -1103,13 +1146,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1280, height: 720, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -1239,13 +1285,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1920, height: 1080, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1920, height: 1080, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -1350,13 +1399,16 @@ void main() {
     final provider = testMultiServer(clients: [client]).provider;
 
     await tester.pumpWidget(
-      TranslationProvider(
-        child: ChangeNotifierProvider<MultiServerProvider>.value(
-          value: provider,
-          child: MaterialApp(
-            theme: monoTheme(MonoPalette.dark),
-            home: withProfileNavigationScope(
-              child: SizedBox(width: 1920, height: 1080, child: MediaDetailScreen(metadata: show)),
+      ChangeNotifierProvider<DownloadProvider>.value(
+        value: emptyDownloadProvider(),
+        child: TranslationProvider(
+          child: ChangeNotifierProvider<MultiServerProvider>.value(
+            value: provider,
+            child: MaterialApp(
+              theme: monoTheme(MonoPalette.dark),
+              home: withProfileNavigationScope(
+                child: SizedBox(width: 1920, height: 1080, child: MediaDetailScreen(metadata: show)),
+              ),
             ),
           ),
         ),
@@ -1427,7 +1479,7 @@ void main() {
           child: MultiProvider(
             providers: [
               ChangeNotifierProvider<MultiServerProvider>.value(value: provider),
-              if (downloads != null) ChangeNotifierProvider<DownloadProvider>.value(value: downloads),
+              ChangeNotifierProvider<DownloadProvider>.value(value: downloads ?? emptyDownloadProvider()),
             ],
             child: MaterialApp(
               navigatorKey: navigator,
@@ -1798,7 +1850,7 @@ void main() {
       NavigatorObserver? observer,
       ThemeData? theme,
     }) async {
-      TvDetectionService.debugSetAppleTVOverride(false);
+      TvDetectionService.debugSetTvOverride(false);
       await SettingsService.getInstance();
       tester.view.physicalSize = const Size(1100, 2400);
       tester.view.devicePixelRatio = 1;
@@ -2047,30 +2099,6 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(observer.pushedRouteNames, isNot(contains(kVideoPlayerRouteName)));
-      expect(find.text(t.messages.mediaUnavailable), findsOneWidget);
-    });
-
-    testWidgets('deleting a first-route show cancels its pending download options', (tester) async {
-      final show = buildShow();
-      final client = _FakeMediaServerClient(show: show, childrenByParent: const {});
-      await pumpPhoneDetail(tester, client, show);
-      await tester.tap(find.byTooltip(t.downloads.downloadNow));
-      await tester.pumpAndSettle();
-      expect(find.text(t.downloads.unwatchedOnly), findsOneWidget);
-      DeletionNotifier().notify(
-        DeletionEvent(
-          itemId: show.id,
-          serverId: ServerId('server_1'),
-          parentChain: const [],
-          mediaType: 'show',
-          origin: DeletionOrigin.serverPush,
-        ),
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(t.downloads.unwatchedOnly));
-      await tester.pumpAndSettle();
-      expect(find.text(t.downloads.keepSynced), findsNothing);
-      expect(find.byType(Dialog), findsNothing);
       expect(find.text(t.messages.mediaUnavailable), findsOneWidget);
     });
 
@@ -2846,7 +2874,7 @@ void main() {
           child: MultiProvider(
             providers: [
               ChangeNotifierProvider<MultiServerProvider>.value(value: provider),
-              if (downloads != null) ChangeNotifierProvider<DownloadProvider>.value(value: downloads),
+              ChangeNotifierProvider<DownloadProvider>.value(value: downloads ?? emptyDownloadProvider()),
             ],
             child: MaterialApp(
               theme: monoTheme(MonoPalette.dark),

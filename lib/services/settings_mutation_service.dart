@@ -13,7 +13,6 @@ import '../providers/download_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../utils/platform_detector.dart';
 import 'device_performance.dart';
-import 'discord_rpc_service.dart';
 import 'companion_remote/companion_remote_host_controller.dart';
 import 'music/music_playback_service.dart';
 import 'settings_service.dart';
@@ -77,10 +76,6 @@ class SettingsMutationService {
       SettingsService.visualEffects,
       (_, settings, _) async => DevicePerformance.setOverrideSync(settings.read(SettingsService.visualEffects)),
       rebuildsRoot: true,
-    ),
-    _SettingsEffect(
-      SettingsService.enableDiscordRPC,
-      (_, settings, _) => DiscordRPCService.instance.setEnabled(settings.read(SettingsService.enableDiscordRPC)),
     ),
     _SettingsEffect(SettingsService.musicVolume, (context, settings, _) async {
       await context.read<MusicPlaybackService?>()?.setVolume(

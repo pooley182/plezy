@@ -52,11 +52,11 @@ void main() {
   setUpAll(() => initializeDateFormatting('en'));
   setUp(() {
     LocaleSettings.setLocaleSync(AppLocale.en);
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
   });
   tearDown(() {
     SelectKeyUpSuppressor.clearSuppression();
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   test('SELECT hold survives equivalent fresh guide objects and opens details once', () {
@@ -460,7 +460,7 @@ void main() {
   });
 
   testWidgets('on TV a SELECT hold on a channel cell toggles its favorite', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final toggled = <String?>[];
     final harness = _GuideHarness.oneServer();
     addTearDown(harness.dispose);

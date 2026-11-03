@@ -20,7 +20,6 @@ import 'package:plezy/watch_together/providers/watch_together_provider.dart';
 import 'package:plezy/focus/transport_keys.dart';
 import 'package:plezy/widgets/video_controls/player_chrome_controller.dart';
 import 'package:plezy/widgets/app_icon.dart';
-import 'package:plezy/widgets/video_controls/desktop_video_controls.dart';
 import 'package:plezy/widgets/video_controls/video_controls.dart';
 import 'package:plezy/widgets/video_controls/widgets/double_tap_feedback.dart';
 import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart';
@@ -30,6 +29,7 @@ import 'package:plezy/widgets/video_controls/widgets/transport_feedback_indicato
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Regression coverage for #1676: remote/keyboard seeking and pausing must
 /// drive playback through a transient badge instead of raising the full player
@@ -58,8 +58,7 @@ void main() {
 
       // Android TV: PlatformDetector.isTV() drives both the directional-seek
       // branch and the videoPlayerNavigationEnabled default.
-      TvDetectionService.debugSetAppleTVOverride(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
+      TvDetectionService.debugSetTvOverride(true);
 
       database = AppDatabase.forTesting(NativeDatabase.memory());
       player = _RecordingPlayer();
@@ -71,8 +70,7 @@ void main() {
     });
 
     tearDown(() async {
-      TvDetectionService.debugSetAppleTVOverride(null);
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       volume.dispose();
       playbackState.dispose();
       watchTogether.dispose();
@@ -946,305 +944,6 @@ void main() {
     });
   });
 
-  // Desktop keyboard seeking never reaches the D-pad branch above: with
-  // videoPlayerNavigationEnabled false and no TV, the configured Left/Right and
-  // Shift+Left/Right shortcuts fall through to KeyboardShortcutsService.
-  group('desktop keyboard seeking', () {
-    late _RecordingPlayer player;
-    late PlayerChromeController chrome;
-    late PlayerToastController toast;
-    late VideoVolumeController volume;
-    late PlaybackStateProvider playbackState;
-    late WatchTogetherProvider watchTogether;
-    late AppDatabase database;
-
-    setUp(() async {
-      LocaleSettings.setLocaleSync(AppLocale.en);
-      await initializeDateFormatting('en');
-      resetSharedPreferencesForTest();
-      SettingsService.resetForTesting();
-      final settings = await SettingsService.getInstance();
-      await settings.write(SettingsService.seekTimeSmall, 10);
-      await settings.write(SettingsService.seekTimeLarge, 30);
-      await settings.write(SettingsService.videoPlayerNavigationEnabled, false);
-
-      TvDetectionService.debugSetAppleTVOverride(false);
-      PlatformDetector.debugSetIsDesktopOSOverride(true);
-
-      database = AppDatabase.forTesting(NativeDatabase.memory());
-      player = _RecordingPlayer();
-      chrome = PlayerChromeController();
-      toast = PlayerToastController();
-      volume = VideoVolumeController(player: player, settings: settings, initialVolume: 100);
-      playbackState = PlaybackStateProvider();
-      watchTogether = WatchTogetherProvider();
-    });
-
-    tearDown(() async {
-      TvDetectionService.debugSetAppleTVOverride(null);
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
-      volume.dispose();
-      playbackState.dispose();
-      watchTogether.dispose();
-      chrome.dispose();
-      toast.dispose();
-      await database.close();
-      await player.dispose();
-    });
-
-    Future<void> pumpDesktopControls(
-      WidgetTester tester, {
-      _RecordingPlayer? withPlayer,
-      bool isLive = false,
-      LiveSeekBy? onLiveSeekBy,
-      ValueChanged<int>? onLiveSeek,
-      VoidCallback? onNext,
-      bool canNavigateMediaItems = false,
-    }) async {
-      final active = withPlayer ?? player;
-      await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            Provider<AppDatabase>.value(value: database),
-            ChangeNotifierProvider<PlaybackStateProvider>.value(value: playbackState),
-            ChangeNotifierProvider<WatchTogetherProvider>.value(value: watchTogether),
-          ],
-          child: MaterialApp(
-            theme: ThemeData(platform: TargetPlatform.macOS, extensions: const [testMonoTokens]),
-            home: Scaffold(
-              body: SizedBox(
-                width: 1280,
-                height: 720,
-                child: PlexVideoControls(
-                  player: active,
-                  volumeController: volume,
-                  metadata: testMediaItem(id: 'desktop-keyboard-seek'),
-                  toastController: toast,
-                  chromeController: chrome,
-                  canNavigateMediaItems: canNavigateMediaItems,
-                  isLive: isLive,
-                  onLiveSeekBy: onLiveSeekBy,
-                  onLiveSeek: onLiveSeek,
-                  onNext: onNext,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      // The shortcuts service loads asynchronously; without it the arrow keys
-      // are consumed before ever reaching a seek.
-      await tester.pumpAndSettle();
-      chrome.hide();
-      chrome.markControlsHidden();
-      await tester.pump();
-      expect(chrome.controlsVisible, isFalse);
-    }
-
-    Future<void> settleFeedback(WidgetTester tester) async {
-      chrome.cancelAutoHide();
-      toast.hide();
-      await tester.pumpWidget(const SizedBox.shrink());
-    }
-
-    Future<void> pressKey(WidgetTester tester, LogicalKeyboardKey key) async {
-      await tester.sendKeyDownEvent(key);
-      await tester.pump();
-      await tester.sendKeyUpEvent(key);
-      await tester.pump();
-    }
-
-    testWidgets('the configured seek shortcut shows the badge and leaves the chrome down', (tester) async {
-      await pumpDesktopControls(tester);
-
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-
-      expect(chrome.controlsVisible, isFalse, reason: 'keyboard seeking must not cover the subtitles either');
-      expect(find.byType(DoubleTapFeedback), findsOneWidget);
-      expect(find.text('10s'), findsOneWidget);
-      expect(player.seeks, [const Duration(minutes: 10, seconds: 10)]);
-
-      await settleFeedback(tester);
-    });
-
-    testWidgets('the backward shortcut reports its own direction', (tester) async {
-      await pumpDesktopControls(tester);
-
-      await pressKey(tester, LogicalKeyboardKey.arrowLeft);
-
-      expect(find.text('10s'), findsOneWidget);
-      expect(player.seeks, [const Duration(minutes: 9, seconds: 50)]);
-      expect(chrome.controlsVisible, isFalse);
-
-      await settleFeedback(tester);
-    });
-
-    testWidgets('the large seek shortcut reports the large amount', (tester) async {
-      await pumpDesktopControls(tester);
-
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
-      await tester.pump();
-
-      expect(find.text('30s'), findsOneWidget);
-      expect(player.seeks, [const Duration(minutes: 10, seconds: 30)]);
-      expect(chrome.controlsVisible, isFalse);
-
-      await settleFeedback(tester);
-    });
-
-    testWidgets('a rapid burst commits the total the badge reports, even when seeks lag', (tester) async {
-      // A slow backend has not moved the position when the next press lands.
-      // Rebasing off player.state.position would peg every request near +10s
-      // while the badge climbed to 30s.
-      player.freezePositionOnSeek = true;
-      await pumpDesktopControls(tester);
-
-      for (var i = 0; i < 3; i++) {
-        await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      }
-
-      expect(find.text('30s'), findsOneWidget);
-      expect(player.seeks, [
-        const Duration(minutes: 10, seconds: 10),
-        const Duration(minutes: 10, seconds: 20),
-        const Duration(minutes: 10, seconds: 30),
-      ]);
-      expect(
-        player.seeks.last,
-        const Duration(minutes: 10) + const Duration(seconds: 30),
-        reason: 'the committed target must equal the badge total',
-      );
-      expect(chrome.controlsVisible, isFalse);
-
-      await settleFeedback(tester);
-    });
-
-    testWidgets('a lagging backend still yields the pin to a jump elsewhere', (tester) async {
-      // The two invariants pull in opposite directions: a slow seek must not
-      // retire the pin (#1676), a jump from anywhere else must (#1819). Freeze
-      // the reported position so only the seek announcement can tell them apart.
-      player.freezePositionOnSeek = true;
-      await pumpDesktopControls(tester);
-
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      expect(player.seeks.last, const Duration(minutes: 10, seconds: 20), reason: 'the burst is still pinned');
-
-      player.setPosition(const Duration(minutes: 2));
-      await player.seek(const Duration(minutes: 2));
-      await tester.pump();
-
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-
-      expect(player.seeks.last, const Duration(minutes: 2, seconds: 10));
-      expect(find.text('10s'), findsOneWidget);
-
-      await settleFeedback(tester);
-    });
-
-    testWidgets('swapping the player moves the pin listener with it', (tester) async {
-      // The controls survive a player replacement (didUpdateWidget accepts a new
-      // instance), so an accumulator left bound to the retired player would keep
-      // a pin from a timeline that no longer exists and take orders from a
-      // player nobody is watching.
-      final replacement = _RecordingPlayer()
-        ..setPosition(const Duration(minutes: 4))
-        // Frozen, so a pinned chain stays distinguishable from a rebase.
-        ..freezePositionOnSeek = true;
-      addTearDown(replacement.dispose);
-
-      await pumpDesktopControls(tester);
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      expect(player.seeks.last, const Duration(minutes: 10, seconds: 10));
-
-      await pumpDesktopControls(tester, withPlayer: replacement);
-      expect(tester.takeException(), isNull);
-
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      expect(
-        replacement.seeks.last,
-        const Duration(minutes: 4, seconds: 10),
-        reason: 'the retired pin must not survive the swap and chain to 10:20',
-      );
-      // The badge is not asserted here: pumping the replacement settles the
-      // feedback timer, which clears the total on its own.
-
-      // Build a fresh pin on the new player, then let the retired one shout.
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      expect(replacement.seeks.last, const Duration(minutes: 4, seconds: 20));
-      await player.seek(const Duration(minutes: 30));
-      await tester.pump();
-
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      expect(
-        replacement.seeks.last,
-        const Duration(minutes: 4, seconds: 30),
-        reason: 'a jump from the retired player must not retire the current pin',
-      );
-
-      await settleFeedback(tester);
-    });
-
-    testWidgets('an absolute live seek takes down the badge a live skip raised', (tester) async {
-      // Live relative skips go to the parent epoch accumulator, not _hiddenSeek
-      // (#1253), so no playhead jump can retire this badge. The absolute seek
-      // cancels the queued skip, so its promised total is going nowhere.
-      final liveOffsets = <int>[];
-      final absoluteSeeks = <int>[];
-      await pumpDesktopControls(
-        tester,
-        isLive: true,
-        onLiveSeekBy: _acceptingLiveSeek(liveOffsets),
-        onLiveSeek: absoluteSeeks.add,
-      );
-
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      expect(liveOffsets, [10]);
-      expect(find.text('10s'), findsOneWidget);
-
-      chrome.show();
-      await tester.pump();
-      final live = tester.widget<DesktopVideoControls>(find.byType(DesktopVideoControls));
-      live.onLiveSeek!(120);
-      await tester.pump();
-
-      expect(absoluteSeeks, [120], reason: 'the wrapper still delegates to the screen');
-      expect(find.byType(DoubleTapFeedback), findsNothing, reason: 'the skip it promised was cancelled with it');
-
-      await settleFeedback(tester);
-    });
-
-    testWidgets('switching what is playing takes the badge with the old timeline', (tester) async {
-      // A live channel switch cancels the queued live offset, and an item
-      // change re-keys the whole timeline. Neither runs through _hiddenSeek, so
-      // nothing else would retire a readout that now describes nothing.
-      final liveOffsets = <int>[];
-      var nextPresses = 0;
-      await pumpDesktopControls(
-        tester,
-        isLive: true,
-        onLiveSeekBy: _acceptingLiveSeek(liveOffsets),
-        onNext: () => nextPresses++,
-      );
-
-      await pressKey(tester, LogicalKeyboardKey.arrowRight);
-      expect(liveOffsets, [10]);
-      expect(find.text('10s'), findsOneWidget);
-
-      chrome.show();
-      await tester.pump();
-      tester.widget<DesktopVideoControls>(find.byType(DesktopVideoControls)).onNext!();
-      await tester.pump();
-
-      expect(nextPresses, 1, reason: 'the wrapper still delegates to the screen');
-      expect(find.byType(DoubleTapFeedback), findsNothing);
-
-      await settleFeedback(tester);
-    });
-  });
-
   group('formatSkipFeedbackLabel', () {
     setUp(() => LocaleSettings.setLocaleSync(AppLocale.en));
 
@@ -1285,7 +984,7 @@ LiveSeekBy _acceptingLiveSeek(List<int> offsets) => (offset) {
 
 /// Minimal [Player] that records transport calls and keeps a settable
 /// playing/position state so intent-dependent behaviour can be asserted.
-class _RecordingPlayer implements Player {
+class _RecordingPlayer with AndroidPlayerNoops implements Player {
   final List<Duration> seeks = [];
   final StreamController<Duration?> _jumpController = StreamController<Duration?>.broadcast();
   int playCalls = 0;

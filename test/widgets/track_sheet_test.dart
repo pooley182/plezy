@@ -15,6 +15,7 @@ import 'package:plezy/widgets/video_controls/models/track_controls_state.dart';
 import 'package:plezy/widgets/video_controls/sheets/track_sheet.dart';
 
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -738,7 +739,7 @@ Future<void> _pumpTrackSheet(
   await tester.pump();
 }
 
-class _FakeTrackSheetPlayer implements Player {
+class _FakeTrackSheetPlayer with AndroidPlayerNoops implements Player {
   _FakeTrackSheetPlayer({
     required Tracks tracks,
     required TrackSelection track,

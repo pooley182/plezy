@@ -27,7 +27,6 @@ import '../services/music/music_playback_service.dart';
 import 'app_logger.dart';
 import 'dialogs.dart';
 import 'global_key_utils.dart';
-import 'platform_detector.dart';
 import 'download_version_utils.dart';
 import 'media_version_resolver.dart';
 import 'provider_extensions.dart';
@@ -413,51 +412,49 @@ Future<bool?> navigateToVideoPlayer(
     // initialized is reused — getInstance() is awaited at most once per
     // launch on this path.
     try {
-      if (PlatformDetector.supportsExternalPlayers()) {
-        final settingsService = SettingsService.instanceOrNull ?? await SettingsService.getInstance();
-        if (!launchCurrent()) return null;
-        // The room can't drive an external player: its launches stay inside.
-        if (settingsService.read(SettingsService.useExternalPlayer) && watchTogetherCopy == null) {
-          if (launchObserver != null && (initialPosition != null || strictMediaSelection || explicitStartPolicy)) {
-            launchObserver.mark('blocked', blocker: 'externalPlayerOptionsUnsupported');
-            return null;
-          }
-          String? videoUrl;
-          // A reachable download of the requested version plays from disk,
-          // online too; anything else streams from the server.
-          if (isOffline || downloadProvider.isDownloaded(metadata.globalKey)) {
-            final videoPath = await downloadProvider.getVideoFilePath(
-              metadata.globalKey,
-              mediaIndex: mediaIndex,
-              mediaSourceId: mediaSourceId,
-            );
-            if (!launchCurrent()) return null;
-            if (videoPath != null) videoUrl = videoPath.contains('://') ? videoPath : 'file://$videoPath';
-          }
-          // An offline item with no local file falls through to the built-in player.
-          var launched = false;
-          if ((!isOffline || videoUrl != null) && context.mounted) {
-            launched = await ExternalPlayerService.launch(
-              context: context,
-              videoUrl: videoUrl,
-              metadata: metadata,
-              client: mediaClient,
-              offlineWatchService: offlineWatchService,
-              mediaIndex: mediaIndex,
-              mediaSourceId: mediaSourceId,
-              isLaunchCurrent: launchCurrent,
-              onHandoffPending: () => launchObserver?.mark('blocked', blocker: 'externalHandoffPending'),
-              onLaunched: () => launchObserver?.mark('externalLaunched'),
-            );
-          }
+      final settingsService = SettingsService.instanceOrNull ?? await SettingsService.getInstance();
+      if (!launchCurrent()) return null;
+      // The room can't drive an external player: its launches stay inside.
+      if (settingsService.read(SettingsService.useExternalPlayer) && watchTogetherCopy == null) {
+        if (launchObserver != null && (initialPosition != null || strictMediaSelection || explicitStartPolicy)) {
+          launchObserver.mark('blocked', blocker: 'externalPlayerOptionsUnsupported');
+          return null;
+        }
+        String? videoUrl;
+        // A reachable download of the requested version plays from disk,
+        // online too; anything else streams from the server.
+        if (isOffline || downloadProvider.isDownloaded(metadata.globalKey)) {
+          final videoPath = await downloadProvider.getVideoFilePath(
+            metadata.globalKey,
+            mediaIndex: mediaIndex,
+            mediaSourceId: mediaSourceId,
+          );
+          if (!launchCurrent()) return null;
+          if (videoPath != null) videoUrl = videoPath.contains('://') ? videoPath : 'file://$videoPath';
+        }
+        // An offline item with no local file falls through to the built-in player.
+        var launched = false;
+        if ((!isOffline || videoUrl != null) && context.mounted) {
+          launched = await ExternalPlayerService.launch(
+            context: context,
+            videoUrl: videoUrl,
+            metadata: metadata,
+            client: mediaClient,
+            offlineWatchService: offlineWatchService,
+            mediaIndex: mediaIndex,
+            mediaSourceId: mediaSourceId,
+            isLaunchCurrent: launchCurrent,
+            onHandoffPending: () => launchObserver?.mark('blocked', blocker: 'externalHandoffPending'),
+            onLaunched: () => launchObserver?.mark('externalLaunched'),
+          );
+        }
 
-          if (launched) {
-            launchObserver?.mark('externalLaunched');
-            // External playback never reaches the in-player session commit, so
-            // record the local last-played history here.
-            if (!isOffline && launchCurrent()) unawaited(LocalPlaybackHistory.recordPlayback(metadata));
-            return null;
-          }
+        if (launched) {
+          launchObserver?.mark('externalLaunched');
+          // External playback never reaches the in-player session commit, so
+          // record the local last-played history here.
+          if (!isOffline && launchCurrent()) unawaited(LocalPlaybackHistory.recordPlayback(metadata));
+          return null;
         }
       }
     } catch (e) {

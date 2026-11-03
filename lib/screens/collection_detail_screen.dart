@@ -21,7 +21,6 @@ import '../utils/dialogs.dart';
 import '../utils/error_message_utils.dart';
 import '../utils/download_utils.dart';
 import '../utils/downloads_folder_actions.dart';
-import '../utils/desktop_window_padding.dart';
 import '../utils/layout_constants.dart';
 import '../utils/media_image_helper.dart';
 import '../utils/media_server_http_client.dart';
@@ -500,10 +499,7 @@ class _CollectionDetailScreenState extends BaseMediaListDetailScreen<CollectionD
       Positioned(
         top: 0,
         left: 0,
-        child: DesktopAppBarHelper.buildAdjustedLeading(
-          AppBarBackButton(style: BackButtonStyle.circular, onPressed: () => Navigator.pop(context)),
-          context: context,
-        )!,
+        child: AppBarBackButton(style: BackButtonStyle.circular, onPressed: () => Navigator.pop(context)),
       ),
     ];
   }

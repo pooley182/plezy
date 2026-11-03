@@ -1,6 +1,5 @@
 import 'dart:async';
 import '../media/ids.dart';
-import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 
@@ -96,10 +95,7 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
   /// Mobile: no throttle (always sync on resume for cross-device updates)
   /// Desktop: 2 minutes (reduced from 10 min to handle tab-switching better)
   static Duration get minSyncInterval {
-    if (Platform.isIOS || Platform.isAndroid) {
-      return Duration.zero;
-    }
-    return const Duration(minutes: 2);
+    return Duration.zero;
   }
 
   /// Maximum sync attempts before suppressing additional server-write retries.
@@ -303,9 +299,8 @@ class OfflineWatchSyncService extends ChangeNotifier with DisposableChangeNotifi
   void onAppResumed() {
     if (isDisposed) return;
     if (_offlineModeSource?.isOffline != true) {
-      final isMobile = Platform.isIOS || Platform.isAndroid;
-      appLogger.d('App resumed - ${isMobile ? "forcing" : "checking"} sync');
-      _performBidirectionalSync(force: isMobile);
+      appLogger.d('App resumed - ${"forcing"} sync');
+      _performBidirectionalSync(force: true);
     }
   }
 

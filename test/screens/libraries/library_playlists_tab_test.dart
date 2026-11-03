@@ -54,11 +54,11 @@ void main() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     CardInflationBudget.reset();
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     await SettingsService.getInstance();
   });
 
-  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   testWidgets('grid lazily builds playlist cards and preserves focus navigation', (tester) async {
     final harness = _PlaylistHarness();
@@ -177,7 +177,7 @@ void main() {
   testWidgets('music library playlists render square artwork, captions and square gutters', (tester) async {
     final harness = _PlaylistHarness(playlistType: 'audio');
     addTearDown(harness.dispose);
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await SettingsService.instance.write(SettingsService.tvFullCardLayout, true);
 
     await _pumpTab(tester, harness: harness, library: _musicLibrary, onBack: () {}, onSidebar: () {});

@@ -49,10 +49,10 @@ void main() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     LocaleSettings.setLocaleSync(AppLocale.en);
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
   });
 
-  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   testWidgets('music collection contents use square grid geometry and cards', (tester) async {
     final album = testMediaItem(
@@ -64,7 +64,7 @@ void main() {
       serverName: 'Server',
     );
     final harness = await _createHarness([album]);
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await SettingsService.instance.write(SettingsService.tvFullCardLayout, true);
 
     await tester.pumpWidget(

@@ -50,7 +50,7 @@ void main() {
         SystemChannels.platform,
         null,
       );
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       TvDetectionService.debugSetAutomotiveOverride(null);
     });
 
@@ -58,7 +58,7 @@ void main() {
         calls.where((call) => call.method == 'SystemChrome.setPreferredOrientations').toList();
 
     test('a handheld gets every orientation back, and the landscape lock when the player asks', () async {
-      TvDetectionService.debugSetAppleTVOverride(false);
+      TvDetectionService.debugSetTvOverride(false);
       TvDetectionService.debugSetAutomotiveOverride(false);
 
       await OrientationHelper.restoreDefaultOrientations();
@@ -80,7 +80,7 @@ void main() {
     // 180° rotation it withholds from apps that ask for nothing — the whole UI
     // then renders upside down on boxes that do not pin rotation (#2401).
     test('a TV is never sent an orientation, but still enters immersive playback', () async {
-      TvDetectionService.debugSetAppleTVOverride(true);
+      TvDetectionService.debugSetTvOverride(true);
 
       await OrientationHelper.restoreDefaultOrientations();
       await OrientationHelper.lockLandscapeOrientation();

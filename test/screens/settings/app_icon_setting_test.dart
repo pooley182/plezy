@@ -182,11 +182,9 @@ void main() {
     testWidgets('on TV the picker is a hosted sheet that starts D-pad focus in the grid and closes on Back', (
       tester,
     ) async {
-      TvDetectionService.debugSetAppleTVOverride(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
+      TvDetectionService.debugSetTvOverride(true);
       addTearDown(() {
-        TvDetectionService.debugSetAppleTVOverride(null);
-        PlatformDetector.debugSetIsDesktopOSOverride(null);
+        TvDetectionService.debugSetTvOverride(null);
         BackKeyCoordinator.clear();
       });
       final supporter = SupporterService.forTesting(availability: SupporterAvailability.free);
@@ -354,16 +352,6 @@ void main() {
       Color plate(WidgetTester tester) =>
           tester.widget<ColoredBox>(find.ancestor(of: defaultLogo(), matching: find.byType(ColoredBox)).first).color;
 
-      testWidgets('on TV: the dark TV artwork', (tester) async {
-        TvDetectionService.debugSetAppleTVOverride(true);
-        addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
-        await pumpDefault(tester);
-
-        final image = tester.widget<Image>(find.descendant(of: tile(defaultAppIconId), matching: find.byType(Image)));
-        expect((image.image as AssetImage).assetName, defaultAppIconTvosPreview);
-        expect(defaultLogo(), findsNothing);
-      });
-
       testWidgets('on Android phones: white, or #1A1A1A in night mode', (tester) async {
         debugDefaultTargetPlatformOverride = TargetPlatform.android;
         try {
@@ -374,18 +362,6 @@ void main() {
           addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
           await tester.pump();
           expect(plate(tester), const Color(0xFF1A1A1A));
-        } finally {
-          debugDefaultTargetPlatformOverride = null;
-        }
-      });
-
-      testWidgets('on iOS: the light plate, also in dark mode', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-        try {
-          tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
-          addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
-          await pumpDefault(tester);
-          expect(plate(tester), const Color(0xFFF1F1F1));
         } finally {
           debugDefaultTargetPlatformOverride = null;
         }

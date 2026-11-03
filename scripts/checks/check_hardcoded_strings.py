@@ -314,11 +314,7 @@ def scan(
     seen_literals: dict[str, set[str]] = {}
     for path in sorted(lib_dir.rglob("*.dart")):
         relative = path.relative_to(root).as_posix()
-        # lib/dev is a separate, non-app measurement entrypoint.
-        if (
-            relative.startswith(("lib/i18n/", "lib/dev/"))
-            or path.name.endswith((".g.dart", ".freezed.dart"))
-        ):
+        if relative.startswith("lib/i18n/") or path.name.endswith((".g.dart", ".freezed.dart")):
             continue
         source = path.read_text(encoding="utf-8")
         literals = _string_literals(source)

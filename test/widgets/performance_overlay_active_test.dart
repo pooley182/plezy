@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/widgets/video_controls/widgets/performance_overlay/performance_overlay.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Player fake that only counts how often the overlay polls it.
-class _CountingStatsPlayer implements Player {
+class _CountingStatsPlayer with AndroidPlayerNoops implements Player {
   int statsCalls = 0;
 
   @override

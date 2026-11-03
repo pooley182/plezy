@@ -39,7 +39,6 @@ import '../utils/app_logger.dart';
 import '../utils/library_refresh_notifier.dart';
 import '../utils/media_navigation_helper.dart';
 import '../utils/music_navigation.dart';
-import '../utils/platform_detector.dart';
 import '../utils/snackbar_helper.dart';
 import '../utils/dialogs.dart';
 import '../utils/downloads_folder_actions.dart';
@@ -602,7 +601,7 @@ class MediaContextMenuState extends State<MediaContextMenu> {
     return [
       _MenuAction(value: 'play', icon: Symbols.play_arrow_rounded, label: t.common.play),
       _MenuAction(value: 'shuffle', icon: Symbols.shuffle_rounded, label: t.mediaMenu.shufflePlay),
-      if ((isDownloadablePlaylist || menu.isCollection) && !PlatformDetector.isAppleTV())
+      if (isDownloadablePlaylist || menu.isCollection)
         ..._syncDownloadMenuActions(
           hasSyncRule: Provider.of<DownloadProvider>(context, listen: false).hasSyncRule(_itemSyncRuleKey(context)),
           hasAnyDownload: false,
@@ -752,7 +751,7 @@ class MediaContextMenuState extends State<MediaContextMenu> {
       // so we don't fan out to an arbitrary client.
       if (menu.itemBackend != null && mediaKind.hasFileInfo)
         _MenuAction(value: 'fileinfo', icon: Symbols.info_rounded, label: t.mediaMenu.fileInfo),
-      if (PlatformDetector.supportsExternalPlayers() && isMovieOrEpisode)
+      if (isMovieOrEpisode)
         _MenuAction(
           value: 'play_external',
           icon: Symbols.open_in_new_rounded,
@@ -769,9 +768,7 @@ class MediaContextMenuState extends State<MediaContextMenu> {
     // tracks — not artists, whose full discography is too large for a
     // one-tap download). Apple TV has no user-accessible file storage —
     // skip entirely.
-    final canDownload =
-        !PlatformDetector.isAppleTV() &&
-        (mediaItem.isVideoContent || mediaKind == MediaKind.album || mediaKind == MediaKind.track);
+    final canDownload = mediaItem.isVideoContent || mediaKind == MediaKind.album || mediaKind == MediaKind.track;
     final downloadProvider = canDownload ? Provider.of<DownloadProvider>(context, listen: false) : null;
     return [
       if (downloadProvider != null)
@@ -1773,8 +1770,6 @@ class MediaContextMenuState extends State<MediaContextMenu> {
 
   /// Handle play in external player action
   Future<void> _handlePlayExternal(BuildContext context) async {
-    if (!PlatformDetector.supportsExternalPlayers()) return;
-
     final item = _mediaItem!;
 
     // Check if the item is downloaded and use local file path if available

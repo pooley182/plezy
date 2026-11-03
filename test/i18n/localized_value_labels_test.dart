@@ -6,8 +6,6 @@ void main() {
     for (final locale in AppLocale.values) {
       final translations = await locale.build();
       final labels = <String, String>{
-        'hotkeys.pressToRecord': translations.hotkeys.pressToRecord,
-        'hotkeys.recordingShortcut': translations.hotkeys.recordingShortcut,
         'accessibility.expandText': translations.accessibility.expandText,
         'accessibility.collapseText': translations.accessibility.collapseText,
         'watchTogether.openSessionControls': translations.watchTogether.openSessionControls,

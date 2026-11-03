@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +43,7 @@ class AppearanceSettingsScreen extends StatelessWidget {
             _themeSelector(),
             if (AppIconSetting.isShown(context)) const AppIconSetting(),
             if (PlatformDetector.isAutomotive()) _displayScaleSelector(),
-            if (Platform.isAndroid) _visualEffectsSelector(context),
+            _visualEffectsSelector(context),
           ],
         ),
 

@@ -283,7 +283,7 @@ mixin DownloadsTabOptionsMixin<T extends StatefulWidget> on State<T> implements 
   // ---------------------------------------------------------------------
 
   void _showGroupingOptions() {
-    final anchorRect = useAnchoredChipMenus(context) ? chipAnchorRect(_groupingChipKey) : null;
+    final anchorRect = null;
     if (anchorRect != null) {
       showAnchoredSelectionMenu<String>(
         context,
@@ -352,7 +352,7 @@ mixin DownloadsTabOptionsMixin<T extends StatefulWidget> on State<T> implements 
   // ---------------------------------------------------------------------
 
   void _showSortOptions() {
-    final anchorRect = useAnchoredChipMenus(context) ? chipAnchorRect(_sortChipKey) : null;
+    final anchorRect = null;
     if (anchorRect != null) {
       unawaited(_showSortMenu(anchorRect));
       return;
@@ -440,7 +440,7 @@ mixin DownloadsTabOptionsMixin<T extends StatefulWidget> on State<T> implements 
   // ---------------------------------------------------------------------
 
   void _showFiltersOptions() {
-    final anchorRect = useAnchoredChipMenus(context) ? chipAnchorRect(_filtersChipKey) : null;
+    final anchorRect = null;
     if (anchorRect != null) {
       unawaited(_showFiltersMenu(anchorRect));
       return;

@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../test_helpers/media_items.dart';
 import '../../test_helpers/mock_player_channels.dart';
 import '../../test_helpers/prefs.dart';
+import '../../test_helpers/android_player_noops.dart';
 
 /// Regression coverage for #1375: OS media-session skip commands arrive in
 /// bursts (a held remote key, a mashed lock-screen button). Dispatched one
@@ -93,7 +94,7 @@ Widget _screen(GlobalKey<VideoPlayerScreenState> key) {
   );
 }
 
-class _SeekRecordingPlayer implements Player {
+class _SeekRecordingPlayer with AndroidPlayerNoops implements Player {
   _SeekRecordingPlayer({required Duration position})
     : _state = PlayerState(position: position, duration: const Duration(minutes: 45), seekable: true);
 

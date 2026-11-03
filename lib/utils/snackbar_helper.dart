@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../navigation/profile_navigation_scope.dart';
 import 'layout_constants.dart';
-import 'platform_detector.dart';
 
 /// Global key for the root ScaffoldMessenger, allowing snackbars to survive navigation.
 final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -10,8 +9,6 @@ final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 /// Types of snackbars available in the app
 enum SnackBarType { info, success, error }
 
-const double _kDesktopSnackBarMaxWidth = 480.0;
-const double _kDesktopSnackBarHorizontalInset = 16.0;
 const EdgeInsets _kDismissibleSnackBarPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 14);
 
 /// Utility functions for showing snackbars throughout the application
@@ -24,8 +21,7 @@ SnackBar _buildSnackBar(
   required Duration duration,
   bool? dismissible,
 }) {
-  final isDesktop = PlatformDetector.isDesktopOS();
-  final tapToDismiss = dismissible ?? isDesktop;
+  final tapToDismiss = dismissible ?? false;
   final body = tapToDismiss
       ? MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -41,23 +37,10 @@ SnackBar _buildSnackBar(
     content: body,
     backgroundColor: backgroundColor,
     duration: duration,
-    behavior: isDesktop ? SnackBarBehavior.floating : null,
-    width: isDesktop ? _desktopSnackBarWidth(context) : null,
+    behavior: null,
+    width: null,
     padding: tapToDismiss ? EdgeInsets.zero : null,
   );
-}
-
-double _desktopSnackBarWidth(BuildContext context) {
-  final windowWidth = MediaQuery.maybeSizeOf(context)?.width;
-  if (windowWidth == null) return _kDesktopSnackBarMaxWidth;
-
-  final insetPadding = SnackBarTheme.of(context).insetPadding;
-  final horizontalInset = insetPadding == null
-      ? _kDesktopSnackBarHorizontalInset * 2
-      : insetPadding.left + insetPadding.right;
-  final availableWidth = windowWidth - horizontalInset;
-  final width = availableWidth > 0 ? availableWidth : windowWidth;
-  return width < _kDesktopSnackBarMaxWidth ? width : _kDesktopSnackBarMaxWidth;
 }
 
 (Color?, Duration) _snackBarStyle(SnackBarType type) => switch (type) {

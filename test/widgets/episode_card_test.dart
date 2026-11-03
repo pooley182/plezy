@@ -32,13 +32,13 @@ void main() {
   setUp(() async {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     LocaleSettings.setLocaleSync(AppLocale.en);
     await SettingsService.getInstance();
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('overflowing summary stays in card semantics without an Expand label', (tester) async {

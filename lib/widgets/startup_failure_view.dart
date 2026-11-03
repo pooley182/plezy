@@ -9,7 +9,6 @@ import '../services/log_upload_service.dart';
 import '../services/startup_diagnostics.dart';
 import '../utils/app_logger.dart';
 import '../utils/dialogs.dart';
-import '../utils/platform_detector.dart';
 import '../utils/snackbar_helper.dart';
 import 'app_icon.dart';
 import 'dialog_action_button.dart';
@@ -21,7 +20,6 @@ const startupFailureCopyKey = Key('startup-failure-copy');
 const startupFailureUploadKey = Key('startup-failure-upload');
 const startupFailureRepairKey = Key('startup-failure-repair');
 const startupFailureRestartKey = Key('startup-failure-restart');
-const startupFailureQuitKey = Key('startup-failure-quit');
 
 /// Everything the startup gate can show when initialization fails.
 ///
@@ -84,16 +82,6 @@ class _StartupFailureViewState extends State<StartupFailureView> {
   void _copyDetails() {
     Clipboard.setData(ClipboardData(text: widget.failure.describe()));
     showSuccessSnackBar(context, t.startup.detailsCopied);
-  }
-
-  Future<void> _quit() async {
-    // Best effort: if the platform declines, the user still has the window
-    // controls, and the on-screen instruction already told them what to do.
-    try {
-      await widget.requestExit();
-    } catch (error, stackTrace) {
-      appLogger.w('Could not quit after a repair that needs a restart', error: error, stackTrace: stackTrace);
-    }
   }
 
   Future<void> _uploadDetails() async {
@@ -222,17 +210,6 @@ class _StartupFailureViewState extends State<StartupFailureView> {
                               onPressed: canAct ? widget.onRetry : null,
                               child: Text(t.common.retry),
                             ),
-                    ),
-                  if (restartRequired && PlatformDetector.isDesktopOS())
-                    FocusableButton(
-                      focusNode: _primaryFocusNode,
-                      autofocus: true,
-                      onPressed: enabled ? _quit : null,
-                      child: FilledButton(
-                        key: startupFailureQuitKey,
-                        onPressed: enabled ? _quit : null,
-                        child: Text(t.startup.quitPlezy),
-                      ),
                     ),
                   FocusableButton(
                     onPressed: enabled ? _copyDetails : null,

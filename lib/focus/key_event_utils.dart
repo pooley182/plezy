@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../utils/platform_detector.dart';
 import 'dpad_navigator.dart';
 
 /// Handles back key events by popping the current route.
@@ -72,21 +71,6 @@ KeyEventResult handleBackKeyAction(KeyEvent event, VoidCallback onBack) {
 
   // Check if this BACK event should be suppressed (e.g., after modal closed)
   if (BackKeyUpSuppressor.consumeIfSuppressed(event)) {
-    return KeyEventResult.handled;
-  }
-
-  // AppleTV back (Siri Remote Menu via engine-synthesized escape): run onBack
-  // on KeyDown only; consume KeyUp silently. Some engine paths report Menu as
-  // a non-keyboard device, but the same down-only handling is still required.
-  // No suppressor arming is needed here: onBack typically calls
-  // Navigator.pop, swapping the focus tree before the matching KeyUp is
-  // dispatched — but the orphaned KeyUp lands on the new chain, where this
-  // same branch consumes it silently.
-  if (PlatformDetector.isAppleTV()) {
-    if (event is KeyDownEvent) {
-      BackKeyCoordinator.markHandled();
-      onBack();
-    }
     return KeyEventResult.handled;
   }
 
@@ -267,12 +251,6 @@ String describeKeyEvent(KeyEvent event) {
 class BackKeySuppressorObserver extends NavigatorObserver {
   @override
   void didPop(Route route, Route? previousRoute) {
-    // On AppleTV, handleBackKeyAction consumes the KeyUp silently regardless,
-    // so the suppressor isn't needed. (The atomic engine fix delivers
-    // KeyDown+KeyUp in a single recognizer Began callback, so didPop fires
-    // squarely inside the window where BackKeyPressTracker.isBackKeyDown is
-    // true.)
-    if (PlatformDetector.isAppleTV()) return;
     if (BackKeyPressTracker.isBackKeyDown) {
       BackKeyUpSuppressor.suppressBackUntilKeyUp();
     }

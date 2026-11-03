@@ -236,7 +236,7 @@ void main() {
   group('MediaImageHelper.artworkPixelRatio', () {
     tearDown(() {
       DevicePerformance.debugReset();
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
     });
 
     Future<double> ratioFor(
@@ -296,7 +296,7 @@ void main() {
 
     testWidgets('reduced-tier TV keeps the sharp-artwork DPR floor (#2020)', (tester) async {
       DevicePerformance.debugReset(autoReduced: true, override: VisualEffectsSetting.auto);
-      TvDetectionService.debugSetAppleTVOverride(true);
+      TvDetectionService.debugSetTvOverride(true);
       expect(await ratioFor(tester, mediaQueryDpr: 1.0), 2.0);
     });
   });

@@ -1,5 +1,4 @@
 import 'dart:async' show unawaited;
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +10,6 @@ import 'settings_binding_owner.dart';
 import 'settings_service.dart';
 import 'shortcut_action.dart';
 import '../utils/app_logger.dart';
-import '../utils/platform_detector.dart';
 import '../utils/player_utils.dart';
 
 class HotkeyConflictException implements Exception {
@@ -65,11 +63,6 @@ class KeyboardShortcutsService extends ChangeNotifier {
     }
     if (instance._disposed) throw StateError('KeyboardShortcutsService was disposed during initialization');
     return instance;
-  }
-
-  /// Keyboard shortcut customization is only supported on desktop platforms.
-  static bool isPlatformSupported() {
-    return PlatformDetector.isDesktopOS();
   }
 
   Future<void> _init() async {
@@ -216,18 +209,6 @@ class KeyboardShortcutsService extends ChangeNotifier {
   String formatHotkey(HotKey? hotKey) {
     if (hotKey == null) return t.hotkeys.noShortcutSet;
 
-    final isMac = Platform.isMacOS;
-
-    // macOS standard modifier order: ⌃ ⌥ ⇧ ⌘
-    const macModifierLabels = <HotKeyModifier, String>{
-      HotKeyModifier.control: '\u2303',
-      HotKeyModifier.alt: '\u2325',
-      HotKeyModifier.shift: '\u21e7',
-      HotKeyModifier.meta: '\u2318',
-      HotKeyModifier.capsLock: '\u21ea',
-      HotKeyModifier.fn: 'fn',
-    };
-
     const defaultModifierLabels = <HotKeyModifier, String>{
       HotKeyModifier.alt: 'Alt',
       HotKeyModifier.control: 'Ctrl',
@@ -237,15 +218,11 @@ class KeyboardShortcutsService extends ChangeNotifier {
       HotKeyModifier.fn: 'Fn',
     };
 
-    final labels = isMac ? macModifierLabels : defaultModifierLabels;
+    final labels = defaultModifierLabels;
     final modifiers = (hotKey.modifiers ?? []).map((m) => labels[m] ?? m.name).toList();
 
-    // The key label already uses macOS symbols via physicalKeyLabel()
     final keyName = physicalKeyLabel(hotKey.key);
 
-    if (isMac) {
-      return [...modifiers, keyName].join();
-    }
     return modifiers.isEmpty ? keyName : '${modifiers.join(' + ')} + $keyName';
   }
 

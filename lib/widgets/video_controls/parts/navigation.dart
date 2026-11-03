@@ -3,10 +3,7 @@ part of '../video_controls.dart';
 extension _PlexVideoControlsNavigationMethods on _PlexVideoControlsState {
   Widget _buildDesktopControlsListener() {
     final playbackState = context.watch<PlaybackStateProvider>();
-    final trackControlsState = _buildTrackControlsState(
-      playbackState: playbackState,
-      onToggleAlwaysOnTop: Platform.isMacOS ? null : _toggleAlwaysOnTop,
-    );
+    final trackControlsState = _buildTrackControlsState(playbackState: playbackState);
     final useDpad = playerDirectionalNavigationEnabled();
 
     return _holdChromeWhilePressed(

@@ -145,7 +145,6 @@ class _Translations$auth$sv extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Väntar på godkännande…';
 	@override String get quickConnectCancel => 'Avbryt';
 	@override String get quickConnectExpired => 'Quick Connect har gått ut. Försök igen.';
-	@override String get localDataRecoveryRequired => 'Plezy kunde inte återställa lokala inloggningsuppgifter och väntande uppspelningsdata på ett säkert sätt. Logga in igen.';
 	@override String get pinCheckRejected => 'Plex PIN-kontrollen avvisades';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$sv extends Translations$common$en {
 	@override String get connectingToServers => 'Ansluter till servrar...';
 	@override String get startingOfflineMode => 'Startar offlineläge...';
 	@override String get loading => 'Laddar...';
-	@override String get fullscreen => 'Helskärm';
-	@override String get exitFullscreen => 'Avsluta helskärm';
 	@override String get pressBackAgainToExit => 'Tryck bakåt igen för att avsluta';
 	@override late final _Translations$common$ratingSource$sv ratingSource = _Translations$common$ratingSource$sv._(_root);
 	@override String get notAvailable => 'N/A';
@@ -364,9 +361,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => 'Samma som standardkvalitet';
 	@override String get directPlayCoveredQuality => 'Spela mindre videor i originalkvalitet';
 	@override String get directPlayCoveredQualityDescription => 'Direktspela videor som redan ligger inom kvalitetsgränsen i stället för att transkoda dem';
-	@override String get videoCodecs => 'Videokodekar';
-	@override String get videoCodecsDescription => 'Kodekar utan bock transkodas av servern';
-	@override String get videoCodecsAlwaysAccepted => 'Accepteras alltid';
 	@override String get musicQualityTitle => 'Musikkvalitet';
 	@override String get subtitleStyling => 'Utseende för undertexter';
 	@override String get subtitleStylingDescription => 'Anpassa undertexternas utseende';
@@ -392,11 +386,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get specialsOrderingLast => 'Efter vanliga säsonger';
 	@override String get clickVideoTogglesPlayback => 'Klicka på videon för att spela upp eller pausa';
 	@override String get clickVideoTogglesPlaybackDescription => 'Klicka på videon för att spela upp eller pausa i stället för att visa kontrollerna.';
-	@override String get videoPlayerControls => 'Videospelarens kontroller';
-	@override String get keyboardShortcuts => 'Tangentbordsgenvägar';
-	@override String get keyboardShortcutsDescription => 'Anpassa tangentbordsgenvägar';
-	@override String get videoPlayerNavigation => 'Navigering i videospelaren';
-	@override String get videoPlayerNavigationDescription => 'Använd piltangenter för att navigera videospelarens kontroller';
 	@override String get watchTogetherRelay => 'Reläserver för Titta tillsammans';
 	@override String get watchTogetherRelayDescription => 'Offentliga Open Watch Party-reläservrar om du inte anger en egen';
 	@override String get watchTogetherRelayHint => 'https://mitt-rela.exempel.se';
@@ -423,8 +412,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get importSettingsSuccess => 'Inställningar importerade';
 	@override String get importSettingsInvalidFile => 'Filen är inte en giltig export av Plezy-inställningar';
 	@override String get importSettingsNoUser => 'Logga in innan du importerar inställningar';
-	@override String get shortcutsReset => 'Genvägarna har återställts till standard';
-	@override String get resetShortcutsConfirm => 'Detta ersätter dina anpassade genvägar med standardgenvägarna. Fortsätta?';
 	@override String get about => 'Om';
 	@override String get aboutDescription => 'Appinformation och licenser';
 	@override String get updates => 'Uppdateringar';
@@ -434,8 +421,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => 'Meddela när en uppdatering finns vid start';
 	@override String get validationErrorEnterNumber => 'Ange ett giltigt tal';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => 'Tiden måste vara mellan ${min} och ${max} ${unit}';
-	@override String shortcutAlreadyAssigned({required Object action}) => 'Genvägen används redan för ${action}';
-	@override String shortcutUpdated({required Object action}) => 'Genvägen för ${action} har uppdaterats';
 	@override String get saveFailed => 'Det gick inte att spara ändringarna. Försök igen.';
 	@override String get autoPlayAndSkip => 'Autouppspelning och hoppa över';
 	@override String get autoPlayNextEpisode => 'Spela nästa avsnitt automatiskt';
@@ -484,8 +469,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get maxVolume => 'Maxvolym';
 	@override String get maxVolumeDescription => 'Tillåt att volymen höjs över 100 % för innehåll med låg ljudnivå';
 	@override String maxVolumePercent({required Object percent}) => '${percent} %';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Visa vad du tittar på i Discord';
 	@override String get services => 'Tjänster';
 	@override String get servicesDescription => 'Anslut Trakt, MyAnimeList, Seerr med mera';
 	@override String get manageLibrariesDescription => 'Ordna om och dölj bibliotek';
@@ -499,17 +482,11 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => 'Matcha skärmens uppdateringsfrekvens med videoinnehållet';
 	@override String get matchContentResolution => 'Anpassa till innehållets upplösning';
 	@override String get matchContentResolutionDescription => 'Växlar skärmen till videons ursprungliga upplösning så att din TV sköter uppskalningen. Menyer och undertexter skalas också upp under uppspelning';
-	@override String get matchRefreshRate => 'Matcha uppdateringsfrekvens';
-	@override String get matchRefreshRateDescription => 'Matcha skärmens uppdateringsfrekvens i helskärm';
-	@override String get matchDynamicRange => 'Matcha dynamiskt omfång';
-	@override String get matchDynamicRangeDescription => 'Slå på HDR för HDR-innehåll och sedan tillbaka till SDR';
 	@override String get displaySwitchDelay => 'Fördröjning vid skärmbyte';
 	@override String get tunneledPlayback => 'Tunneluppspelning';
 	@override String get tunneledPlaybackDescription => 'Använd videotunnling. Inaktivera om HDR-uppspelning visar svart video eller rörelser hackar.';
 	@override String get audioPassthrough => 'Ljudgenomströmning';
 	@override String get audioPassthroughDescription => 'Skicka Dolby-/DTS-ljud till receivern eller TV:n utan omkodning så att surroundljudet bevaras. Stäng av om inget ljud hörs.';
-	@override String get audioPassthroughDescriptionApple => 'Använd Apples inbyggda Dolby-avkodare för Dolby Digital Plus, inklusive Atmos. DTS och TrueHD spelas fortfarande upp som flerkanaligt PCM-ljud. Stäng av om inget ljud hörs.';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Använd Apples inbyggda Dolby-avkodare för Dolby Digital Plus, inklusive Atmos. På iOS, iPadOS och tvOS 26 eller senare spelas TrueHD Atmos och DTS:X upp som rumsligt ljud. Övriga DTS- och TrueHD-spår spelas upp som flerkanaligt PCM-ljud. Stäng av om inget ljud hörs.';
 	@override String get audioPassthroughOverriddenByNormalization => 'Av medan ljudstyrkenormalisering är på';
 	@override String get audioChannelLimit => 'Ljudkanaler';
 	@override String get audioChannelLimitDescription => 'Mixa ned avkodat ljud för högtalare, hörlurar eller HDMI-uppsättningar som inte kan spela upp alla kanaler';
@@ -557,10 +534,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Visa profilval varje gång appen öppnas';
 	@override String get forceTvMode => 'Tvinga TV-läge';
 	@override String get forceTvModeDescription => 'Tvinga TV-layout. För enheter som inte upptäcks automatiskt. Kräver omstart.';
-	@override String get startInFullscreen => 'Starta i helskärm';
-	@override String get startInFullscreenDescription => 'Öppna Plezy i helskärm vid start';
-	@override String get exitFullscreenOnPlayerClose => 'Avsluta helskärm vid stängning av spelare';
-	@override String get exitFullscreenOnPlayerCloseDescription => 'Avslutar automatiskt helskärmsläge när videospelaren stängs';
 	@override String get autoHidePerformanceOverlay => 'Dölj prestandainformation automatiskt';
 	@override String get autoHidePerformanceOverlayDescription => 'Tona bort prestandainformationen tillsammans med uppspelningskontrollerna';
 	@override String get showNavBarLabels => 'Visa navigeringsfältets etiketter';
@@ -578,7 +551,6 @@ class _Translations$settings$sv extends Translations$settings$en {
 	@override String get libraryAndCards => 'Bibliotek och kort';
 	@override String get homeScreen => 'Hemskärm';
 	@override String get navigation => 'Navigering';
-	@override String get window => 'Fönster';
 	@override String get liveTv => 'Live-TV';
 	@override String get player => 'Spelare';
 	@override String get videoAndDisplay => 'Video och skärm';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$sv extends Translations$hotkeys$en {
 	final TranslationsSv _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => 'Sätt genväg för ${actionName}';
-	@override String get clearShortcut => 'Rensa genväg';
 	@override String get noShortcutSet => 'Ingen genväg angiven';
-	@override String get currentShortcut => 'Aktuell genväg:';
-	@override String get pressToRecord => 'Välj för att registrera en genväg';
-	@override String get recordingShortcut => 'Tryck på genvägen nu';
 	@override late final _Translations$hotkeys$actions$sv actions = _Translations$hotkeys$actions$sv._(_root);
 }
 
@@ -980,16 +947,12 @@ class _Translations$videoControls$sv extends Translations$videoControls$en {
 	@override String get pipButton => 'Bild-i-bild-läge';
 	@override String get aspectRatioButton => 'Bildförhållande';
 	@override String get ambientLighting => 'Ambientbelysning';
-	@override String get fullscreenButton => 'Aktivera helskärm';
-	@override String get exitFullscreenButton => 'Avsluta helskärm';
-	@override String get alwaysOnTopButton => 'Alltid överst';
 	@override String get rotationLockButton => 'Rotationslås';
 	@override String get lockScreen => 'Lås skärm';
 	@override String get screenLockButton => 'Skärmlås';
 	@override String get timelineSlider => 'Videotidslinje';
 	@override String get volumeSlider => 'Volymnivå';
 	@override String endsAt({required Object time}) => 'Slutar kl. ${time}';
-	@override String get pipActive => 'Spelas upp i bild-i-bild';
 	@override String get pipFailed => 'Bild-i-bild kunde inte starta';
 	@override String get screenshotSaved => 'Skärmbild sparad';
 	@override String get screenshotFailed => 'Kunde inte ta skärmbild';
@@ -1157,7 +1120,6 @@ class _Translations$mpvConfig$sv extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => 'Lägg till rad';
 	@override String get removeLine => 'Ta bort rad';
-	@override String get embeddedVoHint => 'vo, gpu-context och gpu-api ignoreras på Linux: inbäddad video renderas alltid via vo=libmpv på videoplanet, och gpu-next (som compute-shaders som ArtCNN behöver) kan inte köras inbäddat.';
 }
 
 // Path: dialog
@@ -1507,7 +1469,6 @@ class _Translations$startup$sv extends Translations$startup$en {
 	@override String get repairSucceeded => 'Lagringen reparerad';
 	@override String get repairNeedsRestart => 'Lagringen reparerad — omstart krävs';
 	@override String get restartRequiredBody => 'Dina data reparerades, men Plezy måste starta om innan de kan användas. Stäng Plezy och öppna det igen.';
-	@override String get quitPlezy => 'Avsluta Plezy';
 	@override String get repairFailed => 'Reparationen misslyckades';
 	@override String get repairKeptSignIns => 'Dina servrar och profiler är fortfarande inloggade.';
 	@override String get repairLostSignIns => 'Nyckeln som skyddar dina sparade inloggningar kunde inte återställas. Du måste logga in på varje server och profil igen.';
@@ -2078,20 +2039,9 @@ class _Translations$videoSettings$sv extends Translations$videoSettings$en {
 	@override String get audioSync => 'Ljudsynkronisering';
 	@override String get subtitleSync => 'Undertextsynkronisering';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => 'HDR kan inte användas här – skrivbordets kompositionshanterare eller videoutgången kan inte överföra det.';
-	@override String get hdrToneMapping => 'HDR-tonmappning';
-	@override String get hdrToneMappingCompositor => 'Kompositionshanterare';
-	@override String get hdrToneMappingCompositorDescription => 'Vidarebefordra källans HDR-metadata och låt skrivbordets kompositionshanterare tonmappa dem.';
-	@override String get hdrToneMappingPlayer => 'Spelare';
-	@override String get hdrToneMappingPlayerDescription => 'Tonmappa till skärmens maximala ljusstyrka i spelaren och informera sedan kompositionshanteraren om resultatet.';
-	@override String get hdrToneMappingFailed => 'Det gick inte att ändra HDR-tonmappningen – det föregående läget är fortfarande aktivt.';
 	@override String get audioOutput => 'Ljudutgång';
-	@override String get performanceOverlay => 'Prestandaöverlägg';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => 'Surround';
-	@override String get audioOutputSpatial => 'Rumsligt ljud';
 	@override String get audioOutputStereo => 'Stereo';
+	@override String get performanceOverlay => 'Prestandaöverlägg';
 	@override String get audioNormalization => 'Normalisera ljudstyrka';
 	@override String get audioNormalizationDisablesPassthrough => 'Avkodar ljudet till PCM; genomströmning är av medan detta är på';
 }
@@ -2174,7 +2124,6 @@ class _Translations$externalPlayer$sv extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => 'Lägg till anpassad spelare';
 	@override String get playerName => 'Spelarnamn';
 	@override String get playerNameHint => 'Min spelare';
-	@override String get playerCommand => 'Kommando';
 	@override String get playerPackage => 'Paketnamn';
 	@override String get playerUrlScheme => 'URL-schema';
 	@override String get off => 'Av';
@@ -2386,7 +2335,6 @@ class _Translations$services$sv extends Translations$services$en {
 	// Translations
 	@override String get title => 'Tjänster';
 	@override String get hubSubtitle => 'Synkronisera visningsstatus och begär nya titlar.';
-	@override String get integrations => 'Integrationer';
 	@override String get notConnected => 'Inte ansluten';
 	@override String connectedAs({required Object username}) => 'Ansluten som @${username}';
 	@override String get scrobble => 'Spåra uppspelningen automatiskt';
@@ -2621,7 +2569,6 @@ class _Translations$videoControls$pipErrors$sv extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Kräver Android 8.0 eller nyare';
-	@override String get iosVersion => 'Kräver iOS 15.0 eller nyare';
 	@override String get permissionDisabled => 'Bild-i-bild är inaktiverat. Aktivera det i systeminställningarna.';
 	@override String get notSupported => 'Denna enhet stöder inte bild-i-bild-läge';
 	@override String get voSwitchFailed => 'Kunde inte byta videoutgång för bild-i-bild';
@@ -3442,7 +3389,6 @@ extension on TranslationsSv {
 			'auth.quickConnectWaiting' => 'Väntar på godkännande…',
 			'auth.quickConnectCancel' => 'Avbryt',
 			'auth.quickConnectExpired' => 'Quick Connect har gått ut. Försök igen.',
-			'auth.localDataRecoveryRequired' => 'Plezy kunde inte återställa lokala inloggningsuppgifter och väntande uppspelningsdata på ett säkert sätt. Logga in igen.',
 			'auth.pinCheckRejected' => 'Plex PIN-kontrollen avvisades',
 			'common.cancel' => 'Avbryt',
 			'common.save' => 'Spara',
@@ -3487,8 +3433,6 @@ extension on TranslationsSv {
 			'common.connectingToServers' => 'Ansluter till servrar...',
 			'common.startingOfflineMode' => 'Startar offlineläge...',
 			'common.loading' => 'Laddar...',
-			'common.fullscreen' => 'Helskärm',
-			'common.exitFullscreen' => 'Avsluta helskärm',
 			'common.pressBackAgainToExit' => 'Tryck bakåt igen för att avsluta',
 			'common.ratingSource.critic' => 'Kritiker',
 			'common.ratingSource.audience' => 'Publik',
@@ -3644,9 +3588,6 @@ extension on TranslationsSv {
 			'settings.cellularQualitySameAsDefault' => 'Samma som standardkvalitet',
 			'settings.directPlayCoveredQuality' => 'Spela mindre videor i originalkvalitet',
 			'settings.directPlayCoveredQualityDescription' => 'Direktspela videor som redan ligger inom kvalitetsgränsen i stället för att transkoda dem',
-			'settings.videoCodecs' => 'Videokodekar',
-			'settings.videoCodecsDescription' => 'Kodekar utan bock transkodas av servern',
-			'settings.videoCodecsAlwaysAccepted' => 'Accepteras alltid',
 			'settings.musicQualityTitle' => 'Musikkvalitet',
 			'settings.subtitleStyling' => 'Utseende för undertexter',
 			'settings.subtitleStylingDescription' => 'Anpassa undertexternas utseende',
@@ -3672,11 +3613,6 @@ extension on TranslationsSv {
 			'settings.specialsOrderingLast' => 'Efter vanliga säsonger',
 			'settings.clickVideoTogglesPlayback' => 'Klicka på videon för att spela upp eller pausa',
 			'settings.clickVideoTogglesPlaybackDescription' => 'Klicka på videon för att spela upp eller pausa i stället för att visa kontrollerna.',
-			'settings.videoPlayerControls' => 'Videospelarens kontroller',
-			'settings.keyboardShortcuts' => 'Tangentbordsgenvägar',
-			'settings.keyboardShortcutsDescription' => 'Anpassa tangentbordsgenvägar',
-			'settings.videoPlayerNavigation' => 'Navigering i videospelaren',
-			'settings.videoPlayerNavigationDescription' => 'Använd piltangenter för att navigera videospelarens kontroller',
 			'settings.watchTogetherRelay' => 'Reläserver för Titta tillsammans',
 			'settings.watchTogetherRelayDescription' => 'Offentliga Open Watch Party-reläservrar om du inte anger en egen',
 			'settings.watchTogetherRelayHint' => 'https://mitt-rela.exempel.se',
@@ -3703,8 +3639,6 @@ extension on TranslationsSv {
 			'settings.importSettingsSuccess' => 'Inställningar importerade',
 			'settings.importSettingsInvalidFile' => 'Filen är inte en giltig export av Plezy-inställningar',
 			'settings.importSettingsNoUser' => 'Logga in innan du importerar inställningar',
-			'settings.shortcutsReset' => 'Genvägarna har återställts till standard',
-			'settings.resetShortcutsConfirm' => 'Detta ersätter dina anpassade genvägar med standardgenvägarna. Fortsätta?',
 			'settings.about' => 'Om',
 			'settings.aboutDescription' => 'Appinformation och licenser',
 			'settings.updates' => 'Uppdateringar',
@@ -3714,8 +3648,6 @@ extension on TranslationsSv {
 			'settings.autoCheckUpdatesOnStartupDescription' => 'Meddela när en uppdatering finns vid start',
 			'settings.validationErrorEnterNumber' => 'Ange ett giltigt tal',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => 'Tiden måste vara mellan ${min} och ${max} ${unit}',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'Genvägen används redan för ${action}',
-			'settings.shortcutUpdated' => ({required Object action}) => 'Genvägen för ${action} har uppdaterats',
 			'settings.saveFailed' => 'Det gick inte att spara ändringarna. Försök igen.',
 			'settings.autoPlayAndSkip' => 'Autouppspelning och hoppa över',
 			'settings.autoPlayNextEpisode' => 'Spela nästa avsnitt automatiskt',
@@ -3764,8 +3696,6 @@ extension on TranslationsSv {
 			'settings.maxVolume' => 'Maxvolym',
 			'settings.maxVolumeDescription' => 'Tillåt att volymen höjs över 100 % för innehåll med låg ljudnivå',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent} %',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Visa vad du tittar på i Discord',
 			'settings.services' => 'Tjänster',
 			'settings.servicesDescription' => 'Anslut Trakt, MyAnimeList, Seerr med mera',
 			'settings.manageLibrariesDescription' => 'Ordna om och dölj bibliotek',
@@ -3779,17 +3709,11 @@ extension on TranslationsSv {
 			'settings.matchContentFrameRateDescription' => 'Matcha skärmens uppdateringsfrekvens med videoinnehållet',
 			'settings.matchContentResolution' => 'Anpassa till innehållets upplösning',
 			'settings.matchContentResolutionDescription' => 'Växlar skärmen till videons ursprungliga upplösning så att din TV sköter uppskalningen. Menyer och undertexter skalas också upp under uppspelning',
-			'settings.matchRefreshRate' => 'Matcha uppdateringsfrekvens',
-			'settings.matchRefreshRateDescription' => 'Matcha skärmens uppdateringsfrekvens i helskärm',
-			'settings.matchDynamicRange' => 'Matcha dynamiskt omfång',
-			'settings.matchDynamicRangeDescription' => 'Slå på HDR för HDR-innehåll och sedan tillbaka till SDR',
 			'settings.displaySwitchDelay' => 'Fördröjning vid skärmbyte',
 			'settings.tunneledPlayback' => 'Tunneluppspelning',
 			'settings.tunneledPlaybackDescription' => 'Använd videotunnling. Inaktivera om HDR-uppspelning visar svart video eller rörelser hackar.',
 			'settings.audioPassthrough' => 'Ljudgenomströmning',
 			'settings.audioPassthroughDescription' => 'Skicka Dolby-/DTS-ljud till receivern eller TV:n utan omkodning så att surroundljudet bevaras. Stäng av om inget ljud hörs.',
-			'settings.audioPassthroughDescriptionApple' => 'Använd Apples inbyggda Dolby-avkodare för Dolby Digital Plus, inklusive Atmos. DTS och TrueHD spelas fortfarande upp som flerkanaligt PCM-ljud. Stäng av om inget ljud hörs.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Använd Apples inbyggda Dolby-avkodare för Dolby Digital Plus, inklusive Atmos. På iOS, iPadOS och tvOS 26 eller senare spelas TrueHD Atmos och DTS:X upp som rumsligt ljud. Övriga DTS- och TrueHD-spår spelas upp som flerkanaligt PCM-ljud. Stäng av om inget ljud hörs.',
 			'settings.audioPassthroughOverriddenByNormalization' => 'Av medan ljudstyrkenormalisering är på',
 			'settings.audioChannelLimit' => 'Ljudkanaler',
 			'settings.audioChannelLimitDescription' => 'Mixa ned avkodat ljud för högtalare, hörlurar eller HDMI-uppsättningar som inte kan spela upp alla kanaler',
@@ -3837,10 +3761,6 @@ extension on TranslationsSv {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Visa profilval varje gång appen öppnas',
 			'settings.forceTvMode' => 'Tvinga TV-läge',
 			'settings.forceTvModeDescription' => 'Tvinga TV-layout. För enheter som inte upptäcks automatiskt. Kräver omstart.',
-			'settings.startInFullscreen' => 'Starta i helskärm',
-			'settings.startInFullscreenDescription' => 'Öppna Plezy i helskärm vid start',
-			'settings.exitFullscreenOnPlayerClose' => 'Avsluta helskärm vid stängning av spelare',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'Avslutar automatiskt helskärmsläge när videospelaren stängs',
 			'settings.autoHidePerformanceOverlay' => 'Dölj prestandainformation automatiskt',
 			'settings.autoHidePerformanceOverlayDescription' => 'Tona bort prestandainformationen tillsammans med uppspelningskontrollerna',
 			'settings.showNavBarLabels' => 'Visa navigeringsfältets etiketter',
@@ -3858,7 +3778,6 @@ extension on TranslationsSv {
 			'settings.libraryAndCards' => 'Bibliotek och kort',
 			'settings.homeScreen' => 'Hemskärm',
 			'settings.navigation' => 'Navigering',
-			'settings.window' => 'Fönster',
 			'settings.liveTv' => 'Live-TV',
 			'settings.player' => 'Spelare',
 			'settings.videoAndDisplay' => 'Video och skärm',
@@ -3907,8 +3826,6 @@ extension on TranslationsSv {
 			'themeEditor.slots.text' => 'Text',
 			'themeEditor.slots.textMuted' => 'Sekundär text',
 			'themeEditor.slots.accent' => 'Accentfärg',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => 'Opacitet',
 			'themeEditor.hexHint' => '#RRGGBB eller #AARRGGBB',
 			'themeEditor.fromOtherThemes' => 'Från andra teman',
@@ -3933,15 +3850,12 @@ extension on TranslationsSv {
 			'search.searchYourMedia' => 'Sök i dina media',
 			'search.enterTitleActorOrKeyword' => 'Ange en titel, skådespelare eller nyckelord',
 			'search.people' => 'Personer',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => 'Sätt genväg för ${actionName}',
-			'hotkeys.clearShortcut' => 'Rensa genväg',
 			'hotkeys.noShortcutSet' => 'Ingen genväg angiven',
-			'hotkeys.currentShortcut' => 'Aktuell genväg:',
-			'hotkeys.pressToRecord' => 'Välj för att registrera en genväg',
-			'hotkeys.recordingShortcut' => 'Tryck på genvägen nu',
 			'hotkeys.actions.playPause' => 'Spela/Pausa',
 			'hotkeys.actions.volumeUp' => 'Höj volym',
 			'hotkeys.actions.volumeDown' => 'Sänk volym',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Spola framåt (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Spola bakåt (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Växla helskärm',
@@ -4198,23 +4112,18 @@ extension on TranslationsSv {
 			'videoControls.pipButton' => 'Bild-i-bild-läge',
 			'videoControls.aspectRatioButton' => 'Bildförhållande',
 			'videoControls.ambientLighting' => 'Ambientbelysning',
-			'videoControls.fullscreenButton' => 'Aktivera helskärm',
-			'videoControls.exitFullscreenButton' => 'Avsluta helskärm',
-			'videoControls.alwaysOnTopButton' => 'Alltid överst',
 			'videoControls.rotationLockButton' => 'Rotationslås',
 			'videoControls.lockScreen' => 'Lås skärm',
 			'videoControls.screenLockButton' => 'Skärmlås',
 			'videoControls.timelineSlider' => 'Videotidslinje',
 			'videoControls.volumeSlider' => 'Volymnivå',
 			'videoControls.endsAt' => ({required Object time}) => 'Slutar kl. ${time}',
-			'videoControls.pipActive' => 'Spelas upp i bild-i-bild',
 			'videoControls.pipFailed' => 'Bild-i-bild kunde inte starta',
 			'videoControls.screenshotSaved' => 'Skärmbild sparad',
 			'videoControls.screenshotFailed' => 'Kunde inte ta skärmbild',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'Zoom ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => 'Volym ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Kräver Android 8.0 eller nyare',
-			'videoControls.pipErrors.iosVersion' => 'Kräver iOS 15.0 eller nyare',
 			'videoControls.pipErrors.permissionDisabled' => 'Bild-i-bild är inaktiverat. Aktivera det i systeminställningarna.',
 			'videoControls.pipErrors.notSupported' => 'Denna enhet stöder inte bild-i-bild-läge',
 			'videoControls.pipErrors.voSwitchFailed' => 'Kunde inte byta videoutgång för bild-i-bild',
@@ -4352,7 +4261,6 @@ extension on TranslationsSv {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => 'Lägg till rad',
 			'mpvConfig.removeLine' => 'Ta bort rad',
-			'mpvConfig.embeddedVoHint' => 'vo, gpu-context och gpu-api ignoreras på Linux: inbäddad video renderas alltid via vo=libmpv på videoplanet, och gpu-next (som compute-shaders som ArtCNN behöver) kan inte köras inbäddat.',
 			'dialog.confirmAction' => 'Bekräfta åtgärd',
 			'profiles.addPlezyProfile' => 'Lägg till Plezy-profil',
 			'profiles.switchingProfile' => 'Byter profil…',
@@ -4421,8 +4329,6 @@ extension on TranslationsSv {
 			'profiles.tokenIdentityMismatch' => 'Plex-profiltoken kopplades till en oväntad server',
 			'connections.sectionTitle' => 'Anslutningar',
 			'connections.addConnection' => 'Lägg till anslutning',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Logga in med Plex eller anslut en Jellyfin- eller Emby-server',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => 'Lägg till för ${displayName}: Plex, Jellyfin, Emby eller en annan profilanslutning',
 			'connections.sessionExpiredOne' => ({required Object name}) => 'Sessionen har gått ut för ${name}',
@@ -4462,6 +4368,8 @@ extension on TranslationsSv {
 			'accountPreferences.subtitleModes.smart' => 'Visas med ljud på främmande språk',
 			'accountPreferences.subtitleModes.smartDescription' => 'Slå på undertexter endast när ljudet är på ett annat språk.',
 			'accountPreferences.subtitleAccessibility' => 'SDH-undertexter',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Föredra icke-SDH-undertexter',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Föredra SDH-undertexter',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Endast SDH-undertexter',
@@ -4686,7 +4594,6 @@ extension on TranslationsSv {
 			'startup.repairSucceeded' => 'Lagringen reparerad',
 			'startup.repairNeedsRestart' => 'Lagringen reparerad — omstart krävs',
 			'startup.restartRequiredBody' => 'Dina data reparerades, men Plezy måste starta om innan de kan användas. Stäng Plezy och öppna det igen.',
-			'startup.quitPlezy' => 'Avsluta Plezy',
 			'startup.repairFailed' => 'Reparationen misslyckades',
 			'startup.repairKeptSignIns' => 'Dina servrar och profiler är fortfarande inloggade.',
 			'startup.repairLostSignIns' => 'Nyckeln som skyddar dina sparade inloggningar kunde inte återställas. Du måste logga in på varje server och profil igen.',
@@ -4935,8 +4842,6 @@ extension on TranslationsSv {
 			'liveTv.recordSettings.keepUpToHint' => '0 behåller alla avsnitt',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => 'Börjar om ${minutes} min',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day} kl. ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product} returnerade ogiltiga uppspelningsdata för Live-TV',
 			'liveTv.failedToStartChannel' => 'Kunde inte starta livekanalen',
 			'liveTv.failedToBuildStreamUrl' => 'Kunde inte skapa strömmens URL',
@@ -4977,6 +4882,8 @@ extension on TranslationsSv {
 			'playlists.deleteConfirm' => 'Ta bort spellista?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Är du säker på att du vill ta bort "${name}"?',
 			'playlists.created' => 'Spellistan har skapats',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => 'Spellistan har tagits bort',
 			'playlists.itemAdded' => 'Objektet har lagts till i spellistan',
 			'playlists.itemRemoved' => 'Objektet har tagits bort från spellistan',
@@ -5380,20 +5287,9 @@ extension on TranslationsSv {
 			'videoSettings.audioSync' => 'Ljudsynkronisering',
 			'videoSettings.subtitleSync' => 'Undertextsynkronisering',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'HDR kan inte användas här – skrivbordets kompositionshanterare eller videoutgången kan inte överföra det.',
-			'videoSettings.hdrToneMapping' => 'HDR-tonmappning',
-			'videoSettings.hdrToneMappingCompositor' => 'Kompositionshanterare',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'Vidarebefordra källans HDR-metadata och låt skrivbordets kompositionshanterare tonmappa dem.',
-			'videoSettings.hdrToneMappingPlayer' => 'Spelare',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'Tonmappa till skärmens maximala ljusstyrka i spelaren och informera sedan kompositionshanteraren om resultatet.',
-			'videoSettings.hdrToneMappingFailed' => 'Det gick inte att ändra HDR-tonmappningen – det föregående läget är fortfarande aktivt.',
 			'videoSettings.audioOutput' => 'Ljudutgång',
-			'videoSettings.performanceOverlay' => 'Prestandaöverlägg',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'Surround',
-			'videoSettings.audioOutputSpatial' => 'Rumsligt ljud',
 			'videoSettings.audioOutputStereo' => 'Stereo',
+			'videoSettings.performanceOverlay' => 'Prestandaöverlägg',
 			'videoSettings.audioNormalization' => 'Normalisera ljudstyrka',
 			'videoSettings.audioNormalizationDisablesPassthrough' => 'Avkodar ljudet till PCM; genomströmning är av medan detta är på',
 			'performanceOverlay.color' => 'Färg',
@@ -5449,8 +5345,6 @@ extension on TranslationsSv {
 			'performanceOverlay.decoderHardware' => 'Maskinvara',
 			'performanceOverlay.tunnelingActive' => 'Aktiv',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted} (${failures} misslyckades)',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => 'Extern spelare',
 			'externalPlayer.useExternalPlayer' => 'Använd extern spelare',
 			'externalPlayer.useExternalPlayerDescription' => 'Öppna videor i en annan app',
@@ -5460,7 +5354,6 @@ extension on TranslationsSv {
 			'externalPlayer.addCustomPlayer' => 'Lägg till anpassad spelare',
 			'externalPlayer.playerName' => 'Spelarnamn',
 			'externalPlayer.playerNameHint' => 'Min spelare',
-			'externalPlayer.playerCommand' => 'Kommando',
 			'externalPlayer.playerPackage' => 'Paketnamn',
 			'externalPlayer.playerUrlScheme' => 'URL-schema',
 			'externalPlayer.off' => 'Av',
@@ -5503,6 +5396,8 @@ extension on TranslationsSv {
 			'metadataEdit.libraryDefault' => 'Biblioteksstandard',
 			'metadataEdit.accountDefault' => 'Kontostandard',
 			'metadataEdit.seriesDefault' => 'Seriestandard',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Avsnittsortering',
 			'metadataEdit.oldestFirst' => 'Äldst först',
 			'metadataEdit.newestFirst' => 'Nyast först',
@@ -5618,7 +5513,6 @@ extension on TranslationsSv {
 			'seerr.permissionRevoked' => 'Du har inte längre behörighet att begära detta',
 			'services.title' => 'Tjänster',
 			'services.hubSubtitle' => 'Synkronisera visningsstatus och begär nya titlar.',
-			'services.integrations' => 'Integrationer',
 			'services.notConnected' => 'Inte ansluten',
 			'services.connectedAs' => ({required Object username}) => 'Ansluten som @${username}',
 			'services.scrobble' => 'Spåra uppspelningen automatiskt',

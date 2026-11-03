@@ -22,7 +22,6 @@ dependencies:
   http: ^1.2.0
   url_launcher: ^6.3.0
   uuid: ^4.4.0
-  window_manager: ^0.5.1
   logger: ^2.7.0
   package_info_plus: ^9.0.0
   device_info_plus: ^12.3.0
@@ -57,8 +56,6 @@ dependencies:
   saf_stream: ^3.1.0
   material_symbols_icons: ^4.2951.0
   web_socket_channel: ^3.0.1
-  # 1.2.1: Windows IPC no longer blocks the UI isolate while Discord stalls (#2518).
-  dart_discord_presence: ^1.2.1
   flutter_svg: ^2.2.3
   # Fork 54a34a0 fixes upstream #649's missing desktop temp parent; 7ee4588
   # survives a host with no documents directory (Linux without xdg-user-dirs);
@@ -77,12 +74,6 @@ dependencies:
       url: https://github.com/edde746/background_downloader
       ref: 7c341be73df8a6a5ddccb06124807ac250a32bc1
   sentry_flutter: ^9.30.0
-  auto_updater:
-    git:
-      url: https://github.com/edde746/auto_updater
-      path: packages/auto_updater
-      ref: 9e150f7
-  win_http: ^0.2.3
   collection: ^1.18.0
   freezed_annotation: ^3.1.0
   xml: ^7.0.1
@@ -93,11 +84,11 @@ dependencies:
   in_app_purchase: ^3.3.1
   in_app_purchase_android: ^0.5.4
   in_app_purchase_platform_interface: ^1.4.1
-  in_app_purchase_storekit: ^0.4.13+3
   openwatchparty: ^1.1.0
   # The connector passed to openwatchparty, which logs relay connect failures.
   web_socket: ^1.0.1
 
+  shared_preferences_foundation: any
 dev_dependencies:
   archive: ^4.0.9
   flutter_test:
@@ -118,14 +109,11 @@ dev_dependencies:
   connectivity_plus_platform_interface: ^2.1.0
   # Exercise vendored desktop preference stores against real file I/O,
   # including #1732 repair and atomic writes.
-  shared_preferences_linux: ^2.4.1
-  shared_preferences_windows: ^2.4.1
-  path_provider_linux: ^2.2.1
-  path_provider_windows: ^2.3.0
   plugin_platform_interface: ^2.1.0
   freezed: ^3.2.5
   analyzer: 10.2.0
 
+  dart_discord_presence: any
 dependency_overrides:
   # background_downloader 9.6.2 requires hosted connectivity_plus; keep the
   # pinned git source for every consumer.
@@ -134,30 +122,9 @@ dependency_overrides:
       url: https://github.com/fluttercommunity/plus_plugins
       ref: bf04cdf66598dc3fca274b8b1db2b92b0bf6b73e
       path: packages/connectivity_plus/connectivity_plus
-  auto_updater_platform_interface:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_platform_interface
-  auto_updater_macos:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_macos
-  auto_updater_windows:
-    git:
-      url: https://github.com/edde746/auto_updater
-      ref: 9e150f7
-      path: packages/auto_updater_windows
-  # Vendored 2.4.1: atomic replacement prevents upstream #1732 corruption.
-  shared_preferences_windows:
-    path: packages/shared_preferences_windows
-  shared_preferences_linux:
-    path: packages/shared_preferences_linux
 flutter:
   uses-material-design: true
   assets:
-    - assets/licenses/SpatialAudioBridge.txt
     - assets/plezy.png
     - assets/plezy_adaptive_foreground.svg
     - assets/plex_chevron.svg
@@ -181,12 +148,3 @@ flutter:
     # App icon picker thumbnails; scripts/codegen/generate_app_icons.py renders them from
     # assets/app_icons/source, which stays out of the bundle.
     - assets/app_icons/previews/
-  # Registered as UI font families so the Linux build, whose fontconfig may
-  # lack CJK fonts, can fall back to the bundled subtitle fonts (mono_theme).
-  fonts:
-    - family: Go Noto Current
-      fonts:
-        - asset: assets/go-noto-current-regular.ttf
-    - family: Go Noto Current Hangul
-      fonts:
-        - asset: assets/go-noto-kurrent-hangul.ttf

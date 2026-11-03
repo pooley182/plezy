@@ -16,12 +16,12 @@ import 'package:plezy/widgets/overlay_sheet.dart';
 import 'package:plezy/widgets/video_controls/sheets/video_settings_sheet.dart';
 import 'package:plezy/widgets/video_controls/player_chrome_controller.dart';
 import 'package:plezy/widgets/video_controls/video_controls.dart';
-import 'package:plezy/widgets/video_controls/widgets/linux_keep_alive.dart';
 import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart';
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Regression coverage for #1707: with the chrome hidden and nothing transient
 /// on screen, the player UI must schedule no frames at all. On Windows every
@@ -48,8 +48,7 @@ void main() {
       SettingsService.resetForTesting();
       final settings = await SettingsService.getInstance();
 
-      TvDetectionService.debugSetAppleTVOverride(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
+      TvDetectionService.debugSetTvOverride(true);
 
       database = AppDatabase.forTesting(NativeDatabase.memory());
       player = _IdlePlayer();
@@ -62,9 +61,7 @@ void main() {
     });
 
     tearDown(() async {
-      LinuxKeepAlive.debugIsLinuxOverride = null;
-      TvDetectionService.debugSetAppleTVOverride(null);
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       volume.dispose();
       playbackState.dispose();
       watchTogether.dispose();
@@ -112,7 +109,6 @@ void main() {
     }
 
     testWidgets('retiring controls with an open sheet cannot restart disposed chrome', (tester) async {
-      LinuxKeepAlive.debugIsLinuxOverride = false;
       await pumpHiddenChrome(tester);
       chrome.show();
       await tester.pump();
@@ -135,15 +131,14 @@ void main() {
     });
 
     testWidgets('the player UI schedules no frames while chrome is hidden', (tester) async {
-      LinuxKeepAlive.debugIsLinuxOverride = false;
       await pumpHiddenChrome(tester);
 
       // Drain the chrome fade-out and any post-frame follow-ups.
       await tester.pumpAndSettle();
       expect(tester.binding.hasScheduledFrame, isFalse);
 
-      // Let fake time elapse without pumping: any periodic repaint (like the
-      // Linux keep-alive formerly mounted on Windows) would schedule a frame.
+      // Let fake time elapse without pumping: any periodic repaint would
+      // schedule a frame.
       await tester.binding.delayed(const Duration(seconds: 5));
       expect(
         tester.binding.hasScheduledFrame,
@@ -153,42 +148,17 @@ void main() {
 
       await tester.pumpWidget(const SizedBox.shrink());
     });
-
-    testWidgets('Linux still repaints to keep its frame clock alive', (tester) async {
-      LinuxKeepAlive.debugIsLinuxOverride = true;
-      await pumpHiddenChrome(tester);
-
-      // Drive the fade to completion with bounded pumps; pumpAndSettle would
-      // never settle against the keep-alive's own repaints.
-      await tester.pump(const Duration(seconds: 1));
-      await tester.pump();
-
-      await tester.binding.delayed(const Duration(milliseconds: 250));
-      expect(
-        tester.binding.hasScheduledFrame,
-        isTrue,
-        reason: 'the GTK frame clock workaround must keep scheduling frames on Linux',
-      );
-
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
   });
 }
 
 /// Minimal [Player] that stays paused-forever idle so the controls have no
 /// stream activity to react to — the state a real hidden-chrome session is in.
-class _IdlePlayer implements Player {
+class _IdlePlayer with AndroidPlayerNoops implements Player {
   @override
   String get playerType => 'mpv';
 
   @override
   Future<String?> getProperty(String name) async => null;
-
-  @override
-  Future<bool> isHdrOutputSupported() async => false;
-
-  @override
-  Future<AudioRenderingMode?> getAudioRenderingMode() async => null;
 
   @override
   PlayerState get state => PlayerState(

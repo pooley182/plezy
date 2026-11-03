@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -43,7 +41,7 @@ class SubtitleStylingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Each backend exposes its own text-subtitle placement preference.
-    final exoActive = Platform.isAndroid && SettingsService.instance.read(SettingsService.useExoPlayer);
+    final exoActive = SettingsService.instance.read(SettingsService.useExoPlayer);
     return SettingsPage(
       title: Text(t.screens.subtitleStyling),
       children: [
@@ -58,33 +56,21 @@ class SubtitleStylingScreen extends StatelessWidget {
               options: SubAssOverride.values.map((v) => DialogOption(value: v, title: _assOverrideLabel(v))).toList(),
             ),
             // Apple avfoundation VO: screen vs video-resolution basis.
-            if (Platform.isIOS || Platform.isMacOS)
-              SettingSelectionTile<SubtitleRenderResolution>(
-                pref: SettingsService.subtitleRenderResolution,
-                icon: Symbols.aspect_ratio_rounded,
-                title: t.subtitlingStyling.renderResolution,
-                subtitleBuilder: _renderResolutionLabel,
-                options: const [
-                  SubtitleRenderResolution.screen,
-                  SubtitleRenderResolution.video,
-                ].map((v) => DialogOption(value: v, title: _renderResolutionLabel(v))).toList(),
-              ),
             // Android libass overlay: full or a fractional render scale (perf knob for
             // render-bound low-end TVs; heavy/animated signs raster faster at < 1).
-            if (Platform.isAndroid)
-              SettingSelectionTile<SubtitleRenderResolution>(
-                pref: SettingsService.subtitleRenderResolution,
-                icon: Symbols.aspect_ratio_rounded,
-                title: t.subtitlingStyling.renderResolution,
-                subtitleBuilder: _renderResolutionLabel,
-                options: const [
-                  SubtitleRenderResolution.screen,
-                  SubtitleRenderResolution.threeQuarter,
-                  SubtitleRenderResolution.half,
-                  SubtitleRenderResolution.third,
-                  SubtitleRenderResolution.quarter,
-                ].map((v) => DialogOption(value: v, title: _renderResolutionLabel(v))).toList(),
-              ),
+            SettingSelectionTile<SubtitleRenderResolution>(
+              pref: SettingsService.subtitleRenderResolution,
+              icon: Symbols.aspect_ratio_rounded,
+              title: t.subtitlingStyling.renderResolution,
+              subtitleBuilder: _renderResolutionLabel,
+              options: const [
+                SubtitleRenderResolution.screen,
+                SubtitleRenderResolution.threeQuarter,
+                SubtitleRenderResolution.half,
+                SubtitleRenderResolution.third,
+                SubtitleRenderResolution.quarter,
+              ].map((v) => DialogOption(value: v, title: _renderResolutionLabel(v))).toList(),
+            ),
             SettingNumberTile(
               pref: SettingsService.subtitleFontSize,
               icon: Symbols.format_size_rounded,

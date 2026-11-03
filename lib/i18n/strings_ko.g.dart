@@ -145,7 +145,6 @@ class _Translations$auth$ko extends Translations$auth$en {
 	@override String get quickConnectWaiting => '승인 대기 중…';
 	@override String get quickConnectCancel => '취소';
 	@override String get quickConnectExpired => 'Quick Connect가 만료되었습니다. 다시 시도하세요.';
-	@override String get localDataRecoveryRequired => 'Plezy에서 로컬 로그인 정보와 대기 중인 재생 데이터를 안전하게 복구하지 못했습니다. 다시 로그인해 주세요.';
 	@override String get pinCheckRejected => 'Plex PIN 확인이 거부되었습니다';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$ko extends Translations$common$en {
 	@override String get connectingToServers => '서버 연결 중...';
 	@override String get startingOfflineMode => '오프라인 모드 시작 중...';
 	@override String get loading => '로딩 중...';
-	@override String get fullscreen => '전체 화면';
-	@override String get exitFullscreen => '전체 화면 종료';
 	@override String get pressBackAgainToExit => '한 번 더 누르면 종료됩니다';
 	@override late final _Translations$common$ratingSource$ko ratingSource = _Translations$common$ratingSource$ko._(_root);
 	@override String get notAvailable => 'N/A';
@@ -364,9 +361,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => '기본 화질과 동일';
 	@override String get directPlayCoveredQuality => '작은 동영상을 원본 화질로 재생';
 	@override String get directPlayCoveredQualityDescription => '화질 제한 내의 동영상은 트랜스코딩하지 않고 Direct Play합니다';
-	@override String get videoCodecs => '비디오 코덱';
-	@override String get videoCodecsDescription => '선택 해제한 코덱은 서버가 트랜스코딩합니다';
-	@override String get videoCodecsAlwaysAccepted => '항상 허용';
 	@override String get musicQualityTitle => '음악 음질';
 	@override String get subtitleStyling => '자막 스타일';
 	@override String get subtitleStylingDescription => '자막 모양을 사용자 지정합니다';
@@ -392,11 +386,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get specialsOrderingLast => '일반 시즌 뒤';
 	@override String get clickVideoTogglesPlayback => '동영상 클릭으로 재생/일시정지 전환';
 	@override String get clickVideoTogglesPlaybackDescription => '컨트롤을 표시하는 대신 동영상을 클릭하여 재생하거나 일시정지합니다.';
-	@override String get videoPlayerControls => '비디오 플레이어 컨트롤';
-	@override String get keyboardShortcuts => '키보드 단축키';
-	@override String get keyboardShortcutsDescription => '키보드 단축키를 사용자 지정합니다';
-	@override String get videoPlayerNavigation => '비디오 플레이어 탐색';
-	@override String get videoPlayerNavigationDescription => '방향 키로 비디오 플레이어 컨트롤을 탐색합니다';
 	@override String get watchTogetherRelay => '함께 보기 릴레이';
 	@override String get watchTogetherRelayDescription => '직접 설정하지 않으면 공개 Open Watch Party 릴레이를 사용합니다';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
@@ -423,8 +412,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get importSettingsSuccess => '설정 가져오기 완료';
 	@override String get importSettingsInvalidFile => '유효한 Plezy 설정 내보내기 파일이 아닙니다';
 	@override String get importSettingsNoUser => '설정을 가져오기 전에 로그인하세요';
-	@override String get shortcutsReset => '단축키가 기본값으로 재설정되었습니다';
-	@override String get resetShortcutsConfirm => '사용자 지정 단축키가 기본값으로 대체됩니다. 계속하시겠습니까?';
 	@override String get about => '정보';
 	@override String get aboutDescription => '앱 정보 및 라이선스';
 	@override String get updates => '업데이트';
@@ -434,8 +421,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => '실행 시 업데이트가 있으면 알림';
 	@override String get validationErrorEnterNumber => '유효한 숫자를 입력하세요';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => '기간은 ${min}과 ${max} ${unit} 사이여야 합니다';
-	@override String shortcutAlreadyAssigned({required Object action}) => '단축키가 이미 ${action}에 할당되었습니다';
-	@override String shortcutUpdated({required Object action}) => '${action} 단축키가 업데이트되었습니다';
 	@override String get saveFailed => '변경 사항을 저장하지 못했습니다. 다시 시도하세요.';
 	@override String get autoPlayAndSkip => '자동 재생 및 건너뛰기';
 	@override String get autoPlayNextEpisode => '다음 에피소드 자동 재생';
@@ -484,8 +469,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get maxVolume => '최대 볼륨';
 	@override String get maxVolumeDescription => '음량이 작은 콘텐츠를 위해 100% 이상의 볼륨을 허용합니다';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Discord에서 시청 중인 콘텐츠 표시';
 	@override String get services => '서비스';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr 등 연결';
 	@override String get manageLibrariesDescription => '라이브러리 순서를 변경하거나 숨깁니다';
@@ -499,17 +482,11 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => '디스플레이 새로 고침 빈도를 동영상 콘텐츠에 맞춤';
 	@override String get matchContentResolution => '콘텐츠 해상도에 맞추기';
 	@override String get matchContentResolutionDescription => 'TV가 업스케일링을 처리하도록 디스플레이를 영상 본래 해상도로 전환합니다. 재생 중에는 메뉴와 자막도 함께 업스케일됩니다';
-	@override String get matchRefreshRate => '주사율 맞춤';
-	@override String get matchRefreshRateDescription => '전체 화면에서 디스플레이 새로 고침 빈도 맞춤';
-	@override String get matchDynamicRange => '다이나믹 레인지 맞춤';
-	@override String get matchDynamicRangeDescription => 'HDR 콘텐츠에서는 HDR로 전환한 뒤 SDR로 되돌림';
 	@override String get displaySwitchDelay => '디스플레이 전환 지연';
 	@override String get tunneledPlayback => '터널 재생';
 	@override String get tunneledPlaybackDescription => '비디오 터널링을 사용합니다. HDR 재생 시 검은 화면이 보이거나 움직임이 끊기면 비활성화하세요.';
 	@override String get audioPassthrough => '오디오 패스스루';
 	@override String get audioPassthroughDescription => 'Dolby/DTS 오디오를 재인코딩 없이 리시버나 TV로 전송하여 서라운드 사운드를 유지합니다. 소리가 나지 않으면 비활성화하세요.';
-	@override String get audioPassthroughDescriptionApple => 'Dolby Digital Plus(Atmos 포함)에 Apple의 기본 Dolby 디코더를 사용합니다. DTS와 TrueHD는 계속 멀티채널 PCM으로 재생됩니다. 소리가 나지 않으면 비활성화하세요.';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Dolby Digital Plus(Atmos 포함)에 Apple의 기본 Dolby 디코더를 사용합니다. iOS, iPadOS, tvOS 26 이상에서는 TrueHD Atmos와 DTS:X가 공간 오디오로 재생됩니다. 그 밖의 DTS 및 TrueHD 트랙은 멀티채널 PCM으로 재생됩니다. 소리가 나지 않으면 비활성화하세요.';
 	@override String get audioPassthroughOverriddenByNormalization => '음량 정규화가 켜져 있는 동안 꺼짐';
 	@override String get audioChannelLimit => '오디오 채널';
 	@override String get audioChannelLimitDescription => '모든 채널을 재생할 수 없는 스피커, 헤드폰 또는 HDMI 환경에 맞게 디코딩된 오디오를 다운믹스합니다';
@@ -557,10 +534,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => '앱을 열 때마다 프로필 선택 화면을 표시합니다';
 	@override String get forceTvMode => 'TV 모드 강제 사용';
 	@override String get forceTvModeDescription => 'TV 레이아웃을 강제합니다. 자동 감지되지 않는 기기용입니다. 재시작이 필요합니다.';
-	@override String get startInFullscreen => '전체 화면으로 시작';
-	@override String get startInFullscreenDescription => '실행 시 Plezy를 전체 화면 모드로 엽니다';
-	@override String get exitFullscreenOnPlayerClose => '플레이어를 닫을 때 전체 화면 종료';
-	@override String get exitFullscreenOnPlayerCloseDescription => '비디오 플레이어를 닫을 때 자동으로 전체 화면을 종료합니다';
 	@override String get autoHidePerformanceOverlay => '성능 오버레이 자동 숨기기';
 	@override String get autoHidePerformanceOverlayDescription => '재생 컨트롤과 함께 성능 오버레이를 페이드 처리';
 	@override String get showNavBarLabels => '내비게이션 바 라벨 표시';
@@ -578,7 +551,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get libraryAndCards => '라이브러리 및 카드';
 	@override String get homeScreen => '홈 화면';
 	@override String get navigation => '탐색';
-	@override String get window => '창';
 	@override String get liveTv => '라이브 TV';
 	@override String get player => '플레이어';
 	@override String get videoAndDisplay => '비디오 및 디스플레이';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$ko extends Translations$hotkeys$en {
 	final TranslationsKo _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => '${actionName}에 대한 단축키 설정';
-	@override String get clearShortcut => '단축키 삭제';
 	@override String get noShortcutSet => '설정된 단축키 없음';
-	@override String get currentShortcut => '현재 단축키:';
-	@override String get pressToRecord => '단축키를 기록하려면 선택';
-	@override String get recordingShortcut => '지금 단축키를 누르세요';
 	@override late final _Translations$hotkeys$actions$ko actions = _Translations$hotkeys$actions$ko._(_root);
 }
 
@@ -977,16 +944,12 @@ class _Translations$videoControls$ko extends Translations$videoControls$en {
 	@override String get pipButton => '픽처 인 픽처 모드';
 	@override String get aspectRatioButton => '화면비율';
 	@override String get ambientLighting => '주변 조명';
-	@override String get fullscreenButton => '전체 화면';
-	@override String get exitFullscreenButton => '전체 화면 종료';
-	@override String get alwaysOnTopButton => '창 최상위 고정';
 	@override String get rotationLockButton => '회전 잠금';
 	@override String get lockScreen => '화면 잠금';
 	@override String get screenLockButton => '화면 잠금';
 	@override String get timelineSlider => '타임라인';
 	@override String get volumeSlider => '볼륨 조절';
 	@override String endsAt({required Object time}) => '${time}에 종료';
-	@override String get pipActive => '화면 속 화면으로 재생 중';
 	@override String get pipFailed => '화면 속 화면 모드를 시작할 수 없습니다';
 	@override String get screenshotSaved => '스크린샷 저장됨';
 	@override String get screenshotFailed => '스크린샷을 찍지 못했습니다';
@@ -1153,7 +1116,6 @@ class _Translations$mpvConfig$ko extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => '줄 추가';
 	@override String get removeLine => '줄 제거';
-	@override String get embeddedVoHint => 'Linux에서는 vo, gpu-context, gpu-api가 무시됩니다. 내장 동영상은 항상 비디오 평면에서 vo=libmpv로 렌더링되며, gpu-next(ArtCNN 같은 컴퓨트 셰이더에 필요)는 내장 방식으로 실행할 수 없습니다.';
 }
 
 // Path: dialog
@@ -1502,7 +1464,6 @@ class _Translations$startup$ko extends Translations$startup$en {
 	@override String get repairSucceeded => '저장소가 복구되었습니다';
 	@override String get repairNeedsRestart => '저장소가 복구되었습니다 — 재시작 필요';
 	@override String get restartRequiredBody => '데이터가 복구되었지만 Plezy는 이를 사용하려면 새로 시작해야 합니다. Plezy를 종료한 후 다시 열어주세요.';
-	@override String get quitPlezy => 'Plezy 종료';
 	@override String get repairFailed => '복구 실패';
 	@override String get repairKeptSignIns => '서버와 프로필이 계속 로그인 상태입니다.';
 	@override String get repairLostSignIns => '저장된 로그인 정보를 보호하는 키를 복구할 수 없었습니다. 모든 서버와 프로필에 다시 로그인해야 합니다.';
@@ -2068,20 +2029,9 @@ class _Translations$videoSettings$ko extends Translations$videoSettings$en {
 	@override String get audioSync => '오디오 동기화';
 	@override String get subtitleSync => '자막 동기화';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => '여기서는 HDR을 사용할 수 없습니다. 이 데스크톱 컴포지터 또는 비디오 출력에서 HDR을 전달할 수 없습니다.';
-	@override String get hdrToneMapping => 'HDR 톤 매핑';
-	@override String get hdrToneMappingCompositor => '컴포지터';
-	@override String get hdrToneMappingCompositorDescription => '소스의 HDR 메타데이터를 그대로 전달하고 데스크톱 컴포지터에서 매핑하도록 합니다.';
-	@override String get hdrToneMappingPlayer => '플레이어';
-	@override String get hdrToneMappingPlayerDescription => '플레이어에서 디스플레이의 최대 밝기에 맞게 매핑한 다음 그 결과를 컴포지터에 전달합니다.';
-	@override String get hdrToneMappingFailed => 'HDR 톤 매핑을 변경할 수 없습니다. 이전 모드가 계속 적용됩니다.';
 	@override String get audioOutput => '오디오 출력';
-	@override String get performanceOverlay => '성능 오버레이';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => '서라운드';
-	@override String get audioOutputSpatial => '공간 음향';
 	@override String get audioOutputStereo => '스테레오';
+	@override String get performanceOverlay => '성능 오버레이';
 	@override String get audioNormalization => '음량 정규화';
 	@override String get audioNormalizationDisablesPassthrough => '오디오를 PCM으로 디코딩합니다. 켜져 있는 동안 패스스루가 꺼집니다';
 }
@@ -2164,7 +2114,6 @@ class _Translations$externalPlayer$ko extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => '사용자 정의 플레이어 추가';
 	@override String get playerName => '플레이어 이름';
 	@override String get playerNameHint => '내 플레이어';
-	@override String get playerCommand => '명령어';
 	@override String get playerPackage => '패키지 이름';
 	@override String get playerUrlScheme => 'URL 스킴';
 	@override String get off => '꺼짐';
@@ -2376,7 +2325,6 @@ class _Translations$services$ko extends Translations$services$en {
 	// Translations
 	@override String get title => '서비스';
 	@override String get hubSubtitle => '시청 진행률을 동기화하고 새 작품을 요청하세요.';
-	@override String get integrations => '연동';
 	@override String get notConnected => '연결되지 않음';
 	@override String connectedAs({required Object username}) => '@${username}(으)로 연결됨';
 	@override String get scrobble => '진행률 자동 추적';
@@ -2611,7 +2559,6 @@ class _Translations$videoControls$pipErrors$ko extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Android 8.0 이상이 필요합니다';
-	@override String get iosVersion => 'iOS 15.0 이상이 필요합니다';
 	@override String get permissionDisabled => '화면 속 화면이 비활성화되어 있습니다. 시스템 설정에서 활성화하세요.';
 	@override String get notSupported => '이 기기는 화면 속 화면 모드를 지원하지 않습니다';
 	@override String get voSwitchFailed => '화면 속 화면을 위한 비디오 출력 전환에 실패했습니다';
@@ -3430,7 +3377,6 @@ extension on TranslationsKo {
 			'auth.quickConnectWaiting' => '승인 대기 중…',
 			'auth.quickConnectCancel' => '취소',
 			'auth.quickConnectExpired' => 'Quick Connect가 만료되었습니다. 다시 시도하세요.',
-			'auth.localDataRecoveryRequired' => 'Plezy에서 로컬 로그인 정보와 대기 중인 재생 데이터를 안전하게 복구하지 못했습니다. 다시 로그인해 주세요.',
 			'auth.pinCheckRejected' => 'Plex PIN 확인이 거부되었습니다',
 			'common.cancel' => '취소',
 			'common.save' => '저장',
@@ -3475,8 +3421,6 @@ extension on TranslationsKo {
 			'common.connectingToServers' => '서버 연결 중...',
 			'common.startingOfflineMode' => '오프라인 모드 시작 중...',
 			'common.loading' => '로딩 중...',
-			'common.fullscreen' => '전체 화면',
-			'common.exitFullscreen' => '전체 화면 종료',
 			'common.pressBackAgainToExit' => '한 번 더 누르면 종료됩니다',
 			'common.ratingSource.critic' => '평론가',
 			'common.ratingSource.audience' => '관객',
@@ -3632,9 +3576,6 @@ extension on TranslationsKo {
 			'settings.cellularQualitySameAsDefault' => '기본 화질과 동일',
 			'settings.directPlayCoveredQuality' => '작은 동영상을 원본 화질로 재생',
 			'settings.directPlayCoveredQualityDescription' => '화질 제한 내의 동영상은 트랜스코딩하지 않고 Direct Play합니다',
-			'settings.videoCodecs' => '비디오 코덱',
-			'settings.videoCodecsDescription' => '선택 해제한 코덱은 서버가 트랜스코딩합니다',
-			'settings.videoCodecsAlwaysAccepted' => '항상 허용',
 			'settings.musicQualityTitle' => '음악 음질',
 			'settings.subtitleStyling' => '자막 스타일',
 			'settings.subtitleStylingDescription' => '자막 모양을 사용자 지정합니다',
@@ -3660,11 +3601,6 @@ extension on TranslationsKo {
 			'settings.specialsOrderingLast' => '일반 시즌 뒤',
 			'settings.clickVideoTogglesPlayback' => '동영상 클릭으로 재생/일시정지 전환',
 			'settings.clickVideoTogglesPlaybackDescription' => '컨트롤을 표시하는 대신 동영상을 클릭하여 재생하거나 일시정지합니다.',
-			'settings.videoPlayerControls' => '비디오 플레이어 컨트롤',
-			'settings.keyboardShortcuts' => '키보드 단축키',
-			'settings.keyboardShortcutsDescription' => '키보드 단축키를 사용자 지정합니다',
-			'settings.videoPlayerNavigation' => '비디오 플레이어 탐색',
-			'settings.videoPlayerNavigationDescription' => '방향 키로 비디오 플레이어 컨트롤을 탐색합니다',
 			'settings.watchTogetherRelay' => '함께 보기 릴레이',
 			'settings.watchTogetherRelayDescription' => '직접 설정하지 않으면 공개 Open Watch Party 릴레이를 사용합니다',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
@@ -3691,8 +3627,6 @@ extension on TranslationsKo {
 			'settings.importSettingsSuccess' => '설정 가져오기 완료',
 			'settings.importSettingsInvalidFile' => '유효한 Plezy 설정 내보내기 파일이 아닙니다',
 			'settings.importSettingsNoUser' => '설정을 가져오기 전에 로그인하세요',
-			'settings.shortcutsReset' => '단축키가 기본값으로 재설정되었습니다',
-			'settings.resetShortcutsConfirm' => '사용자 지정 단축키가 기본값으로 대체됩니다. 계속하시겠습니까?',
 			'settings.about' => '정보',
 			'settings.aboutDescription' => '앱 정보 및 라이선스',
 			'settings.updates' => '업데이트',
@@ -3702,8 +3636,6 @@ extension on TranslationsKo {
 			'settings.autoCheckUpdatesOnStartupDescription' => '실행 시 업데이트가 있으면 알림',
 			'settings.validationErrorEnterNumber' => '유효한 숫자를 입력하세요',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => '기간은 ${min}과 ${max} ${unit} 사이여야 합니다',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => '단축키가 이미 ${action}에 할당되었습니다',
-			'settings.shortcutUpdated' => ({required Object action}) => '${action} 단축키가 업데이트되었습니다',
 			'settings.saveFailed' => '변경 사항을 저장하지 못했습니다. 다시 시도하세요.',
 			'settings.autoPlayAndSkip' => '자동 재생 및 건너뛰기',
 			'settings.autoPlayNextEpisode' => '다음 에피소드 자동 재생',
@@ -3752,8 +3684,6 @@ extension on TranslationsKo {
 			'settings.maxVolume' => '최대 볼륨',
 			'settings.maxVolumeDescription' => '음량이 작은 콘텐츠를 위해 100% 이상의 볼륨을 허용합니다',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Discord에서 시청 중인 콘텐츠 표시',
 			'settings.services' => '서비스',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr 등 연결',
 			'settings.manageLibrariesDescription' => '라이브러리 순서를 변경하거나 숨깁니다',
@@ -3767,17 +3697,11 @@ extension on TranslationsKo {
 			'settings.matchContentFrameRateDescription' => '디스플레이 새로 고침 빈도를 동영상 콘텐츠에 맞춤',
 			'settings.matchContentResolution' => '콘텐츠 해상도에 맞추기',
 			'settings.matchContentResolutionDescription' => 'TV가 업스케일링을 처리하도록 디스플레이를 영상 본래 해상도로 전환합니다. 재생 중에는 메뉴와 자막도 함께 업스케일됩니다',
-			'settings.matchRefreshRate' => '주사율 맞춤',
-			'settings.matchRefreshRateDescription' => '전체 화면에서 디스플레이 새로 고침 빈도 맞춤',
-			'settings.matchDynamicRange' => '다이나믹 레인지 맞춤',
-			'settings.matchDynamicRangeDescription' => 'HDR 콘텐츠에서는 HDR로 전환한 뒤 SDR로 되돌림',
 			'settings.displaySwitchDelay' => '디스플레이 전환 지연',
 			'settings.tunneledPlayback' => '터널 재생',
 			'settings.tunneledPlaybackDescription' => '비디오 터널링을 사용합니다. HDR 재생 시 검은 화면이 보이거나 움직임이 끊기면 비활성화하세요.',
 			'settings.audioPassthrough' => '오디오 패스스루',
 			'settings.audioPassthroughDescription' => 'Dolby/DTS 오디오를 재인코딩 없이 리시버나 TV로 전송하여 서라운드 사운드를 유지합니다. 소리가 나지 않으면 비활성화하세요.',
-			'settings.audioPassthroughDescriptionApple' => 'Dolby Digital Plus(Atmos 포함)에 Apple의 기본 Dolby 디코더를 사용합니다. DTS와 TrueHD는 계속 멀티채널 PCM으로 재생됩니다. 소리가 나지 않으면 비활성화하세요.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Dolby Digital Plus(Atmos 포함)에 Apple의 기본 Dolby 디코더를 사용합니다. iOS, iPadOS, tvOS 26 이상에서는 TrueHD Atmos와 DTS:X가 공간 오디오로 재생됩니다. 그 밖의 DTS 및 TrueHD 트랙은 멀티채널 PCM으로 재생됩니다. 소리가 나지 않으면 비활성화하세요.',
 			'settings.audioPassthroughOverriddenByNormalization' => '음량 정규화가 켜져 있는 동안 꺼짐',
 			'settings.audioChannelLimit' => '오디오 채널',
 			'settings.audioChannelLimitDescription' => '모든 채널을 재생할 수 없는 스피커, 헤드폰 또는 HDMI 환경에 맞게 디코딩된 오디오를 다운믹스합니다',
@@ -3825,10 +3749,6 @@ extension on TranslationsKo {
 			'settings.requireProfileSelectionOnOpenDescription' => '앱을 열 때마다 프로필 선택 화면을 표시합니다',
 			'settings.forceTvMode' => 'TV 모드 강제 사용',
 			'settings.forceTvModeDescription' => 'TV 레이아웃을 강제합니다. 자동 감지되지 않는 기기용입니다. 재시작이 필요합니다.',
-			'settings.startInFullscreen' => '전체 화면으로 시작',
-			'settings.startInFullscreenDescription' => '실행 시 Plezy를 전체 화면 모드로 엽니다',
-			'settings.exitFullscreenOnPlayerClose' => '플레이어를 닫을 때 전체 화면 종료',
-			'settings.exitFullscreenOnPlayerCloseDescription' => '비디오 플레이어를 닫을 때 자동으로 전체 화면을 종료합니다',
 			'settings.autoHidePerformanceOverlay' => '성능 오버레이 자동 숨기기',
 			'settings.autoHidePerformanceOverlayDescription' => '재생 컨트롤과 함께 성능 오버레이를 페이드 처리',
 			'settings.showNavBarLabels' => '내비게이션 바 라벨 표시',
@@ -3846,7 +3766,6 @@ extension on TranslationsKo {
 			'settings.libraryAndCards' => '라이브러리 및 카드',
 			'settings.homeScreen' => '홈 화면',
 			'settings.navigation' => '탐색',
-			'settings.window' => '창',
 			'settings.liveTv' => '라이브 TV',
 			'settings.player' => '플레이어',
 			'settings.videoAndDisplay' => '비디오 및 디스플레이',
@@ -3895,8 +3814,6 @@ extension on TranslationsKo {
 			'themeEditor.slots.text' => '텍스트',
 			'themeEditor.slots.textMuted' => '보조 텍스트',
 			'themeEditor.slots.accent' => '강조색',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => '불투명도',
 			'themeEditor.hexHint' => '#RRGGBB 또는 #AARRGGBB',
 			'themeEditor.fromOtherThemes' => '다른 테마에서',
@@ -3921,15 +3838,12 @@ extension on TranslationsKo {
 			'search.searchYourMedia' => '미디어 검색',
 			'search.enterTitleActorOrKeyword' => '제목, 배우 또는 키워드를 입력하세요',
 			'search.people' => '인물',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => '${actionName}에 대한 단축키 설정',
-			'hotkeys.clearShortcut' => '단축키 삭제',
 			'hotkeys.noShortcutSet' => '설정된 단축키 없음',
-			'hotkeys.currentShortcut' => '현재 단축키:',
-			'hotkeys.pressToRecord' => '단축키를 기록하려면 선택',
-			'hotkeys.recordingShortcut' => '지금 단축키를 누르세요',
 			'hotkeys.actions.playPause' => '재생/일시정지',
 			'hotkeys.actions.volumeUp' => '볼륨 높이기',
 			'hotkeys.actions.volumeDown' => '볼륨 낮추기',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => '앞으로 이동 (${seconds}초)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => '뒤로 이동 (${seconds}초)',
 			'hotkeys.actions.fullscreenToggle' => '전체 화면 전환',
@@ -4186,23 +4100,18 @@ extension on TranslationsKo {
 			'videoControls.pipButton' => '픽처 인 픽처 모드',
 			'videoControls.aspectRatioButton' => '화면비율',
 			'videoControls.ambientLighting' => '주변 조명',
-			'videoControls.fullscreenButton' => '전체 화면',
-			'videoControls.exitFullscreenButton' => '전체 화면 종료',
-			'videoControls.alwaysOnTopButton' => '창 최상위 고정',
 			'videoControls.rotationLockButton' => '회전 잠금',
 			'videoControls.lockScreen' => '화면 잠금',
 			'videoControls.screenLockButton' => '화면 잠금',
 			'videoControls.timelineSlider' => '타임라인',
 			'videoControls.volumeSlider' => '볼륨 조절',
 			'videoControls.endsAt' => ({required Object time}) => '${time}에 종료',
-			'videoControls.pipActive' => '화면 속 화면으로 재생 중',
 			'videoControls.pipFailed' => '화면 속 화면 모드를 시작할 수 없습니다',
 			'videoControls.screenshotSaved' => '스크린샷 저장됨',
 			'videoControls.screenshotFailed' => '스크린샷을 찍지 못했습니다',
 			'videoControls.zoomPercent' => ({required Object percent}) => '확대/축소 ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => '볼륨 ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Android 8.0 이상이 필요합니다',
-			'videoControls.pipErrors.iosVersion' => 'iOS 15.0 이상이 필요합니다',
 			'videoControls.pipErrors.permissionDisabled' => '화면 속 화면이 비활성화되어 있습니다. 시스템 설정에서 활성화하세요.',
 			'videoControls.pipErrors.notSupported' => '이 기기는 화면 속 화면 모드를 지원하지 않습니다',
 			'videoControls.pipErrors.voSwitchFailed' => '화면 속 화면을 위한 비디오 출력 전환에 실패했습니다',
@@ -4340,7 +4249,6 @@ extension on TranslationsKo {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => '줄 추가',
 			'mpvConfig.removeLine' => '줄 제거',
-			'mpvConfig.embeddedVoHint' => 'Linux에서는 vo, gpu-context, gpu-api가 무시됩니다. 내장 동영상은 항상 비디오 평면에서 vo=libmpv로 렌더링되며, gpu-next(ArtCNN 같은 컴퓨트 셰이더에 필요)는 내장 방식으로 실행할 수 없습니다.',
 			'dialog.confirmAction' => '작업 확인',
 			'profiles.addPlezyProfile' => 'Plezy 프로필 추가',
 			'profiles.switchingProfile' => '프로필 전환 중…',
@@ -4409,8 +4317,6 @@ extension on TranslationsKo {
 			'profiles.tokenIdentityMismatch' => 'Plex 프로필 토큰이 예상과 다른 서버로 확인되었습니다',
 			'connections.sectionTitle' => '연결',
 			'connections.addConnection' => '연결 추가',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Plex로 로그인하거나 Jellyfin 또는 Emby 서버에 연결',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => '${displayName}에 추가: Plex, Jellyfin, Emby 또는 다른 프로필 연결',
 			'connections.sessionExpiredOne' => ({required Object name}) => '${name}의 세션이 만료되었습니다',
@@ -4450,6 +4356,8 @@ extension on TranslationsKo {
 			'accountPreferences.subtitleModes.smart' => '외국어 오디오 시 표시',
 			'accountPreferences.subtitleModes.smartDescription' => '오디오가 다른 언어일 때만 자막을 켭니다.',
 			'accountPreferences.subtitleAccessibility' => 'SDH 자막',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'SDH가 아닌 자막 선호',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH 자막 선호',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'SDH 자막만',
@@ -4674,7 +4582,6 @@ extension on TranslationsKo {
 			'startup.repairSucceeded' => '저장소가 복구되었습니다',
 			'startup.repairNeedsRestart' => '저장소가 복구되었습니다 — 재시작 필요',
 			'startup.restartRequiredBody' => '데이터가 복구되었지만 Plezy는 이를 사용하려면 새로 시작해야 합니다. Plezy를 종료한 후 다시 열어주세요.',
-			'startup.quitPlezy' => 'Plezy 종료',
 			'startup.repairFailed' => '복구 실패',
 			'startup.repairKeptSignIns' => '서버와 프로필이 계속 로그인 상태입니다.',
 			'startup.repairLostSignIns' => '저장된 로그인 정보를 보호하는 키를 복구할 수 없었습니다. 모든 서버와 프로필에 다시 로그인해야 합니다.',
@@ -4923,8 +4830,6 @@ extension on TranslationsKo {
 			'liveTv.recordSettings.keepUpToHint' => '0이면 모든 에피소드 보관',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => '${minutes}분 후 시작',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day} ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product}에서 잘못된 실시간 TV 재생 데이터를 반환했습니다',
 			'liveTv.failedToStartChannel' => '실시간 채널을 시작할 수 없습니다',
 			'liveTv.failedToBuildStreamUrl' => '스트림 URL을 생성할 수 없습니다',
@@ -4965,6 +4870,8 @@ extension on TranslationsKo {
 			'playlists.deleteConfirm' => '재생 목록을 삭제하시겠습니까?',
 			'playlists.deleteMessage' => ({required Object name}) => '"${name}"을(를) 삭제하시겠습니까?',
 			'playlists.created' => '재생 목록이 생성되었습니다',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => '재생 목록이 삭제되었습니다',
 			'playlists.itemAdded' => '재생 목록에 추가되었습니다',
 			'playlists.itemRemoved' => '재생 목록에서 제거됨',
@@ -5368,20 +5275,9 @@ extension on TranslationsKo {
 			'videoSettings.audioSync' => '오디오 동기화',
 			'videoSettings.subtitleSync' => '자막 동기화',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => '여기서는 HDR을 사용할 수 없습니다. 이 데스크톱 컴포지터 또는 비디오 출력에서 HDR을 전달할 수 없습니다.',
-			'videoSettings.hdrToneMapping' => 'HDR 톤 매핑',
-			'videoSettings.hdrToneMappingCompositor' => '컴포지터',
-			'videoSettings.hdrToneMappingCompositorDescription' => '소스의 HDR 메타데이터를 그대로 전달하고 데스크톱 컴포지터에서 매핑하도록 합니다.',
-			'videoSettings.hdrToneMappingPlayer' => '플레이어',
-			'videoSettings.hdrToneMappingPlayerDescription' => '플레이어에서 디스플레이의 최대 밝기에 맞게 매핑한 다음 그 결과를 컴포지터에 전달합니다.',
-			'videoSettings.hdrToneMappingFailed' => 'HDR 톤 매핑을 변경할 수 없습니다. 이전 모드가 계속 적용됩니다.',
 			'videoSettings.audioOutput' => '오디오 출력',
-			'videoSettings.performanceOverlay' => '성능 오버레이',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => '서라운드',
-			'videoSettings.audioOutputSpatial' => '공간 음향',
 			'videoSettings.audioOutputStereo' => '스테레오',
+			'videoSettings.performanceOverlay' => '성능 오버레이',
 			'videoSettings.audioNormalization' => '음량 정규화',
 			'videoSettings.audioNormalizationDisablesPassthrough' => '오디오를 PCM으로 디코딩합니다. 켜져 있는 동안 패스스루가 꺼집니다',
 			'performanceOverlay.color' => '색상',
@@ -5437,8 +5333,6 @@ extension on TranslationsKo {
 			'performanceOverlay.decoderHardware' => '하드웨어',
 			'performanceOverlay.tunnelingActive' => '활성',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted} (${failures}개 실패)',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => '외부 플레이어',
 			'externalPlayer.useExternalPlayer' => '외부 플레이어 사용',
 			'externalPlayer.useExternalPlayerDescription' => '동영상을 다른 앱에서 열기',
@@ -5448,7 +5342,6 @@ extension on TranslationsKo {
 			'externalPlayer.addCustomPlayer' => '사용자 정의 플레이어 추가',
 			'externalPlayer.playerName' => '플레이어 이름',
 			'externalPlayer.playerNameHint' => '내 플레이어',
-			'externalPlayer.playerCommand' => '명령어',
 			'externalPlayer.playerPackage' => '패키지 이름',
 			'externalPlayer.playerUrlScheme' => 'URL 스킴',
 			'externalPlayer.off' => '꺼짐',
@@ -5491,6 +5384,8 @@ extension on TranslationsKo {
 			'metadataEdit.libraryDefault' => '라이브러리 기본값',
 			'metadataEdit.accountDefault' => '계정 기본값',
 			'metadataEdit.seriesDefault' => '시리즈 기본값',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => '에피소드 정렬',
 			'metadataEdit.oldestFirst' => '오래된 순',
 			'metadataEdit.newestFirst' => '최신 순',
@@ -5606,7 +5501,6 @@ extension on TranslationsKo {
 			'seerr.permissionRevoked' => '이 항목을 요청할 권한이 더 이상 없습니다',
 			'services.title' => '서비스',
 			'services.hubSubtitle' => '시청 진행률을 동기화하고 새 작품을 요청하세요.',
-			'services.integrations' => '연동',
 			'services.notConnected' => '연결되지 않음',
 			'services.connectedAs' => ({required Object username}) => '@${username}(으)로 연결됨',
 			'services.scrobble' => '진행률 자동 추적',

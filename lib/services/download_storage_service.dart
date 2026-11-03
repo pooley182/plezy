@@ -29,15 +29,13 @@ class DownloadStorageException implements Exception {
 class DownloadStorageService {
   static DownloadStorageService? _instance;
   static DownloadStorageService get instance => _instance ??= DownloadStorageService._();
-  DownloadStorageService._() : _safAvailableOverride = false;
+  DownloadStorageService._();
 
   @visibleForTesting
-  DownloadStorageService.forTestingSaf(String baseUri) : _safAvailableOverride = true {
+  DownloadStorageService.forTestingSaf(String baseUri) {
     _customDownloadPath = baseUri;
     _customPathType = 'saf';
   }
-
-  final bool _safAvailableOverride;
 
   /// Drop the cached singleton so the next [instance] call returns a fresh
   /// service. Test-only.
@@ -53,8 +51,7 @@ class DownloadStorageService {
   String? _customDownloadPath;
   String _customPathType = 'file';
 
-  bool get isUsingSaf =>
-      (Platform.isAndroid || _safAvailableOverride) && _customPathType == 'saf' && _customDownloadPath != null;
+  bool get isUsingSaf => (_customPathType == 'saf') && _customDownloadPath != null;
 
   String? get safBaseUri => isUsingSaf ? _customDownloadPath : null;
 
@@ -80,18 +77,10 @@ class DownloadStorageService {
     }
   }
 
-  /// Whether [_getBaseAppDir] resolves to the documents directory (mobile) or the
-  /// support directory (desktop). Single source of truth for that split, shared
-  /// with [resolveTaskDirectory] so the two can never disagree.
-  static bool get _baseAppDirIsDocuments => Platform.isAndroid || Platform.isIOS;
-
   /// Get the base app directory for storing data.
   /// Uses ApplicationDocumentsDirectory on mobile, ApplicationSupportDirectory on desktop.
   Future<Directory> _getBaseAppDir() {
-    if (_baseAppDirIsDocuments) {
-      return getApplicationDocumentsDirectory();
-    }
-    return getApplicationSupportDirectory();
+    return getApplicationDocumentsDirectory();
   }
 
   /// Absolute path of the app-private directory that relative download paths are
@@ -468,10 +457,7 @@ class DownloadStorageService {
     if (relativePath == absolutePath) {
       return (baseDirectory: BaseDirectory.root, directory: path.dirname(absolutePath));
     }
-    return (
-      baseDirectory: _baseAppDirIsDocuments ? BaseDirectory.applicationDocuments : BaseDirectory.applicationSupport,
-      directory: path.dirname(relativePath),
-    );
+    return (baseDirectory: BaseDirectory.applicationDocuments, directory: path.dirname(relativePath));
   }
 
   /// Convert a relative file path to an absolute path (for file operations)

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 
-import '../widgets/clickable_cursor.dart';
 import '../utils/text_input_diagnostics.dart';
 import 'dpad_navigator.dart';
 import 'dpad_select_long_press_controller.dart';
@@ -581,7 +580,7 @@ class _FocusableWrapperState extends State<FocusableWrapper> with SingleTickerPr
     }
 
     if (widget.onSelect != null || widget.onLongPress != null) {
-      result = ClickableCursor(child: result);
+      result = result;
     }
 
     return result;

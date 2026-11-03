@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 
 import '../models/shader_preset.dart';
@@ -36,9 +34,7 @@ class ShaderService {
   @visibleForTesting
   static bool? debugPlatformSupported;
 
-  /// GLSL shaders need mpv's gpu VOs; iOS/tvOS and macOS render through
-  /// vo=avfoundation, which has no shader stage.
-  static bool get isPlatformSupported => debugPlatformSupported ?? (!Platform.isIOS && !Platform.isMacOS);
+  static bool get isPlatformSupported => debugPlatformSupported ?? true;
 
   /// Check if the player is MPV (shaders are MPV-only)
   bool get isSupported => _player.playerType == 'mpv' && isPlatformSupported;

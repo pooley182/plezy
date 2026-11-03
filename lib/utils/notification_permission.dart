@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:background_downloader/background_downloader.dart';
 import 'package:flutter/foundation.dart';
 
@@ -29,8 +27,6 @@ abstract final class NotificationPermission {
   ///
   /// Concurrent callers await the same request. The completed future stays
   /// cached for the app run because Android remembers a real denial.
-  ///
-  /// No-op off Android: iOS/macOS media controls don't use notifications.
   static Future<void> ensure() => _requestFuture ??= _request();
 
   static Future<void> _request() async {
@@ -42,7 +38,6 @@ abstract final class NotificationPermission {
         await override();
         return;
       }
-      if (!Platform.isAndroid) return;
 
       final permissions = FileDownloader().permissions;
       final status = await permissions.status(PermissionType.notifications);

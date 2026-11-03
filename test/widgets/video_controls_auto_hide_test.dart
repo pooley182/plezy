@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:drift/native.dart';
-import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,12 +22,11 @@ import 'package:plezy/widgets/video_controls/mobile_video_controls.dart';
 import 'package:plezy/widgets/video_controls/player_chrome_controller.dart';
 import 'package:plezy/widgets/video_controls/video_controls.dart';
 import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart';
-import 'package:plezy/widgets/video_controls/widgets/live_timeline_bar.dart';
-import 'package:plezy/widgets/video_controls/widgets/volume_control.dart';
 
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// A D-pad viewer gets the same 5s a phone does, restarted by every remote
 /// press so a traversal of the control bar never races it. A paused D-pad
@@ -61,10 +59,9 @@ void main() {
 
       // A non-Apple TV: the forced-TV override is the only way to get one,
       // since the Apple override sets both isTV and isAppleTV.
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       await TvDetectionService.getInstance(forceTv: true);
       TvDetectionService.setForceTVSync(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
 
       database = AppDatabase.forTesting(NativeDatabase.memory());
       player = _RemotePlayer();
@@ -79,7 +76,6 @@ void main() {
 
     tearDown(() async {
       TvDetectionService.setForceTVSync(false);
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
       hasFirstFrame.dispose();
       screenFocusNode.dispose();
       volume.dispose();
@@ -120,7 +116,6 @@ void main() {
     Future<void> pumpControls(WidgetTester tester, {_Surface surface = _Surface.tv, List<int>? liveSeeks}) async {
       if (surface != _Surface.tv) TvDetectionService.setForceTVSync(false);
       final desktop = surface == _Surface.desktop;
-      if (desktop) PlatformDetector.debugSetIsDesktopOSOverride(true);
       await tester.pumpWidget(shell(const SizedBox.expand(), desktop: desktop));
       await tester.pump();
 
@@ -157,18 +152,6 @@ void main() {
       await tester.pump();
     }
 
-    Finder volumeSlider() => find.descendant(of: find.byType(VolumeControl), matching: find.byType(Slider));
-
-    /// Presses the volume slider and drags it lower, leaving the button held.
-    Future<TestGesture> grabVolumeSlider(WidgetTester tester) async {
-      expect(volumeSlider(), findsOneWidget);
-      final gesture = await tester.startGesture(tester.getCenter(volumeSlider()), kind: PointerDeviceKind.mouse);
-      await gesture.moveBy(const Offset(-30, 0));
-      await tester.pump();
-      expect(volume.value, lessThan(100), reason: 'precondition: the drag previewed a lower volume');
-      return gesture;
-    }
-
     testWidgets('a remote press restarts the 5s delay, and an idle remote lets the OSD go', (tester) async {
       await pumpControls(tester);
 
@@ -197,94 +180,6 @@ void main() {
       chrome.cancelAutoHide();
       await tester.pumpWidget(const SizedBox.shrink());
     });
-
-    testWidgets('a held volume slider keeps desktop controls up and saves the volume on release', (tester) async {
-      await pumpControls(tester, surface: _Surface.desktop);
-      final gesture = await grabVolumeSlider(tester);
-      final dragged = volume.value;
-
-      // Hold still well past the 3s delay and any fade-out.
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(chrome.controlsVisible, isTrue, reason: 'a held slider keeps the chrome up');
-      expect(volumeSlider(), findsOneWidget, reason: 'the slider stays mounted under the pointer');
-
-      await gesture.up();
-      await tester.pump();
-      await volume.idle;
-      expect(SettingsService.instance.read(SettingsService.volume), dragged);
-
-      await tester.pump(const Duration(seconds: 3));
-      expect(chrome.controlsVisible, isFalse, reason: 'releasing the slider resumes auto-hide');
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
-
-    testWidgets('dragging the volume slider out of the player hides the controls only on release', (tester) async {
-      await pumpControls(tester, surface: _Surface.desktop);
-      final gesture = await grabVolumeSlider(tester);
-
-      await gesture.moveTo(const Offset(-20, -20));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(chrome.controlsVisible, isTrue, reason: 'the drag still owns the slider');
-      expect(volumeSlider(), findsOneWidget, reason: 'the slider stays mounted under the drag');
-      final dragged = volume.value;
-
-      await gesture.up();
-      await tester.pump();
-      await volume.idle;
-      expect(SettingsService.instance.read(SettingsService.volume), dragged);
-      expect(chrome.controlsVisible, isFalse, reason: 'the button was released outside the player');
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
-
-    testWidgets('a slider drag that leaves and returns keeps the controls after release', (tester) async {
-      await pumpControls(tester, surface: _Surface.desktop);
-      final gesture = await grabVolumeSlider(tester);
-      final sliderCenter = tester.getCenter(volumeSlider());
-
-      await gesture.moveTo(const Offset(-20, -20));
-      await tester.pump();
-      await gesture.moveTo(sliderCenter);
-      await tester.pump();
-      await gesture.up();
-      await tester.pump();
-      expect(chrome.controlsVisible, isTrue, reason: 'the button was released over the player');
-
-      await tester.pump(const Duration(seconds: 3));
-      expect(chrome.controlsVisible, isFalse, reason: 'auto-hide resumes after release');
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
-
-    testWidgets('a held live TV timeline keeps phone controls up and seeks on release', (tester) async {
-      final liveSeeks = <int>[];
-      await pumpControls(tester, surface: _Surface.phone, liveSeeks: liveSeeks);
-      final scrubber = find.descendant(
-        of: find.byType(LiveTimelineBar),
-        matching: find.byWidgetPredicate(
-          (widget) => widget is Semantics && widget.properties.label == t.videoControls.timelineSlider,
-        ),
-      );
-      expect(scrubber, findsOneWidget);
-
-      final gesture = await tester.startGesture(tester.getCenter(scrubber));
-      await gesture.moveBy(const Offset(-40, 0));
-      await tester.pump();
-
-      // Hold still well past the delay and any fade-out.
-      await tester.pump(const Duration(seconds: 6));
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(chrome.controlsVisible, isTrue, reason: 'a held scrubber keeps the chrome up');
-      expect(scrubber, findsOneWidget, reason: 'the scrubber stays mounted under the finger');
-
-      await gesture.up();
-      await tester.pump();
-      expect(liveSeeks, hasLength(1), reason: 'releasing the scrubber seeks');
-
-      await tester.pump(const Duration(seconds: 3));
-      expect(chrome.controlsVisible, isFalse, reason: 'releasing the scrubber resumes auto-hide');
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
   });
 }
 
@@ -294,7 +189,7 @@ const _liveStartEpoch = 1767268800;
 
 /// Minimal [Player] whose playing state the test can flip, the way a remote's
 /// pause reaches the controls.
-class _RemotePlayer implements Player {
+class _RemotePlayer with AndroidPlayerNoops implements Player {
   bool _playing = true;
   final StreamController<bool> _playingController = StreamController<bool>.broadcast();
 

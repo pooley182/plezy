@@ -145,7 +145,6 @@ class _Translations$auth$az extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Təsdiq gözlənilir…';
 	@override String get quickConnectCancel => 'Ləğv et';
 	@override String get quickConnectExpired => 'Sürətli Qoşulmanın vaxtı bitdi. Təzədən cəhd edin.';
-	@override String get localDataRecoveryRequired => 'Plezy yerli daxil olma və gözləyən oxutma məlumatlarını təhlükəsiz bərpa edə bilmədi. Lütfən təzədən daxil olun.';
 	@override String get pinCheckRejected => 'Plex PIN yoxlaması rədd edildi';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$az extends Translations$common$en {
 	@override String get connectingToServers => 'Serverlərə qoşulunur...';
 	@override String get startingOfflineMode => 'Oflayn rejim başladılır...';
 	@override String get loading => 'Yüklənir...';
-	@override String get fullscreen => 'Tam ekran';
-	@override String get exitFullscreen => 'Tam ekrandan çıx';
 	@override String get pressBackAgainToExit => 'Çıxmaq üçün geri düyməsinə bir daha basın';
 	@override late final _Translations$common$ratingSource$az ratingSource = _Translations$common$ratingSource$az._(_root);
 	@override String get notAvailable => 'Yoxdur';
@@ -364,9 +361,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => 'Defolt keyfiyyətlə eyni';
 	@override String get directPlayCoveredQuality => 'Kiçik videoları orijinal keyfiyyətdə oynat';
 	@override String get directPlayCoveredQualityDescription => 'Keyfiyyət limitinə uyğun gələn videoları yenidən kodlaşdırmaq əvəzinə birbaşa oynat';
-	@override String get videoCodecs => 'Video kodekləri';
-	@override String get videoCodecsDescription => 'İşarələnməmiş kodekləri server yenidən kodlaşdırır';
-	@override String get videoCodecsAlwaysAccepted => 'Həmişə qəbul edilir';
 	@override String get musicQualityTitle => 'Musiqi keyfiyyəti';
 	@override String get subtitleStyling => 'Altyazı tənzimləmələri';
 	@override String get subtitleStylingDescription => 'Altyazı görünüşünü özünüləşdirin';
@@ -392,11 +386,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get specialsOrderingLast => 'Adi mövsümlərdən sonra';
 	@override String get clickVideoTogglesPlayback => 'Oynat/fasilə üçün videoya toxun';
 	@override String get clickVideoTogglesPlaybackDescription => 'İdarəetməni göstərmək əvəzinə oynatmaq/fasilə etmək üçün videoya toxun.';
-	@override String get videoPlayerControls => 'Video oynadıcı idarəetmələri';
-	@override String get keyboardShortcuts => 'Klaviatura qısayolları';
-	@override String get keyboardShortcutsDescription => 'Klaviatura qısayollarını özünüləşdirin';
-	@override String get videoPlayerNavigation => 'Video oynadıcı naviqasiyası';
-	@override String get videoPlayerNavigationDescription => 'Oynadıcı idarəetmələrində hərəkət etmək üçün ox düymələrini istifadə edin';
 	@override String get watchTogetherRelay => 'Birlikdə İzlə relesi';
 	@override String get watchTogetherRelayDescription => 'Öz relenizi təyin etməsəniz, ictimai Open Watch Party releləri istifadə olunur';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
@@ -423,8 +412,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get importSettingsSuccess => 'Tənzimləmələr idxal edildi';
 	@override String get importSettingsInvalidFile => 'Bu fayl düzgün Plezy tənzimləmələr faylı deyil';
 	@override String get importSettingsNoUser => 'Tənzimləmələri idxal etməzdən əvvəl daxil olun';
-	@override String get shortcutsReset => 'Qısayollar defolt vəziyyətə sıfırlandı';
-	@override String get resetShortcutsConfirm => 'Bu, xüsusi qısayollarınızı defolt qısayollarla əvəz edəcək. Davam edilsin?';
 	@override String get about => 'Haqqında';
 	@override String get aboutDescription => 'Tətbiq məlumatı və lisenziyalar';
 	@override String get updates => 'Yenilənmələr';
@@ -434,8 +421,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => 'Açılışda yenilənmə olduqda xəbərdar et';
 	@override String get validationErrorEnterNumber => 'Lütfən düzgün rəqəm daxil edin';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => 'Müddət ${min} və ${max} ${unit} arasında olmalıdır';
-	@override String shortcutAlreadyAssigned({required Object action}) => 'Qısayol artıq ${action} üçün təyin edilib';
-	@override String shortcutUpdated({required Object action}) => '${action} üçün qısayol yeniləndi';
 	@override String get saveFailed => 'Dəyişikliklər yadda saxlanıla bilmədi. Təzədən cəhd edin.';
 	@override String get autoPlayAndSkip => 'Avtomatik oynat və ötür';
 	@override String get autoPlayNextEpisode => 'Növbəti seriyanı avtomatik oynat';
@@ -484,8 +469,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get maxVolume => 'Maksimal səs';
 	@override String get maxVolumeDescription => 'Sakit videolar üçün səsin 100%-dən yuxarı qalxmasına icazə ver';
 	@override String maxVolumePercent({required Object percent}) => '%${percent}';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Discord-da nəyə baxdığınızı göstərin';
 	@override String get services => 'Xidmətlər';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr və daha çoxunu qoşun';
 	@override String get manageLibrariesDescription => 'Kitabxanaları yenidən sıralayın və gizlədin';
@@ -499,17 +482,11 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => 'Ekran yenilənmə tezliyini video məzmununa uyğunlaşdır';
 	@override String get matchContentResolution => 'Məzmunun görüntü keyfiyyətinə uyğunlaş';
 	@override String get matchContentResolutionDescription => 'Ekranı videonun öz görüntü keyfiyyətinə keçirir ki, miqyaslandırmanı televizorunuz etsin. Oxutma zamanı menyular və altyazılar da miqyaslandırılır';
-	@override String get matchRefreshRate => 'Yenilənmə tezliyini uyğunlaşdır';
-	@override String get matchRefreshRateDescription => 'Tam ekranda ekran yenilənmə tezliyini uyğunlaşdır';
-	@override String get matchDynamicRange => 'Dinamik diapazonu uyğunlaşdır';
-	@override String get matchDynamicRangeDescription => 'HDR məzmun üçün HDR-ı açın, sonra SDR-a qayıdın';
 	@override String get displaySwitchDelay => 'Ekran dəyişmə ləngiməsi';
 	@override String get tunneledPlayback => 'Tünellənmiş oynatma';
 	@override String get tunneledPlaybackDescription => 'Video tünelləməni istifadə et. HDR oynatmada qara ekran görünürsə və ya hərəkət takılırsa söndürün.';
 	@override String get audioPassthrough => 'Səsin birbaşa ötürülməsi (Passthrough)';
 	@override String get audioPassthroughDescription => 'Dolby/DTS səslərini yenidən kodlamadan TV və ya resiverə göndərir. Səs gəlmirsə söndürün.';
-	@override String get audioPassthroughDescriptionApple => 'Atmos daxil olmaqla Dolby Digital Plus üçün Apple-ın daxili dekoderini istifadə edin. DTS və TrueHD yenə də çoxkanallı PCM kimi oynadılır. Səs gəlmirsə söndürün.';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Atmos daxil olmaqla Dolby Digital Plus üçün Apple-ın daxili Dolby dekoderini istifadə edin. iOS, iPadOS və tvOS 26 və ya daha yeni versiyalarda TrueHD Atmos və DTS:X məkan səsi kimi oynadılır. Digər DTS və TrueHD trekləri çoxkanallı PCM kimi oynadılır. Səs gəlmirsə söndürün.';
 	@override String get audioPassthroughOverriddenByNormalization => 'Səsin gurluğunu normallaşdırma aktivkən söndürülüb';
 	@override String get audioChannelLimit => 'Səs kanalları';
 	@override String get audioChannelLimitDescription => 'Bütün kanalları oynada bilməyən dinamiklər, qulaqlıqlar və ya HDMI qurğuları üçün dekodlanmış səsi daha az kanala endir';
@@ -557,10 +534,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Tətbiq hər dəfə açıldıqda profil seçimini göstər';
 	@override String get forceTvMode => 'TV rejimini məcburi et';
 	@override String get forceTvModeDescription => 'TV interfeysini məcburi et. Avtomatik təyin etməyən cihazlar üçündür. Yenidən başlatma tələb olunur.';
-	@override String get startInFullscreen => 'Tam ekranda başlat';
-	@override String get startInFullscreenDescription => 'Plezy-ni açılışda tam ekran rejimində aç';
-	@override String get exitFullscreenOnPlayerClose => 'Oynadıcı bağlandıqda tam ekrandan çıx';
-	@override String get exitFullscreenOnPlayerCloseDescription => 'Video oynadıcını bağlayarkən avtomatik tam ekrandan çıx';
 	@override String get autoHidePerformanceOverlay => 'Məhsuldarlıq paneli avtomatik gizlənsin';
 	@override String get autoHidePerformanceOverlayDescription => 'Məhsuldarlıq panelini oynatıcı idarəetmələri ilə birlikdə gizlət';
 	@override String get showNavBarLabels => 'Naviqasiya paneli yazılarını göstər';
@@ -578,7 +551,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get libraryAndCards => 'Kitabxana və kartlar';
 	@override String get homeScreen => 'Ana ekran';
 	@override String get navigation => 'Naviqasiya';
-	@override String get window => 'Pəncərə';
 	@override String get liveTv => 'Canlı TV';
 	@override String get player => 'Oynadıcı';
 	@override String get videoAndDisplay => 'Video və Ekran';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$az extends Translations$hotkeys$en {
 	final TranslationsAz _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => '${actionName} üçün qısayol təyin et';
-	@override String get clearShortcut => 'Qısayolu təmizlə';
 	@override String get noShortcutSet => 'Qısayol təyin edilməyib';
-	@override String get currentShortcut => 'Cari qısayol:';
-	@override String get pressToRecord => 'Qısayol yazmaq üçün seçin';
-	@override String get recordingShortcut => 'İndi qısayol düymələrinə basın';
 	@override late final _Translations$hotkeys$actions$az actions = _Translations$hotkeys$actions$az._(_root);
 }
 
@@ -980,16 +947,12 @@ class _Translations$videoControls$az extends Translations$videoControls$en {
 	@override String get pipButton => 'Pəncərə daxilində pəncərə rejimi';
 	@override String get aspectRatioButton => 'Tərəf nisbəti';
 	@override String get ambientLighting => 'Ətraf işıqlandırması';
-	@override String get fullscreenButton => 'Tam ekrana keç';
-	@override String get exitFullscreenButton => 'Tam ekrandan çıx';
-	@override String get alwaysOnTopButton => 'Həmişə üstə';
 	@override String get rotationLockButton => 'Dönmə kilidi';
 	@override String get lockScreen => 'Ekranı kilidlə';
 	@override String get screenLockButton => 'Ekran kilidi';
 	@override String get timelineSlider => 'Video zaman çubuğu';
 	@override String get volumeSlider => 'Səs səviyyəsi';
 	@override String endsAt({required Object time}) => 'Bitiş vaxtı: ${time}';
-	@override String get pipActive => 'Pəncərə daxilində pəncərə rejimində oynadılır';
 	@override String get pipFailed => 'PiP rejimi başladılarkən xəta';
 	@override String get screenshotSaved => 'Ekran şəkli yadda saxlanıldı';
 	@override String get screenshotFailed => 'Ekran şəkli çəkilə bilmədi';
@@ -1157,7 +1120,6 @@ class _Translations$mpvConfig$az extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => 'Sətir əlavə et';
 	@override String get removeLine => 'Sətiri sil';
-	@override String get embeddedVoHint => 'vo, gpu-context və gpu-api Linux-da nəzərə alınmır: daxili video həmişə video müstəvisində vo=libmpv vasitəsilə göstərilir və gpu-next (ArtCNN kimi hesablama şeyderlərinə lazımdır) daxili işləyə bilməz.';
 }
 
 // Path: dialog
@@ -1507,7 +1469,6 @@ class _Translations$startup$az extends Translations$startup$en {
 	@override String get repairSucceeded => 'Yaddaş təmir edildi';
 	@override String get repairNeedsRestart => 'Yaddaş təmir edildi — yenidən başlatma tələb olunur';
 	@override String get restartRequiredBody => 'Məlumatlarınız təmir edildi, lakin Plezy ondan istifadə etmək üçün yenidən başlamalıdır. Plezy-ni bağlayın və yenidən açın.';
-	@override String get quitPlezy => 'Plezy-dən çıx';
 	@override String get repairFailed => 'Təmir uğursuz oldu';
 	@override String get repairKeptSignIns => 'Serverləriniz və profilləriniz hələ də daxil olub.';
 	@override String get repairLostSignIns => 'Saxlanmış daxil olmalarınızı qoruyan açar bərpa edilə bilmədi. Hər serverə və profilə yenidən daxil olmalı olacaqsınız.';
@@ -2078,20 +2039,9 @@ class _Translations$videoSettings$az extends Translations$videoSettings$en {
 	@override String get audioSync => 'Səs sinxronizasiyası';
 	@override String get subtitleSync => 'Altyazı sinxronizasiyası';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => 'HDR burada əlçatan deyil — bu masaüstü kompozitoru və ya video çıxışı onu ötürə bilmir.';
-	@override String get hdrToneMapping => 'HDR ton uyğunlaşdırması';
-	@override String get hdrToneMappingCompositor => 'Kompozitor';
-	@override String get hdrToneMappingCompositorDescription => 'Mənbənin HDR metaməlumatlarını dəyişmədən ötür və ton uyğunlaşdırmasını masaüstü kompozitoruna həvalə et.';
-	@override String get hdrToneMappingPlayer => 'Oynadıcı';
-	@override String get hdrToneMappingPlayerDescription => 'Oynadıcıda tonları ekranın pik parlaqlığına uyğunlaşdır, sonra nəticəni kompozitora bildir.';
-	@override String get hdrToneMappingFailed => 'HDR ton uyğunlaşdırmasını dəyişmək olmadı — əvvəlki rejim hələ də aktivdir.';
 	@override String get audioOutput => 'Səs çıxışı';
-	@override String get performanceOverlay => 'Məhsuldarlıq paneli';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => 'Əhatəli səs';
-	@override String get audioOutputSpatial => 'Məkan səsi';
 	@override String get audioOutputStereo => 'Stereo';
+	@override String get performanceOverlay => 'Məhsuldarlıq paneli';
 	@override String get audioNormalization => 'Səsin gurluğunu normallaşdır';
 	@override String get audioNormalizationDisablesPassthrough => 'Səsi PCM-ə dekodlayır; bu aktivkən birbaşa ötürmə söndürülür';
 }
@@ -2174,7 +2124,6 @@ class _Translations$externalPlayer$az extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => 'Xüsusi oynadıcı əlavə et';
 	@override String get playerName => 'Oynadıcı adı';
 	@override String get playerNameHint => 'Mənim oynadıcım';
-	@override String get playerCommand => 'Əmr';
 	@override String get playerPackage => 'Paket adı';
 	@override String get playerUrlScheme => 'URL sxemi';
 	@override String get off => 'Söndürülüb';
@@ -2386,7 +2335,6 @@ class _Translations$services$az extends Translations$services$en {
 	// Translations
 	@override String get title => 'Xidmətlər';
 	@override String get hubSubtitle => 'İzləmə tərəqqisini eyniləşdirin və yeni başlıqlar sorğulayın.';
-	@override String get integrations => 'İnteqrasiyalar';
 	@override String get notConnected => 'Qoşulmayıb';
 	@override String connectedAs({required Object username}) => '@${username} olaraq qoşuldu';
 	@override String get scrobble => 'Tərəqqini avtomatik izlə';
@@ -2621,7 +2569,6 @@ class _Translations$videoControls$pipErrors$az extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Android 8.0 və ya daha yenisini tələb edir';
-	@override String get iosVersion => 'iOS 15.0 və ya daha yenisini tələb edir';
 	@override String get permissionDisabled => 'PiP rejimi söndürülüb. Sistem tənzimləmələrindən aktivləşdirin.';
 	@override String get notSupported => 'Cihaz PiP rejimini dəstəkləmir';
 	@override String get voSwitchFailed => 'PiP üçün video çıxışı dəyişdirilə bilmədi';
@@ -3442,7 +3389,6 @@ extension on TranslationsAz {
 			'auth.quickConnectWaiting' => 'Təsdiq gözlənilir…',
 			'auth.quickConnectCancel' => 'Ləğv et',
 			'auth.quickConnectExpired' => 'Sürətli Qoşulmanın vaxtı bitdi. Təzədən cəhd edin.',
-			'auth.localDataRecoveryRequired' => 'Plezy yerli daxil olma və gözləyən oxutma məlumatlarını təhlükəsiz bərpa edə bilmədi. Lütfən təzədən daxil olun.',
 			'auth.pinCheckRejected' => 'Plex PIN yoxlaması rədd edildi',
 			'common.cancel' => 'Ləğv et',
 			'common.save' => 'Yadda saxla',
@@ -3487,8 +3433,6 @@ extension on TranslationsAz {
 			'common.connectingToServers' => 'Serverlərə qoşulunur...',
 			'common.startingOfflineMode' => 'Oflayn rejim başladılır...',
 			'common.loading' => 'Yüklənir...',
-			'common.fullscreen' => 'Tam ekran',
-			'common.exitFullscreen' => 'Tam ekrandan çıx',
 			'common.pressBackAgainToExit' => 'Çıxmaq üçün geri düyməsinə bir daha basın',
 			'common.ratingSource.critic' => 'Tənqidçilər',
 			'common.ratingSource.audience' => 'Tamaşaçılar',
@@ -3644,9 +3588,6 @@ extension on TranslationsAz {
 			'settings.cellularQualitySameAsDefault' => 'Defolt keyfiyyətlə eyni',
 			'settings.directPlayCoveredQuality' => 'Kiçik videoları orijinal keyfiyyətdə oynat',
 			'settings.directPlayCoveredQualityDescription' => 'Keyfiyyət limitinə uyğun gələn videoları yenidən kodlaşdırmaq əvəzinə birbaşa oynat',
-			'settings.videoCodecs' => 'Video kodekləri',
-			'settings.videoCodecsDescription' => 'İşarələnməmiş kodekləri server yenidən kodlaşdırır',
-			'settings.videoCodecsAlwaysAccepted' => 'Həmişə qəbul edilir',
 			'settings.musicQualityTitle' => 'Musiqi keyfiyyəti',
 			'settings.subtitleStyling' => 'Altyazı tənzimləmələri',
 			'settings.subtitleStylingDescription' => 'Altyazı görünüşünü özünüləşdirin',
@@ -3672,11 +3613,6 @@ extension on TranslationsAz {
 			'settings.specialsOrderingLast' => 'Adi mövsümlərdən sonra',
 			'settings.clickVideoTogglesPlayback' => 'Oynat/fasilə üçün videoya toxun',
 			'settings.clickVideoTogglesPlaybackDescription' => 'İdarəetməni göstərmək əvəzinə oynatmaq/fasilə etmək üçün videoya toxun.',
-			'settings.videoPlayerControls' => 'Video oynadıcı idarəetmələri',
-			'settings.keyboardShortcuts' => 'Klaviatura qısayolları',
-			'settings.keyboardShortcutsDescription' => 'Klaviatura qısayollarını özünüləşdirin',
-			'settings.videoPlayerNavigation' => 'Video oynadıcı naviqasiyası',
-			'settings.videoPlayerNavigationDescription' => 'Oynadıcı idarəetmələrində hərəkət etmək üçün ox düymələrini istifadə edin',
 			'settings.watchTogetherRelay' => 'Birlikdə İzlə relesi',
 			'settings.watchTogetherRelayDescription' => 'Öz relenizi təyin etməsəniz, ictimai Open Watch Party releləri istifadə olunur',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
@@ -3703,8 +3639,6 @@ extension on TranslationsAz {
 			'settings.importSettingsSuccess' => 'Tənzimləmələr idxal edildi',
 			'settings.importSettingsInvalidFile' => 'Bu fayl düzgün Plezy tənzimləmələr faylı deyil',
 			'settings.importSettingsNoUser' => 'Tənzimləmələri idxal etməzdən əvvəl daxil olun',
-			'settings.shortcutsReset' => 'Qısayollar defolt vəziyyətə sıfırlandı',
-			'settings.resetShortcutsConfirm' => 'Bu, xüsusi qısayollarınızı defolt qısayollarla əvəz edəcək. Davam edilsin?',
 			'settings.about' => 'Haqqında',
 			'settings.aboutDescription' => 'Tətbiq məlumatı və lisenziyalar',
 			'settings.updates' => 'Yenilənmələr',
@@ -3714,8 +3648,6 @@ extension on TranslationsAz {
 			'settings.autoCheckUpdatesOnStartupDescription' => 'Açılışda yenilənmə olduqda xəbərdar et',
 			'settings.validationErrorEnterNumber' => 'Lütfən düzgün rəqəm daxil edin',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => 'Müddət ${min} və ${max} ${unit} arasında olmalıdır',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'Qısayol artıq ${action} üçün təyin edilib',
-			'settings.shortcutUpdated' => ({required Object action}) => '${action} üçün qısayol yeniləndi',
 			'settings.saveFailed' => 'Dəyişikliklər yadda saxlanıla bilmədi. Təzədən cəhd edin.',
 			'settings.autoPlayAndSkip' => 'Avtomatik oynat və ötür',
 			'settings.autoPlayNextEpisode' => 'Növbəti seriyanı avtomatik oynat',
@@ -3764,8 +3696,6 @@ extension on TranslationsAz {
 			'settings.maxVolume' => 'Maksimal səs',
 			'settings.maxVolumeDescription' => 'Sakit videolar üçün səsin 100%-dən yuxarı qalxmasına icazə ver',
 			'settings.maxVolumePercent' => ({required Object percent}) => '%${percent}',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Discord-da nəyə baxdığınızı göstərin',
 			'settings.services' => 'Xidmətlər',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr və daha çoxunu qoşun',
 			'settings.manageLibrariesDescription' => 'Kitabxanaları yenidən sıralayın və gizlədin',
@@ -3779,17 +3709,11 @@ extension on TranslationsAz {
 			'settings.matchContentFrameRateDescription' => 'Ekran yenilənmə tezliyini video məzmununa uyğunlaşdır',
 			'settings.matchContentResolution' => 'Məzmunun görüntü keyfiyyətinə uyğunlaş',
 			'settings.matchContentResolutionDescription' => 'Ekranı videonun öz görüntü keyfiyyətinə keçirir ki, miqyaslandırmanı televizorunuz etsin. Oxutma zamanı menyular və altyazılar da miqyaslandırılır',
-			'settings.matchRefreshRate' => 'Yenilənmə tezliyini uyğunlaşdır',
-			'settings.matchRefreshRateDescription' => 'Tam ekranda ekran yenilənmə tezliyini uyğunlaşdır',
-			'settings.matchDynamicRange' => 'Dinamik diapazonu uyğunlaşdır',
-			'settings.matchDynamicRangeDescription' => 'HDR məzmun üçün HDR-ı açın, sonra SDR-a qayıdın',
 			'settings.displaySwitchDelay' => 'Ekran dəyişmə ləngiməsi',
 			'settings.tunneledPlayback' => 'Tünellənmiş oynatma',
 			'settings.tunneledPlaybackDescription' => 'Video tünelləməni istifadə et. HDR oynatmada qara ekran görünürsə və ya hərəkət takılırsa söndürün.',
 			'settings.audioPassthrough' => 'Səsin birbaşa ötürülməsi (Passthrough)',
 			'settings.audioPassthroughDescription' => 'Dolby/DTS səslərini yenidən kodlamadan TV və ya resiverə göndərir. Səs gəlmirsə söndürün.',
-			'settings.audioPassthroughDescriptionApple' => 'Atmos daxil olmaqla Dolby Digital Plus üçün Apple-ın daxili dekoderini istifadə edin. DTS və TrueHD yenə də çoxkanallı PCM kimi oynadılır. Səs gəlmirsə söndürün.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Atmos daxil olmaqla Dolby Digital Plus üçün Apple-ın daxili Dolby dekoderini istifadə edin. iOS, iPadOS və tvOS 26 və ya daha yeni versiyalarda TrueHD Atmos və DTS:X məkan səsi kimi oynadılır. Digər DTS və TrueHD trekləri çoxkanallı PCM kimi oynadılır. Səs gəlmirsə söndürün.',
 			'settings.audioPassthroughOverriddenByNormalization' => 'Səsin gurluğunu normallaşdırma aktivkən söndürülüb',
 			'settings.audioChannelLimit' => 'Səs kanalları',
 			'settings.audioChannelLimitDescription' => 'Bütün kanalları oynada bilməyən dinamiklər, qulaqlıqlar və ya HDMI qurğuları üçün dekodlanmış səsi daha az kanala endir',
@@ -3837,10 +3761,6 @@ extension on TranslationsAz {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Tətbiq hər dəfə açıldıqda profil seçimini göstər',
 			'settings.forceTvMode' => 'TV rejimini məcburi et',
 			'settings.forceTvModeDescription' => 'TV interfeysini məcburi et. Avtomatik təyin etməyən cihazlar üçündür. Yenidən başlatma tələb olunur.',
-			'settings.startInFullscreen' => 'Tam ekranda başlat',
-			'settings.startInFullscreenDescription' => 'Plezy-ni açılışda tam ekran rejimində aç',
-			'settings.exitFullscreenOnPlayerClose' => 'Oynadıcı bağlandıqda tam ekrandan çıx',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'Video oynadıcını bağlayarkən avtomatik tam ekrandan çıx',
 			'settings.autoHidePerformanceOverlay' => 'Məhsuldarlıq paneli avtomatik gizlənsin',
 			'settings.autoHidePerformanceOverlayDescription' => 'Məhsuldarlıq panelini oynatıcı idarəetmələri ilə birlikdə gizlət',
 			'settings.showNavBarLabels' => 'Naviqasiya paneli yazılarını göstər',
@@ -3858,7 +3778,6 @@ extension on TranslationsAz {
 			'settings.libraryAndCards' => 'Kitabxana və kartlar',
 			'settings.homeScreen' => 'Ana ekran',
 			'settings.navigation' => 'Naviqasiya',
-			'settings.window' => 'Pəncərə',
 			'settings.liveTv' => 'Canlı TV',
 			'settings.player' => 'Oynadıcı',
 			'settings.videoAndDisplay' => 'Video və Ekran',
@@ -3907,8 +3826,6 @@ extension on TranslationsAz {
 			'themeEditor.slots.text' => 'Mətn',
 			'themeEditor.slots.textMuted' => 'Köməkçi mətn',
 			'themeEditor.slots.accent' => 'Vurğu',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => 'Şəffaflıq',
 			'themeEditor.hexHint' => '#RRGGBB və ya #AARRGGBB',
 			'themeEditor.fromOtherThemes' => 'Digər mövzulardan',
@@ -3933,15 +3850,12 @@ extension on TranslationsAz {
 			'search.searchYourMedia' => 'Mediyanızda axtarın',
 			'search.enterTitleActorOrKeyword' => 'Ad, aktyor və ya açar söz daxil edin',
 			'search.people' => 'Şəxslər',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => '${actionName} üçün qısayol təyin et',
-			'hotkeys.clearShortcut' => 'Qısayolu təmizlə',
 			'hotkeys.noShortcutSet' => 'Qısayol təyin edilməyib',
-			'hotkeys.currentShortcut' => 'Cari qısayol:',
-			'hotkeys.pressToRecord' => 'Qısayol yazmaq üçün seçin',
-			'hotkeys.recordingShortcut' => 'İndi qısayol düymələrinə basın',
 			'hotkeys.actions.playPause' => 'Oynat/Fasilə',
 			'hotkeys.actions.volumeUp' => 'Səsi artır',
 			'hotkeys.actions.volumeDown' => 'Səsi azalt',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'İrəli sar (${seconds}san)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Geri sar (${seconds}san)',
 			'hotkeys.actions.fullscreenToggle' => 'Tam ekranı dəyişdir',
@@ -4198,23 +4112,18 @@ extension on TranslationsAz {
 			'videoControls.pipButton' => 'Pəncərə daxilində pəncərə rejimi',
 			'videoControls.aspectRatioButton' => 'Tərəf nisbəti',
 			'videoControls.ambientLighting' => 'Ətraf işıqlandırması',
-			'videoControls.fullscreenButton' => 'Tam ekrana keç',
-			'videoControls.exitFullscreenButton' => 'Tam ekrandan çıx',
-			'videoControls.alwaysOnTopButton' => 'Həmişə üstə',
 			'videoControls.rotationLockButton' => 'Dönmə kilidi',
 			'videoControls.lockScreen' => 'Ekranı kilidlə',
 			'videoControls.screenLockButton' => 'Ekran kilidi',
 			'videoControls.timelineSlider' => 'Video zaman çubuğu',
 			'videoControls.volumeSlider' => 'Səs səviyyəsi',
 			'videoControls.endsAt' => ({required Object time}) => 'Bitiş vaxtı: ${time}',
-			'videoControls.pipActive' => 'Pəncərə daxilində pəncərə rejimində oynadılır',
 			'videoControls.pipFailed' => 'PiP rejimi başladılarkən xəta',
 			'videoControls.screenshotSaved' => 'Ekran şəkli yadda saxlanıldı',
 			'videoControls.screenshotFailed' => 'Ekran şəkli çəkilə bilmədi',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'Miqyas %${percent}',
 			'videoControls.volumePercent' => ({required Object percent}) => 'Səs ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Android 8.0 və ya daha yenisini tələb edir',
-			'videoControls.pipErrors.iosVersion' => 'iOS 15.0 və ya daha yenisini tələb edir',
 			'videoControls.pipErrors.permissionDisabled' => 'PiP rejimi söndürülüb. Sistem tənzimləmələrindən aktivləşdirin.',
 			'videoControls.pipErrors.notSupported' => 'Cihaz PiP rejimini dəstəkləmir',
 			'videoControls.pipErrors.voSwitchFailed' => 'PiP üçün video çıxışı dəyişdirilə bilmədi',
@@ -4352,7 +4261,6 @@ extension on TranslationsAz {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => 'Sətir əlavə et',
 			'mpvConfig.removeLine' => 'Sətiri sil',
-			'mpvConfig.embeddedVoHint' => 'vo, gpu-context və gpu-api Linux-da nəzərə alınmır: daxili video həmişə video müstəvisində vo=libmpv vasitəsilə göstərilir və gpu-next (ArtCNN kimi hesablama şeyderlərinə lazımdır) daxili işləyə bilməz.',
 			'dialog.confirmAction' => 'Əməliyyatı təsdiqlə',
 			'profiles.addPlezyProfile' => 'Plezy profili əlavə et',
 			'profiles.switchingProfile' => 'Profil dəyişdirilir…',
@@ -4421,8 +4329,6 @@ extension on TranslationsAz {
 			'profiles.tokenIdentityMismatch' => 'Plex profil tokeni gözlənilməyən serveri müəyyən etdi',
 			'connections.sectionTitle' => 'Qoşulmalar',
 			'connections.addConnection' => 'Qoşulma əlavə et',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Plex ilə daxil olun və ya Jellyfin yaxud Emby serverinə qoşulun',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => '${displayName} profilinə əlavə et: Plex, Jellyfin, Emby və ya başqa profil qoşulması',
 			'connections.sessionExpiredOne' => ({required Object name}) => '${name} üçün seansın vaxtı bitdi',
@@ -4462,6 +4368,8 @@ extension on TranslationsAz {
 			'accountPreferences.subtitleModes.smart' => 'Xarici səs olduqda göstərilən',
 			'accountPreferences.subtitleModes.smartDescription' => 'Altyazıları yalnız səs başqa dildə olduqda aç.',
 			'accountPreferences.subtitleAccessibility' => 'SDH altyazıları',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'SDH olmayan altyazılara üstünlük ver',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH altyazılarına üstünlük ver',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Yalnız SDH altyazıları',
@@ -4686,7 +4594,6 @@ extension on TranslationsAz {
 			'startup.repairSucceeded' => 'Yaddaş təmir edildi',
 			'startup.repairNeedsRestart' => 'Yaddaş təmir edildi — yenidən başlatma tələb olunur',
 			'startup.restartRequiredBody' => 'Məlumatlarınız təmir edildi, lakin Plezy ondan istifadə etmək üçün yenidən başlamalıdır. Plezy-ni bağlayın və yenidən açın.',
-			'startup.quitPlezy' => 'Plezy-dən çıx',
 			'startup.repairFailed' => 'Təmir uğursuz oldu',
 			'startup.repairKeptSignIns' => 'Serverləriniz və profilləriniz hələ də daxil olub.',
 			'startup.repairLostSignIns' => 'Saxlanmış daxil olmalarınızı qoruyan açar bərpa edilə bilmədi. Hər serverə və profilə yenidən daxil olmalı olacaqsınız.',
@@ -4935,8 +4842,6 @@ extension on TranslationsAz {
 			'liveTv.recordSettings.keepUpToHint' => '0 bütün epizodları saxlayır',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => '${minutes} dəq sonra başlayır',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day}, saat ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product} etibarsız Canlı TV oynatma məlumatı qaytardı',
 			'liveTv.failedToStartChannel' => 'Canlı kanalı başlatmaq olmadı',
 			'liveTv.failedToBuildStreamUrl' => 'Yayım URL-i yaratmaq olmadı',
@@ -4977,6 +4882,8 @@ extension on TranslationsAz {
 			'playlists.deleteConfirm' => 'Oynatma siyahısı silinsin?',
 			'playlists.deleteMessage' => ({required Object name}) => '"${name}" siyahısını silmək istədiyinizdən əminsiniz?',
 			'playlists.created' => 'Oynatma siyahısı yaradıldı',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => 'Oynatma siyahısı silindi',
 			'playlists.itemAdded' => 'Oynatma siyahısına əlavə edildi',
 			'playlists.itemRemoved' => 'Oynatma siyahısından silindi',
@@ -5380,20 +5287,9 @@ extension on TranslationsAz {
 			'videoSettings.audioSync' => 'Səs sinxronizasiyası',
 			'videoSettings.subtitleSync' => 'Altyazı sinxronizasiyası',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'HDR burada əlçatan deyil — bu masaüstü kompozitoru və ya video çıxışı onu ötürə bilmir.',
-			'videoSettings.hdrToneMapping' => 'HDR ton uyğunlaşdırması',
-			'videoSettings.hdrToneMappingCompositor' => 'Kompozitor',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'Mənbənin HDR metaməlumatlarını dəyişmədən ötür və ton uyğunlaşdırmasını masaüstü kompozitoruna həvalə et.',
-			'videoSettings.hdrToneMappingPlayer' => 'Oynadıcı',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'Oynadıcıda tonları ekranın pik parlaqlığına uyğunlaşdır, sonra nəticəni kompozitora bildir.',
-			'videoSettings.hdrToneMappingFailed' => 'HDR ton uyğunlaşdırmasını dəyişmək olmadı — əvvəlki rejim hələ də aktivdir.',
 			'videoSettings.audioOutput' => 'Səs çıxışı',
-			'videoSettings.performanceOverlay' => 'Məhsuldarlıq paneli',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'Əhatəli səs',
-			'videoSettings.audioOutputSpatial' => 'Məkan səsi',
 			'videoSettings.audioOutputStereo' => 'Stereo',
+			'videoSettings.performanceOverlay' => 'Məhsuldarlıq paneli',
 			'videoSettings.audioNormalization' => 'Səsin gurluğunu normallaşdır',
 			'videoSettings.audioNormalizationDisablesPassthrough' => 'Səsi PCM-ə dekodlayır; bu aktivkən birbaşa ötürmə söndürülür',
 			'performanceOverlay.color' => 'Rəng',
@@ -5449,8 +5345,6 @@ extension on TranslationsAz {
 			'performanceOverlay.decoderHardware' => 'Aparat təminatı',
 			'performanceOverlay.tunnelingActive' => 'Aktiv',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted} (${failures} uğursuz)',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => 'Xarici oynadıcı',
 			'externalPlayer.useExternalPlayer' => 'Xarici oynadıcı istifadə et',
 			'externalPlayer.useExternalPlayerDescription' => 'Videoları başqa tətbiqdə açın',
@@ -5460,7 +5354,6 @@ extension on TranslationsAz {
 			'externalPlayer.addCustomPlayer' => 'Xüsusi oynadıcı əlavə et',
 			'externalPlayer.playerName' => 'Oynadıcı adı',
 			'externalPlayer.playerNameHint' => 'Mənim oynadıcım',
-			'externalPlayer.playerCommand' => 'Əmr',
 			'externalPlayer.playerPackage' => 'Paket adı',
 			'externalPlayer.playerUrlScheme' => 'URL sxemi',
 			'externalPlayer.off' => 'Söndürülüb',
@@ -5503,6 +5396,8 @@ extension on TranslationsAz {
 			'metadataEdit.libraryDefault' => 'Kitabxana defoltu',
 			'metadataEdit.accountDefault' => 'Hesab defoltu',
 			'metadataEdit.seriesDefault' => 'Serial defoltu',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Seriya sıralaması',
 			'metadataEdit.oldestFirst' => 'Əvvəlcə ən köhnə',
 			'metadataEdit.newestFirst' => 'Əvvəlcə ən yeni',
@@ -5618,7 +5513,6 @@ extension on TranslationsAz {
 			'seerr.permissionRevoked' => 'Bunu sorğulamaq üçün artıq icazəniz yoxdur',
 			'services.title' => 'Xidmətlər',
 			'services.hubSubtitle' => 'İzləmə tərəqqisini eyniləşdirin və yeni başlıqlar sorğulayın.',
-			'services.integrations' => 'İnteqrasiyalar',
 			'services.notConnected' => 'Qoşulmayıb',
 			'services.connectedAs' => ({required Object username}) => '@${username} olaraq qoşuldu',
 			'services.scrobble' => 'Tərəqqini avtomatik izlə',

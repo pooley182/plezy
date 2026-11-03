@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../../test_helpers/media_items.dart';
 import '../../test_helpers/mock_player_channels.dart';
 import '../../test_helpers/prefs.dart';
+import '../../test_helpers/android_player_noops.dart';
 
 /// Regression coverage for #2662, #2647 and #2657: an Android mpv session
 /// condemned by a native call that never answered (or a failed video output)
@@ -69,7 +70,7 @@ Widget _screen(GlobalKey<VideoPlayerScreenState> key) {
 
 /// A player whose native session refuses every play-state write, the way the
 /// Android mpv bridge answers once its session is condemned.
-class _RefusingPlayer implements Player {
+class _RefusingPlayer with AndroidPlayerNoops implements Player {
   final PlayerState _state = PlayerState(duration: const Duration(minutes: 45), seekable: true);
   final List<String> writes = [];
 

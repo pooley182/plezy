@@ -33,16 +33,18 @@ void main() {
         .toList()
         .reversed
         .toList();
-    expect(messages, hasLength(3));
-    expect(messages[0], contains('phase=database_open_started'));
-    expect(messages[1], contains('phase=database_ready'));
-    expect(messages[2], contains('phase=credentials_loaded'));
+    expect(messages, hasLength(4));
+    expect(messages[0], contains('phase=native_on_create'));
+    expect(messages[1], contains('phase=database_open_started'));
+    expect(messages[2], contains('phase=database_ready'));
+    expect(messages[3], contains('phase=credentials_loaded'));
 
     final elapsed = messages
         .map((message) => int.parse(RegExp(r'elapsedMs=(\d+)').firstMatch(message)!.group(1)!))
         .toList();
-    expect(elapsed[1], greaterThanOrEqualTo(elapsed[0]));
-    expect(elapsed[2], greaterThanOrEqualTo(elapsed[1]));
+    for (var i = 1; i < elapsed.length; i++) {
+      expect(elapsed[i], greaterThanOrEqualTo(elapsed[i - 1]));
+    }
   });
 
   test('only failures and exits the viewer noticed become Sentry messages, one per reason', () {

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plezy/focus/focusable_action_bar.dart';
 import 'package:plezy/focus/focusable_wrapper.dart';
 import 'package:plezy/i18n/strings.g.dart';
 import 'package:plezy/media/media_backend.dart';
@@ -145,7 +144,7 @@ void main() {
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   Widget wrap({
@@ -366,44 +365,6 @@ void main() {
     route.navigator!.removeRoute(route);
   });
 
-  testWidgets('desktop transport buttons own their actions without opening Now Playing', (tester) async {
-    final service = _FakeMusicService(track: _track);
-    final observer = MusicUiRouteObserver();
-    final navigatorObserver = _RecordingNavigatorObserver();
-
-    await tester.pumpWidget(
-      wrap(service: service, observer: observer, platform: TargetPlatform.macOS, navigatorObserver: navigatorObserver),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byTooltip(t.music.previousTrack));
-    await tester.tap(find.byTooltip(t.common.pause));
-    await tester.tap(find.byTooltip(t.music.nextTrack));
-    await tester.tap(find.byTooltip(t.music.stopPlayback));
-
-    expect(service.previousCalls, 1);
-    expect(service.toggleCalls, 1);
-    expect(service.nextCalls, 1);
-    expect(service.stopCalls, 1);
-    expect(navigatorObserver.pushedRoutes.where((route) => route.settings.name == kNowPlayingRouteName), isEmpty);
-  });
-
-  testWidgets('desktop close icon alone is 20px while transport icons remain 24px', (tester) async {
-    final service = _FakeMusicService(track: _track);
-    final observer = MusicUiRouteObserver();
-
-    await tester.pumpWidget(wrap(service: service, observer: observer, platform: TargetPlatform.macOS));
-    await tester.pumpAndSettle();
-
-    final icons = tester
-        .widgetList<AppIcon>(find.descendant(of: find.byType(FocusableActionBar), matching: find.byType(AppIcon)))
-        .toList();
-
-    expect(icons, hasLength(4));
-    expect(icons.singleWhere((icon) => icon.icon == Symbols.close_rounded).size, 20);
-    expect(icons.where((icon) => icon.icon != Symbols.close_rounded).map((icon) => icon.size), everyElement(24));
-  });
-
   testWidgets('keyboard long-press anchors the context menu to the focused card instead of a stale pointer', (
     tester,
   ) async {
@@ -485,7 +446,7 @@ void main() {
   });
 
   testWidgets('never renders on TV', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final service = _FakeMusicService(track: _track);
     final observer = MusicUiRouteObserver();
 

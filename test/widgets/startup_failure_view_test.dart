@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/i18n/strings.g.dart';
 import 'package:plezy/services/app_exit_service.dart';
 import 'package:plezy/services/startup_diagnostics.dart';
-import 'package:plezy/utils/platform_detector.dart';
 import 'package:plezy/widgets/startup_failure_view.dart';
 
 StartupFailureRecord _record() => StartupFailureRecord(
@@ -53,7 +52,6 @@ bool _hasFocus(WidgetTester tester, Key key) =>
 void main() {
   setUpAll(() => LocaleSettings.setLocaleSync(AppLocale.en));
 
-  tearDown(() => PlatformDetector.debugSetIsDesktopOSOverride(null));
   testWidgets('the ordinary failure offers retry and repair', (tester) async {
     await _pumpView(tester, restartRequired: false);
 
@@ -101,45 +99,9 @@ void main() {
     expect(find.text(t.startup.restartRequiredBody), findsOneWidget);
   });
 
-  testWidgets('the desktop quit button asks the platform to exit', (tester) async {
-    PlatformDetector.debugSetIsDesktopOSOverride(true);
-    var exitRequests = 0;
-
-    await _pumpView(
-      tester,
-      restartRequired: true,
-      onExitRequested: () async {
-        exitRequests++;
-        return true;
-      },
-    );
-
-    expect(find.byKey(startupFailureQuitKey), findsOneWidget);
-    await tester.tap(find.byKey(startupFailureQuitKey));
-    await tester.pump();
-
-    expect(exitRequests, 1);
-  });
-
-  testWidgets('a platform that refuses to quit does not break the screen', (tester) async {
-    PlatformDetector.debugSetIsDesktopOSOverride(true);
-
-    await _pumpView(tester, restartRequired: true, onExitRequested: () async => throw StateError('no'));
-
-    await tester.tap(find.byKey(startupFailureQuitKey));
-    await tester.pump();
-
-    // The instruction is still on screen; the window controls remain the
-    // user's fallback.
-    expect(find.text(t.startup.restartRequiredBody), findsOneWidget);
-  });
-
-  testWidgets('a non-desktop host gets the instruction without a quit button', (tester) async {
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
-
+  testWidgets('a pending restart shows the restart instruction', (tester) async {
     await _pumpView(tester, restartRequired: true);
 
-    expect(find.byKey(startupFailureQuitKey), findsNothing);
     expect(find.text(t.startup.restartRequiredBody), findsOneWidget);
   });
 }

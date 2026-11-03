@@ -100,50 +100,12 @@ void main() {
     expect(sheetSize.width, 700);
   });
 
-  testWidgets('a tall desktop window clamps the sheet to the absolute ceiling, a tall phone does not', (tester) async {
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.reset);
-    // Pin both gates the ceiling reads, not just the OS one.
-    PlatformDetector.debugSetIsDesktopOSOverride(true);
-    TvDetectionService.debugSetAppleTVOverride(false);
-    addTearDown(() {
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
-      TvDetectionService.debugSetAppleTVOverride(null);
-    });
-
-    // 1440p desktop: 75% would be 1080px, which reads as a wall of list.
-    tester.view.physicalSize = const Size(2560, 1440);
-    final controller = await _pumpIdleHost(tester);
-    unawaited(
-      controller.show<void>(
-        builder: (_) => const BottomSheetPageScaffold(title: 'Many', child: _FixedRowList(rowCount: 200)),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(tester.getSize(find.byType(BottomSheetPageScaffold)).height, 720);
-
-    controller.close();
-    await tester.pumpAndSettle();
-
-    // Narrow viewports keep the plain 75% rule: the ceiling is windows-only.
-    tester.view.physicalSize = const Size(400, 1200);
-    unawaited(
-      controller.show<void>(
-        builder: (_) => const BottomSheetPageScaffold(title: 'Many', child: _FixedRowList(rowCount: 200)),
-      ),
-    );
-    await tester.pumpAndSettle();
-    expect(tester.getSize(find.byType(BottomSheetPageScaffold)).height, 1200 * 0.75);
-  });
-
   testWidgets('a portrait tablet keeps the full 75% height — the ceiling is for resizable windows', (tester) async {
     // Wide enough for the 700px width cap, but not a window the user can drag
     // taller, so the absolute ceiling must not apply.
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     addTearDown(() {
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
     });
     tester.view.physicalSize = const Size(1024, 1366);
     tester.view.devicePixelRatio = 1.0;
@@ -163,11 +125,9 @@ void main() {
   });
 
   testWidgets('TV keeps the full 75% height — the ceiling is for resizable windows', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    PlatformDetector.debugSetIsDesktopOSOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     addTearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
     });
     tester.view.physicalSize = const Size(1920, 1080);
     tester.view.devicePixelRatio = 1.0;
@@ -181,16 +141,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // A 10-foot UI wants every row it can get: 810, not the 720 window ceiling.
+    // A 10-foot UI wants every row it can get.
     expect(tester.getSize(find.byType(BottomSheetPageScaffold)).height, 1080 * 0.75);
   });
 
   testWidgets('the hostless modal fallback inherits the same sizing rules', (tester) async {
-    PlatformDetector.debugSetIsDesktopOSOverride(true);
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     addTearDown(() {
-      PlatformDetector.debugSetIsDesktopOSOverride(null);
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
     });
     tester.view.physicalSize = const Size(2560, 1440);
     tester.view.devicePixelRatio = 1.0;
@@ -221,7 +179,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final size = tester.getSize(find.byType(BottomSheetPageScaffold));
-    expect(size.height, 720);
+    expect(size.height, 1440 * 0.75);
     expect(size.width, 700);
   });
 
@@ -778,8 +736,8 @@ void main() {
     testWidgets('system back does not duplicate a handled TV key Back on an open sheet', (tester) async {
       // The dedup is TV-only, so the override has to be on for this to be the
       // TV contract rather than an accidental cross-platform assertion.
-      TvDetectionService.debugSetAppleTVOverride(true);
-      addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+      TvDetectionService.debugSetTvOverride(true);
+      addTearDown(() => TvDetectionService.debugSetTvOverride(null));
       var backs = 0;
       await pushHost(tester, canPop: false, onSystemBack: () => backs++);
       await tester.tap(find.text('Open'));
@@ -820,8 +778,8 @@ void main() {
       // TV-only: the dedup this exercises is skipped on touch platforms, so
       // without the override the pop would never consult the marker and the
       // post-frame expiry would go untested.
-      TvDetectionService.debugSetAppleTVOverride(true);
-      addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+      TvDetectionService.debugSetTvOverride(true);
+      addTearDown(() => TvDetectionService.debugSetTvOverride(null));
       var backs = 0;
       await pushHost(tester, canPop: false, onSystemBack: () => backs++);
       await tester.tap(find.text('Open'));

@@ -59,12 +59,12 @@ void main() {
     resetSharedPreferencesForTest();
     SettingsService.resetForTesting();
     LocaleSettings.setLocaleSync(AppLocale.en);
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     BackKeyCoordinator.clear();
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     BackKeyCoordinator.clear();
   });
 
@@ -142,7 +142,7 @@ void main() {
         serverName: 'Server',
       ),
     ]);
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await SettingsService.instance.write(SettingsService.tvFullCardLayout, true);
 
     await tester.pumpWidget(
@@ -223,36 +223,10 @@ void main() {
     expect(scrollable.position.pixels, 0);
   });
 
-  testWidgets('pushed iOS playlist route allows native pop gesture', (tester) async {
-    final harness = await _createHarness(_mediaItems(1));
-    MaterialPageRoute<void>? playlistRoute;
-
-    await tester.pumpWidget(
-      harness.wrap(
-        Builder(
-          builder: (context) => TextButton(
-            onPressed: () {
-              playlistRoute = MaterialPageRoute<void>(builder: (_) => const PlaylistDetailScreen(playlist: _playlist));
-              Navigator.of(context).push(playlistRoute!);
-            },
-            child: const Text('Open playlist'),
-          ),
-        ),
-        platform: TargetPlatform.iOS,
-      ),
-    );
-
-    await tester.tap(find.text('Open playlist'));
-    await tester.pumpAndSettle();
-
-    expect(playlistRoute, isNotNull);
-    expect(playlistRoute!.popGestureEnabled, isTrue);
-  });
-
   testWidgets('playlist adaptive sheet stays in-tree and system or D-pad Back closes it before the route', (
     tester,
   ) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final harness = await _createHarness(_mediaItems(2));
     await _pushPlaylistRoute(tester, harness);
 

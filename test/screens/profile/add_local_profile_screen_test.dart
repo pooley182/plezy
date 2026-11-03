@@ -13,17 +13,15 @@ void main() {
 
   setUp(() {
     resetSharedPreferencesForTest();
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     // Simulated TV device: the test host's desktop OS must not leak into
     // InputModeTracker's desktop force-TV exemption.
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
     LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     TvDetectionService.setForceTVSync(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
   });
 
   testWidgets('D-pad leaves profile name input and reaches actions', (tester) async {
@@ -63,7 +61,7 @@ void main() {
   });
 
   testWidgets('Android TV native keyboard done leaves profile name input', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     await TvDetectionService.getInstance(forceTv: true);
     TvDetectionService.setForceTVSync(true);
 

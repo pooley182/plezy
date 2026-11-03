@@ -1,4 +1,3 @@
-import 'dart:io' show Platform;
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -11,34 +10,25 @@ import '../media/media_item_types.dart';
 import '../media/media_kind.dart';
 import '../media/media_server_client.dart';
 import '../utils/app_logger.dart';
-import '../utils/platform_detector.dart';
-import 'jellyfin_client.dart';
-import 'plex_client.dart';
 import 'settings_service.dart' show EpisodePosterMode;
 
 /// Syncs Continue Watching content to platform launcher surfaces.
 ///
-/// Android uses the Watch Next row. tvOS uses the app's Top Shelf extension.
+/// Android uses the Watch Next row.
 class SystemShelfService {
   static const int schemaVersion = 3;
   static const MethodChannel _androidChannel = MethodChannel('com.plezy/watch_next');
-  static const MethodChannel _tvosChannel = MethodChannel('com.plezy/system_shelf');
-  static const bool _tvosBuild = bool.fromEnvironment('TVOS_BUILD');
 
   static final SystemShelfService _instance = SystemShelfService._internal();
   static SystemShelfService? _testingInstance;
   factory SystemShelfService() => _testingInstance ?? _instance;
 
-  SystemShelfService._internal() : _channelOverride = null, _supportOverride = null, _tvosTargetOverride = null;
+  SystemShelfService._internal() : _channelOverride = null, _supportOverride = null;
 
   @visibleForTesting
-  SystemShelfService.forTesting({
-    required MethodChannel channel,
-    Future<bool> Function()? isSupported,
-    bool Function()? isTvosTarget,
-  }) : _channelOverride = channel,
-       _supportOverride = isSupported,
-       _tvosTargetOverride = isTvosTarget;
+  SystemShelfService.forTesting({required MethodChannel channel, Future<bool> Function()? isSupported})
+    : _channelOverride = channel,
+      _supportOverride = isSupported;
 
   @visibleForTesting
   static void debugOverrideInstance(SystemShelfService? service) {
@@ -47,7 +37,6 @@ class SystemShelfService {
 
   final MethodChannel? _channelOverride;
   final Future<bool> Function()? _supportOverride;
-  final bool Function()? _tvosTargetOverride;
 
   String? _activeOwner;
   int _generation = 0;
@@ -72,21 +61,10 @@ class SystemShelfService {
     _mutationTail = Future<void>.value();
   }
 
-  /// Whether this process targets the tvOS Top Shelf (as opposed to the
-  /// Android Watch Next row). Decides artwork geometry and which native
-  /// surface receives server sources.
-  bool get _isTvosTarget {
-    final override = _tvosTargetOverride;
-    if (override != null) return override();
-    return Platform.isIOS && (_tvosBuild || PlatformDetector.isAppleTV());
-  }
-
   MethodChannel? get _channel {
     final override = _channelOverride;
     if (override != null) return override;
-    if (Platform.isAndroid) return _androidChannel;
-    if (_isTvosTarget) return _tvosChannel;
-    return null;
+    return _androidChannel;
   }
 
   /// Establishes the only owner allowed to publish launcher shelf state.
@@ -245,79 +223,6 @@ class SystemShelfService {
     return result ?? false;
   }
 
-  /// Publish live server connection sources to the tvOS Top Shelf extension so
-  /// it can fetch Continue Watching itself. tvOS-only: Android's Watch Next
-  /// row is refreshed by the app process instead, so this is a no-op there.
-  Future<bool> syncServerSources(
-    String profileId,
-    List<MediaServerClient> clients, {
-    EpisodePosterMode episodePosterMode = EpisodePosterMode.seriesPoster,
-  }) async {
-    if (!_isTvosTarget) return false;
-    final channel = _channel;
-    if (channel == null || _activeOwner != profileId) return false;
-    final generation = _generation;
-
-    final servers = clients.map(_describeServerSource).nonNulls.toList(growable: false);
-    final result = await _enqueueMutation<bool>(() async {
-      if (!_owns(profileId, generation)) return false;
-      return await _invokeGuarded<bool>(
-            channel,
-            'updateSources',
-            arguments: _envelope(profileId, generation, {
-              'servers': servers,
-              'maxItems': 20,
-              'sectionTitle': t.discover.continueWatching,
-              'episodePoster': episodePosterMode == EpisodePosterMode.seasonPoster ? 'season' : 'series',
-            }),
-            label: 'Failed to update system shelf sources',
-            severe: true,
-          ) ??
-          false;
-    });
-    return result ?? false;
-  }
-
-  /// The Top Shelf fills 2:3 poster slots, so an episode shows its season
-  /// poster only when that is the viewer's episode poster setting. Every
-  /// other setting gets the series poster, as in Plex's own client (#2377):
-  /// an episode still cannot fill a poster slot.
-  static EpisodePosterMode _topShelfPosterMode(EpisodePosterMode mode) =>
-      mode == EpisodePosterMode.seasonPoster ? EpisodePosterMode.seasonPoster : EpisodePosterMode.seriesPoster;
-
-  /// Backend-specific escape hatch: the Top Shelf extension talks to servers
-  /// directly, which needs the raw connection credentials the neutral
-  /// [MediaServerClient] interface deliberately hides. Unknown client types
-  /// and clients without a usable base URL or token are skipped.
-  static Map<String, dynamic>? _describeServerSource(MediaServerClient client) {
-    final String kind;
-    final String baseUrl;
-    final String? token;
-    String? userId;
-    if (client is PlexClient) {
-      kind = 'plex';
-      baseUrl = client.config.baseUrl;
-      token = client.config.token;
-    } else if (client is JellyfinClient) {
-      final connection = client.connection;
-      kind = connection.dialect.name;
-      baseUrl = connection.baseUrl;
-      token = connection.accessToken;
-      userId = connection.userId;
-    } else {
-      return null;
-    }
-    if (baseUrl.isEmpty || token == null || token.isEmpty) return null;
-    return {
-      'serverId': client.serverId,
-      'kind': kind,
-      'name': client.serverName ?? '',
-      'baseUrl': baseUrl,
-      'token': token,
-      'userId': ?userId,
-    };
-  }
-
   /// Build a content ID. Format: plezy_{serverId}_{ratingKey}
   static String _buildContentId(ServerId? serverId, String ratingKey) {
     return 'plezy_${serverId ?? 'unknown'}_$ratingKey';
@@ -344,22 +249,12 @@ class SystemShelfService {
       if (item.serverId != null) {
         final client = getClientForServerId(ServerId(item.serverId!));
         String? thumbPath;
-        if (_isTvosTarget) {
-          // The Top Shelf renders 2:3 posters: the series (or season) poster
-          // chain, then the item's own thumb. Posters cannot spoil, so the
-          // spoiler-safe override does not apply here.
-          thumbPath = item.posterThumb(mode: _topShelfPosterMode(episodePosterMode));
-          if (thumbPath != null) {
-            posterSourceUri = client.thumbnailUrl(thumbPath, width: 600, height: 900);
-          }
-        } else {
-          if (hideSpoilers && item.shouldHideSpoiler) {
-            thumbPath = item.spoilerSafeArt;
-          }
-          thumbPath ??= item.posterThumb(mode: EpisodePosterMode.episodeThumbnail, mixedHubContext: true);
-          if (thumbPath != null) {
-            posterSourceUri = client.thumbnailUrl(thumbPath, width: 640, height: 360);
-          }
+        if (hideSpoilers && item.shouldHideSpoiler) {
+          thumbPath = item.spoilerSafeArt;
+        }
+        thumbPath ??= item.posterThumb(mode: EpisodePosterMode.episodeThumbnail, mixedHubContext: true);
+        if (thumbPath != null) {
+          posterSourceUri = client.thumbnailUrl(thumbPath, width: 640, height: 360);
         }
       }
     } catch (_) {

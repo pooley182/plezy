@@ -1,5 +1,4 @@
 import 'dart:async' show StreamSubscription, Timer, unawaited;
-import 'dart:io' show Platform;
 
 import '../../media/ids.dart';
 
@@ -18,12 +17,9 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:rate_limiter/rate_limiter.dart';
 import 'package:flutter/services.dart'
     show LogicalKeyboardKey, PhysicalKeyboardKey, KeyEvent, KeyDownEvent, KeyUpEvent, KeyRepeatEvent, HardwareKeyboard;
-import '../../services/fullscreen_state_manager.dart';
-import '../../services/macos_window_service.dart';
 import '../../services/pip_service.dart';
 import '../../services/playback_initialization_types.dart';
 import '../../services/playback_subtitle_resolver.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '../../mixins/listenable_bindings_mixin.dart';
 import '../../mixins/mounted_set_state_mixin.dart';
@@ -75,7 +71,6 @@ import 'widgets/double_tap_feedback.dart';
 import 'helpers/mobile_edge_adjustment_tracker.dart';
 import 'helpers/render_geometry.dart';
 import 'helpers/two_finger_tap_tracker.dart';
-import 'widgets/linux_keep_alive.dart';
 import 'widgets/mobile_edge_adjustment_indicator.dart';
 import 'widgets/mobile_skip_zones.dart';
 import 'widgets/skip_marker_button.dart';
@@ -281,15 +276,7 @@ DirectionalShortcutFocusNode playerSurfaceFocusNode(
 
 enum PlayerNavigationKey { none, physicalEscape, back, home }
 
-enum PlayerBackDisposition { closeContentStrip, exitFullscreenIfActive, hideControls, exitPlayer }
-
-bool shouldPhysicalEscapeExitFullscreen({
-  required bool isMacOS,
-  required bool videoPlayerNavigationEnabled,
-  required bool playerEnteredFullscreen,
-}) {
-  return !isMacOS && !videoPlayerNavigationEnabled && playerEnteredFullscreen;
-}
+enum PlayerBackDisposition { closeContentStrip, hideControls, exitPlayer }
 
 /// Coordinates the player-level stages shared by keyboard, controller, and
 /// companion navigation after descendants have handled local overlays.
@@ -303,34 +290,26 @@ class PlayerNavigationCoordinator {
   /// player in one press instead of uncovering the dead last frame (#2686).
   final bool Function() _backLeavesPrompt;
   final bool Function() isChromePresented;
-  final Future<bool> Function() exitFullscreenIfActive;
-  final bool Function() _physicalEscapeExitsFullscreen;
   final bool Function() _exitPlayerBeforeChrome;
   final VoidCallback exitPlayer;
   final VoidCallback navigateHome;
   final bool Function() isActive;
-
-  bool _handlingPhysicalEscape = false;
 
   PlayerNavigationCoordinator({
     required this.chromeController,
     required this.isPromptOpen,
     required this.dismissPrompt,
     required this.isChromePresented,
-    required this.exitFullscreenIfActive,
-    bool Function()? physicalEscapeExitsFullscreen,
     bool Function()? exitPlayerBeforeChrome,
     bool Function()? backLeavesPrompt,
     required this.exitPlayer,
     required this.navigateHome,
     bool Function()? isActive,
-  }) : _physicalEscapeExitsFullscreen = physicalEscapeExitsFullscreen ?? _alwaysTrue,
-       _exitPlayerBeforeChrome = exitPlayerBeforeChrome ?? _alwaysFalse,
+  }) : _exitPlayerBeforeChrome = exitPlayerBeforeChrome ?? _alwaysFalse,
        _backLeavesPrompt = backLeavesPrompt ?? _alwaysFalse,
        isActive = isActive ?? _alwaysActive;
 
   static bool _alwaysActive() => true;
-  static bool _alwaysTrue() => true;
   static bool _alwaysFalse() => false;
 
   void handle(PlayerNavigationKey navigationKey) {
@@ -339,10 +318,7 @@ class PlayerNavigationCoordinator {
       return;
     }
     if (isPromptOpen()) {
-      // A physical Escape is Back unless it owns fullscreen, the same split
-      // [resolvePlayerBackDisposition] makes.
-      final isBack = navigationKey == PlayerNavigationKey.back || !_physicalEscapeExitsFullscreen();
-      if (isBack && _backLeavesPrompt()) {
+      if (_backLeavesPrompt()) {
         exitPlayer();
       } else {
         dismissPrompt();
@@ -359,7 +335,6 @@ class PlayerNavigationCoordinator {
       navigationKey: navigationKey,
       contentStripVisible: chromeController.contentStripVisible,
       controlsVisible: isChromePresented(),
-      physicalEscapeExitsFullscreen: _physicalEscapeExitsFullscreen(),
     );
     _applyDisposition(disposition);
   }
@@ -369,33 +344,12 @@ class PlayerNavigationCoordinator {
       case PlayerBackDisposition.closeContentStrip:
         chromeController.setContentStripVisible(false);
         return;
-      case PlayerBackDisposition.exitFullscreenIfActive:
-        unawaited(_handlePhysicalEscape());
-        return;
       case PlayerBackDisposition.hideControls:
         chromeController.hide();
         return;
       case PlayerBackDisposition.exitPlayer:
         exitPlayer();
         return;
-    }
-  }
-
-  Future<void> _handlePhysicalEscape() async {
-    if (_handlingPhysicalEscape) return;
-    _handlingPhysicalEscape = true;
-    final chromeWasPresented = isChromePresented();
-    try {
-      if (await exitFullscreenIfActive()) return;
-      if (!isActive()) return;
-      final disposition = resolvePlayerBackDisposition(
-        navigationKey: PlayerNavigationKey.back,
-        contentStripVisible: chromeController.contentStripVisible,
-        controlsVisible: chromeWasPresented || isChromePresented(),
-      );
-      _applyDisposition(disposition);
-    } finally {
-      _handlingPhysicalEscape = false;
     }
   }
 }
@@ -412,12 +366,9 @@ class PlayerNavigationCoordinator {
 /// eating a guest's exit press for a control they cannot operate is worse than
 /// leaving the prompt up.
 ///
-/// Both Back flavours count. A local layer takes the dismiss key ahead of the
-/// screen's fullscreen and exit stages, the same way an open sheet already
-/// swallows a physical Escape — and Escape is only a fullscreen key when
-/// [shouldPhysicalEscapeExitFullscreen] holds, so excluding it would leave it
-/// exiting the player outright on macOS, on a windowed player, or with player
-/// navigation turned on.
+/// Both Back flavours count: a local layer takes the dismiss key ahead of the
+/// screen's exit stage, the same way an open sheet already swallows a
+/// physical Escape.
 ///
 /// Phones are excluded: there Back is unconditionally "leave the player"
 /// (#1938), and a stage sitting above the coordinator would quietly revoke
@@ -443,13 +394,9 @@ PlayerBackDisposition resolvePlayerBackDisposition({
   required PlayerNavigationKey navigationKey,
   required bool contentStripVisible,
   required bool controlsVisible,
-  bool physicalEscapeExitsFullscreen = true,
 }) {
   assert(navigationKey == PlayerNavigationKey.physicalEscape || navigationKey == PlayerNavigationKey.back);
   if (contentStripVisible) return PlayerBackDisposition.closeContentStrip;
-  if (navigationKey == PlayerNavigationKey.physicalEscape && physicalEscapeExitsFullscreen) {
-    return PlayerBackDisposition.exitFullscreenIfActive;
-  }
   return controlsVisible ? PlayerBackDisposition.hideControls : PlayerBackDisposition.exitPlayer;
 }
 
@@ -463,15 +410,10 @@ PlayerBackDisposition resolvePlayerBackDisposition({
 /// are surrendered: a synthesized dpad/gamepad/companion press has no caret,
 /// and [LogicalKeyboardKey.browserHome] is a dedicated navigation key with no
 /// editing role at all.
-PlayerNavigationKey classifyPlayerNavigationKey(
-  KeyEvent event, {
-  required bool isAppleTV,
-  bool? hasModifiers,
-  bool? textEditingActive,
-}) {
+PlayerNavigationKey classifyPlayerNavigationKey(KeyEvent event, {bool? hasModifiers, bool? textEditingActive}) {
   final key = event.logicalKey;
   if (key == LogicalKeyboardKey.escape) {
-    return event.isPhysicalKeyboardEvent && !isAppleTV ? PlayerNavigationKey.physicalEscape : PlayerNavigationKey.back;
+    return event.isPhysicalKeyboardEvent ? PlayerNavigationKey.physicalEscape : PlayerNavigationKey.back;
   }
   if (key.isBackKey) return PlayerNavigationKey.back;
 
@@ -502,10 +444,9 @@ bool primePlayerNavigationFocusForEvent(
   required FocusNode focusNode,
   required bool playerReady,
   required bool isCurrentRoute,
-  required bool isAppleTV,
 }) {
   if (!isCurrentRoute || playerReady || event is! KeyDownEvent) return false;
-  if (classifyPlayerNavigationKey(event, isAppleTV: isAppleTV) == PlayerNavigationKey.none) {
+  if (classifyPlayerNavigationKey(event) == PlayerNavigationKey.none) {
     return false;
   }
   focusNode.requestFocus();
@@ -519,9 +460,8 @@ KeyEventResult handlePlayerNavigationKeyAction(
 ) {
   if (navigationKey == PlayerNavigationKey.none) return KeyEventResult.ignored;
 
-  // macOS may also translate Backspace / Escape / browser Back into a route
-  // pop on key-down. Suppress that parallel path before the player performs
-  // its single staged action on key-up.
+  // Suppress a parallel route pop on key-down before the player performs its
+  // single staged action on key-up.
   if (navigationKey != PlayerNavigationKey.home && event is KeyDownEvent) {
     BackKeyCoordinator.markHandled();
   }
@@ -765,8 +705,7 @@ class PlexVideoControls extends StatefulWidget {
   State<PlexVideoControls> createState() => _PlexVideoControlsState();
 }
 
-class _PlexVideoControlsState extends State<PlexVideoControls>
-    with WindowListener, ListenableBindingsMixin, MountedSetStateMixin {
+class _PlexVideoControlsState extends State<PlexVideoControls> with ListenableBindingsMixin, MountedSetStateMixin {
   bool get _showControls => widget.chromeController.controlsVisible;
   bool get _hasRenderedFirstFrame => widget.hasFirstFrame?.value ?? true;
 
@@ -780,7 +719,6 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
   String? _extrasLoadKey;
   late List<MediaChapter> _chapters = widget.initialChapters ?? [];
   late bool _chaptersLoaded = widget.initialChapters != null;
-  bool _isAlwaysOnTop = false;
   late final FocusNode _focusNode;
   KeyboardShortcutsService? _keyboardService;
   // Live settings — read through the service so a change anywhere in the app
@@ -799,7 +737,6 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
   bool _isScreenLocked = false; // Touch lock during playback
   bool get _clickVideoTogglesPlayback => _settings.read(SettingsService.clickVideoTogglesPlayback);
   bool get _showChapterMarkersOnTimeline => _settings.read(SettingsService.showChapterMarkersOnTimeline);
-  int _trafficLightVisibilityGeneration = 0;
 
   // GlobalKey to access DesktopVideoControls state for focus management
   final GlobalKey<DesktopVideoControlsState> _desktopControlsKey = GlobalKey<DesktopVideoControlsState>();
@@ -993,14 +930,6 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
       onHide: _cancelEdgeAdjustmentGesture,
       onPause: _cancelEdgeAdjustmentGesture,
     );
-    if (PlatformDetector.isDesktopOS()) {
-      // Fullscreen chrome (the button icon, the macOS traffic lights) follows
-      // the manager on every desktop OS: window_manager never sees the Windows
-      // transition, which goes through the native Win32 channel (#2267).
-      bindListenable(FullscreenStateManager(), _onFullscreenStateChanged);
-      windowManager.addListener(this);
-      _initAlwaysOnTopState();
-    }
 
     // Register global key handler for focus-independent shortcuts (desktop only)
     final globalKeyHandler = _handleGlobalKeyEvent;
@@ -1130,27 +1059,7 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
       widget.player.setRate(_rateBeforeLongPress!);
     }
     // Remove window listener and reset always-on-top if it was enabled
-    if (PlatformDetector.isDesktopOS()) {
-      windowManager.removeListener(this);
-      if (_isAlwaysOnTop) {
-        windowManager.setAlwaysOnTop(false);
-      }
-    }
-    if (Platform.isMacOS) {
-      _trafficLightVisibilityGeneration++;
-      unawaited(MacOSWindowService.setTrafficLightsVisible(true));
-    }
     super.dispose();
-  }
-
-  /// [FullscreenStateManager] is the single source of desktop fullscreen truth
-  /// — macOS reports through its NSWindowDelegate, Windows through the native
-  /// Win32 channel, Linux through window_manager — and it only notifies on a
-  /// real change, so this just rebuilds the chrome that reads it.
-  void _onFullscreenStateChanged() {
-    if (!mounted) return;
-    _setControlsState(() {});
-    if (Platform.isMacOS) _updateTrafficLightVisibility();
   }
 
   void _onEdgeAdjustmentPipChanged() {
@@ -1164,31 +1073,6 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
     }
   }
 
-  /// Re-activating the window drops Flutter's primary focus to the root scope,
-  /// and the enclosing player screen reclaims it onto its own node. Nothing
-  /// hands it back down while the chrome stays visible — the hide transition is
-  /// the only other handoff — so the next arrow key reaches the screen's
-  /// self-heal and jumps focus into the OSD (#1797). Take the surface back
-  /// unless a control below already owns it.
-  @override
-  void onWindowFocus() {
-    // Claim now rather than post-frame: this arrives on a platform callback,
-    // which is not guaranteed to be followed by a frame. The screen's own
-    // reclaim re-tests `hasFocus` when it runs, so once the surface holds the
-    // remote the two no longer compete.
-    if (!mounted || _focusNode.hasFocus) return;
-    // A route pushed above the player on this navigator still leaves these
-    // controls mounted; re-activating the window must not pull the remote off
-    // the top route. (A root-navigator cover is handled for the whole session
-    // by CoveredRouteFocusBoundary, which makes the claim a no-op.)
-    if (ModalRoute.of(context)?.isCurrent != true) return;
-    _claimPlayerSurfaceFocus();
-  }
-
-  @override
-  // ignore: no-empty-block - required by WindowListener interface
-  void onWindowResize() {}
-
   @override
   Widget build(BuildContext context) {
     final isMobile = PlatformDetector.isMobile(context) && !PlatformDetector.isTV();
@@ -1197,11 +1081,11 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
     // behind a fully transparent widget.
     final performanceOverlayVisible = !_autoHidePerformanceOverlay || _showControls;
 
-    // Hide ALL controls when in PiP mode (except macOS where main window stays visible)
+    // Hide ALL controls when in PiP mode
     return ValueListenableBuilder<bool>(
       valueListenable: _pipService.isPipActive,
       builder: (context, isInPip, _) {
-        if (isInPip && !Platform.isMacOS) return const SizedBox.shrink();
+        if (isInPip) return const SizedBox.shrink();
         return Focus(
           focusNode: _focusNode,
           autofocus: true,
@@ -1227,11 +1111,6 @@ class _PlexVideoControlsState extends State<PlexVideoControls>
               onHover: (_) => _showControlsFromPointerActivity(),
               child: Stack(
                 children: [
-                  // Keep-alive for Linux's idle GTK frame clock; inert on every
-                  // other platform (the widget owns the platform decision).
-                  // Windows must NOT tick here: forced repaints during playback
-                  // perturb VRR scanout in fullscreen (#1707).
-                  const Positioned(top: 0, left: 0, child: LinuxKeepAlive()),
                   // Also handles long-press for 2x speed.
                   Positioned.fill(
                     child: Semantics(

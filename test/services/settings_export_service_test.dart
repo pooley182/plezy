@@ -172,30 +172,14 @@ void main() {
     test('does not export any user-scoped value without an active user', () async {
       final prefs = await BaseSharedPreferencesService.sharedCache();
       await prefs.setString('user_alice_library_order', jsonEncode(['movies']));
-      await prefs.setBool('enable_hdr', true);
+      await prefs.setBool('audio_normalization', true);
 
       final exported = SettingsExportService.buildExportMap(prefs)['prefs'] as Map<String, dynamic>;
 
-      expect(exported, contains('enable_hdr'));
+      expect(exported, contains('audio_normalization'));
       expect(exported, isNot(contains('library_order')));
     });
 
-    test('never exports tvOS database recovery generations or payloads', () async {
-      const canary = 'PROTECTED-RECOVERY-PAYLOAD-CANARY';
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-      await prefs.setString('tvos_db_recovery_manifest_v1', '{"state":"committed"}');
-      await prefs.setString('tvos_db_recovery_identity_v1', canary);
-      await prefs.setString('tvos_db_recovery_pending_v1', canary);
-      await prefs.setBool('enable_hdr', true);
-
-      final export = SettingsExportService.buildExportMap(prefs, currentUserUuid: 'alice');
-      final encoded = jsonEncode(export);
-      final exported = export['prefs'] as Map<String, dynamic>;
-
-      expect(exported, contains('enable_hdr'));
-      expect(exported.keys.where((key) => key.startsWith('tvos_db_recovery_')), isEmpty);
-      expect(encoded, isNot(contains(canary)));
-    });
     test('exports cold-start string lists while rejecting lists with non-string elements', () async {
       resetSharedPreferencesForTest(
         initialAsync: {
@@ -549,7 +533,7 @@ void main() {
         ),
         throwsA(isA<InvalidExportFileException>()),
       );
-      expect(prefs.getBool('enable_hdr'), isNull);
+      expect(prefs.getBool('audio_normalization'), isNull);
     });
 
     test('round-trips both filter modes and IDs for every tracker service', () async {
@@ -782,7 +766,7 @@ void main() {
         {
           'formatVersion': SettingsExportService.formatVersion,
           'prefs': {
-            'enable_hdr': {'type': 'bool', 'value': 'yes'},
+            'audio_normalization': {'type': 'bool', 'value': 'yes'},
             'seek_time_small': {'type': 'string', 'value': '10'},
             'volume': {'value': 50},
             'preferred_video_codec': 'not-an-entry',
@@ -796,7 +780,7 @@ void main() {
       expect(result.keysImported, 1);
       expect(result.keysSkipped, 4);
       expect(prefs.getBool('enable_hardware_decoding'), isTrue);
-      expect(prefs.getBool('enable_hdr'), isNull);
+      expect(prefs.getBool('audio_normalization'), isNull);
       expect(prefs.getInt('seek_time_small'), isNull);
     });
 
@@ -831,7 +815,7 @@ void main() {
 
     test('rolls every mutation back when a later preference write fails', () async {
       final prefs = await BaseSharedPreferencesService.sharedCache();
-      await prefs.setBool('enable_hdr', false);
+      await prefs.setBool('audio_normalization', false);
       var writes = 0;
       SettingsExportService.debugBeforeImportWrite = (_) {
         writes++;
@@ -843,7 +827,7 @@ void main() {
           {
             'formatVersion': SettingsExportService.formatVersion,
             'prefs': {
-              'enable_hdr': {'type': 'bool', 'value': true},
+              'audio_normalization': {'type': 'bool', 'value': true},
               'seek_time_small': {'type': 'int', 'value': 15},
             },
           },
@@ -853,7 +837,7 @@ void main() {
         throwsA(isA<StateError>()),
       );
 
-      expect(prefs.getBool('enable_hdr'), isFalse);
+      expect(prefs.getBool('audio_normalization'), isFalse);
       expect(prefs.getInt('seek_time_small'), isNull);
     });
 
@@ -877,51 +861,22 @@ void main() {
       expect(prefs.getString('user_alice_hidden_libraries'), isNull);
       expect(prefs.getString('user_alice_library_order'), isNull);
     });
-
-    test('malicious import cannot replace any tvOS database recovery key', () async {
-      const originalManifest = 'LOCAL-MANIFEST';
-      const originalIdentity = 'LOCAL-IDENTITY';
-      const originalPending = 'LOCAL-PENDING';
-      final prefs = await BaseSharedPreferencesService.sharedCache();
-      await prefs.setString('tvos_db_recovery_manifest_v1', originalManifest);
-      await prefs.setString('tvos_db_recovery_identity_v1', originalIdentity);
-      await prefs.setString('tvos_db_recovery_pending_v1', originalPending);
-
-      final result = await SettingsExportService.applyImportMap(
-        {
-          'formatVersion': SettingsExportService.formatVersion,
-          'prefs': {
-            'tvos_db_recovery_manifest_v1': {'type': 'string', 'value': 'MALICIOUS-MANIFEST'},
-            'tvos_db_recovery_identity_v1': {'type': 'string', 'value': 'MALICIOUS-IDENTITY'},
-            'tvos_db_recovery_pending_v1': {'type': 'string', 'value': 'MALICIOUS-PENDING'},
-          },
-        },
-        prefs,
-        currentUserUuid: 'alice',
-      );
-
-      expect(result.keysImported, 0);
-      expect(result.keysSkipped, 3);
-      expect(prefs.getString('tvos_db_recovery_manifest_v1'), originalManifest);
-      expect(prefs.getString('tvos_db_recovery_identity_v1'), originalIdentity);
-      expect(prefs.getString('tvos_db_recovery_pending_v1'), originalPending);
-    });
   });
 
   group('file orchestration', () {
     Future<void> seedActiveProfile() async {
       final prefs = await BaseSharedPreferencesService.sharedCache();
       await prefs.setString('active_app_profile_id', 'profile-a');
-      await prefs.setBool('enable_hdr', true);
+      await prefs.setBool('audio_normalization', true);
     }
 
-    Uint8List importBytes({bool enableHdr = false}) {
+    Uint8List importBytes({bool audioNormalization = false}) {
       return Uint8List.fromList(
         utf8.encode(
           jsonEncode({
             'formatVersion': SettingsExportService.formatVersion,
             'prefs': {
-              'enable_hdr': {'type': 'bool', 'value': enableHdr},
+              'audio_normalization': {'type': 'bool', 'value': audioNormalization},
             },
           }),
         ),
@@ -939,7 +894,7 @@ void main() {
       expect(picker.lastSaveExtensions, ['json']);
       final decoded = jsonDecode(utf8.decode(picker.lastSaveBytes!)) as Map<String, dynamic>;
       expect(decoded['appVersion'], '1.2.3');
-      expect((decoded['prefs'] as Map)['enable_hdr'], {'type': 'bool', 'value': true});
+      expect((decoded['prefs'] as Map)['audio_normalization'], {'type': 'bool', 'value': true});
     });
 
     test('save cancellation and failure release the picker guard for a later operation', () async {
@@ -963,19 +918,19 @@ void main() {
 
       final memoryResult = await SettingsExportService.importFromFile();
       expect(memoryResult?.keysImported, 1);
-      expect(prefs.getBool('enable_hdr'), isFalse);
+      expect(prefs.getBool('audio_normalization'), isFalse);
 
       final directory = await Directory.systemTemp.createTemp('plezy-settings-import-');
       addTearDown(() => directory.delete(recursive: true));
       final file = File('${directory.path}/settings.json');
-      await file.writeAsBytes(importBytes(enableHdr: true));
+      await file.writeAsBytes(importBytes(audioNormalization: true));
       picker.pickResult = FilePickerResult([
         PlatformFile(name: 'settings.json', size: await file.length(), path: file.path),
       ]);
 
       final pathResult = await SettingsExportService.importFromFile();
       expect(pathResult?.keysImported, 1);
-      expect(prefs.getBool('enable_hdr'), isTrue);
+      expect(prefs.getBool('audio_normalization'), isTrue);
     });
 
     test('picker cancellation, malformed input, and unreadable path release the guard', () async {

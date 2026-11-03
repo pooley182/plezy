@@ -719,9 +719,9 @@ void main() {
 
   group('TV background suspend', () {
     testWidgets('a suspend under the Play Next prompt restores the prompt and its countdown', (tester) async {
-      TvDetectionService.debugSetAppleTVOverride(true);
+      TvDetectionService.debugSetTvOverride(true);
       addTearDown(() {
-        TvDetectionService.debugSetAppleTVOverride(null);
+        TvDetectionService.debugSetTvOverride(null);
       });
 
       await withMockPlayerChannels(
@@ -850,151 +850,6 @@ void main() {
       }
     });
   }
-
-  group('Windows display-switch hold', () {
-    testWidgets('the hold does not reach the Watch Together room', (tester) async {
-      final client = _ReloadClient();
-      final (:watchTogether, :relay) = await hostRoom(tester, client);
-
-      await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
-        testBody: () async {
-          final screen = await pumpReloadScreen(tester, watchTogether: watchTogether, client: client);
-          final fakePlayer = screen.player;
-          screen.key.currentState!.debugBindWatchTogetherForTesting();
-          fakePlayer.emitPlaybackRestart();
-          await tester.pump();
-          await tester.pump(const Duration(seconds: 1));
-          // The room plays the host's file once everyone is ready.
-          expect(relay.phase, 'playing');
-          expect(fakePlayer.state.playing, isTrue);
-          final adapter = screen.key.currentState!.debugWatchTogetherAdapter;
-
-          var held = false;
-          final hold = screen.key.currentState!
-              .debugHoldPlaybackForDisplaySwitchForTesting(const Duration(seconds: 2))
-              .whenComplete(() => held = true);
-          await tester.pump();
-          expect(fakePlayer.state.playing, isFalse, reason: 'playback is held through the delay');
-          await tester.pump(const Duration(seconds: 3));
-          await pumpUntil(tester, () => held);
-          await hold;
-          await tester.pump(const Duration(milliseconds: 300));
-
-          expect(fakePlayer.state.playing, isTrue);
-          expect(relay.sent('pause'), isEmpty, reason: 'the internal hold must not pause the room');
-          expect(relay.phase, 'playing');
-          expect(screen.key.currentState!.debugWatchTogetherAdapter, same(adapter));
-          expect(watchTogether.isFollowing, isTrue, reason: 'the room drives the player again once the hold ends');
-          await closeRooms(tester, [watchTogether]);
-        },
-      );
-    });
-
-    testWidgets('a hold outlasted by a room source reload leaves the room waiting for the reload', (tester) async {
-      final client = _ReloadClient();
-      final (:watchTogether, :relay) = await hostRoom(tester, client);
-
-      await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
-        testBody: () async {
-          final screen = await pumpReloadScreen(tester, watchTogether: watchTogether, client: client);
-          final fakePlayer = screen.player;
-          screen.key.currentState!.debugBindWatchTogetherForTesting();
-          fakePlayer.emitPlaybackRestart();
-          await tester.pump();
-          await tester.pump(const Duration(seconds: 1));
-          expect(watchTogether.isFollowing, isTrue);
-          final adapter = screen.key.currentState!.debugWatchTogetherAdapter;
-
-          var held = false;
-          final hold = screen.key.currentState!
-              .debugHoldPlaybackForDisplaySwitchForTesting(const Duration(seconds: 2))
-              .whenComplete(() => held = true);
-          await tester.pump();
-
-          // The replacement's open is held past the display delay: the reload
-          // is still in flight when the hold's delay runs out.
-          final openGate = Completer<void>();
-          fakePlayer.openGate = openGate;
-          PlaybackSourceChangeOutcome? outcome;
-          final switching = screen.key.currentState!
-              .debugSwitchPlaybackSourceForTesting(newPreset: TranscodeQualityPreset.p720_2mbps)
-              .then((value) => outcome = value);
-          for (var i = 0; i < 400 && fakePlayer.openCalls == 0; i++) {
-            await tester.pump(const Duration(milliseconds: 50));
-            await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 2)));
-          }
-          expect(fakePlayer.openCalls, 1, reason: 'the reload reached its open');
-          await tester.pump(const Duration(seconds: 3));
-
-          expect(outcome, isNull);
-          expect(held, isFalse, reason: 'the hold waits out the reload in flight');
-          expect(watchTogether.state.me?.player, owp.PlayerState.loading, reason: 'the room waits for the reload');
-
-          openGate.complete();
-          for (var i = 0; i < 400 && (outcome == null || !held); i++) {
-            await tester.pump(const Duration(milliseconds: 50));
-            await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 2)));
-          }
-          await switching;
-          await hold;
-          await tester.pump(const Duration(milliseconds: 300));
-
-          expect(outcome, PlaybackSourceChangeOutcome.applied);
-          // Another quality of the same file stays the room's file.
-          expect(screen.key.currentState!.debugWatchTogetherAdapter, same(adapter));
-          expect(watchTogether.isFollowing, isTrue);
-          expect(relay.sent('setMedia'), hasLength(1));
-          expect(relay.sent('pause'), isEmpty);
-          await closeRooms(tester, [watchTogether]);
-        },
-      );
-    });
-
-    testWidgets("a source reload during the hold owns the replacement's play state", (tester) async {
-      await withMockPlayerChannels(
-        methodChannelName: 'com.plezy/mpv_player',
-        eventChannelName: 'com.plezy/mpv_player/events',
-        testBody: () async {
-          final screen = await pumpReloadScreen(tester);
-          final fakePlayer = screen.player;
-          fakePlayer.emitPlaybackRestart();
-          await tester.pump();
-
-          var held = false;
-          final hold = screen.key.currentState!
-              .debugHoldPlaybackForDisplaySwitchForTesting(const Duration(seconds: 2))
-              .whenComplete(() => held = true);
-          await tester.pump();
-          expect(fakePlayer.commandLog, ['pause']);
-
-          // A quality change during the delay reuses the player and keeps the
-          // play intent, so only the playback generation tells the hold its
-          // player now carries another open.
-          PlaybackSourceChangeOutcome? outcome;
-          final switching = screen.key.currentState!
-              .debugSwitchPlaybackSourceForTesting(newPreset: TranscodeQualityPreset.p720_2mbps)
-              .then((value) => outcome = value);
-          for (var i = 0; i < 400 && (outcome == null || !held); i++) {
-            await tester.pump(const Duration(milliseconds: 50));
-            await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 2)));
-          }
-          await switching;
-          await hold;
-
-          expect(fakePlayer.openCalls, 1, reason: 'the reload opened a replacement');
-          expect(
-            fakePlayer.commandLog.where((command) => command == 'play'),
-            isEmpty,
-            reason: 'the superseded hold must not resume the replacement',
-          );
-        },
-      );
-    });
-  });
 
   group('a download in the room', () {
     for (final serverOnline in [true, false]) {
@@ -1166,9 +1021,6 @@ class _ReloadPlayer extends FakeSyncPlayer {
 
   @override
   Future<void> updateFrame() async {}
-
-  @override
-  Future<void> awaitDisplayModeSwitch({int extraDelayMs = 0}) async {}
 
   @override
   Future<bool> requestAudioFocus() async => true;

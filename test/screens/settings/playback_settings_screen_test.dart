@@ -127,8 +127,8 @@ void main() {
   });
 
   testWidgets('audio passthrough is held off and inactive while loudness normalization is on', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1000, 1400);
     addTearDown(tester.view.resetDevicePixelRatio);

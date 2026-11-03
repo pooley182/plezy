@@ -65,42 +65,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
-  auto_updater:
-    dependency: "direct main"
-    description:
-      path: "packages/auto_updater"
-      ref: "9e150f7"
-      resolved-ref: "9e150f71e17495b7361aedbe6df22e89ad52c254"
-      url: "https://github.com/edde746/auto_updater"
-    source: git
-    version: "1.0.0"
-  auto_updater_macos:
-    dependency: "direct overridden"
-    description:
-      path: "packages/auto_updater_macos"
-      ref: "9e150f7"
-      resolved-ref: "9e150f71e17495b7361aedbe6df22e89ad52c254"
-      url: "https://github.com/edde746/auto_updater"
-    source: git
-    version: "1.0.0"
-  auto_updater_platform_interface:
-    dependency: "direct overridden"
-    description:
-      path: "packages/auto_updater_platform_interface"
-      ref: "9e150f7"
-      resolved-ref: "9e150f71e17495b7361aedbe6df22e89ad52c254"
-      url: "https://github.com/edde746/auto_updater"
-    source: git
-    version: "1.0.0"
-  auto_updater_windows:
-    dependency: "direct overridden"
-    description:
-      path: "packages/auto_updater_windows"
-      ref: "9e150f7"
-      resolved-ref: "9e150f71e17495b7361aedbe6df22e89ad52c254"
-      url: "https://github.com/edde746/auto_updater"
-    source: git
-    version: "1.0.0"
   background_downloader:
     dependency: "direct main"
     description:
@@ -312,7 +276,7 @@ packages:
     source: hosted
     version: "4.1.8"
   dart_discord_presence:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: dart_discord_presence
       sha256: "8b1c4b4a75e14e090292a2cb53bc5c205d5f03d6cf43d8386a49ed704f7a99bb"
@@ -580,7 +544,7 @@ packages:
     source: hosted
     version: "1.4.1"
   in_app_purchase_storekit:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: in_app_purchase_storekit
       sha256: "21af88fc18865a7ee4c2468b33a726101b6c034cfe79bd1a1e1d1450a6d3a3a9"
@@ -853,7 +817,7 @@ packages:
     source: hosted
     version: "2.6.0"
   path_provider_linux:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: path_provider_linux
       sha256: "58c2005f147315b11e9b4a7bc889cd5203e250cba8e3f012dae259b4972b5c16"
@@ -869,7 +833,7 @@ packages:
     source: hosted
     version: "2.1.3"
   path_provider_windows:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: path_provider_windows
       sha256: bd6f00dbd873bfb70d0761682da2b3a2c2fccc2b9e84c495821639601d81afe7
@@ -1011,46 +975,6 @@ packages:
       relative: true
     source: path
     version: "3.1.0"
-  screen_retriever:
-    dependency: transitive
-    description:
-      name: screen_retriever
-      sha256: ace919117a7520c13a50a6259e60c4a0d4cbe98809468792a91b5c5adada2aa6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
-  screen_retriever_linux:
-    dependency: transitive
-    description:
-      name: screen_retriever_linux
-      sha256: "7b52006a5ceae1f3d5af7f77188c3290d6e7d8ded16d99809bea84967c65c257"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
-  screen_retriever_macos:
-    dependency: transitive
-    description:
-      name: screen_retriever_macos
-      sha256: a1489b99cce597c45a54b9aae1cd94c8d4705353b7e0bb2457a6e4de44e0ad8a
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
-  screen_retriever_platform_interface:
-    dependency: transitive
-    description:
-      name: screen_retriever_platform_interface
-      sha256: "94a5535277510a63184ca178ce12a1449bc0b38618879aa1c18bf57369c5064a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
-  screen_retriever_windows:
-    dependency: transitive
-    description:
-      name: screen_retriever_windows
-      sha256: dafc6922b0bfbf1d48cf3ccbf519b4fff47bdcb820da1728ea6db675fecc9324
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
   sentry:
     dependency: transitive
     description:
@@ -1092,7 +1016,7 @@ packages:
     source: hosted
     version: "2.4.27"
   shared_preferences_foundation:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shared_preferences_foundation
       sha256: "4e7eaffc2b17ba398759f1151415869a34771ba11ebbccd1b0145472a619a64f"
@@ -1100,11 +1024,12 @@ packages:
     source: hosted
     version: "2.5.6"
   shared_preferences_linux:
-    dependency: "direct dev"
+    dependency: transitive
     description:
-      path: "packages/shared_preferences_linux"
-      relative: true
-    source: path
+      name: shared_preferences_linux
+      sha256: "580abfd40f415611503cae30adf626e6656dfb2f0cee8f465ece7b6defb40f2f"
+      url: "https://pub.dev"
+    source: hosted
     version: "2.4.1"
   shared_preferences_platform_interface:
     dependency: "direct dev"
@@ -1123,11 +1048,12 @@ packages:
     source: hosted
     version: "2.4.3"
   shared_preferences_windows:
-    dependency: "direct dev"
+    dependency: transitive
     description:
-      path: "packages/shared_preferences_windows"
-      relative: true
-    source: path
+      name: shared_preferences_windows
+      sha256: "94ef0f72b2d71bc3e700e025db3710911bd51a71cefb65cc609dd0d9a982e3c1"
+      url: "https://pub.dev"
+    source: hosted
     version: "2.4.1"
   shelf:
     dependency: transitive
@@ -1469,22 +1395,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
-  win_http:
-    dependency: "direct main"
-    description:
-      name: win_http
-      sha256: "82a9270dccdffcda42e162e036079f522fec319227d18c9049cfa7a4f958408f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.3"
-  window_manager:
-    dependency: "direct main"
-    description:
-      name: window_manager
-      sha256: "05c231fd7b23d2380f14c5cc10b7b93d60d4fa4a2fb4e0f032de27e44b5560e9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.2"
   xdg_directories:
     dependency: transitive
     description:

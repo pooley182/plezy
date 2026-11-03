@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../connection/connection.dart';
 import '../connection/connection_registry.dart';
 import '../connection/plex_account_setup.dart';
-import '../database/app_database.dart';
 import '../mixins/controller_disposer_mixin.dart';
 import '../profiles/active_profile_binder.dart';
 import '../profiles/active_profile_provider.dart';
@@ -35,16 +34,10 @@ import 'profile/profile_switch_screen.dart';
 import 'settings/add_jellyfin_screen.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({
-    super.key,
-    this.initialErrorMessage,
-    this.initializeServices = true,
-    this.databaseRecoveryRequired = false,
-  });
+  const AuthScreen({super.key, this.initialErrorMessage, this.initializeServices = true});
 
   final String? initialErrorMessage;
   final bool initializeServices;
-  final bool databaseRecoveryRequired;
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
@@ -55,8 +48,6 @@ class _AuthScreenState extends State<AuthScreen> {
   // Reuse a one-shot service for the debug-token verify path; the Plex
   // PIN/QR flow inside [PlexPinAuthFlow] owns its own service instance.
   PlexAuthService? _verifyOnlyService;
-  Future<void>? _recoveryAcknowledgement;
-  bool _recoveryAcknowledged = false;
 
   @override
   void initState() {
@@ -103,33 +94,11 @@ class _AuthScreenState extends State<AuthScreen> {
     await activeProfiles.activate(profile);
   }
 
-  Future<bool> _prepareDatabaseRecoveryForSignIn() async {
-    if (!widget.databaseRecoveryRequired || _recoveryAcknowledged) return true;
-    final acknowledgement = _recoveryAcknowledgement ??= context
-        .read<AppDatabase>()
-        .acknowledgeTvosDatabaseRecoveryRequired();
-    try {
-      await acknowledgement;
-      _recoveryAcknowledged = true;
-      if (mounted) setState(() => _errorMessage = null);
-      return mounted;
-    } catch (_) {
-      _recoveryAcknowledgement = null;
-      if (mounted) setState(() => _errorMessage = t.auth.localDataRecoveryRequired);
-      return false;
-    }
-  }
-
-  Future<void> _startPlexAfterRecovery(VoidCallback start) async {
-    if (await _prepareDatabaseRecoveryForSignIn()) start();
-  }
-
   /// Persist the new Plex account into the connection pipeline, resolve the
   /// initial active profile when possible, and navigate to the main screen.
   /// The top-level [ActiveProfileBinder] picks up the active profile id and
   /// connects servers via [MultiServerManager.refreshTokensForProfile].
   Future<void> _connectToAllServersAndNavigate(String plexToken) async {
-    if (!await _prepareDatabaseRecoveryForSignIn()) return;
     if (!mounted) return;
 
     setState(() {
@@ -235,7 +204,6 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _connectToMediaBrowser(MediaBrowserDialect dialect) async {
-    if (!await _prepareDatabaseRecoveryForSignIn()) return;
     if (!mounted) return;
     final added = await Navigator.push<bool>(
       context,
@@ -355,9 +323,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Widget _buildInitialButtons(BuildContext context, VoidCallback startBrowser, VoidCallback startQr, bool busy) {
     final isTV = PlatformDetector.isTV();
-    final isAppleTV = PlatformDetector.isAppleTV();
-    void startBrowserAfterRecovery() => unawaited(_startPlexAfterRecovery(startBrowser));
-    void startQrAfterRecovery() => unawaited(_startPlexAfterRecovery(startQr));
     const jellyfinDialect = MediaBrowserDialect.jellyfin;
     const embyDialect = MediaBrowserDialect.emby;
     void connectToJellyfin() => unawaited(_connectToMediaBrowser(jellyfinDialect));
@@ -369,10 +334,10 @@ class _AuthScreenState extends State<AuthScreen> {
         if (isTV) ...[
           FocusableButton(
             autofocus: true,
-            onPressed: busy ? null : startQrAfterRecovery,
+            onPressed: busy ? null : startQr,
             useBackgroundFocus: true,
             child: ElevatedButton(
-              onPressed: busy ? null : startQrAfterRecovery,
+              onPressed: busy ? null : startQr,
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
               child: Row(
                 mainAxisAlignment: .center,
@@ -385,12 +350,12 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
           ),
-          if (!isAppleTV) ...[
+          ...[
             const SizedBox(height: 12),
             FocusableButton(
-              onPressed: busy ? null : startBrowserAfterRecovery,
+              onPressed: busy ? null : startBrowser,
               child: OutlinedButton(
-                onPressed: busy ? null : startBrowserAfterRecovery,
+                onPressed: busy ? null : startBrowser,
                 style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                 child: Text(t.auth.useBrowser),
               ),
@@ -398,10 +363,10 @@ class _AuthScreenState extends State<AuthScreen> {
           ],
         ] else ...[
           FocusableButton(
-            onPressed: busy ? null : startBrowserAfterRecovery,
+            onPressed: busy ? null : startBrowser,
             useBackgroundFocus: true,
             child: ElevatedButton.icon(
-              onPressed: busy ? null : startBrowserAfterRecovery,
+              onPressed: busy ? null : startBrowser,
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
               icon: const BackendBadge(backend: MediaBackend.plex, size: 18),
               label: Text(t.auth.signInWithPlex),
@@ -409,9 +374,9 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           const SizedBox(height: 12),
           FocusableButton(
-            onPressed: busy ? null : startQrAfterRecovery,
+            onPressed: busy ? null : startQr,
             child: OutlinedButton(
-              onPressed: busy ? null : startQrAfterRecovery,
+              onPressed: busy ? null : startQr,
               style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
               child: Text(t.auth.showQRCode),
             ),

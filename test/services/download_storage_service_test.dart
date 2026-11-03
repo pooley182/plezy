@@ -53,23 +53,6 @@ void main() {
   });
 
   group('SAF mode', () {
-    test('isUsingSaf is false on the host (non-Android)', () async {
-      final settings = await SettingsService.getInstance();
-      // Even with SAF-shaped settings, host platform check must short-circuit.
-      await settings.write(SettingsService.customDownloadPathType, 'saf');
-      await settings.write(
-        SettingsService.customDownloadPath,
-        'content://com.android.externalstorage.documents/tree/primary%3ADownload',
-      );
-
-      final dss = DownloadStorageService.instance;
-      await dss.initialize(settings);
-
-      expect(Platform.isAndroid, isFalse, reason: 'host preflight: this test is meaningless on Android');
-      expect(dss.isUsingSaf, isFalse);
-      expect(dss.safBaseUri, isNull);
-    });
-
     test('isSafUri detects content:// URIs regardless of platform', () {
       final dss = DownloadStorageService.instance;
       expect(dss.isSafUri('content://com.android.externalstorage.documents/tree/primary%3ADownload'), isTrue);
@@ -79,15 +62,14 @@ void main() {
   });
 
   group('downloads directory resolution', () {
-    test('defaults to <appSupport>/downloads on desktop hosts', () async {
+    test('defaults to <appDocuments>/downloads', () async {
       final settings = await SettingsService.getInstance();
       final dss = DownloadStorageService.instance;
       await dss.initialize(settings);
 
       final dir = await dss.getDownloadsDirectory();
       expect(dir.existsSync(), isTrue);
-      // _getBaseAppDir returns getApplicationSupportDirectory() on desktop.
-      expect(dir.path, p.join(p.join(tmpRoot.path, 'support'), 'downloads'));
+      expect(dir.path, p.join(tmpRoot.path, 'documents', 'downloads'));
       expect(dss.isUsingCustomPath(), isFalse);
     });
 
@@ -121,7 +103,7 @@ void main() {
 
       final dir = await dss.getDownloadsDirectory();
       expect(dir.existsSync(), isTrue);
-      expect(dir.path, p.join(tmpRoot.path, 'support', 'downloads'));
+      expect(dir.path, p.join(tmpRoot.path, 'documents', 'downloads'));
     });
 
     test('resolves under POSIX chmod restrictions (environment-dependent smoke)', () async {
@@ -140,7 +122,7 @@ void main() {
         // The host may honor or ignore mode bits; either resolved root is
         // valid for this smoke test as long as it exists.
         expect(dir.existsSync(), isTrue);
-        expect(dir.path, anyOf(blocked, p.join(tmpRoot.path, 'support', 'downloads')));
+        expect(dir.path, anyOf(blocked, p.join(tmpRoot.path, 'documents', 'downloads')));
       } finally {
         await Process.run('chmod', ['755', readOnlyParent.path]);
       }
@@ -166,14 +148,14 @@ void main() {
   });
 
   group('artwork directory', () {
-    test('initializes alongside support directory by default and caches sync path', () async {
+    test('initializes alongside the documents directory by default and caches sync path', () async {
       final settings = await SettingsService.getInstance();
       final dss = DownloadStorageService.instance;
       await dss.initialize(settings);
 
       final artworkDir = await dss.getArtworkDirectory();
       expect(artworkDir.existsSync(), isTrue);
-      expect(artworkDir.path, p.join(tmpRoot.path, 'support', 'artwork'));
+      expect(artworkDir.path, p.join(tmpRoot.path, 'documents', 'artwork'));
       // After initialize() the sync path getter is populated.
       expect(dss.artworkDirectoryPath, artworkDir.path);
     });
@@ -241,8 +223,8 @@ void main() {
       final dss = DownloadStorageService.instance;
       await dss.initialize(settings);
 
-      // Compute the support base the production code uses.
-      final base = p.join(tmpRoot.path, 'support');
+      // Compute the documents base the production code uses.
+      final base = p.join(tmpRoot.path, 'documents');
       final abs = p.join(base, 'downloads', 'srv', '42', 'video.mp4');
       final rel = await dss.toRelativePath(abs);
       expect(rel, p.join('downloads', 'srv', '42', 'video.mp4'));
@@ -266,7 +248,7 @@ void main() {
 
       // `<base>-external` is a string prefix match but not inside the base dir. Stripping it
       // would yield "-external/..." and silently re-root the file inside app storage.
-      final sibling = '${p.join(tmpRoot.path, 'support')}-external';
+      final sibling = '${p.join(tmpRoot.path, 'documents')}-external';
       final outside = p.join(sibling, 'downloads', 'srv', '1', 'video.mkv');
       expect(await dss.toRelativePath(outside), outside);
     });
@@ -276,7 +258,7 @@ void main() {
       final dss = DownloadStorageService.instance;
       await dss.initialize(settings);
 
-      final base = p.join(tmpRoot.path, 'support');
+      final base = p.join(tmpRoot.path, 'documents');
       final abs = await dss.toAbsolutePath(p.join('downloads', 'srv', '1', 'video.mp4'));
       expect(abs, p.join(base, 'downloads', 'srv', '1', 'video.mp4'));
     });
@@ -295,7 +277,7 @@ void main() {
       final dss = DownloadStorageService.instance;
       await dss.initialize(settings);
 
-      final base = p.join(tmpRoot.path, 'support');
+      final base = p.join(tmpRoot.path, 'documents');
       final abs = p.join(base, 'downloads', 'srv', '7', 'video.mp4');
       final rel = await dss.toRelativePath(abs);
       final back = await dss.toAbsolutePath(rel);
@@ -312,8 +294,7 @@ void main() {
       final videoPath = await dss.getVideoFilePath(ServerId('srv'), 'item-1', 'mkv');
       final location = await dss.resolveTaskDirectory(videoPath);
 
-      // Desktop hosts anchor downloads at the support directory; mobile uses documents.
-      expect(location.baseDirectory, BaseDirectory.applicationSupport);
+      expect(location.baseDirectory, BaseDirectory.applicationDocuments);
       expect(location.directory, p.join('downloads', 'srv', 'item-1'));
       expect(p.isAbsolute(location.directory), isFalse);
       expect(location.directory, isNot(contains(tmpRoot.path)));
@@ -339,7 +320,7 @@ void main() {
 
       expect(
         await dss.toAbsolutePath(storedTarget),
-        p.join(movedRoot.path, 'support', 'downloads', 'srv', 'item-1', 'video.mkv'),
+        p.join(movedRoot.path, 'documents', 'downloads', 'srv', 'item-1', 'video.mkv'),
       );
     });
 
@@ -365,7 +346,7 @@ void main() {
       await settings.write(SettingsService.customDownloadPathType, 'file');
       // Sibling of the base dir, not inside it: downloads must still land here, not be
       // rewritten to "-external/..." underneath app storage.
-      final customRoot = '${p.join(tmpRoot.path, 'support')}-external';
+      final customRoot = '${p.join(tmpRoot.path, 'documents')}-external';
       await settings.write(SettingsService.customDownloadPath, customRoot);
 
       final dss = DownloadStorageService.instance;
@@ -403,7 +384,7 @@ void main() {
       final filePath = p.join(dir.path, 'rel-found.mkv');
       await File(filePath).writeAsString('ok');
 
-      final base = p.join(tmpRoot.path, 'support');
+      final base = p.join(tmpRoot.path, 'documents');
       final relativeStored = p.relative(filePath, from: base);
       final resolved = await dss.ensureAbsolutePath(relativeStored);
       expect(resolved, filePath);
@@ -414,7 +395,7 @@ void main() {
       final dss = DownloadStorageService.instance;
       await dss.initialize(settings);
 
-      final base = p.join(tmpRoot.path, 'support');
+      final base = p.join(tmpRoot.path, 'documents');
       final realDir = Directory(p.join(base, 'downloads', 'srv-x'))..createSync(recursive: true);
       final realFile = File(p.join(realDir.path, 'recovered.mkv'));
       await realFile.writeAsString('found');
@@ -434,7 +415,7 @@ void main() {
       // returns the toAbsolutePath() candidate (joined under the base dir).
       const stored = 'downloads/missing/never.mkv';
       final resolved = await dss.ensureAbsolutePath(stored);
-      final expected = p.normalize(p.join(tmpRoot.path, 'support', stored));
+      final expected = p.normalize(p.join(tmpRoot.path, 'documents', stored));
       expect(resolved, expected);
     });
 
@@ -473,7 +454,7 @@ void main() {
       final realFile = File(p.join(dir.path, 'readable.mkv'));
       await realFile.writeAsString('x');
 
-      final relStored = p.relative(realFile.path, from: p.join(tmpRoot.path, 'support'));
+      final relStored = p.relative(realFile.path, from: p.join(tmpRoot.path, 'documents'));
       final readable = await dss.getReadablePath(relStored);
       expect(readable, realFile.path);
     });

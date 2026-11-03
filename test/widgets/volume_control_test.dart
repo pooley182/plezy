@@ -12,6 +12,7 @@ import 'package:plezy/widgets/video_controls/widgets/volume_control.dart';
 
 import '../test_helpers/player_streams.dart';
 import '../test_helpers/prefs.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   setUp(() async {
@@ -160,7 +161,7 @@ void main() {
   });
 }
 
-class _VolumePlayer implements Player {
+class _VolumePlayer with AndroidPlayerNoops implements Player {
   _VolumePlayer(this.volume) : _streams = emptyPlayerStreams();
 
   double volume;

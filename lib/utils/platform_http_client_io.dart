@@ -2,7 +2,6 @@ import 'dart:io' show HttpClient, Platform;
 
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
-import 'package:win_http/win_http.dart';
 
 import 'app_logger.dart';
 import 'happy_eyeballs.dart';
@@ -27,8 +26,7 @@ void _logPlatformClient(String platform, String client) {
 /// Jellyfin home loads, artwork rails, tracker and Seerr traffic all issue
 /// several concurrent requests per pass — and dart:io's default of 6
 /// connections per host queues them. On a 60-way artwork fan-out, 12
-/// connections measured ~4x the default's throughput on Linux and ~2x on
-/// Android.
+/// connections measured ~2x the default's throughput on Android.
 ///
 /// The idle timeout has to stay below the server's keep-alive, because dart:io
 /// never resends a request that fails on a reused connection
@@ -47,37 +45,14 @@ ManagedHttpClient _createIoClient(String debugLabel, Duration connectTimeout) {
   return ManagedHttpClient(IOClient(httpClient), debugLabel: debugLabel, forceCloseOnDrainTimeout: true);
 }
 
-/// Every platform except Windows runs on the tuned dart:io client.
+/// The tuned dart:io client.
 ///
-/// Windows keeps WinHTTP for the system proxy and the Schannel trust store.
-/// Its `WINHTTP_OPTION_IPV6_FAST_FALLBACK` (#1128) is what
-/// [happyEyeballsConnectionFactory] now supplies everywhere else.
+/// Cronet used to serve Android here, but was measured ~10x slower on LAN body
+/// throughput for the request shapes Plezy issues; see issue #2140.
 ///
-/// Cronet and NSURLSession used to serve Android and Apple here. Both were
-/// measured slower than this client on the request shapes Plezy actually
-/// issues — Cronet by ~10x on LAN body throughput — so neither survived; see
-/// issue #2140.
-///
-/// Both transports bound only the connect, to [connectTimeout]. Waiting on
-/// the server is left to the caller's deadlines, as dart:io already does:
-/// WinHTTP's own 30 s per-read default would otherwise cut a slow server's
-/// answer short and surface it as a connection error, which endpoint failover
-/// reads as a dead endpoint (#2581).
+/// Only the connect is bounded, to [connectTimeout]. Waiting on the server is
+/// left to the caller's deadlines (#2581).
 http.Client createPlatformClient({Duration connectTimeout = MediaServerTimeouts.connect}) {
-  if (Platform.isWindows) {
-    try {
-      final client = WinHttpClient.fromConfiguration(
-        // A zero receive timeout is WinHTTP's "wait indefinitely".
-        WinHttpClientConfiguration(connectTimeout: connectTimeout, receiveTimeout: Duration.zero),
-      );
-      _logPlatformClient('windows', 'WinHttpClient');
-      return ManagedHttpClient(client, debugLabel: 'WinHttpClient');
-    } catch (e, st) {
-      appLogger.w('WinHttpClient init failed, falling back to IOClient', error: e, stackTrace: st);
-      _logPlatformClient('windows', 'IOClient (fallback)');
-      return _createIoClient('IOClient (fallback)', connectTimeout);
-    }
-  }
   _logPlatformClient(Platform.operatingSystem, 'IOClient');
   return _createIoClient('IOClient', connectTimeout);
 }

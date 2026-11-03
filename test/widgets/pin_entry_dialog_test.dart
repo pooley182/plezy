@@ -9,11 +9,11 @@ import 'package:plezy/utils/platform_detector.dart';
 
 void main() {
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
   });
 
   testWidgets('mobile PIN entry keeps one focused text field while entering digits', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     String? result;
 
     await tester.pumpWidget(
@@ -66,7 +66,7 @@ void main() {
   });
 
   testWidgets('mobile PIN normalizes oversized input before submitting', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     String? result;
 
     await tester.pumpWidget(
@@ -94,7 +94,7 @@ void main() {
     expect(find.byType(PinEntryDialog), findsNothing);
   });
   testWidgets('mobile duplicate submit does not pop route below PIN dialog', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     String? pinResult;
     bool? boolRouteResult;
 
@@ -156,7 +156,7 @@ void main() {
   });
 
   testWidgets('mobile auto-submit after external dismiss does not pop route below PIN dialog', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     final navigatorKey = GlobalKey<NavigatorState>();
     String? pinResult = 'unchanged';
     bool? boolRouteResult;
@@ -218,7 +218,7 @@ void main() {
   });
 
   testWidgets('D-pad keypad enters and submits PIN', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     String? result;
 
     await _pumpPinDialogLauncher(tester, onResult: (pin) => result = pin);
@@ -248,7 +248,7 @@ void main() {
   });
 
   testWidgets('held D-pad select activates each PIN key once', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     String? result;
 
     await _pumpPinDialogLauncher(tester, onResult: (pin) => result = pin);
@@ -271,7 +271,7 @@ void main() {
   });
 
   testWidgets('Android TV keyboard-mapped enter/select activates highlighted PIN key', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     String? result;
 
     await _pumpPinDialogLauncher(tester, onResult: (pin) => result = pin);
@@ -294,7 +294,7 @@ void main() {
   });
 
   testWidgets('TV PIN keypad reclaims focus after activation', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     final underlyingFocusNode = FocusNode(debugLabel: 'UnderlyingProfileScreen');
     final leakedKeys = <LogicalKeyboardKey>[];
     String? result;
@@ -333,7 +333,7 @@ void main() {
   });
 
   testWidgets('unowned keyboard keys remain available to ancestor handlers', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
 
     await _pumpPinDialogLauncher(tester, onResult: (_) {});
     await tester.tap(find.text('Open'));
@@ -351,7 +351,7 @@ void main() {
     expect(find.byType(PinEntryDialog), findsOneWidget);
   });
   testWidgets('non-mobile PIN entry accepts physical keyboard digits', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     String? result;
 
     await _pumpPinDialogLauncher(tester, onResult: (pin) => result = pin);
@@ -371,7 +371,7 @@ void main() {
   });
 
   testWidgets('D-pad close key cancels PIN dialog', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     var completed = false;
     String? result = 'unchanged';
 

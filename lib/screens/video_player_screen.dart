@@ -1,14 +1,11 @@
 import 'dart:async';
 import '../services/playback_launch_observer.dart';
 import '../media/ids.dart';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:plezy/widgets/app_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter/services.dart';
-import 'package:os_media_controls/os_media_controls.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -46,13 +43,10 @@ import '../providers/multi_server_provider.dart';
 import '../providers/offline_mode_provider.dart';
 import '../providers/playback_state_provider.dart';
 import '../providers/companion_remote_provider.dart';
-import '../services/fullscreen_state_manager.dart';
 import '../services/car_ux_restrictions_service.dart';
 import '../services/driver_distraction.dart';
-import '../services/discord_rpc_service.dart';
 import '../services/trackers/tracker_coordinator.dart';
 import '../services/episode_navigation_service.dart';
-import '../services/apple_tv_remote_touch_service.dart';
 import '../services/media_controls_manager.dart';
 import '../services/playback_coordinator.dart';
 import '../services/music/music_playback_service.dart';
@@ -67,7 +61,6 @@ import '../services/playback_progress_tracker.dart';
 import '../services/playback_source_resolver.dart';
 import '../services/multi_server_manager.dart';
 import '../services/offline_watch_sync_service.dart';
-import '../services/display_mode_service.dart';
 import '../services/media_control_router.dart';
 import '../services/player_sync_offsets.dart';
 import '../services/preferred_audio_device.dart';
@@ -154,57 +147,9 @@ part 'video_player/parts/watch_together.dart';
 
 final WakelockController _wakelockController = WakelockController();
 
-/// Property names the free-form mpv config is not allowed to write.
-///
-/// Neither is an mpv property. The Linux plugin intercepts both by name and
-/// moves its own persistent HDR state instead (linux/runner/mpv/mpv_plugin.cc),
-/// and the custom config is applied *after* startup has pushed the stored
-/// preferences, so a `hdr-enabled=yes` or `hdr-tone-mapping=player` line would
-/// change the live plane without anything writing it back to [SettingsService].
-/// The settings sheet renders its HDR switch and tone-mapping row straight off
-/// those preferences with no native readback, so the UI would report one state
-/// while the plane held another - for the whole session, and again after a
-/// restart, since the next startup replays the same order rather than
-/// reconciling.
-///
-/// Filtered rather than reordered: reordering would still leave the config as a
-/// second writer of state the app owns, silently discarded on every startup
-/// instead of silently winning. Nothing legitimate is lost - both names are
-/// settings the player's own HDR controls already expose, and mean nothing to
-/// mpv itself, so no platform is losing a real mpv property here.
+/// Names a custom mpv config line may not set: app-level HDR switches, not
+/// mpv properties, so a config line could only ever be ignored.
 const _appInterceptedMpvProperties = {'hdr-enabled', 'hdr-tone-mapping'};
-
-/// The above, plus the four real mpv properties the Linux video plane owns.
-///
-/// It writes all four as one unit and caches what it last applied so it can skip
-/// a transaction that would change nothing. A config line writing one of them
-/// moves mpv without moving that cache, and the next transaction then compares
-/// against a value mpv no longer holds and skips the write it needed to make -
-/// leaving mpv encoding one colour space while the surface is described as
-/// another, the single state the two-phase apply exists to prevent.
-///
-/// Scoped to the plane deliberately. These are ordinary mpv properties
-/// everywhere else, nothing caches them there, and no other platform exposes a
-/// UI control for them - so withholding them off Linux would remove the user's
-/// only way to set them and point the log at a control they do not have.
-/// The windowed-VO family. Embedded video is pinned to vo=libmpv (the render
-/// API the plane and every other embedded surface are created against); a
-/// config line switching `vo` — or the `gpu-context`/`gpu-api` it rides on —
-/// makes mpv re-create its output as a separate, uncontrollable window and
-/// orphans the embedded render context. vo=gpu-next is windowed by
-/// construction and compute shaders (ArtCNN) need it, so no embedded vo is
-/// worth accepting; the skip log for these names says that instead of pointing
-/// at the HDR settings.
-const _appEmbeddedOwnedMpvProperties = {'vo', 'gpu-context', 'gpu-api'};
-
-const _appOwnedMpvProperties = {
-  ..._appInterceptedMpvProperties,
-  ..._appEmbeddedOwnedMpvProperties,
-  'target-trc',
-  'target-prim',
-  'target-peak',
-  'tone-mapping',
-};
 
 /// Whether an in-place source reload may start the replacement media.
 ///
@@ -795,7 +740,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   /// Media-controls listeners created once per attempt by [_initializeServices].
   final List<StreamSubscription<dynamic>> _mediaControlSubscriptions = [];
-  StreamSubscription<AppleTvRemotePlayPauseAction>? _appleTvPlayPauseSubscription;
   TrackManager? _trackManager;
   StreamSubscription<void>? _sleepTimerSubscription;
   bool _isHandlingBack = false;
@@ -805,9 +749,8 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   /// [_playerStreamSubscriptions]), [_tearDownFailedPlayerAttempt] (rollback:
   /// player streams plus the [_mediaControlSubscriptions] created in
   /// [_initializeServices]), and the screen's `dispose`. The initState-owned
-  /// `_sleepTimerSubscription` and `_appleTvPlayPauseSubscription` are
-  /// deliberately excluded: cancelling them on a re-wire or rollback would
-  /// kill the sleep-timer prompt and the Apple TV remote for the rest of the
+  /// `_sleepTimerSubscription` is deliberately excluded: cancelling it on a
+  /// re-wire or rollback would kill the sleep-timer prompt for the rest of the
   /// screen's life.
   List<Future<void>> _cancelPlayerStreamSubscriptions({required bool includeMediaControls}) {
     final subscriptions = List<StreamSubscription<dynamic>>.of(_playerStreamSubscriptions);
@@ -923,10 +866,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   // App lifecycle state tracking
   bool _wasPlayingBeforeInactive = false;
   bool _hiddenForBackground = false;
-  bool _resumeAfterAppleAudioSessionPause = false;
-  DateTime? _lastPlaybackPauseAt;
   bool _autoPipEnabled = false;
-  bool _exitFullscreenOnPlayerClose = false;
   bool _androidAutoPipTransitionInFlight = false;
   bool _pipFiltersPrepared = false;
   VoidCallback? _autoPipEnteringCallback;
@@ -951,10 +891,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   /// Apple auto-PiP is system-initiated during the background transition, and
   /// Android auto-PiP on API 26-30 has a brief native transition window before
   /// onPipChanged fires.
-  bool get _shouldSkipForPip =>
-      PipService().isPipActive.value ||
-      ((Platform.isIOS || Platform.isMacOS) && _autoPipEnabled) ||
-      (Platform.isAndroid && _androidAutoPipTransitionInFlight);
+  bool get _shouldSkipForPip => PipService().isPipActive.value || _androidAutoPipTransitionInFlight;
 
   MediaControlsManager? _mediaControlsManager;
 
@@ -990,9 +927,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   bool _pipInitialized = false;
   ShaderService? _shaderService;
   AmbientLightingService? _ambientLightingService;
-
-  /// Releases the Windows fullscreen-change binding (see [_onFullscreenChanged]).
-  VoidCallback? _releaseFullscreenListener;
 
   /// Releases the PiP state binding; attached and detached with the PiP
   /// feature (see [_attachPipStateListener]).
@@ -1244,12 +1178,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
   @visibleForTesting
   PlezyPlayerAdapter? get debugWatchTogetherAdapter => _wtAdapter;
 
-  /// The Windows display-switch hold otherwise runs only behind a real
-  /// display-mode change on entering fullscreen.
-  @visibleForTesting
-  Future<void> debugHoldPlaybackForDisplaySwitchForTesting(Duration delay) =>
-      _holdPlaybackForDisplaySwitch(player!, delay);
-
   /// The TV background suspend otherwise fires only from its Android TV grace
   /// timer; the restore then runs from the ordinary resume path.
   @visibleForTesting
@@ -1376,7 +1304,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
 
     // Fullscreen entered from here on is the player's to drop; whatever was
     // already fullscreen belongs to the app window (#1624).
-    FullscreenStateManager().beginScope();
 
     _playerNavigationCoordinator = PlayerNavigationCoordinator(
       chromeController: _chromeController,
@@ -1390,18 +1317,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       // applied it to the phone system-back path too, so back stopped
       // closing the player).
       exitPlayerBeforeChrome: () => PlatformDetector.isMobile(context),
-      exitFullscreenIfActive: FullscreenStateManager().exitFullscreenIfActive,
-      // macOS fullscreen belongs to the app window, while HTPC-style player
-      // navigation treats physical Escape as semantic Back. In both cases the
-      // player must leave native fullscreen alone. So must it when the window
-      // was already fullscreen before the player opened — that fullscreen is
-      // the app's (start-in-fullscreen, or a toggle from the browse UI) and
-      // Escape is plain Back (#1624).
-      physicalEscapeExitsFullscreen: () => shouldPhysicalEscapeExitFullscreen(
-        isMacOS: Platform.isMacOS,
-        videoPlayerNavigationEnabled: videoPlayerNavigationPreference(),
-        playerEnteredFullscreen: FullscreenStateManager().scopeOwnsFullscreen,
-      ),
       exitPlayer: () => unawaited(_handleBackButton()),
       navigateHome: _handleHomeButton,
       isActive: () => mounted,
@@ -1491,7 +1406,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     }
 
     _companionRemote.bind();
-    _setupAppleTvRemotePlaybackActions();
 
     _sleepTimerSubscription = SleepTimerService().onPrompt.listen((_) {
       if (mounted) _showStillWatchingDialog();
@@ -1714,15 +1628,13 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       // the lint cannot see the mounted check inside the helper.
       if (!mounted || !_isPlayerInitializationCurrent(generation)) return;
       _autoPipEnabled = settingsService.read(SettingsService.autoPip);
-      _exitFullscreenOnPlayerClose = settingsService.read(SettingsService.exitFullscreenOnPlayerClose);
       _rewindOnResume = settingsService.read(SettingsService.rewindOnResume);
       final playbackBufferTier = settingsService.read(SettingsService.playbackBufferTier);
       final enableHardwareDecoding = settingsService.read(SettingsService.enableHardwareDecoding);
       final debugLoggingEnabled = settingsService.read(SettingsService.enableDebugLogging);
       final useExoPlayer = settingsService.read(SettingsService.useExoPlayer);
 
-      // Kick off getPlaybackData() before the Windows display-mode sync, the
-      // music-session teardown in claimVideo(), player construction, and the
+      // Kick off getPlaybackData() before the music-session teardown in claimVideo(), player construction, and the
       // whole mpv property chain below: the resolve depends only on settings +
       // provider lookups, so starting it first hides all of that setup behind
       // the network round trip(s).
@@ -1803,14 +1715,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
             );
       }
 
-      if (Platform.isWindows || Platform.isMacOS) {
-        initPhase = 'syncing display mode';
-        _displayModeService = DisplayModeService(settingsService, FullscreenStateManager());
-        await _displayModeService!.syncWithNative();
-        if (!_isPlayerInitializationCurrent(generation)) return;
-        _releaseFullscreenListener ??= bindListenable(FullscreenStateManager(), _onFullscreenChanged);
-      }
-
       // One-native-instance rule: a live music session owns the only audio
       // core — stop it and wait for its dispose before constructing the
       // video core (see PlaybackCoordinator).
@@ -1827,52 +1731,42 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       final currentPlayer = Player(useExoPlayer: useExoPlayer, hardwareDecoding: enableHardwareDecoding);
       attemptPlayer = currentPlayer;
       if (!mounted || generation != _playerInitializationGeneration) return;
-      if (Platform.isAndroid) {
-        await currentPlayer.setLogLevel(debugLoggingEnabled ? 'v' : 'warn');
-        if (!mounted || generation != _playerInitializationGeneration) return;
-      }
+      await currentPlayer.setLogLevel(debugLoggingEnabled ? 'v' : 'warn');
+      if (!mounted || generation != _playerInitializationGeneration) return;
 
       if (!_isPlayerInitializationCurrent(generation)) return;
       initPhase = 'configuring player';
       await currentPlayer.configureSubtitleFonts();
       await currentPlayer.setProperty('sub-ass', 'yes'); // Enable libass
-      if (Platform.isAndroid && useExoPlayer) {
+      if (useExoPlayer) {
         final tunneledPlayback = settingsService.read(SettingsService.tunneledPlayback);
         await currentPlayer.setProperty('tunneled-playback', tunneledPlayback ? 'yes' : 'no');
         await currentPlayer.setProperty('exo-buffer-tier', playbackBufferTier.nativeValue);
       }
-      if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
-        final dvConversionMode = settingsService.read(SettingsService.dvConversionMode);
-        await currentPlayer.setProperty('dv-conversion-mode', dvConversionMode.nativeValue);
-      }
+      final dvConversionMode = settingsService.read(SettingsService.dvConversionMode);
+      await currentPlayer.setProperty('dv-conversion-mode', dvConversionMode.nativeValue);
       // Before the first file, so its opening route is already decided: a
       // later write would start it on one renderer and move it to the other.
-      if (Platform.isAndroid && !useExoPlayer) {
+      if (!useExoPlayer) {
         final hdrSdrConversion = settingsService.read(SettingsService.hdrSdrConversion);
         await currentPlayer.setProperty('hdr-sdr-conversion', hdrSdrConversion.nativeValue);
       }
       // Also before the first file: Android mpv picks the decoder per file
-      // before it opens, and tvOS asks the TV for a mode at the first frame.
-      if ((Platform.isAndroid && !useExoPlayer) || PlatformDetector.isAppleTV()) {
+      // before it opens.
+      if (!useExoPlayer) {
         final disableDolbyVision = settingsService.read(SettingsService.disableDolbyVision);
         await currentPlayer.setProperty('dolby-vision-output', disableDolbyVision ? 'no' : 'yes');
-      }
-      if (Platform.isIOS || Platform.isMacOS) {
-        await currentPlayer.setProperty('dv-conversion-log', debugLoggingEnabled ? 'yes' : 'no');
       }
       // Android demuxer memory is owned natively: MpvPlayerCore caps its
       // demuxer cache off the device heap class at init (DemuxerBudget), and
       // ExoPlayer's LoadControlPolicy derives its own target the same way.
       // requestAudioFocus initializes Android players, so start it only after
       // init-time ExoPlayer options above have been cached.
-      if (Platform.isAndroid && !widget.isLive) {
+      if (!widget.isLive) {
         _audioFocusFuture = currentPlayer.requestAudioFocus();
         _audioFocusFuture!.ignore();
       }
       await currentPlayer.setProperty('msg-level', debugLoggingEnabled ? 'all=debug,ffmpeg/video=warn' : 'all=error');
-      if (!Platform.isAndroid) {
-        await currentPlayer.setLogLevel(debugLoggingEnabled ? 'v' : 'warn');
-      }
       await currentPlayer.setProperty('hwdec', _getHwdecValue(enableHardwareDecoding));
 
       // Deinterlacing (#2149, #2710) is mpv-only by design — ExoPlayer has no
@@ -1882,7 +1776,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       // makes stutter. Wrapped: a preference must never abort player
       // initialization (a core that rejects the value keeps its default).
       final deinterlaceMode = settingsService.read(SettingsService.deinterlaceMode);
-      if (!(Platform.isAndroid && useExoPlayer) && deinterlaceMode != DeinterlaceMode.off) {
+      if (!useExoPlayer && deinterlaceMode != DeinterlaceMode.off) {
         final applied = widget.isLive && deinterlaceMode == DeinterlaceMode.film
             ? DeinterlaceMode.video
             : deinterlaceMode;
@@ -1963,7 +1857,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
 
       // Placement policy is MPV-only and independent of ASS styling. Keep the
       // last accepted/default value on refusal; custom mpv.conf still wins below.
-      if (!(Platform.isAndroid && useExoPlayer)) {
+      if (!useExoPlayer) {
         try {
           await currentPlayer.setProperty(
             'sub-use-margins',
@@ -1974,112 +1868,9 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         }
       }
 
-      if (Platform.isIOS) {
-        await currentPlayer.setProperty('audio-exclusive', 'yes');
-      }
-
-      if (Platform.isIOS || Platform.isMacOS) {
-        // Rasterize subtitles at the video's resolution instead of the
-        // display's; the OSD layer upscales them with the video.
-        await currentPlayer.setProperty(
-          'avfoundation-osd-video-res',
-          settingsService.read(SettingsService.subtitleRenderResolution) == SubtitleRenderResolution.video
-              ? 'yes'
-              : 'no',
-        );
-      }
-
-      // Audio passthrough (Windows/Linux, Android TV, and Apple TV, where the
-      // native sample-buffer renderer handles AC3/EAC3, including JOC metadata;
-      // never macOS — see PlatformDetector.supportsAudioPassthrough).
+      // Audio passthrough (TV only — see PlatformDetector.supportsAudioPassthrough).
       if (PlatformDetector.supportsAudioPassthrough()) {
         await currentPlayer.setAudioPassthrough(settingsService.read(SettingsService.audioPassthrough));
-      }
-
-      // Set before hdr-enabled so the first image description is already built
-      // for the chosen mode. Unlike hdr-enabled below, every failure here is
-      // swallowed: an older libmpv rejects it as an unknown property, with no
-      // code to tell that apart, and a tone-mapping preference is never a reason
-      // to fail playback.
-      if (PlayerNative.usesLinuxVideoPlane) {
-        final toneMapping = settingsService.read(SettingsService.hdrToneMapping);
-        try {
-          await currentPlayer.setProperty('hdr-tone-mapping', toneMapping.name);
-        } catch (e) {
-          appLogger.d('VideoPlayerScreen: HDR tone-mapping mode not applied', error: e);
-          // A refused transaction leaves the plugin on the mode it last accepted,
-          // and nothing has moved it off the compositor default this session -
-          // the only writer is this push, plus the sheet, which persists solely
-          // on success. Storing that back keeps the sheet from offering "Player"
-          // as the current mode while the plane tone-maps in the compositor,
-          // a disagreement no later write would correct on its own.
-          // Contained on its own, for the same reason as the hdr-enabled block
-          // below: the refusal is deliberately tolerated, so a preference store
-          // that then throws must not turn "carry on with compositor tone
-          // mapping" into a failed player initialization.
-          if (toneMapping != HdrToneMapping.compositor) {
-            try {
-              await settingsService.write(SettingsService.hdrToneMapping, HdrToneMapping.compositor);
-            } catch (writeError) {
-              appLogger.w('VideoPlayerScreen: could not reconcile the stored tone-mapping mode', error: writeError);
-            }
-          }
-        }
-      }
-
-      // HDR is controlled via the custom hdr-enabled property. On Linux it means
-      // "allow passthrough": the native side only describes the plane as HDR
-      // when the compositor, the output and the source all agree, so pushing the
-      // preference here is safe even when it cannot be honoured.
-      //
-      // Linux swallows every refusal, because on Linux a refusal is a statement
-      // about the *plane*, not about the media: HDR_UNSUPPORTED means this
-      // session's plane can never carry HDR - an 8-bit EGL config, or a
-      // compositor without the colour-management pieces - and a failed colour
-      // transaction means mpv would not take the output properties. Neither is a
-      // reason not to play the video in SDR, so rethrowing would turn "this
-      // session cannot do HDR" into "this session cannot play video": the
-      // initialization error screen, with a Retry that fails the same way.
-      //
-      // Two earlier reasons given here no longer hold and are recorded as gone
-      // so they are not reinstated: the packages no longer link a distro libmpv
-      // (each ships the pinned build), and the plugin intercepts hdr-enabled
-      // whenever a video surface exists, so the old fall-through to mpv's
-      // target-colorspace-hint - and its mpv 0.40 version floor - is unreachable.
-      //
-      // The tolerance is Linux-only rather than "every platform, for this one
-      // error code". HDR_UNSUPPORTED is produced by the Linux plugin and nothing
-      // else, so tolerating it elsewhere would be an inert branch no test on any
-      // runner can reach, and a silent change to what the other platforms did
-      // before this feature existed.
-      if (Platform.isIOS || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-        final enableHDR = settingsService.read(SettingsService.enableHDR);
-        try {
-          await currentPlayer.setProperty('hdr-enabled', enableHDR ? 'yes' : 'no');
-        } catch (e) {
-          if (!PlayerNative.usesLinuxVideoPlane) rethrow;
-          appLogger.d('VideoPlayerScreen: HDR passthrough not applied', error: e);
-          // Same hazard as the tone-mapping block above. A refused transaction
-          // hands hdr_wanted back to whatever it held before this write, and
-          // nothing has moved it this session: the plugin is freshly created and
-          // zero-initialised, so it is off. Storing that back keeps the settings
-          // switch - which renders straight off this preference - from reading
-          // on while the plane is SDR, a disagreement no later write corrects
-          // because every internal re-apply reads the native side instead.
-          // Contained on its own. The refusal above is deliberately tolerated -
-          // this session simply plays SDR - so a preference store that then
-          // throws must not escalate that into the initialization error screen,
-          // which is where an escape from this catch lands. Worst case the
-          // preference stays out of step, which is the situation before this
-          // reconciliation existed.
-          if (enableHDR) {
-            try {
-              await settingsService.write(SettingsService.enableHDR, false);
-            } catch (writeError) {
-              appLogger.w('VideoPlayerScreen: could not reconcile the stored HDR preference', error: writeError);
-            }
-          }
-        }
       }
 
       await PlayerSyncOffsets.of(currentPlayer).applyFor(_currentMetadata);
@@ -2100,41 +1891,18 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         );
       }
 
-      if (PlatformDetector.isDesktopOS()) {
-        await currentPlayer.setProperty('screenshot-directory', '~/Pictures');
-      }
-
       // Before custom mpv.conf, so an `audio-device` line there still wins.
-      if (!(Platform.isAndroid && useExoPlayer)) {
+      if (!useExoPlayer) {
         await applyPreferredAudioDevice(currentPlayer, settingsService.read(SettingsService.audioOutputDevice));
       }
 
       final customMpvConfig = SettingsService.parseMpvConfigText(settingsService.read(SettingsService.mpvConfigText));
-      // Only the Linux video plane owns the four real mpv properties, so only
-      // there are they withheld. Elsewhere nothing caches them and a config line
-      // is the user's single way to reach them - dropping it would take away
-      // something that worked, and point at a control that platform does not
-      // show. The two intercepted names are not mpv properties anywhere, so
-      // those stay withheld everywhere.
-      final ownedHere = PlayerNative.usesLinuxVideoPlane ? _appOwnedMpvProperties : _appInterceptedMpvProperties;
       for (final entry in customMpvConfig.entries) {
         // Not silently dropped: the user typed this line, so say which one went
         // unapplied and where to set it instead, at the same level as the other
         // skipped or failed startup writes below.
-        if (ownedHere.contains(entry.key)) {
-          if (_appEmbeddedOwnedMpvProperties.contains(entry.key)) {
-            appLogger.w(
-              'Skipped custom MPV property ${entry.key}=${entry.value}: the app owns the video '
-              'output on this platform (embedded rendering is vo=libmpv); a windowed VO such as '
-              'gpu-next cannot be used inside the app, so compute shaders like ArtCNN cannot run '
-              'embedded either',
-            );
-          } else {
-            appLogger.w(
-              'Skipped custom MPV property ${entry.key}=${entry.value}: the app owns it, '
-              'set it in the player HDR settings instead',
-            );
-          }
+        if (_appInterceptedMpvProperties.contains(entry.key)) {
+          appLogger.w('Skipped custom MPV property ${entry.key}=${entry.value}: the app owns it');
           continue;
         }
         try {
@@ -2252,9 +2020,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     }
   }
 
-  /// Desktop display mode matching service (Windows, macOS).
-  DisplayModeService? _displayModeService;
-
   /// Android display frame-rate matching state (retry counter, applied
   /// latch, MediaSession pause-suppression window) — see [FrameRateMatcher].
   final FrameRateMatcher _frameRate = FrameRateMatcher();
@@ -2264,7 +2029,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     // reply must never dispatch a visibility change against a successor.
     await Future.wait<void>([
       if (currentPlayer.state.isActive) currentPlayer.pause(),
-      if (defaultTargetPlatform == TargetPlatform.android && PlatformDetector.isTV()) currentPlayer.setVisible(false),
+      if (PlatformDetector.isTV()) currentPlayer.setVisible(false),
     ]);
   }
 
@@ -2387,9 +2152,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     final existing = _systemUiRestoreOperation;
     if (existing != null) return existing;
     if (_activeRouteGuard.identityFor(this) == null) return Future<void>.value();
-    if (PlatformDetector.isDesktopOS() && _exitFullscreenOnPlayerClose) {
-      unawaited(FullscreenStateManager().exitFullscreen());
-    }
 
     // Independent requests: a missing system-UI reply must not prevent the
     // orientation request.
@@ -2464,11 +2226,10 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     SleepTimerService().unbindPlayback(this);
 
     // Teardown scope: every subscription the screen ever owns, including the
-    // initState-owned sleep-timer and Apple TV ones that the rollback path
+    // initState-owned sleep-timer one that the rollback path
     // must leave alive. The open is aborted here, before the player below
     // closes its streams, so no startup waiter outlives it.
     _cancelPlayerStreamSubscriptions(includeMediaControls: true);
-    _appleTvPlayPauseSubscription?.cancel();
     _sleepTimerSubscription?.cancel();
     // Before the track manager is disposed, not after: its own dispose
     // invalidates the pending selection too, and running the abort second
@@ -2500,37 +2261,10 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     _mediaControlsManager?.clear();
     _mediaControlsManager?.dispose();
 
-    DiscordRPCService.instance.stopPlayback();
     TrackerCoordinator.instance.stopPlayback();
 
-    // Released before the scope closes and the display mode is restored, so
-    // neither can re-enter the handler on a screen that is going away.
-    _releaseFullscreenListener?.call();
-    _releaseFullscreenListener = null;
-    FullscreenStateManager().endScope();
-    // Not _restoreDisplayMode(): that helper waits 200ms after clearing the
-    // Windows HDR hint before restoring, which dispose() cannot do. Fire the
-    // hint clear at the still-live player and restore immediately.
-    if (!isReplacingWithVideo && _displayModeService != null && _displayModeService!.anyChangeApplied) {
-      if (_displayModeService!.hdrStateChanged && player != null) {
-        final currentPlayer = player!;
-        unawaited(() async {
-          try {
-            await currentPlayer.setProperty('target-colorspace-hint', 'no');
-          } catch (error, stackTrace) {
-            appLogger.w(
-              'Failed to clear the Windows HDR colorspace hint during teardown',
-              error: error,
-              stackTrace: stackTrace,
-            );
-          }
-        }());
-      }
-      _displayModeService!.restoreAll();
-    }
-
     // Clear frame rate matching and abandon audio focus before disposing player (Android only)
-    if (Platform.isAndroid && player != null) {
+    if (player != null) {
       // ExoPlayerCore.releasePending leaves the display mode for this call;
       // MpvPlayerCore restores it natively on dispose and the call is
       // idempotent there. Skip it during a player→player replacement, the
@@ -2559,7 +2293,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     final playerToDispose = player;
     player = null;
     if (playerToDispose != null) {
-      // Keep the native display mode (tvOS HDMI criteria) across a
+      // Keep the native display mode across a
       // player→player handoff; the replacement screen primes its own.
       // Not before the room's commands on it have finished (SDK.md §11.2).
       _nativeDisposal = watchTogetherReleased
@@ -2605,25 +2339,8 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       focusNode: _screenFocusNode,
       playerReady: _isPlayerInitialized && player != null && _firstFrame.uiReady.value,
       isCurrentRoute: ModalRoute.of(context)?.isCurrent ?? true,
-      isAppleTV: PlatformDetector.isAppleTV(),
     );
     return false;
-  }
-
-  void _setupAppleTvRemotePlaybackActions() {
-    if (!PlatformDetector.isAppleTV()) return;
-
-    _appleTvPlayPauseSubscription = AppleTvRemoteTouchService.instance.playPauseActions.listen((action) {
-      unawaited(_handleAppleTvRemotePlayPause(action));
-    });
-  }
-
-  Future<void> _handleAppleTvRemotePlayPause(AppleTvRemotePlayPauseAction action) async {
-    appLogger.d(
-      'Apple TV remote play/pause received source=${action.source}'
-      '${action.detail == null ? '' : ' detail=${action.detail}'}',
-    );
-    await _remoteTransport(TransportCommand.toggle, source: 'Apple TV remote');
   }
 
   /// Announce an *accepted user transport command* with a centred transient disc.
@@ -2660,8 +2377,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     _toastController.show(icon, t.videoControls.volumePercent(percent: percent));
   }
 
-  /// Apply a transport command on behalf of a hardware remote (Apple TV bridge
-  /// or a hardware media key). Mirrors the controls path: rewind-on-resume,
+  /// Apply a transport command on behalf of a hardware remote or media key. Mirrors the controls path: rewind-on-resume,
   /// then play/pause with playback intent, then announce.
   Future<void> _remoteTransport(TransportCommand command, {required String source}) async {
     if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
@@ -2936,8 +2652,6 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
     _detachPipStateListener();
     _clearAutoPipEnteringCallback();
     final cancellations = _cancelPlayerStreamSubscriptions(includeMediaControls: true);
-    final remoteCancellation = _appleTvPlayPauseSubscription?.cancel();
-    if (remoteCancellation != null) cancellations.add(remoteCancellation);
     final sleepCancellation = _sleepTimerSubscription?.cancel();
     if (sleepCancellation != null) cancellations.add(sleepCancellation);
 
@@ -2989,7 +2703,7 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
       canRequestFocus: isCurrentRoute,
       onKeyEvent: (node, event) {
         if (!isCurrentRoute) return KeyEventResult.ignored;
-        final navigationKey = classifyPlayerNavigationKey(event, isAppleTV: PlatformDetector.isAppleTV());
+        final navigationKey = classifyPlayerNavigationKey(event);
         if (navigationKey != PlayerNavigationKey.none) {
           if (navigationKey != PlayerNavigationKey.home && PlatformDetector.isTV() && event is KeyDownEvent) {
             BackKeyCoordinator.markHandled();
@@ -3003,13 +2717,11 @@ class VideoPlayerScreenState extends State<VideoPlayerScreen>
         // Hardware media transport must act even when focus rests on this
         // node or a sibling overlay — otherwise the key only reveals the
         // chrome and leaks to the (possibly stale/suspended) Android
-        // MediaSession (#1375). Gated to TV-style nav: on desktop the global
-        // HardwareKeyboard handler already acts (handlers don't stop focus
-        // dispatch), and Apple TV delivers play/pause via its native bridge.
+        // MediaSession (#1375).
         // The chrome deliberately stays down; _remoteTransport announces the
         // accepted command with a centred transient disc instead (#1676).
         final transportCommand = classifyTransportKey(event.logicalKey);
-        if (videoPlayerNavigationPreference() && !PlatformDetector.isAppleTV() && transportCommand != null) {
+        if (videoPlayerNavigationPreference() && transportCommand != null) {
           if (event is KeyDownEvent) {
             unawaited(_remoteTransport(transportCommand, source: 'Hardware media key'));
           }
@@ -3118,17 +2830,11 @@ String _sanitizedSubtitleColor(String value, String fallback) {
 String _getHwdecValue(bool enabled) {
   if (!enabled) return 'no';
 
-  if (Platform.isMacOS || Platform.isIOS) {
-    return 'videotoolbox';
-  } else if (Platform.isAndroid) {
-    // The fork vo=mediacodec takes MediaCodec decoder buffers straight to the
-    // video plane; its query_format accepts IMGFMT_MEDIACODEC and nothing
-    // else, so -copy can never draw there and the entry is only ever reached
-    // under the GL vos. It stays because it is the only hardware path left
-    // below API 26, where the direct AImageReader interop mediacodec needs
-    // does not exist (minSdk 25 for Fire OS 6).
-    return 'mediacodec,mediacodec-copy';
-  } else {
-    return 'auto'; // Windows, Linux
-  }
+  // The fork vo=mediacodec takes MediaCodec decoder buffers straight to the
+  // video plane; its query_format accepts IMGFMT_MEDIACODEC and nothing
+  // else, so -copy can never draw there and the entry is only ever reached
+  // under the GL vos. It stays because it is the only hardware path left
+  // below API 26, where the direct AImageReader interop mediacodec needs
+  // does not exist (minSdk 25 for Fire OS 6).
+  return 'mediacodec,mediacodec-copy';
 }

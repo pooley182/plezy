@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
@@ -62,25 +61,10 @@ PurchaseDetails _playBillingCancel() => PurchaseDetails(
 void main() {
   setUp(resetSharedPreferencesForTest);
 
-  group('supporterAvailabilityFor', () {
-    test('a Microsoft Store install gets the perks free; the same compile outside the Store hides them', () {
-      expect(supporterAvailabilityFor(SupporterMode.msstore, isPackagedInstall: true), SupporterAvailability.free);
-      expect(supporterAvailabilityFor(SupporterMode.msstore, isPackagedInstall: false), SupporterAvailability.hidden);
-    });
-
-    test('store and free builds ignore the packaged-install check', () {
-      for (final packaged in [true, false]) {
-        expect(
-          supporterAvailabilityFor(SupporterMode.iap, isPackagedInstall: packaged),
-          SupporterAvailability.purchasable,
-        );
-        expect(
-          supporterAvailabilityFor(SupporterMode.unlocked, isPackagedInstall: packaged),
-          SupporterAvailability.free,
-        );
-        expect(supporterAvailabilityFor(SupporterMode.off, isPackagedInstall: packaged), SupporterAvailability.hidden);
-      }
-    });
+  test('supporterAvailabilityFor maps each build mode', () {
+    expect(supporterAvailabilityFor(SupporterMode.iap), SupporterAvailability.purchasable);
+    expect(supporterAvailabilityFor(SupporterMode.unlocked), SupporterAvailability.free);
+    expect(supporterAvailabilityFor(SupporterMode.off), SupporterAvailability.hidden);
   });
 
   group('cached entitlement', () {
@@ -424,154 +408,6 @@ void main() {
       service.dispose();
 
       expect(platform.hasPurchaseListener, isFalse);
-    });
-  });
-
-  group('on the App Store', () {
-    late FakeInAppPurchasePlatform platform;
-    late FakeAppStore appStore;
-
-    setUp(() {
-      platform = FakeInAppPurchasePlatform();
-      appStore = FakeAppStore(platform);
-      addTearDown(platform.close);
-    });
-
-    test('a completed purchase unlocks, caches and finishes the transaction', () async {
-      final service = _purchasable(appStore.store);
-      await service.init();
-      await service.purchase();
-
-      final purchase = appStorePurchase();
-      platform.deliver([purchase]);
-      await pumpEventQueue();
-
-      expect(service.isUnlocked, isTrue);
-      expect(platform.completed, [purchase]);
-      expect(await _cachedEntitlement(), isTrue);
-    });
-
-    test('Ask to Buy waits without unlocking', () async {
-      final service = _purchasable(appStore.store);
-      await service.purchase();
-
-      platform.deliver([appStorePurchase(status: PurchaseStatus.pending)]);
-      await pumpEventQueue();
-
-      expect(service.isUnlocked, isFalse);
-      expect(service.storeState.value.status, SupporterPurchaseStatus.pending);
-      expect(platform.completed, isEmpty);
-    });
-
-    test('Restore Purchases syncs the Apple Account and unlocks its purchase', () async {
-      final service = _purchasable(appStore.store);
-      await service.init();
-      appStore.transactions = [appStoreTransaction()];
-
-      await service.restore();
-
-      expect(appStore.syncs, 1);
-      expect(service.isUnlocked, isTrue);
-      expect(service.storeState.value.error, isNull);
-      expect(await _cachedEntitlement(), isTrue);
-    });
-
-    test('a store without the product reports it missing, not a connection failure', () async {
-      // StoreKit 2 answers an empty product query with this error.
-      platform.product = null;
-      platform.productResponseError = IAPError(
-        source: 'app_store',
-        code: 'storekit_no_response',
-        message: 'StoreKit: Failed to get response from platform.',
-      );
-      final service = _purchasable(appStore.store);
-
-      await service.loadProduct();
-
-      expect(service.storeState.value.price, isNull);
-      expect(service.storeState.value.productError, SupporterError.productNotFound);
-    });
-
-    test('cancelling the Apple Account sign-in during Restore returns to the offer without an error', () async {
-      appStore.syncError = PlatformException(
-        code: 'storekit2_failed_to_sync_to_app_store',
-        message: 'Storekit has failed to sync to the app store.',
-        details: 'userCancelled',
-      );
-      final service = _purchasable(appStore.store);
-
-      await service.restore();
-
-      expect(appStore.syncs, 1);
-      expect(service.storeState.value.status, SupporterPurchaseStatus.idle);
-      expect(service.storeState.value.error, isNull);
-      expect(service.isUnlocked, isFalse);
-    });
-
-    test('a failed Apple Account sync with no purchase in the history reports the failure', () async {
-      appStore.syncError = PlatformException(
-        code: 'storekit2_failed_to_sync_to_app_store',
-        message: 'Storekit has failed to sync to the app store.',
-        details: 'networkError',
-      );
-      final service = _purchasable(appStore.store);
-
-      await service.restore();
-
-      expect(service.storeState.value.error, SupporterError.restoreFailed);
-    });
-
-    test('an empty history keeps the cached unlock: another Apple Account may be signed in', () async {
-      await _cacheEntitlement(true);
-      final service = _purchasable(appStore.store);
-
-      await service.init();
-
-      expect(service.isUnlocked, isTrue);
-      expect(await _cachedEntitlement(), isTrue);
-    });
-
-    test('a refund in the history locks the perks at startup', () async {
-      await _cacheEntitlement(true);
-      appStore.transactions = [appStoreTransaction(revoked: true)];
-      final service = _purchasable(appStore.store);
-      final notifications = _countNotifications(service);
-
-      await service.init();
-      await pumpEventQueue();
-
-      expect(service.isUnlocked, isFalse);
-      expect(notifications(), 1);
-      expect(await _cachedEntitlement(), isFalse);
-    });
-
-    test('a refund delivered while running locks the perks and finishes the transaction', () async {
-      appStore.transactions = [appStoreTransaction()];
-      final service = _purchasable(appStore.store);
-      await service.init();
-      expect(service.isUnlocked, isTrue);
-      final notifications = _countNotifications(service);
-
-      final refund = appStorePurchase(revoked: true);
-      platform.deliver([refund]);
-      await pumpEventQueue();
-
-      expect(service.isUnlocked, isFalse);
-      expect(notifications(), 1);
-      expect(platform.completed, [refund]);
-      expect(await _cachedEntitlement(), isFalse);
-    });
-
-    test('other products are ignored', () async {
-      appStore.transactions = [appStoreTransaction(productId: 'some_other_product')];
-      final service = _purchasable(appStore.store);
-      await service.init();
-
-      platform.deliver([appStorePurchase(productId: 'some_other_product')]);
-      await pumpEventQueue();
-
-      expect(service.isUnlocked, isFalse);
-      expect(platform.completed, isEmpty);
     });
   });
 }

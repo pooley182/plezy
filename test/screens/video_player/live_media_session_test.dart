@@ -36,6 +36,7 @@ import '../../test_helpers/mock_player_channels.dart';
 import '../../test_helpers/multi_server_fixtures.dart';
 import '../../test_helpers/player_streams.dart';
 import '../../test_helpers/prefs.dart';
+import '../../test_helpers/android_player_noops.dart';
 
 /// Regression coverage for #2388: a live channel publishes nothing to the OS
 /// media session, so Assistant, the Android TV Now Playing card and AVRCP
@@ -497,7 +498,7 @@ class _LiveShell {
   }
 }
 
-class _LiveMediaSessionPlayer implements Player {
+class _LiveMediaSessionPlayer with AndroidPlayerNoops implements Player {
   _LiveMediaSessionPlayer()
     : _state = const PlayerState(position: Duration.zero, duration: Duration.zero, seekable: false);
 

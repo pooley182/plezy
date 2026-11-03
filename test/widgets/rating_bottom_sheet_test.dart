@@ -119,10 +119,8 @@ Future<void> _pumpRatingSheet(
 
   // Pin the two platform gates the host's cap consults, so the 0.75/720 math
   // is the same on every machine running the suite.
-  PlatformDetector.debugSetIsDesktopOSOverride(true);
-  addTearDown(() => PlatformDetector.debugSetIsDesktopOSOverride(null));
-  TvDetectionService.debugSetAppleTVOverride(false);
-  addTearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  TvDetectionService.debugSetTvOverride(false);
+  addTearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   final trackers = TrackersProvider(httpClientFactory: () => FakeHttpClient(200, const <int>[]));
   addTearDown(trackers.dispose);

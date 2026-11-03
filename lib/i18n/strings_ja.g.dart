@@ -145,7 +145,6 @@ class _Translations$auth$ja extends Translations$auth$en {
 	@override String get quickConnectWaiting => '承認を待っています…';
 	@override String get quickConnectCancel => 'キャンセル';
 	@override String get quickConnectExpired => 'Quick Connectの有効期限が切れました。もう一度お試しください。';
-	@override String get localDataRecoveryRequired => 'ローカルのサインイン情報と保留中の再生データを安全に復元できませんでした。もう一度サインインしてください。';
 	@override String get pinCheckRejected => 'Plex PINの確認が拒否されました';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$ja extends Translations$common$en {
 	@override String get connectingToServers => 'サーバーに接続中…';
 	@override String get startingOfflineMode => 'オフラインモードを開始中…';
 	@override String get loading => '読み込み中…';
-	@override String get fullscreen => 'フルスクリーン';
-	@override String get exitFullscreen => 'フルスクリーンを終了';
 	@override String get pressBackAgainToExit => 'もう一度押すと終了します';
 	@override late final _Translations$common$ratingSource$ja ratingSource = _Translations$common$ratingSource$ja._(_root);
 	@override String get notAvailable => 'N/A';
@@ -364,9 +361,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => 'デフォルト画質と同じ';
 	@override String get directPlayCoveredQuality => '小さい動画をオリジナル画質で再生';
 	@override String get directPlayCoveredQualityDescription => '画質制限内の動画はトランスコードせずにダイレクト再生します';
-	@override String get videoCodecs => 'ビデオコーデック';
-	@override String get videoCodecsDescription => 'チェックを外したコーデックはサーバーがトランスコードします';
-	@override String get videoCodecsAlwaysAccepted => '常に許可';
 	@override String get musicQualityTitle => '音楽の音質';
 	@override String get subtitleStyling => '字幕スタイル';
 	@override String get subtitleStylingDescription => '字幕の外観をカスタマイズ';
@@ -392,11 +386,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get specialsOrderingLast => '通常シーズンの後';
 	@override String get clickVideoTogglesPlayback => '動画クリックで再生/一時停止を切替';
 	@override String get clickVideoTogglesPlaybackDescription => 'コントロール表示ではなく、動画クリックで再生/一時停止します。';
-	@override String get videoPlayerControls => '動画プレーヤーコントロール';
-	@override String get keyboardShortcuts => 'キーボードショートカット';
-	@override String get keyboardShortcutsDescription => 'キーボードショートカットをカスタマイズ';
-	@override String get videoPlayerNavigation => '動画プレーヤーナビゲーション';
-	@override String get videoPlayerNavigationDescription => '矢印キーで動画プレーヤーコントロールを操作';
 	@override String get watchTogetherRelay => '一緒に視聴リレーサーバー';
 	@override String get watchTogetherRelayDescription => '独自のリレーサーバーを設定しない限り、公開のOpen Watch Partyリレーサーバーを使用します';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
@@ -423,8 +412,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get importSettingsSuccess => '設定をインポートしました';
 	@override String get importSettingsInvalidFile => 'このファイルは有効なPlezyの設定エクスポートではありません';
 	@override String get importSettingsNoUser => '設定をインポートする前にサインインしてください';
-	@override String get shortcutsReset => 'ショートカットをデフォルトにリセットしました';
-	@override String get resetShortcutsConfirm => 'カスタムショートカットがデフォルトに置き換えられます。続行しますか？';
 	@override String get about => 'アプリについて';
 	@override String get aboutDescription => 'アプリ情報とライセンス';
 	@override String get updates => 'アップデート';
@@ -434,8 +421,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => '起動時にアップデートがある場合は通知します';
 	@override String get validationErrorEnterNumber => '有効な数値を入力してください';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => '時間は${min}から${max} ${unit}の間である必要があります';
-	@override String shortcutAlreadyAssigned({required Object action}) => 'ショートカットは既に${action}に割り当てられています';
-	@override String shortcutUpdated({required Object action}) => '${action}のショートカットを更新しました';
 	@override String get saveFailed => '変更を保存できませんでした。もう一度お試しください。';
 	@override String get autoPlayAndSkip => '自動再生とスキップ';
 	@override String get autoPlayNextEpisode => '次のエピソードを自動再生';
@@ -484,8 +469,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get maxVolume => '最大音量';
 	@override String get maxVolumeDescription => '静かなメディアに対して100%以上の音量ブーストを許可';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Discordで視聴中の内容を表示';
 	@override String get services => 'サービス';
 	@override String get servicesDescription => 'Trakt、MyAnimeList、Seerrなどを接続';
 	@override String get manageLibrariesDescription => 'ライブラリを並べ替えたり非表示にしたりできます';
@@ -499,17 +482,11 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => '表示のリフレッシュレートを動画コンテンツに合わせます';
 	@override String get matchContentResolution => 'コンテンツの解像度に合わせる';
 	@override String get matchContentResolutionDescription => 'テレビ側でアップスケーリングを処理できるよう、ディスプレイを映像本来の解像度に切り替えます。再生中はメニューや字幕もアップスケールされます';
-	@override String get matchRefreshRate => 'リフレッシュレートを合わせる';
-	@override String get matchRefreshRateDescription => '全画面時に表示のリフレッシュレートを合わせます';
-	@override String get matchDynamicRange => 'ダイナミックレンジを合わせる';
-	@override String get matchDynamicRangeDescription => 'HDRコンテンツではHDRに切り替え、その後SDRに戻します';
 	@override String get displaySwitchDelay => 'ディスプレイ切り替え遅延';
 	@override String get tunneledPlayback => 'トンネル再生';
 	@override String get tunneledPlaybackDescription => '動画トンネリングを使用します。HDR再生で画面が黒くなる場合や動きがカクつく場合は無効にしてください。';
 	@override String get audioPassthrough => 'オーディオパススルー';
 	@override String get audioPassthroughDescription => 'Dolby/DTS音声を再エンコードせずにレシーバーやテレビに送り、サラウンドを維持します。音が出ない場合は無効にしてください。';
-	@override String get audioPassthroughDescriptionApple => 'Dolby Atmosを含むDolby Digital PlusにはApple標準のDolbyデコーダーを使用します。DTSとTrueHDは引き続きマルチチャンネルPCMで再生されます。音が出ない場合は無効にしてください。';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Dolby Atmosを含むDolby Digital PlusにはApple標準のDolbyデコーダーを使用します。iOS、iPadOS、tvOS 26以降では、TrueHD AtmosとDTS:Xが空間オーディオとして再生されます。その他のDTSとTrueHDのトラックはマルチチャンネルPCMで再生されます。音が出ない場合は無効にしてください。';
 	@override String get audioPassthroughOverriddenByNormalization => 'ラウドネス正規化がオンの間はオフ';
 	@override String get audioChannelLimit => '音声チャンネル';
 	@override String get audioChannelLimitDescription => 'すべてのチャンネルを再生できないスピーカー、ヘッドホン、HDMI環境に合わせて、デコードした音声をダウンミックスします';
@@ -557,10 +534,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'アプリを開くたびにプロフィール選択を表示';
 	@override String get forceTvMode => 'TVモードを強制';
 	@override String get forceTvModeDescription => 'TVレイアウトを強制します。自動検出しないデバイス向けです。再起動が必要です。';
-	@override String get startInFullscreen => '全画面表示で起動';
-	@override String get startInFullscreenDescription => '起動時にPlezyを全画面モードで開きます';
-	@override String get exitFullscreenOnPlayerClose => 'プレイヤーを閉じたときに全画面を終了';
-	@override String get exitFullscreenOnPlayerCloseDescription => 'ビデオプレイヤーを閉じたときに自動的に全画面モードを終了します';
 	@override String get autoHidePerformanceOverlay => 'パフォーマンスオーバーレイを自動非表示';
 	@override String get autoHidePerformanceOverlayDescription => '再生コントロールと一緒にパフォーマンスオーバーレイをフェードする';
 	@override String get showNavBarLabels => 'ナビゲーションバーのラベルを表示';
@@ -578,7 +551,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get libraryAndCards => 'ライブラリとカード';
 	@override String get homeScreen => 'ホーム画面';
 	@override String get navigation => 'ナビゲーション';
-	@override String get window => 'ウィンドウ';
 	@override String get liveTv => 'ライブTV';
 	@override String get player => 'プレーヤー';
 	@override String get videoAndDisplay => '映像とディスプレイ';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$ja extends Translations$hotkeys$en {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => '${actionName}のショートカットを設定';
-	@override String get clearShortcut => 'ショートカットをクリア';
 	@override String get noShortcutSet => 'ショートカット未設定';
-	@override String get currentShortcut => '現在のショートカット:';
-	@override String get pressToRecord => '選択してショートカットを記録';
-	@override String get recordingShortcut => 'ショートカットを押してください';
 	@override late final _Translations$hotkeys$actions$ja actions = _Translations$hotkeys$actions$ja._(_root);
 }
 
@@ -977,16 +944,12 @@ class _Translations$videoControls$ja extends Translations$videoControls$en {
 	@override String get pipButton => 'ピクチャーインピクチャーモード';
 	@override String get aspectRatioButton => 'アスペクト比';
 	@override String get ambientLighting => 'アンビエントライティング';
-	@override String get fullscreenButton => 'フルスクリーンに入る';
-	@override String get exitFullscreenButton => 'フルスクリーンを終了';
-	@override String get alwaysOnTopButton => '常に前面に表示';
 	@override String get rotationLockButton => '回転ロック';
 	@override String get lockScreen => '画面をロック';
 	@override String get screenLockButton => '画面ロック';
 	@override String get timelineSlider => '動画タイムライン';
 	@override String get volumeSlider => '音量レベル';
 	@override String endsAt({required Object time}) => '${time}に終了';
-	@override String get pipActive => 'ピクチャーインピクチャーで再生中';
 	@override String get pipFailed => 'ピクチャーインピクチャーの開始に失敗しました';
 	@override String get screenshotSaved => 'スクリーンショットを保存しました';
 	@override String get screenshotFailed => 'スクリーンショットを撮影できませんでした';
@@ -1153,7 +1116,6 @@ class _Translations$mpvConfig$ja extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => '行を追加';
 	@override String get removeLine => '行を削除';
-	@override String get embeddedVoHint => 'Linux では vo、gpu-context、gpu-api は無視されます。埋め込み動画は常にビデオプレーン上で vo=libmpv を通してレンダリングされ、gpu-next（ArtCNN のようなコンピュートシェーダーに必要）は埋め込みでは実行できません。';
 }
 
 // Path: dialog
@@ -1502,7 +1464,6 @@ class _Translations$startup$ja extends Translations$startup$en {
 	@override String get repairSucceeded => 'ストレージを修復しました';
 	@override String get repairNeedsRestart => 'ストレージを修復しました — 再起動が必要です';
 	@override String get restartRequiredBody => 'データは修復されましたが、Plezyはそれを使用する前に再起動する必要があります。Plezyを閉じて再度開いてください。';
-	@override String get quitPlezy => 'Plezyを終了';
 	@override String get repairFailed => '修復に失敗しました';
 	@override String get repairKeptSignIns => 'サーバーとプロフィールはサインインしたままです。';
 	@override String get repairLostSignIns => '保存済みのサインインを保護するキーを復元できませんでした。すべてのサーバーとプロフィールに再度サインインする必要があります。';
@@ -2068,20 +2029,9 @@ class _Translations$videoSettings$ja extends Translations$videoSettings$en {
 	@override String get audioSync => '音声同期';
 	@override String get subtitleSync => '字幕同期';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => 'ここではHDRを利用できません。このデスクトップコンポジターまたは映像出力はHDRに対応していません。';
-	@override String get hdrToneMapping => 'HDRトーンマッピング';
-	@override String get hdrToneMappingCompositor => 'コンポジター';
-	@override String get hdrToneMappingCompositorDescription => 'ソースのHDRメタデータをそのまま渡し、デスクトップコンポジターにマッピングさせます。';
-	@override String get hdrToneMappingPlayer => 'プレーヤー';
-	@override String get hdrToneMappingPlayerDescription => 'プレーヤーでディスプレイのピーク輝度に合わせてマッピングし、その結果をコンポジターに通知します。';
-	@override String get hdrToneMappingFailed => 'HDRトーンマッピングを変更できませんでした。以前のモードが引き続き有効です。';
 	@override String get audioOutput => '音声出力';
-	@override String get performanceOverlay => 'パフォーマンスオーバーレイ';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => 'サラウンド';
-	@override String get audioOutputSpatial => '空間オーディオ';
 	@override String get audioOutputStereo => 'ステレオ';
+	@override String get performanceOverlay => 'パフォーマンスオーバーレイ';
 	@override String get audioNormalization => 'ラウドネス正規化';
 	@override String get audioNormalizationDisablesPassthrough => '音声をPCMにデコードします。オンの間はパススルーがオフになります';
 }
@@ -2164,7 +2114,6 @@ class _Translations$externalPlayer$ja extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => 'カスタムプレーヤーを追加';
 	@override String get playerName => 'プレーヤー名';
 	@override String get playerNameHint => 'マイプレーヤー';
-	@override String get playerCommand => 'コマンド';
 	@override String get playerPackage => 'パッケージ名';
 	@override String get playerUrlScheme => 'URLスキーム';
 	@override String get off => 'オフ';
@@ -2376,7 +2325,6 @@ class _Translations$services$ja extends Translations$services$en {
 	// Translations
 	@override String get title => 'サービス';
 	@override String get hubSubtitle => '視聴の進捗を同期して、新しいタイトルをリクエストします。';
-	@override String get integrations => 'インテグレーション';
 	@override String get notConnected => '未接続';
 	@override String connectedAs({required Object username}) => '@${username} として接続済み';
 	@override String get scrobble => '進捗を自動で記録';
@@ -2611,7 +2559,6 @@ class _Translations$videoControls$pipErrors$ja extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Android 8.0以降が必要です';
-	@override String get iosVersion => 'iOS 15.0以降が必要です';
 	@override String get permissionDisabled => 'ピクチャーインピクチャーが無効です。システム設定で有効にしてください。';
 	@override String get notSupported => 'デバイスはピクチャーインピクチャーモードをサポートしていません';
 	@override String get voSwitchFailed => 'ピクチャーインピクチャーの映像出力切替に失敗しました';
@@ -3430,7 +3377,6 @@ extension on TranslationsJa {
 			'auth.quickConnectWaiting' => '承認を待っています…',
 			'auth.quickConnectCancel' => 'キャンセル',
 			'auth.quickConnectExpired' => 'Quick Connectの有効期限が切れました。もう一度お試しください。',
-			'auth.localDataRecoveryRequired' => 'ローカルのサインイン情報と保留中の再生データを安全に復元できませんでした。もう一度サインインしてください。',
 			'auth.pinCheckRejected' => 'Plex PINの確認が拒否されました',
 			'common.cancel' => 'キャンセル',
 			'common.save' => '保存',
@@ -3475,8 +3421,6 @@ extension on TranslationsJa {
 			'common.connectingToServers' => 'サーバーに接続中…',
 			'common.startingOfflineMode' => 'オフラインモードを開始中…',
 			'common.loading' => '読み込み中…',
-			'common.fullscreen' => 'フルスクリーン',
-			'common.exitFullscreen' => 'フルスクリーンを終了',
 			'common.pressBackAgainToExit' => 'もう一度押すと終了します',
 			'common.ratingSource.critic' => '批評家',
 			'common.ratingSource.audience' => '観客',
@@ -3632,9 +3576,6 @@ extension on TranslationsJa {
 			'settings.cellularQualitySameAsDefault' => 'デフォルト画質と同じ',
 			'settings.directPlayCoveredQuality' => '小さい動画をオリジナル画質で再生',
 			'settings.directPlayCoveredQualityDescription' => '画質制限内の動画はトランスコードせずにダイレクト再生します',
-			'settings.videoCodecs' => 'ビデオコーデック',
-			'settings.videoCodecsDescription' => 'チェックを外したコーデックはサーバーがトランスコードします',
-			'settings.videoCodecsAlwaysAccepted' => '常に許可',
 			'settings.musicQualityTitle' => '音楽の音質',
 			'settings.subtitleStyling' => '字幕スタイル',
 			'settings.subtitleStylingDescription' => '字幕の外観をカスタマイズ',
@@ -3660,11 +3601,6 @@ extension on TranslationsJa {
 			'settings.specialsOrderingLast' => '通常シーズンの後',
 			'settings.clickVideoTogglesPlayback' => '動画クリックで再生/一時停止を切替',
 			'settings.clickVideoTogglesPlaybackDescription' => 'コントロール表示ではなく、動画クリックで再生/一時停止します。',
-			'settings.videoPlayerControls' => '動画プレーヤーコントロール',
-			'settings.keyboardShortcuts' => 'キーボードショートカット',
-			'settings.keyboardShortcutsDescription' => 'キーボードショートカットをカスタマイズ',
-			'settings.videoPlayerNavigation' => '動画プレーヤーナビゲーション',
-			'settings.videoPlayerNavigationDescription' => '矢印キーで動画プレーヤーコントロールを操作',
 			'settings.watchTogetherRelay' => '一緒に視聴リレーサーバー',
 			'settings.watchTogetherRelayDescription' => '独自のリレーサーバーを設定しない限り、公開のOpen Watch Partyリレーサーバーを使用します',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
@@ -3691,8 +3627,6 @@ extension on TranslationsJa {
 			'settings.importSettingsSuccess' => '設定をインポートしました',
 			'settings.importSettingsInvalidFile' => 'このファイルは有効なPlezyの設定エクスポートではありません',
 			'settings.importSettingsNoUser' => '設定をインポートする前にサインインしてください',
-			'settings.shortcutsReset' => 'ショートカットをデフォルトにリセットしました',
-			'settings.resetShortcutsConfirm' => 'カスタムショートカットがデフォルトに置き換えられます。続行しますか？',
 			'settings.about' => 'アプリについて',
 			'settings.aboutDescription' => 'アプリ情報とライセンス',
 			'settings.updates' => 'アップデート',
@@ -3702,8 +3636,6 @@ extension on TranslationsJa {
 			'settings.autoCheckUpdatesOnStartupDescription' => '起動時にアップデートがある場合は通知します',
 			'settings.validationErrorEnterNumber' => '有効な数値を入力してください',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => '時間は${min}から${max} ${unit}の間である必要があります',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'ショートカットは既に${action}に割り当てられています',
-			'settings.shortcutUpdated' => ({required Object action}) => '${action}のショートカットを更新しました',
 			'settings.saveFailed' => '変更を保存できませんでした。もう一度お試しください。',
 			'settings.autoPlayAndSkip' => '自動再生とスキップ',
 			'settings.autoPlayNextEpisode' => '次のエピソードを自動再生',
@@ -3752,8 +3684,6 @@ extension on TranslationsJa {
 			'settings.maxVolume' => '最大音量',
 			'settings.maxVolumeDescription' => '静かなメディアに対して100%以上の音量ブーストを許可',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Discordで視聴中の内容を表示',
 			'settings.services' => 'サービス',
 			'settings.servicesDescription' => 'Trakt、MyAnimeList、Seerrなどを接続',
 			'settings.manageLibrariesDescription' => 'ライブラリを並べ替えたり非表示にしたりできます',
@@ -3767,17 +3697,11 @@ extension on TranslationsJa {
 			'settings.matchContentFrameRateDescription' => '表示のリフレッシュレートを動画コンテンツに合わせます',
 			'settings.matchContentResolution' => 'コンテンツの解像度に合わせる',
 			'settings.matchContentResolutionDescription' => 'テレビ側でアップスケーリングを処理できるよう、ディスプレイを映像本来の解像度に切り替えます。再生中はメニューや字幕もアップスケールされます',
-			'settings.matchRefreshRate' => 'リフレッシュレートを合わせる',
-			'settings.matchRefreshRateDescription' => '全画面時に表示のリフレッシュレートを合わせます',
-			'settings.matchDynamicRange' => 'ダイナミックレンジを合わせる',
-			'settings.matchDynamicRangeDescription' => 'HDRコンテンツではHDRに切り替え、その後SDRに戻します',
 			'settings.displaySwitchDelay' => 'ディスプレイ切り替え遅延',
 			'settings.tunneledPlayback' => 'トンネル再生',
 			'settings.tunneledPlaybackDescription' => '動画トンネリングを使用します。HDR再生で画面が黒くなる場合や動きがカクつく場合は無効にしてください。',
 			'settings.audioPassthrough' => 'オーディオパススルー',
 			'settings.audioPassthroughDescription' => 'Dolby/DTS音声を再エンコードせずにレシーバーやテレビに送り、サラウンドを維持します。音が出ない場合は無効にしてください。',
-			'settings.audioPassthroughDescriptionApple' => 'Dolby Atmosを含むDolby Digital PlusにはApple標準のDolbyデコーダーを使用します。DTSとTrueHDは引き続きマルチチャンネルPCMで再生されます。音が出ない場合は無効にしてください。',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Dolby Atmosを含むDolby Digital PlusにはApple標準のDolbyデコーダーを使用します。iOS、iPadOS、tvOS 26以降では、TrueHD AtmosとDTS:Xが空間オーディオとして再生されます。その他のDTSとTrueHDのトラックはマルチチャンネルPCMで再生されます。音が出ない場合は無効にしてください。',
 			'settings.audioPassthroughOverriddenByNormalization' => 'ラウドネス正規化がオンの間はオフ',
 			'settings.audioChannelLimit' => '音声チャンネル',
 			'settings.audioChannelLimitDescription' => 'すべてのチャンネルを再生できないスピーカー、ヘッドホン、HDMI環境に合わせて、デコードした音声をダウンミックスします',
@@ -3825,10 +3749,6 @@ extension on TranslationsJa {
 			'settings.requireProfileSelectionOnOpenDescription' => 'アプリを開くたびにプロフィール選択を表示',
 			'settings.forceTvMode' => 'TVモードを強制',
 			'settings.forceTvModeDescription' => 'TVレイアウトを強制します。自動検出しないデバイス向けです。再起動が必要です。',
-			'settings.startInFullscreen' => '全画面表示で起動',
-			'settings.startInFullscreenDescription' => '起動時にPlezyを全画面モードで開きます',
-			'settings.exitFullscreenOnPlayerClose' => 'プレイヤーを閉じたときに全画面を終了',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'ビデオプレイヤーを閉じたときに自動的に全画面モードを終了します',
 			'settings.autoHidePerformanceOverlay' => 'パフォーマンスオーバーレイを自動非表示',
 			'settings.autoHidePerformanceOverlayDescription' => '再生コントロールと一緒にパフォーマンスオーバーレイをフェードする',
 			'settings.showNavBarLabels' => 'ナビゲーションバーのラベルを表示',
@@ -3846,7 +3766,6 @@ extension on TranslationsJa {
 			'settings.libraryAndCards' => 'ライブラリとカード',
 			'settings.homeScreen' => 'ホーム画面',
 			'settings.navigation' => 'ナビゲーション',
-			'settings.window' => 'ウィンドウ',
 			'settings.liveTv' => 'ライブTV',
 			'settings.player' => 'プレーヤー',
 			'settings.videoAndDisplay' => '映像とディスプレイ',
@@ -3895,8 +3814,6 @@ extension on TranslationsJa {
 			'themeEditor.slots.text' => 'テキスト',
 			'themeEditor.slots.textMuted' => '補助テキスト',
 			'themeEditor.slots.accent' => 'アクセント',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => '不透明度',
 			'themeEditor.hexHint' => '#RRGGBB または #AARRGGBB',
 			'themeEditor.fromOtherThemes' => '他のテーマから',
@@ -3921,15 +3838,12 @@ extension on TranslationsJa {
 			'search.searchYourMedia' => 'メディアを検索',
 			'search.enterTitleActorOrKeyword' => 'タイトル、俳優、またはキーワードを入力',
 			'search.people' => '人物',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => '${actionName}のショートカットを設定',
-			'hotkeys.clearShortcut' => 'ショートカットをクリア',
 			'hotkeys.noShortcutSet' => 'ショートカット未設定',
-			'hotkeys.currentShortcut' => '現在のショートカット:',
-			'hotkeys.pressToRecord' => '選択してショートカットを記録',
-			'hotkeys.recordingShortcut' => 'ショートカットを押してください',
 			'hotkeys.actions.playPause' => '再生/一時停止',
 			'hotkeys.actions.volumeUp' => '音量を上げる',
 			'hotkeys.actions.volumeDown' => '音量を下げる',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => '早送り（${seconds}秒）',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => '巻き戻し（${seconds}秒）',
 			'hotkeys.actions.fullscreenToggle' => 'フルスクリーン切替',
@@ -4186,23 +4100,18 @@ extension on TranslationsJa {
 			'videoControls.pipButton' => 'ピクチャーインピクチャーモード',
 			'videoControls.aspectRatioButton' => 'アスペクト比',
 			'videoControls.ambientLighting' => 'アンビエントライティング',
-			'videoControls.fullscreenButton' => 'フルスクリーンに入る',
-			'videoControls.exitFullscreenButton' => 'フルスクリーンを終了',
-			'videoControls.alwaysOnTopButton' => '常に前面に表示',
 			'videoControls.rotationLockButton' => '回転ロック',
 			'videoControls.lockScreen' => '画面をロック',
 			'videoControls.screenLockButton' => '画面ロック',
 			'videoControls.timelineSlider' => '動画タイムライン',
 			'videoControls.volumeSlider' => '音量レベル',
 			'videoControls.endsAt' => ({required Object time}) => '${time}に終了',
-			'videoControls.pipActive' => 'ピクチャーインピクチャーで再生中',
 			'videoControls.pipFailed' => 'ピクチャーインピクチャーの開始に失敗しました',
 			'videoControls.screenshotSaved' => 'スクリーンショットを保存しました',
 			'videoControls.screenshotFailed' => 'スクリーンショットを撮影できませんでした',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'ズーム ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => '音量 ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Android 8.0以降が必要です',
-			'videoControls.pipErrors.iosVersion' => 'iOS 15.0以降が必要です',
 			'videoControls.pipErrors.permissionDisabled' => 'ピクチャーインピクチャーが無効です。システム設定で有効にしてください。',
 			'videoControls.pipErrors.notSupported' => 'デバイスはピクチャーインピクチャーモードをサポートしていません',
 			'videoControls.pipErrors.voSwitchFailed' => 'ピクチャーインピクチャーの映像出力切替に失敗しました',
@@ -4340,7 +4249,6 @@ extension on TranslationsJa {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => '行を追加',
 			'mpvConfig.removeLine' => '行を削除',
-			'mpvConfig.embeddedVoHint' => 'Linux では vo、gpu-context、gpu-api は無視されます。埋め込み動画は常にビデオプレーン上で vo=libmpv を通してレンダリングされ、gpu-next（ArtCNN のようなコンピュートシェーダーに必要）は埋め込みでは実行できません。',
 			'dialog.confirmAction' => '操作の確認',
 			'profiles.addPlezyProfile' => 'Plezyプロフィールを追加',
 			'profiles.switchingProfile' => 'プロフィールを切り替え中…',
@@ -4409,8 +4317,6 @@ extension on TranslationsJa {
 			'profiles.tokenIdentityMismatch' => 'Plexプロフィールのトークンから予期しないサーバーが特定されました',
 			'connections.sectionTitle' => '接続',
 			'connections.addConnection' => '接続を追加',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Plexでサインインするか、JellyfinまたはEmbyサーバーに接続',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => '${displayName}に追加：Plex、Jellyfin、Emby、または別のプロフィールの接続',
 			'connections.sessionExpiredOne' => ({required Object name}) => '${name} のセッションの有効期限が切れました',
@@ -4450,6 +4356,8 @@ extension on TranslationsJa {
 			'accountPreferences.subtitleModes.smart' => '外国語音声時に表示',
 			'accountPreferences.subtitleModes.smartDescription' => '音声が別の言語の場合にのみ字幕をオンにします。',
 			'accountPreferences.subtitleAccessibility' => 'SDH字幕',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => '非SDH字幕を優先',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH字幕を優先',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'SDH字幕のみ',
@@ -4674,7 +4582,6 @@ extension on TranslationsJa {
 			'startup.repairSucceeded' => 'ストレージを修復しました',
 			'startup.repairNeedsRestart' => 'ストレージを修復しました — 再起動が必要です',
 			'startup.restartRequiredBody' => 'データは修復されましたが、Plezyはそれを使用する前に再起動する必要があります。Plezyを閉じて再度開いてください。',
-			'startup.quitPlezy' => 'Plezyを終了',
 			'startup.repairFailed' => '修復に失敗しました',
 			'startup.repairKeptSignIns' => 'サーバーとプロフィールはサインインしたままです。',
 			'startup.repairLostSignIns' => '保存済みのサインインを保護するキーを復元できませんでした。すべてのサーバーとプロフィールに再度サインインする必要があります。',
@@ -4923,8 +4830,6 @@ extension on TranslationsJa {
 			'liveTv.recordSettings.keepUpToHint' => '0 ですべてのエピソードを保持',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => '${minutes}分後に開始',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day} ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product}から無効なライブTV再生データが返されました',
 			'liveTv.failedToStartChannel' => 'ライブチャンネルを開始できませんでした',
 			'liveTv.failedToBuildStreamUrl' => 'ストリームURLを生成できませんでした',
@@ -4965,6 +4870,8 @@ extension on TranslationsJa {
 			'playlists.deleteConfirm' => 'プレイリストを削除しますか？',
 			'playlists.deleteMessage' => ({required Object name}) => '「${name}」を削除しますか？',
 			'playlists.created' => 'プレイリストを作成しました',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => 'プレイリストを削除しました',
 			'playlists.itemAdded' => 'プレイリストに追加しました',
 			'playlists.itemRemoved' => 'プレイリストから削除しました',
@@ -5368,20 +5275,9 @@ extension on TranslationsJa {
 			'videoSettings.audioSync' => '音声同期',
 			'videoSettings.subtitleSync' => '字幕同期',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'ここではHDRを利用できません。このデスクトップコンポジターまたは映像出力はHDRに対応していません。',
-			'videoSettings.hdrToneMapping' => 'HDRトーンマッピング',
-			'videoSettings.hdrToneMappingCompositor' => 'コンポジター',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'ソースのHDRメタデータをそのまま渡し、デスクトップコンポジターにマッピングさせます。',
-			'videoSettings.hdrToneMappingPlayer' => 'プレーヤー',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'プレーヤーでディスプレイのピーク輝度に合わせてマッピングし、その結果をコンポジターに通知します。',
-			'videoSettings.hdrToneMappingFailed' => 'HDRトーンマッピングを変更できませんでした。以前のモードが引き続き有効です。',
 			'videoSettings.audioOutput' => '音声出力',
-			'videoSettings.performanceOverlay' => 'パフォーマンスオーバーレイ',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'サラウンド',
-			'videoSettings.audioOutputSpatial' => '空間オーディオ',
 			'videoSettings.audioOutputStereo' => 'ステレオ',
+			'videoSettings.performanceOverlay' => 'パフォーマンスオーバーレイ',
 			'videoSettings.audioNormalization' => 'ラウドネス正規化',
 			'videoSettings.audioNormalizationDisablesPassthrough' => '音声をPCMにデコードします。オンの間はパススルーがオフになります',
 			'performanceOverlay.color' => '色',
@@ -5437,8 +5333,6 @@ extension on TranslationsJa {
 			'performanceOverlay.decoderHardware' => 'ハードウェア',
 			'performanceOverlay.tunnelingActive' => '有効',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted}（${failures}件失敗）',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => '外部プレーヤー',
 			'externalPlayer.useExternalPlayer' => '外部プレーヤーを使用',
 			'externalPlayer.useExternalPlayerDescription' => '動画を別のアプリで開きます',
@@ -5448,7 +5342,6 @@ extension on TranslationsJa {
 			'externalPlayer.addCustomPlayer' => 'カスタムプレーヤーを追加',
 			'externalPlayer.playerName' => 'プレーヤー名',
 			'externalPlayer.playerNameHint' => 'マイプレーヤー',
-			'externalPlayer.playerCommand' => 'コマンド',
 			'externalPlayer.playerPackage' => 'パッケージ名',
 			'externalPlayer.playerUrlScheme' => 'URLスキーム',
 			'externalPlayer.off' => 'オフ',
@@ -5491,6 +5384,8 @@ extension on TranslationsJa {
 			'metadataEdit.libraryDefault' => 'ライブラリのデフォルト',
 			'metadataEdit.accountDefault' => 'アカウントのデフォルト',
 			'metadataEdit.seriesDefault' => 'シリーズのデフォルト',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'エピソードの並べ替え',
 			'metadataEdit.oldestFirst' => '古い順',
 			'metadataEdit.newestFirst' => '新しい順',
@@ -5606,7 +5501,6 @@ extension on TranslationsJa {
 			'seerr.permissionRevoked' => 'これをリクエストする権限がなくなりました',
 			'services.title' => 'サービス',
 			'services.hubSubtitle' => '視聴の進捗を同期して、新しいタイトルをリクエストします。',
-			'services.integrations' => 'インテグレーション',
 			'services.notConnected' => '未接続',
 			'services.connectedAs' => ({required Object username}) => '@${username} として接続済み',
 			'services.scrobble' => '進捗を自動で記録',

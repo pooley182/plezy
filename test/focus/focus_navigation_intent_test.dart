@@ -26,10 +26,10 @@ void main() {
     );
   }
 
-  tearDown(() => TvDetectionService.debugSetAppleTVOverride(null));
+  tearDown(() => TvDetectionService.debugSetTvOverride(null));
 
   group('off TV', () {
-    setUp(() => TvDetectionService.debugSetAppleTVOverride(false));
+    setUp(() => TvDetectionService.debugSetTvOverride(false));
 
     final promotes = <String, KeyEvent>{
       'tab': down(LogicalKeyboardKey.tab),
@@ -87,7 +87,7 @@ void main() {
   });
 
   group('on TV', () {
-    setUp(() => TvDetectionService.debugSetAppleTVOverride(true));
+    setUp(() => TvDetectionService.debugSetTvOverride(true));
 
     test('a remote OK that arrives as a keyboard enter still requests navigation', () {
       expect(eventRequestsFocusNavigation(down(LogicalKeyboardKey.enter)), isTrue);
@@ -100,7 +100,7 @@ void main() {
   });
 
   group('arrows ask the focused node', () {
-    setUp(() => TvDetectionService.debugSetAppleTVOverride(false));
+    setUp(() => TvDetectionService.debugSetTvOverride(false));
 
     test('an ordinary node means arrows traverse', () {
       final node = FocusNode(debugLabel: 'plain');

@@ -273,13 +273,13 @@ void main() {
   });
   group('TV line editor', () {
     setUp(() async {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       await TvDetectionService.getInstance(forceTv: true);
       TvDetectionService.setForceTVSync(true);
     });
 
     tearDown(() {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       TvDetectionService.setForceTVSync(false);
     });
 

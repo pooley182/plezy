@@ -3,7 +3,6 @@ import '../media/ids.dart';
 import '../media/playback_rate.dart';
 import '../media/media_version_preference.dart';
 import '../media/media_source_info.dart' show PlaybackExtras;
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
@@ -146,21 +145,11 @@ enum SubAssOverride { no, yes, scale, force, strip }
 
 /// Resolution ASS/image subtitles are rasterized at.
 ///
-/// iOS/tvOS/macOS (avfoundation VO) use the [screen] vs [video] basis (video is much
-/// cheaper on 4K displays; subs can't carry more detail than the video they're
-/// typeset against). Android (libass overlay) instead downscales by a fixed
-/// fraction of the surface — [screen] is full, and [threeQuarter]/[half]/[third]/
-/// [quarter] trade sharpness for raster throughput on render-bound low-end TVs.
+/// The libass overlay downscales by a fixed fraction of the surface — [screen]
+/// is full, and [threeQuarter]/[half]/[third]/[quarter] trade sharpness for
+/// raster throughput on render-bound low-end TVs. [video] is a legacy Apple
+/// value kept so stored preferences still parse; it renders at full scale.
 enum SubtitleRenderResolution { screen, video, threeQuarter, half, third, quarter }
-
-/// Who reduces HDR content to what the display can actually show, on the Linux
-/// native video plane.
-///
-/// [compositor] hands the compositor the source's own metadata and lets its tone
-/// curve do the work — simple, and what Kodi does. [player] tone-maps in mpv to
-/// the display's real peak and declares that peak instead, which is mpv's own
-/// default and leaves the compositor an identity transform.
-enum HdrToneMapping { compositor, player }
 
 extension SubtitleRenderScale on SubtitleRenderResolution {
   /// Android libass overlay render scale (fraction of the surface resolution).
@@ -447,11 +436,11 @@ class _AppLocalePref extends Pref<AppLocale> {
   Future<void> writeTo(BaseSharedPreferencesService svc, AppLocale value) => svc.writeString(key, value.name);
 }
 
-/// Uses a macOS-disabled default and is forced off when [PlatformDetector] disables PiP.
+/// Forced off when [PlatformDetector] disables PiP.
 class _AutoPipPref extends Pref<bool> {
   const _AutoPipPref() : super('auto_pip');
   @override
-  bool get resolvedDefault => PlatformDetector.supportsPictureInPicture() && !Platform.isMacOS;
+  bool get resolvedDefault => PlatformDetector.supportsPictureInPicture();
 
   @override
   bool readFrom(BaseSharedPreferencesService svc) {
@@ -470,7 +459,6 @@ class _UseExternalPlayerPref extends Pref<bool> {
 
   @override
   bool readFrom(BaseSharedPreferencesService svc) {
-    if (!PlatformDetector.supportsExternalPlayers()) return false;
     return svc.readNullableBool(key) ?? false;
   }
 
@@ -485,7 +473,7 @@ class _UseExternalPlayerPref extends Pref<bool> {
 class _AudioPassthroughPref extends Pref<bool> {
   const _AudioPassthroughPref() : super('audio_passthrough');
   @override
-  bool get resolvedDefault => PlatformDetector.isAppleTV() || (Platform.isAndroid && PlatformDetector.isTV());
+  bool get resolvedDefault => PlatformDetector.isTV();
 
   @override
   bool readFrom(BaseSharedPreferencesService svc) {
@@ -499,8 +487,7 @@ class _AudioPassthroughPref extends Pref<bool> {
     // accepts rather than forcing the whole set. That probe is the only
     // safety net on the mpv path: ao_audiotrack fails the open outright when a
     // route lied about a format, with no decode fallback behind it (#1458,
-    // #1703). Apple TV routes E-AC-3 (incl. Atmos) through the native
-    // sample-buffer renderer, hardware-verified on real receivers (#1300).
+    // #1703).
     return resolvedDefault;
   }
 
@@ -633,18 +620,6 @@ class SettingsService extends BaseSharedPreferencesService {
   static const enableDebugLogging = BoolPref('enable_debug_logging', onWrite: setLoggerLevel);
   static const crashReporting = BoolPref('crash_reporting', defaultValue: true);
   static const enableHardwareDecoding = BoolPref('enable_hardware_decoding', defaultValue: true);
-  static const enableHDR = BoolPref('enable_hdr', defaultValue: true);
-  // Linux native video plane only. Defaults to the compositor: photographed on a
-  // 400-nit HDR output against a PQ chart, the compositor keeps 400 -> 1000 nits
-  // monotonic and separated while the player leg flattens it. The player path
-  // drives mpv's legacy vo_gpu, whose own standalone output scores the same, so
-  // the gap is the renderer rather than the wiring. Compositor also needs no
-  // knowledge of the display.
-  static const hdrToneMapping = EnumPref<HdrToneMapping>(
-    'hdr_tone_mapping',
-    values: HdrToneMapping.values,
-    defaultValue: HdrToneMapping.compositor,
-  );
   static const viewMode = EnumPref<ViewMode>('view_mode', values: ViewMode.values, defaultValue: ViewMode.grid);
   static const seekTimeSmall = IntPref('seek_time_small', defaultValue: 10);
   static const seekTimeLarge = IntPref('seek_time_large', defaultValue: 30);
@@ -735,7 +710,6 @@ class SettingsService extends BaseSharedPreferencesService {
   static const autoCheckUpdatesOnStartup = BoolPref('auto_check_updates_on_startup', defaultValue: true);
   static const showPerformanceOverlay = BoolPref('show_performance_overlay');
   static const autoHidePerformanceOverlay = BoolPref('auto_hide_performance_overlay', defaultValue: true);
-  static const enableDiscordRPC = BoolPref('enable_discord_rpc');
   static const enableTraktWatchedSync = BoolPref('enable_trakt_watched_sync', defaultValue: true);
   static const matchContentFrameRate = BoolPref('match_content_frame_rate');
   static const matchContentResolution = BoolPref('match_content_resolution');
@@ -839,7 +813,6 @@ class SettingsService extends BaseSharedPreferencesService {
   /// Remembered state of the player's always-on-top toggle (#931). The window
   /// flag itself is only held while a player is open; this pref re-applies it
   /// on the next playback (including autoplay episode transitions).
-  static const playerAlwaysOnTop = BoolPref('player_always_on_top');
 
   /// Where Specials (season 0) land in the episode watch order (#1416/#1952).
   /// Consumed by [sortEpisodesByWatchOrder] (Jellyfin online queue, offline
@@ -914,8 +887,6 @@ class SettingsService extends BaseSharedPreferencesService {
   /// per machine, so reset-only in the registry.
   static const audioOutputDevice = StringPref('audio_output_device', defaultValue: 'auto');
   static const liveTvDefaultFavorites = BoolPref('live_tv_default_favorites');
-  static const matchRefreshRate = BoolPref('match_refresh_rate');
-  static const matchDynamicRange = BoolPref('match_dynamic_range');
   static const appLocale = _AppLocalePref();
   static const autoPip = _AutoPipPref();
   static const customDownloadPath = NullableStringPref('custom_download_path');
@@ -987,12 +958,7 @@ class SettingsService extends BaseSharedPreferencesService {
     'video_player_navigation_enabled',
     defaultValueProvider: PlatformDetector.isTV,
   );
-  static const enableCompanionRemoteServer = BoolPref(
-    'enable_companion_remote_server',
-    defaultValueProvider: PlatformDetector.isDesktopOS,
-  );
-  static const startInFullscreen = BoolPref('start_in_fullscreen');
-  static const exitFullscreenOnPlayerClose = BoolPref('exit_fullscreen_on_player_close');
+  static const enableCompanionRemoteServer = BoolPref('enable_companion_remote_server');
 
   static const playbackBufferTier = EnumPref<PlaybackBufferTier>(
     'playback_buffer_tier',
@@ -1473,8 +1439,6 @@ class SettingsService extends BaseSharedPreferencesService {
   static final List<Pref<Object?>> _resetAndPortablePrefs = [
     enableDebugLogging,
     enableHardwareDecoding,
-    enableHDR,
-    hdrToneMapping,
     viewMode,
     seekTimeSmall,
     seekTimeLarge,
@@ -1498,7 +1462,6 @@ class SettingsService extends BaseSharedPreferencesService {
     autoCheckUpdatesOnStartup,
     showPerformanceOverlay,
     autoHidePerformanceOverlay,
-    enableDiscordRPC,
     enableTraktWatchedSync,
     // Scrobble toggle, one per tracker service.
     for (final s in TrackerService.values) scrobblePref(s),
@@ -1519,7 +1482,6 @@ class SettingsService extends BaseSharedPreferencesService {
     rememberBrightnessLevel,
     directPlayCoveredQuality,
     deinterlaceMode,
-    playerAlwaysOnTop,
     specialsOrdering,
     useExoPlayer,
     startupSection,
@@ -1600,12 +1562,8 @@ class SettingsService extends BaseSharedPreferencesService {
     cellularQualityPreset,
     musicQualityPreset,
     liveTvDefaultFavorites,
-    matchRefreshRate,
-    matchDynamicRange,
     displaySwitchDelay,
     enableCompanionRemoteServer,
-    startInFullscreen,
-    exitFullscreenOnPlayerClose,
   ];
 
   /// Group three: reset but *not* exported — device-local paths, endpoints and

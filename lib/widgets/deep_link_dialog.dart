@@ -16,7 +16,6 @@ import '../services/deep_links/deep_link.dart';
 import '../services/deep_links/item_links.dart';
 import '../utils/app_logger.dart';
 import '../utils/dialogs.dart';
-import '../utils/platform_detector.dart';
 import '../utils/provider_extensions.dart';
 import '../utils/snackbar_helper.dart';
 import 'dialog_action_button.dart';
@@ -214,8 +213,7 @@ class _LinkDialog extends StatelessWidget {
       title: Text(t.deepLinks.dialogTitle),
       content: wide ? SizedBox(width: 560, child: content) : content,
       actions: [
-        if (!PlatformDetector.isAppleTV())
-          DialogActionButton(onPressed: link == null ? null : () => _copy(context, link), label: t.deepLinks.copy),
+        DialogActionButton(onPressed: link == null ? null : () => _copy(context, link), label: t.deepLinks.copy),
         DialogActionButton(
           autofocus: true,
           onPressed: () => Navigator.of(context).pop(),

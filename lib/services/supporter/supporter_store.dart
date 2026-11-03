@@ -1,12 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
-import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 
 /// Product ID of the one-time Supporter purchase, the same on the App Store and
 /// Google Play.
@@ -73,25 +68,13 @@ abstract class SupporterStore {
   /// refund or revocation rather than a purchase.
   bool isRevocation(PurchaseDetails purchase);
 
-  /// The store for this device, or null where in_app_purchase has none.
-  ///
-  /// The first [InAppPurchase.instance] registers this OS's implementation:
-  /// Google Play on Android and StoreKit 2 on iOS and macOS. tvOS reports iOS
-  /// to Dart, so it gets StoreKit 2 from the plugin copy in the tvOS Runner.
-  static SupporterStore? forThisDevice() {
-    final os = defaultTargetPlatform;
-    if (os != TargetPlatform.android && os != TargetPlatform.iOS && os != TargetPlatform.macOS) return null;
+  /// The Google Play store. The first [InAppPurchase.instance] registers
+  /// the Play Billing implementation.
+  static SupporterStore forThisDevice() {
     final iap = InAppPurchase.instance;
-    if (os == TargetPlatform.android) {
-      return PlaySupporterStore(
-        InAppPurchasePlatform.instance,
-        queryPastPurchases: iap.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>().queryPastPurchases,
-      );
-    }
-    return AppStoreSupporterStore(
+    return PlaySupporterStore(
       InAppPurchasePlatform.instance,
-      transactions: SK2Transaction.transactions,
-      sync: AppStore().sync,
+      queryPastPurchases: iap.getPlatformAddition<InAppPurchaseAndroidPlatformAddition>().queryPastPurchases,
     );
   }
 }
@@ -143,57 +126,4 @@ class PlaySupporterStore extends SupporterStore {
   /// detects one.
   @override
   bool isRevocation(PurchaseDetails purchase) => false;
-}
-
-/// App Store (StoreKit 2): the history is `Transaction.all`, which keeps
-/// refunded and revoked transactions with a `revocationDate`.
-class AppStoreSupporterStore extends SupporterStore {
-  AppStoreSupporterStore(super.platform, {required this._transactions, required this._sync});
-
-  final Future<List<SK2Transaction>> Function() _transactions;
-  final Future<void> Function() _sync;
-
-  @override
-  Future<SupporterHistory> queryHistory() async {
-    final supporter = (await _transactions()).where((t) => t.productId == supporterProductId).toList();
-    // No transaction is not a revocation: another Apple Account may be signed
-    // in, or this device has not synced yet.
-    if (supporter.isEmpty) return const SupporterHistory(SupporterOwnership.unknown);
-    if (supporter.any((t) => !_jsonReportsRevocation(t.jsonRepresentation))) {
-      return const SupporterHistory(SupporterOwnership.owned);
-    }
-    return const SupporterHistory(SupporterOwnership.revoked);
-  }
-
-  /// `AppStore.sync`, which asks the user to sign in to the App Store.
-  @override
-  Future<void> syncForRestore() async {
-    try {
-      await _sync();
-    } on PlatformException catch (error) {
-      // The plugin reports StoreKit's `userCancelled` in the error's text.
-      if (error.code == 'storekit2_failed_to_sync_to_app_store' &&
-          '${error.message} ${error.details}'.contains('userCancelled')) {
-        throw const SupporterRestoreCancelled();
-      }
-      rethrow;
-    }
-  }
-
-  /// StoreKit 2 delivers a refund or revocation through `Transaction.updates`.
-  /// The plugin forwards it as a purchased transaction, so the revocation is
-  /// read from the transaction's JSON (`jsonRepresentation`).
-  @override
-  bool isRevocation(PurchaseDetails purchase) =>
-      purchase is SK2PurchaseDetails && _jsonReportsRevocation(purchase.verificationData.localVerificationData);
-}
-
-bool _jsonReportsRevocation(String? json) {
-  if (json == null || json.isEmpty) return false;
-  try {
-    final decoded = jsonDecode(json);
-    return decoded is Map<String, dynamic> && decoded['revocationDate'] != null;
-  } on FormatException {
-    return false;
-  }
 }

@@ -220,16 +220,6 @@ class _RowTapRegion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!PlatformDetector.isDesktopOS()) {
-      return GestureDetector(excludeFromSemantics: true, behavior: HitTestBehavior.opaque, onTap: onTap, child: child);
-    }
-    return InkWell(
-      excludeFromSemantics: true,
-      mouseCursor: SystemMouseCursors.click,
-      canRequestFocus: false,
-      onTap: onTap,
-      borderRadius: borderRadius,
-      child: child,
-    );
+    return GestureDetector(excludeFromSemantics: true, behavior: HitTestBehavior.opaque, onTap: onTap, child: child);
   }
 }

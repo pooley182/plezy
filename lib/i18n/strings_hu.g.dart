@@ -145,7 +145,6 @@ class _Translations$auth$hu extends Translations$auth$en {
 	@override String get quickConnectWaiting => 'Várakozás a jóváhagyásra…';
 	@override String get quickConnectCancel => 'Mégse';
 	@override String get quickConnectExpired => 'A Quick Connect kód lejárt. Próbáld újra.';
-	@override String get localDataRecoveryRequired => 'A Plezy nem tudta biztonságosan helyreállítani a helyi bejelentkezés és a függőben lévő lejátszás adatait. Jelentkezz be újra.';
 	@override String get pinCheckRejected => 'A Plex PIN ellenőrzését elutasították';
 }
 
@@ -199,8 +198,6 @@ class _Translations$common$hu extends Translations$common$en {
 	@override String get connectingToServers => 'Csatlakozás a szerverekhez...';
 	@override String get startingOfflineMode => 'Kapcsolat nélküli mód indítása...';
 	@override String get loading => 'Betöltés...';
-	@override String get fullscreen => 'Teljes képernyő';
-	@override String get exitFullscreen => 'Kilépés a teljes képernyőből';
 	@override String get pressBackAgainToExit => 'A kilépéshez nyomd meg újra a Vissza gombot';
 	@override late final _Translations$common$ratingSource$hu ratingSource = _Translations$common$ratingSource$hu._(_root);
 	@override String get notAvailable => 'N/A';
@@ -364,9 +361,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => 'Ugyanaz, mint az alapértelmezett minőség';
 	@override String get directPlayCoveredQuality => 'Kisebb videók lejátszása eredeti minőségben';
 	@override String get directPlayCoveredQualityDescription => 'A minőségi korláton belüli videók közvetlen lejátszása átkódolás helyett';
-	@override String get videoCodecs => 'Videokodekek';
-	@override String get videoCodecsDescription => 'A nem bejelölt kodekeket a szerver átkódolja';
-	@override String get videoCodecsAlwaysAccepted => 'Mindig elfogadva';
 	@override String get musicQualityTitle => 'Zene minősége';
 	@override String get subtitleStyling => 'Feliratok stílusa';
 	@override String get subtitleStylingDescription => 'Feliratok megjelenésének testreszabása';
@@ -392,11 +386,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get specialsOrderingLast => 'A normál évadok után';
 	@override String get clickVideoTogglesPlayback => 'Kattintás a videóra a lejátszás/szünet váltásához';
 	@override String get clickVideoTogglesPlaybackDescription => 'A videóra kattintva vált a lejátszás/szünet, a vezérlők megjelenítése helyett.';
-	@override String get videoPlayerControls => 'Videólejátszó vezérlői';
-	@override String get keyboardShortcuts => 'Billentyűparancsok';
-	@override String get keyboardShortcutsDescription => 'Billentyűparancsok testreszabása';
-	@override String get videoPlayerNavigation => 'Videólejátszó-navigáció';
-	@override String get videoPlayerNavigationDescription => 'A nyílbillentyűk használata a videólejátszó vezérlői közötti navigáláshoz';
 	@override String get watchTogetherRelay => 'Watch Together-relé';
 	@override String get watchTogetherRelayDescription => 'Nyilvános Open Watch Party-relék, hacsak nem adsz meg sajátot';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
@@ -423,8 +412,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get importSettingsSuccess => 'Beállítások importálva';
 	@override String get importSettingsInvalidFile => 'Ez a fájl nem érvényes Plezy-beállításexport';
 	@override String get importSettingsNoUser => 'Jelentkezz be a beállítások importálása előtt';
-	@override String get shortcutsReset => 'A billentyűparancsok visszaálltak az alapértelmezettekre';
-	@override String get resetShortcutsConfirm => 'Ezzel az egyéni billentyűparancsaid helyére az alapértelmezettek kerülnek. Folytatod?';
 	@override String get about => 'Névjegy';
 	@override String get aboutDescription => 'Alkalmazásadatok és licencek';
 	@override String get updates => 'Frissítések';
@@ -434,8 +421,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => 'Értesítés küldése indításkor, ha új frissítés érhető el';
 	@override String get validationErrorEnterNumber => 'Adj meg egy érvényes számot';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => 'Az időtartamnak ${min} és ${max} ${unit} között kell lennie';
-	@override String shortcutAlreadyAssigned({required Object action}) => 'A billentyűparancs már hozzá van rendelve a következőhöz: ${action}';
-	@override String shortcutUpdated({required Object action}) => 'Billentyűparancs frissítve a következőhöz: ${action}';
 	@override String get saveFailed => 'Nem sikerült menteni a módosításokat. Próbáld újra.';
 	@override String get autoPlayAndSkip => 'Automatikus lejátszás és átugrás';
 	@override String get autoPlayNextEpisode => 'Következő epizód automatikus lejátszása';
@@ -484,8 +469,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get maxVolume => 'Maximális hangerő';
 	@override String get maxVolumeDescription => 'A hangerő 100% fölé emelésének engedélyezése halk tartalmak esetén';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord Rich Presence';
-	@override String get discordRichPresenceDescription => 'Megjeleníti a Discordon, hogy éppen mit nézel';
 	@override String get services => 'Szolgáltatások';
 	@override String get servicesDescription => 'Trakt, MyAnimeList, Seerr és egyéb szolgáltatások csatlakoztatása';
 	@override String get manageLibrariesDescription => 'Könyvtárak sorrendjének módosítása és elrejtése';
@@ -499,17 +482,11 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => 'A kijelző frissítési frekvenciájának igazítása a videóhoz';
 	@override String get matchContentResolution => 'Igazítás a tartalom felbontásához';
 	@override String get matchContentResolutionDescription => 'A kijelzőt a videó natív felbontására váltja, hogy a felskálázást a tévé végezze. Lejátszás közben a menük és a feliratok is felskálázódnak';
-	@override String get matchRefreshRate => 'Frissítési frekvencia illesztése';
-	@override String get matchRefreshRateDescription => 'A kijelző frissítési frekvenciájának igazítása teljes képernyőn';
-	@override String get matchDynamicRange => 'Dinamikatartomány illesztése';
-	@override String get matchDynamicRangeDescription => 'HDR bekapcsolása HDR-tartalmak esetén, majd visszaváltás SDR-re';
 	@override String get displaySwitchDelay => 'Kijelzőváltási késleltetés';
 	@override String get tunneledPlayback => 'Alagutas lejátszás';
 	@override String get tunneledPlaybackDescription => 'Videóalagút használata. Tiltsd le, ha HDR-lejátszáskor fekete a kép vagy akadozik a mozgás.';
 	@override String get audioPassthrough => 'Hangtovábbítás (passthrough)';
 	@override String get audioPassthroughDescription => 'Dolby/DTS-hang továbbítása az erősítőre vagy a TV-re újrakódolás nélkül, a térhangzás megőrzésével. Kapcsold ki, ha nincs hang.';
-	@override String get audioPassthroughDescriptionApple => 'Az Apple natív Dolby-dekóderének használata Dolby Digital Plushoz, az Atmost is beleértve. A DTS és a TrueHD továbbra is többcsatornás PCM-ként szól. Kapcsold ki, ha nincs hang.';
-	@override String get audioPassthroughDescriptionAppleSpatial => 'Az Apple natív Dolby-dekóderének használata Dolby Digital Plushoz, az Atmost is beleértve. iOS, iPadOS és tvOS 26 vagy újabb rendszeren a TrueHD Atmos és a DTS:X térbeli hangzásként szól. A többi DTS- és TrueHD-sáv többcsatornás PCM-ként szól. Kapcsold ki, ha nincs hang.';
 	@override String get audioPassthroughOverriddenByNormalization => 'Ki, amíg a hangerőnormalizálás be van kapcsolva';
 	@override String get audioChannelLimit => 'Hangcsatornák';
 	@override String get audioChannelLimitDescription => 'A dekódolt hang lekeverése olyan hangszórókhoz, fejhallgatókhoz vagy HDMI-rendszerekhez, amelyek nem tudják lejátszani az összes csatornát';
@@ -557,10 +534,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => 'Profilválasztó megjelenítése minden alkalommal, amikor az alkalmazást megnyitod';
 	@override String get forceTvMode => 'TV-mód kényszerítése';
 	@override String get forceTvModeDescription => 'TV-elrendezés kényszerítése az automatikus felismeréssel nem rendelkező eszközökön. Újraindítást igényel.';
-	@override String get startInFullscreen => 'Indítás teljes képernyőn';
-	@override String get startInFullscreenDescription => 'A Plezy megnyitása teljes képernyős módban indításkor';
-	@override String get exitFullscreenOnPlayerClose => 'Kilépés a teljes képernyőből a lejátszó bezárásakor';
-	@override String get exitFullscreenOnPlayerCloseDescription => 'Automatikus kilépés a teljes képernyőből a videólejátszó bezárásakor';
 	@override String get autoHidePerformanceOverlay => 'Teljesítményadatok automatikus elrejtése';
 	@override String get autoHidePerformanceOverlayDescription => 'A teljesítményadatok elhalványítása a lejátszásvezérlőkkel együtt';
 	@override String get showNavBarLabels => 'Navigációs sáv címkéinek megjelenítése';
@@ -578,7 +551,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get libraryAndCards => 'Könyvtár és kártyák';
 	@override String get homeScreen => 'Kezdőképernyő';
 	@override String get navigation => 'Navigáció';
-	@override String get window => 'Ablak';
 	@override String get liveTv => 'Élő TV';
 	@override String get player => 'Lejátszó';
 	@override String get videoAndDisplay => 'Videó és kijelző';
@@ -667,12 +639,7 @@ class _Translations$hotkeys$hu extends Translations$hotkeys$en {
 	final TranslationsHu _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => 'Billentyűparancs beállítása ehhez: ${actionName}';
-	@override String get clearShortcut => 'Billentyűparancs törlése';
 	@override String get noShortcutSet => 'Nincs billentyűparancs beállítva';
-	@override String get currentShortcut => 'Jelenlegi billentyűparancs:';
-	@override String get pressToRecord => 'Válaszd ki a billentyűparancs rögzítéséhez';
-	@override String get recordingShortcut => 'Nyomd meg most a billentyűparancsot';
 	@override late final _Translations$hotkeys$actions$hu actions = _Translations$hotkeys$actions$hu._(_root);
 }
 
@@ -980,16 +947,12 @@ class _Translations$videoControls$hu extends Translations$videoControls$en {
 	@override String get pipButton => 'Kép a képben mód';
 	@override String get aspectRatioButton => 'Méretarány';
 	@override String get ambientLighting => 'Környezeti megvilágítás';
-	@override String get fullscreenButton => 'Teljes képernyős mód bekapcsolása';
-	@override String get exitFullscreenButton => 'Teljes képernyős mód kikapcsolása';
-	@override String get alwaysOnTopButton => 'Mindig legfelül';
 	@override String get rotationLockButton => 'Elforgatás zárolása';
 	@override String get lockScreen => 'Képernyő zárolása';
 	@override String get screenLockButton => 'Képernyőzár';
 	@override String get timelineSlider => 'Videó idősáv';
 	@override String get volumeSlider => 'Hangerő';
 	@override String endsAt({required Object time}) => 'Vége: ${time}';
-	@override String get pipActive => 'Lejátszás kép a képben módban';
 	@override String get pipFailed => 'Nem sikerült elindítani a kép a képben módot';
 	@override String get screenshotSaved => 'Képernyőkép elmentve';
 	@override String get screenshotFailed => 'Nem sikerült képernyőképet készíteni';
@@ -1157,7 +1120,6 @@ class _Translations$mpvConfig$hu extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => 'Sor hozzáadása';
 	@override String get removeLine => 'Sor eltávolítása';
-	@override String get embeddedVoHint => 'A vo, gpu-context és gpu-api beállítások Linuxon figyelmen kívül maradnak: a beágyazott videó mindig a vo=libmpv-n keresztül jelenik meg a videósíkon, a gpu-next (amelyre az ArtCNN-hez hasonló compute shadereknek szükségük van) pedig nem futhat beágyazva.';
 }
 
 // Path: dialog
@@ -1507,7 +1469,6 @@ class _Translations$startup$hu extends Translations$startup$en {
 	@override String get repairSucceeded => 'A tárhely javítva';
 	@override String get repairNeedsRestart => 'A tárhely javítva – újraindítás szükséges';
 	@override String get restartRequiredBody => 'Az adatait kijavítottuk, de a Plezy-nek frissen kell elindulnia, mielőtt használhatná. Zárja be a Plezy-t, és nyissa meg újra.';
-	@override String get quitPlezy => 'Kilépés a Plezy-ből';
 	@override String get repairFailed => 'A javítás nem sikerült';
 	@override String get repairKeptSignIns => 'A szerverei és profiljai továbbra is be vannak jelentkezve.';
 	@override String get repairLostSignIns => 'A mentett bejelentkezéseket védő kulcs nem volt visszanyerhető. Minden szerverre és profilba újra be kell jelentkeznie.';
@@ -2078,20 +2039,9 @@ class _Translations$videoSettings$hu extends Translations$videoSettings$en {
 	@override String get audioSync => 'Hang szinkronizálása';
 	@override String get subtitleSync => 'Felirat szinkronizálása';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => 'A HDR itt nem érhető el – ez az asztali kompozitor vagy videókimenet nem képes továbbítani.';
-	@override String get hdrToneMapping => 'HDR-tónusleképezés';
-	@override String get hdrToneMappingCompositor => 'Kompozitor';
-	@override String get hdrToneMappingCompositorDescription => 'Továbbítja a forrás HDR-metaadatait, és az asztali kompozitorra bízza a tónusleképezést.';
-	@override String get hdrToneMappingPlayer => 'Lejátszó';
-	@override String get hdrToneMappingPlayerDescription => 'A lejátszóban a kijelző maximális fényerejéhez igazítja a képet, majd közli az eredményt a kompozitorral.';
-	@override String get hdrToneMappingFailed => 'Nem sikerült módosítani a HDR-tónusleképezést – továbbra is az előző mód aktív.';
 	@override String get audioOutput => 'Hangkimenet';
-	@override String get performanceOverlay => 'Teljesítményadatok';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => 'Térhatású';
-	@override String get audioOutputSpatial => 'Térbeli hang';
 	@override String get audioOutputStereo => 'Sztereó';
+	@override String get performanceOverlay => 'Teljesítményadatok';
 	@override String get audioNormalization => 'Hangerő normalizálása';
 	@override String get audioNormalizationDisablesPassthrough => 'PCM-mé dekódolja a hangot; a passthrough ki van kapcsolva, amíg ez be van kapcsolva';
 }
@@ -2174,7 +2124,6 @@ class _Translations$externalPlayer$hu extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => 'Egyéni lejátszó hozzáadása';
 	@override String get playerName => 'Lejátszó neve';
 	@override String get playerNameHint => 'Saját lejátszó';
-	@override String get playerCommand => 'Parancs';
 	@override String get playerPackage => 'Csomagnév';
 	@override String get playerUrlScheme => 'URL-séma';
 	@override String get off => 'Ki';
@@ -2386,7 +2335,6 @@ class _Translations$services$hu extends Translations$services$en {
 	// Translations
 	@override String get title => 'Szolgáltatások';
 	@override String get hubSubtitle => 'Megtekintési haladás szinkronizálása és új tartalmak igénylése.';
-	@override String get integrations => 'Integrációk';
 	@override String get notConnected => 'Nincs csatlakoztatva';
 	@override String connectedAs({required Object username}) => '@${username} néven csatlakoztatva';
 	@override String get scrobble => 'Haladás automatikus követése';
@@ -2621,7 +2569,6 @@ class _Translations$videoControls$pipErrors$hu extends Translations$videoControl
 
 	// Translations
 	@override String get androidVersion => 'Android 8.0 vagy újabb szükséges';
-	@override String get iosVersion => 'iOS 15.0 vagy újabb szükséges';
 	@override String get permissionDisabled => 'A kép a képben mód le van tiltva. Engedélyezd a rendszerbeállításokban.';
 	@override String get notSupported => 'Az eszköz nem támogatja a kép a képben módot';
 	@override String get voSwitchFailed => 'Nem sikerült átváltani a videókimenetet a kép a képben módhoz';
@@ -3442,7 +3389,6 @@ extension on TranslationsHu {
 			'auth.quickConnectWaiting' => 'Várakozás a jóváhagyásra…',
 			'auth.quickConnectCancel' => 'Mégse',
 			'auth.quickConnectExpired' => 'A Quick Connect kód lejárt. Próbáld újra.',
-			'auth.localDataRecoveryRequired' => 'A Plezy nem tudta biztonságosan helyreállítani a helyi bejelentkezés és a függőben lévő lejátszás adatait. Jelentkezz be újra.',
 			'auth.pinCheckRejected' => 'A Plex PIN ellenőrzését elutasították',
 			'common.cancel' => 'Mégse',
 			'common.save' => 'Mentés',
@@ -3487,8 +3433,6 @@ extension on TranslationsHu {
 			'common.connectingToServers' => 'Csatlakozás a szerverekhez...',
 			'common.startingOfflineMode' => 'Kapcsolat nélküli mód indítása...',
 			'common.loading' => 'Betöltés...',
-			'common.fullscreen' => 'Teljes képernyő',
-			'common.exitFullscreen' => 'Kilépés a teljes képernyőből',
 			'common.pressBackAgainToExit' => 'A kilépéshez nyomd meg újra a Vissza gombot',
 			'common.ratingSource.critic' => 'Kritikusok',
 			'common.ratingSource.audience' => 'Közönség',
@@ -3644,9 +3588,6 @@ extension on TranslationsHu {
 			'settings.cellularQualitySameAsDefault' => 'Ugyanaz, mint az alapértelmezett minőség',
 			'settings.directPlayCoveredQuality' => 'Kisebb videók lejátszása eredeti minőségben',
 			'settings.directPlayCoveredQualityDescription' => 'A minőségi korláton belüli videók közvetlen lejátszása átkódolás helyett',
-			'settings.videoCodecs' => 'Videokodekek',
-			'settings.videoCodecsDescription' => 'A nem bejelölt kodekeket a szerver átkódolja',
-			'settings.videoCodecsAlwaysAccepted' => 'Mindig elfogadva',
 			'settings.musicQualityTitle' => 'Zene minősége',
 			'settings.subtitleStyling' => 'Feliratok stílusa',
 			'settings.subtitleStylingDescription' => 'Feliratok megjelenésének testreszabása',
@@ -3672,11 +3613,6 @@ extension on TranslationsHu {
 			'settings.specialsOrderingLast' => 'A normál évadok után',
 			'settings.clickVideoTogglesPlayback' => 'Kattintás a videóra a lejátszás/szünet váltásához',
 			'settings.clickVideoTogglesPlaybackDescription' => 'A videóra kattintva vált a lejátszás/szünet, a vezérlők megjelenítése helyett.',
-			'settings.videoPlayerControls' => 'Videólejátszó vezérlői',
-			'settings.keyboardShortcuts' => 'Billentyűparancsok',
-			'settings.keyboardShortcutsDescription' => 'Billentyűparancsok testreszabása',
-			'settings.videoPlayerNavigation' => 'Videólejátszó-navigáció',
-			'settings.videoPlayerNavigationDescription' => 'A nyílbillentyűk használata a videólejátszó vezérlői közötti navigáláshoz',
 			'settings.watchTogetherRelay' => 'Watch Together-relé',
 			'settings.watchTogetherRelayDescription' => 'Nyilvános Open Watch Party-relék, hacsak nem adsz meg sajátot',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
@@ -3703,8 +3639,6 @@ extension on TranslationsHu {
 			'settings.importSettingsSuccess' => 'Beállítások importálva',
 			'settings.importSettingsInvalidFile' => 'Ez a fájl nem érvényes Plezy-beállításexport',
 			'settings.importSettingsNoUser' => 'Jelentkezz be a beállítások importálása előtt',
-			'settings.shortcutsReset' => 'A billentyűparancsok visszaálltak az alapértelmezettekre',
-			'settings.resetShortcutsConfirm' => 'Ezzel az egyéni billentyűparancsaid helyére az alapértelmezettek kerülnek. Folytatod?',
 			'settings.about' => 'Névjegy',
 			'settings.aboutDescription' => 'Alkalmazásadatok és licencek',
 			'settings.updates' => 'Frissítések',
@@ -3714,8 +3648,6 @@ extension on TranslationsHu {
 			'settings.autoCheckUpdatesOnStartupDescription' => 'Értesítés küldése indításkor, ha új frissítés érhető el',
 			'settings.validationErrorEnterNumber' => 'Adj meg egy érvényes számot',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => 'Az időtartamnak ${min} és ${max} ${unit} között kell lennie',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => 'A billentyűparancs már hozzá van rendelve a következőhöz: ${action}',
-			'settings.shortcutUpdated' => ({required Object action}) => 'Billentyűparancs frissítve a következőhöz: ${action}',
 			'settings.saveFailed' => 'Nem sikerült menteni a módosításokat. Próbáld újra.',
 			'settings.autoPlayAndSkip' => 'Automatikus lejátszás és átugrás',
 			'settings.autoPlayNextEpisode' => 'Következő epizód automatikus lejátszása',
@@ -3764,8 +3696,6 @@ extension on TranslationsHu {
 			'settings.maxVolume' => 'Maximális hangerő',
 			'settings.maxVolumeDescription' => 'A hangerő 100% fölé emelésének engedélyezése halk tartalmak esetén',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord Rich Presence',
-			'settings.discordRichPresenceDescription' => 'Megjeleníti a Discordon, hogy éppen mit nézel',
 			'settings.services' => 'Szolgáltatások',
 			'settings.servicesDescription' => 'Trakt, MyAnimeList, Seerr és egyéb szolgáltatások csatlakoztatása',
 			'settings.manageLibrariesDescription' => 'Könyvtárak sorrendjének módosítása és elrejtése',
@@ -3779,17 +3709,11 @@ extension on TranslationsHu {
 			'settings.matchContentFrameRateDescription' => 'A kijelző frissítési frekvenciájának igazítása a videóhoz',
 			'settings.matchContentResolution' => 'Igazítás a tartalom felbontásához',
 			'settings.matchContentResolutionDescription' => 'A kijelzőt a videó natív felbontására váltja, hogy a felskálázást a tévé végezze. Lejátszás közben a menük és a feliratok is felskálázódnak',
-			'settings.matchRefreshRate' => 'Frissítési frekvencia illesztése',
-			'settings.matchRefreshRateDescription' => 'A kijelző frissítési frekvenciájának igazítása teljes képernyőn',
-			'settings.matchDynamicRange' => 'Dinamikatartomány illesztése',
-			'settings.matchDynamicRangeDescription' => 'HDR bekapcsolása HDR-tartalmak esetén, majd visszaváltás SDR-re',
 			'settings.displaySwitchDelay' => 'Kijelzőváltási késleltetés',
 			'settings.tunneledPlayback' => 'Alagutas lejátszás',
 			'settings.tunneledPlaybackDescription' => 'Videóalagút használata. Tiltsd le, ha HDR-lejátszáskor fekete a kép vagy akadozik a mozgás.',
 			'settings.audioPassthrough' => 'Hangtovábbítás (passthrough)',
 			'settings.audioPassthroughDescription' => 'Dolby/DTS-hang továbbítása az erősítőre vagy a TV-re újrakódolás nélkül, a térhangzás megőrzésével. Kapcsold ki, ha nincs hang.',
-			'settings.audioPassthroughDescriptionApple' => 'Az Apple natív Dolby-dekóderének használata Dolby Digital Plushoz, az Atmost is beleértve. A DTS és a TrueHD továbbra is többcsatornás PCM-ként szól. Kapcsold ki, ha nincs hang.',
-			'settings.audioPassthroughDescriptionAppleSpatial' => 'Az Apple natív Dolby-dekóderének használata Dolby Digital Plushoz, az Atmost is beleértve. iOS, iPadOS és tvOS 26 vagy újabb rendszeren a TrueHD Atmos és a DTS:X térbeli hangzásként szól. A többi DTS- és TrueHD-sáv többcsatornás PCM-ként szól. Kapcsold ki, ha nincs hang.',
 			'settings.audioPassthroughOverriddenByNormalization' => 'Ki, amíg a hangerőnormalizálás be van kapcsolva',
 			'settings.audioChannelLimit' => 'Hangcsatornák',
 			'settings.audioChannelLimitDescription' => 'A dekódolt hang lekeverése olyan hangszórókhoz, fejhallgatókhoz vagy HDMI-rendszerekhez, amelyek nem tudják lejátszani az összes csatornát',
@@ -3837,10 +3761,6 @@ extension on TranslationsHu {
 			'settings.requireProfileSelectionOnOpenDescription' => 'Profilválasztó megjelenítése minden alkalommal, amikor az alkalmazást megnyitod',
 			'settings.forceTvMode' => 'TV-mód kényszerítése',
 			'settings.forceTvModeDescription' => 'TV-elrendezés kényszerítése az automatikus felismeréssel nem rendelkező eszközökön. Újraindítást igényel.',
-			'settings.startInFullscreen' => 'Indítás teljes képernyőn',
-			'settings.startInFullscreenDescription' => 'A Plezy megnyitása teljes képernyős módban indításkor',
-			'settings.exitFullscreenOnPlayerClose' => 'Kilépés a teljes képernyőből a lejátszó bezárásakor',
-			'settings.exitFullscreenOnPlayerCloseDescription' => 'Automatikus kilépés a teljes képernyőből a videólejátszó bezárásakor',
 			'settings.autoHidePerformanceOverlay' => 'Teljesítményadatok automatikus elrejtése',
 			'settings.autoHidePerformanceOverlayDescription' => 'A teljesítményadatok elhalványítása a lejátszásvezérlőkkel együtt',
 			'settings.showNavBarLabels' => 'Navigációs sáv címkéinek megjelenítése',
@@ -3858,7 +3778,6 @@ extension on TranslationsHu {
 			'settings.libraryAndCards' => 'Könyvtár és kártyák',
 			'settings.homeScreen' => 'Kezdőképernyő',
 			'settings.navigation' => 'Navigáció',
-			'settings.window' => 'Ablak',
 			'settings.liveTv' => 'Élő TV',
 			'settings.player' => 'Lejátszó',
 			'settings.videoAndDisplay' => 'Videó és kijelző',
@@ -3907,8 +3826,6 @@ extension on TranslationsHu {
 			'themeEditor.slots.text' => 'Szöveg',
 			'themeEditor.slots.textMuted' => 'Másodlagos szöveg',
 			'themeEditor.slots.accent' => 'Kiemelőszín',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => 'Átlátszatlanság',
 			'themeEditor.hexHint' => '#RRGGBB vagy #AARRGGBB',
 			'themeEditor.fromOtherThemes' => 'Más témákból',
@@ -3933,15 +3850,12 @@ extension on TranslationsHu {
 			'search.searchYourMedia' => 'Keresés a saját médiatartalmak között',
 			'search.enterTitleActorOrKeyword' => 'Adj meg egy címet, színészt vagy kulcsszót',
 			'search.people' => 'Személyek',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => 'Billentyűparancs beállítása ehhez: ${actionName}',
-			'hotkeys.clearShortcut' => 'Billentyűparancs törlése',
 			'hotkeys.noShortcutSet' => 'Nincs billentyűparancs beállítva',
-			'hotkeys.currentShortcut' => 'Jelenlegi billentyűparancs:',
-			'hotkeys.pressToRecord' => 'Válaszd ki a billentyűparancs rögzítéséhez',
-			'hotkeys.recordingShortcut' => 'Nyomd meg most a billentyűparancsot',
 			'hotkeys.actions.playPause' => 'Lejátszás/Szünet',
 			'hotkeys.actions.volumeUp' => 'Hangerő fel',
 			'hotkeys.actions.volumeDown' => 'Hangerő le',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Tekerés előre (${seconds} mp)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Tekerés hátra (${seconds} mp)',
 			'hotkeys.actions.fullscreenToggle' => 'Teljes képernyős mód váltása',
@@ -4198,23 +4112,18 @@ extension on TranslationsHu {
 			'videoControls.pipButton' => 'Kép a képben mód',
 			'videoControls.aspectRatioButton' => 'Méretarány',
 			'videoControls.ambientLighting' => 'Környezeti megvilágítás',
-			'videoControls.fullscreenButton' => 'Teljes képernyős mód bekapcsolása',
-			'videoControls.exitFullscreenButton' => 'Teljes képernyős mód kikapcsolása',
-			'videoControls.alwaysOnTopButton' => 'Mindig legfelül',
 			'videoControls.rotationLockButton' => 'Elforgatás zárolása',
 			'videoControls.lockScreen' => 'Képernyő zárolása',
 			'videoControls.screenLockButton' => 'Képernyőzár',
 			'videoControls.timelineSlider' => 'Videó idősáv',
 			'videoControls.volumeSlider' => 'Hangerő',
 			'videoControls.endsAt' => ({required Object time}) => 'Vége: ${time}',
-			'videoControls.pipActive' => 'Lejátszás kép a képben módban',
 			'videoControls.pipFailed' => 'Nem sikerült elindítani a kép a képben módot',
 			'videoControls.screenshotSaved' => 'Képernyőkép elmentve',
 			'videoControls.screenshotFailed' => 'Nem sikerült képernyőképet készíteni',
 			'videoControls.zoomPercent' => ({required Object percent}) => 'Nagyítás ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => 'Hangerő ${percent}%',
 			'videoControls.pipErrors.androidVersion' => 'Android 8.0 vagy újabb szükséges',
-			'videoControls.pipErrors.iosVersion' => 'iOS 15.0 vagy újabb szükséges',
 			'videoControls.pipErrors.permissionDisabled' => 'A kép a képben mód le van tiltva. Engedélyezd a rendszerbeállításokban.',
 			'videoControls.pipErrors.notSupported' => 'Az eszköz nem támogatja a kép a képben módot',
 			'videoControls.pipErrors.voSwitchFailed' => 'Nem sikerült átváltani a videókimenetet a kép a képben módhoz',
@@ -4352,7 +4261,6 @@ extension on TranslationsHu {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => 'Sor hozzáadása',
 			'mpvConfig.removeLine' => 'Sor eltávolítása',
-			'mpvConfig.embeddedVoHint' => 'A vo, gpu-context és gpu-api beállítások Linuxon figyelmen kívül maradnak: a beágyazott videó mindig a vo=libmpv-n keresztül jelenik meg a videósíkon, a gpu-next (amelyre az ArtCNN-hez hasonló compute shadereknek szükségük van) pedig nem futhat beágyazva.',
 			'dialog.confirmAction' => 'Művelet megerősítése',
 			'profiles.addPlezyProfile' => 'Plezy profil hozzáadása',
 			'profiles.switchingProfile' => 'Profilváltás…',
@@ -4421,8 +4329,6 @@ extension on TranslationsHu {
 			'profiles.tokenIdentityMismatch' => 'A Plex-profil tokenje nem a várt szerverhez tartozik',
 			'connections.sectionTitle' => 'Kapcsolatok',
 			'connections.addConnection' => 'Kapcsolat hozzáadása',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => 'Jelentkezz be Plexszel, vagy csatlakoztass egy Jellyfin- vagy Emby-szervert',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => 'Hozzáadás a következőhöz (${displayName}): Plex, Jellyfin, Emby vagy más profilkapcsolat',
 			'connections.sessionExpiredOne' => ({required Object name}) => 'A(z) ${name} munkamenete lejárt',
@@ -4462,6 +4368,8 @@ extension on TranslationsHu {
 			'accountPreferences.subtitleModes.smart' => 'Idegen nyelvű hang esetén megjelenítve',
 			'accountPreferences.subtitleModes.smartDescription' => 'Feliratok bekapcsolása csak akkor, ha a hang más nyelven szól.',
 			'accountPreferences.subtitleAccessibility' => 'SDH-feliratok',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Nem SDH-feliratok előnyben részesítése',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH-feliratok előnyben részesítése',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Csak SDH-feliratok',
@@ -4686,7 +4594,6 @@ extension on TranslationsHu {
 			'startup.repairSucceeded' => 'A tárhely javítva',
 			'startup.repairNeedsRestart' => 'A tárhely javítva – újraindítás szükséges',
 			'startup.restartRequiredBody' => 'Az adatait kijavítottuk, de a Plezy-nek frissen kell elindulnia, mielőtt használhatná. Zárja be a Plezy-t, és nyissa meg újra.',
-			'startup.quitPlezy' => 'Kilépés a Plezy-ből',
 			'startup.repairFailed' => 'A javítás nem sikerült',
 			'startup.repairKeptSignIns' => 'A szerverei és profiljai továbbra is be vannak jelentkezve.',
 			'startup.repairLostSignIns' => 'A mentett bejelentkezéseket védő kulcs nem volt visszanyerhető. Minden szerverre és profilba újra be kell jelentkeznie.',
@@ -4935,8 +4842,6 @@ extension on TranslationsHu {
 			'liveTv.recordSettings.keepUpToHint' => 'A 0 minden epizódot megtart',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => '${minutes} perc múlva kezdődik',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day}, ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => 'A(z) ${product} érvénytelen Élő TV-lejátszási adatokat adott vissza',
 			'liveTv.failedToStartChannel' => 'Nem sikerült elindítani az élő csatornát',
 			'liveTv.failedToBuildStreamUrl' => 'Nem sikerült összeállítani a stream URL-címét',
@@ -4977,6 +4882,8 @@ extension on TranslationsHu {
 			'playlists.deleteConfirm' => 'Törlöd a lejátszási listát?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Biztosan törölni szeretnéd a következőt: "${name}"?',
 			'playlists.created' => 'Lejátszási lista létrehozva',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => 'Lejátszási lista törölve',
 			'playlists.itemAdded' => 'Hozzáadva a lejátszási listához',
 			'playlists.itemRemoved' => 'Eltávolítva a lejátszási listáról',
@@ -5380,20 +5287,9 @@ extension on TranslationsHu {
 			'videoSettings.audioSync' => 'Hang szinkronizálása',
 			'videoSettings.subtitleSync' => 'Felirat szinkronizálása',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => 'A HDR itt nem érhető el – ez az asztali kompozitor vagy videókimenet nem képes továbbítani.',
-			'videoSettings.hdrToneMapping' => 'HDR-tónusleképezés',
-			'videoSettings.hdrToneMappingCompositor' => 'Kompozitor',
-			'videoSettings.hdrToneMappingCompositorDescription' => 'Továbbítja a forrás HDR-metaadatait, és az asztali kompozitorra bízza a tónusleképezést.',
-			'videoSettings.hdrToneMappingPlayer' => 'Lejátszó',
-			'videoSettings.hdrToneMappingPlayerDescription' => 'A lejátszóban a kijelző maximális fényerejéhez igazítja a képet, majd közli az eredményt a kompozitorral.',
-			'videoSettings.hdrToneMappingFailed' => 'Nem sikerült módosítani a HDR-tónusleképezést – továbbra is az előző mód aktív.',
 			'videoSettings.audioOutput' => 'Hangkimenet',
-			'videoSettings.performanceOverlay' => 'Teljesítményadatok',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => 'Térhatású',
-			'videoSettings.audioOutputSpatial' => 'Térbeli hang',
 			'videoSettings.audioOutputStereo' => 'Sztereó',
+			'videoSettings.performanceOverlay' => 'Teljesítményadatok',
 			'videoSettings.audioNormalization' => 'Hangerő normalizálása',
 			'videoSettings.audioNormalizationDisablesPassthrough' => 'PCM-mé dekódolja a hangot; a passthrough ki van kapcsolva, amíg ez be van kapcsolva',
 			'performanceOverlay.color' => 'Szín',
@@ -5449,8 +5345,6 @@ extension on TranslationsHu {
 			'performanceOverlay.decoderHardware' => 'Hardveres',
 			'performanceOverlay.tunnelingActive' => 'Aktív',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted} (${failures} sikertelen)',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => 'Külső lejátszó',
 			'externalPlayer.useExternalPlayer' => 'Külső lejátszó használata',
 			'externalPlayer.useExternalPlayerDescription' => 'Videók megnyitása egy másik alkalmazásban',
@@ -5460,7 +5354,6 @@ extension on TranslationsHu {
 			'externalPlayer.addCustomPlayer' => 'Egyéni lejátszó hozzáadása',
 			'externalPlayer.playerName' => 'Lejátszó neve',
 			'externalPlayer.playerNameHint' => 'Saját lejátszó',
-			'externalPlayer.playerCommand' => 'Parancs',
 			'externalPlayer.playerPackage' => 'Csomagnév',
 			'externalPlayer.playerUrlScheme' => 'URL-séma',
 			'externalPlayer.off' => 'Ki',
@@ -5503,6 +5396,8 @@ extension on TranslationsHu {
 			'metadataEdit.libraryDefault' => 'Könyvtári alapértelmezés',
 			'metadataEdit.accountDefault' => 'Fiók alapértelmezése',
 			'metadataEdit.seriesDefault' => 'Sorozat alapértelmezése',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Epizódok rendezése',
 			'metadataEdit.oldestFirst' => 'Legrégebbi elöl',
 			'metadataEdit.newestFirst' => 'Legújabb elöl',
@@ -5618,7 +5513,6 @@ extension on TranslationsHu {
 			'seerr.permissionRevoked' => 'Már nincs jogosultságod ennek az igényléséhez',
 			'services.title' => 'Szolgáltatások',
 			'services.hubSubtitle' => 'Megtekintési haladás szinkronizálása és új tartalmak igénylése.',
-			'services.integrations' => 'Integrációk',
 			'services.notConnected' => 'Nincs csatlakoztatva',
 			'services.connectedAs' => ({required Object username}) => '@${username} néven csatlakoztatva',
 			'services.scrobble' => 'Haladás automatikus követése',

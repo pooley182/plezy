@@ -13,14 +13,11 @@ import 'package:plezy/i18n/strings.g.dart';
 import 'package:plezy/media/media_source_info.dart';
 import 'package:plezy/mpv/mpv.dart';
 import 'package:plezy/providers/playback_state_provider.dart';
-import 'package:plezy/models/hotkey_model.dart';
 import 'package:plezy/services/keyboard_shortcuts_service.dart';
 import 'package:plezy/services/settings_service.dart';
-import 'package:plezy/services/shortcut_action.dart';
 import 'package:plezy/services/video_volume_controller.dart';
 import 'package:plezy/utils/platform_detector.dart';
 import 'package:plezy/watch_together/providers/watch_together_provider.dart';
-import 'package:plezy/widgets/video_controls/desktop_video_controls.dart';
 import 'package:plezy/widgets/video_controls/player_chrome_controller.dart';
 import 'package:plezy/widgets/video_controls/video_controls.dart';
 import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart';
@@ -30,6 +27,7 @@ import 'package:plezy/focus/dpad_navigator.dart';
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Pressing Enter on the player surface used to raise the chrome *and* drop
 /// focus onto Play/Pause, while the global input-mode tracker separately
@@ -78,8 +76,7 @@ void main() {
     addTearDown(shortcuts.dispose);
 
     // Desktop with a pointer: the configuration the report came from.
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(true);
+    TvDetectionService.debugSetTvOverride(false);
 
     database = AppDatabase.forTesting(NativeDatabase.memory());
     player = _TogglePlayer();
@@ -96,9 +93,8 @@ void main() {
   });
 
   tearDown(() async {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     TvDetectionService.setForceTVSync(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
     hasFirstFrame.dispose();
     screenFocusNode.dispose();
     volume.dispose();
@@ -136,10 +132,9 @@ void main() {
                 if (event is KeyUpEvent && event.logicalKey.isBackKey) {
                   screenBackDispositions.add(
                     resolvePlayerBackDisposition(
-                      navigationKey: classifyPlayerNavigationKey(event, isAppleTV: PlatformDetector.isAppleTV()),
+                      navigationKey: classifyPlayerNavigationKey(event),
                       contentStripVisible: chrome.contentStripVisible,
                       controlsVisible: chrome.controlsVisible,
-                      physicalEscapeExitsFullscreen: false,
                     ),
                   );
                 }
@@ -194,9 +189,6 @@ void main() {
 
   String? focusLabel() => FocusManager.instance.primaryFocus?.debugLabel;
 
-  InputMode currentMode(WidgetTester tester) =>
-      InputModeTracker.of(tester.element(find.byType(PlexVideoControls)), listen: false);
-
   /// Mounts the player, runs [body], then unmounts and disarms the auto-hide
   /// timer so the harness's pending-timer check stays honest.
   void playerTest(
@@ -221,128 +213,6 @@ void main() {
     });
   }
 
-  group('player navigation disabled', () {
-    setUp(() => setNavigationEnabled(false));
-
-    playerTest('the player surface, not the screen node, owns the remote once mounted', (tester) async {
-      expect(focusLabel(), 'PlayerSurface');
-    });
-
-    playerTest('Enter raises the chrome and toggles playback without taking focus', (tester) async {
-      await press(tester, LogicalKeyboardKey.enter);
-
-      expect(chrome.controlsVisible, isTrue, reason: 'Select is the show-me-the-controls affordance');
-      expect(toggles, 1);
-      expect(focusLabel(), 'PlayerSurface', reason: 'a keyboard Enter must not start a focus session');
-      expect(currentMode(tester), InputMode.pointer, reason: 'and must not arm focus chrome app-wide');
-    });
-
-    playerTest('Enter keeps toggling once the chrome is up', (tester) async {
-      await press(tester, LogicalKeyboardKey.enter);
-      await press(tester, LogicalKeyboardKey.enter);
-
-      expect(toggles, 2, reason: 'Select must not become a one-shot key when the chrome is visible');
-      expect(focusLabel(), 'PlayerSurface');
-    });
-
-    playerTest('a remote OK does hand the chrome focus', (tester) async {
-      await press(tester, LogicalKeyboardKey.select);
-
-      expect(chrome.controlsVisible, isTrue);
-      expect(focusLabel(), 'PlayPause', reason: 'a remote has no pointer, so OK is a navigation request');
-      expect(currentMode(tester), InputMode.keyboard);
-    });
-
-    playerTest('Tab is the keyboard way into the OSD, and keeps traversing inside it', (tester) async {
-      await press(tester, LogicalKeyboardKey.tab);
-      expect(chrome.controlsVisible, isTrue);
-      expect(focusLabel(), 'PlayPause', reason: 'Tab with the chrome down raises it and hands it focus');
-
-      // The surface handler must not swallow Tab once focus is inside the OSD,
-      // or the viewer is stranded on the control Tab first landed on.
-      await press(tester, LogicalKeyboardKey.tab);
-      expect(
-        focusLabel(),
-        isNot(anyOf('PlayPause', 'PlayerSurface')),
-        reason: 'app-level NextFocusAction must reach the next OSD control',
-      );
-    });
-
-    playerTest('an arrow seeks without switching the app into keyboard mode', (tester) async {
-      await press(tester, LogicalKeyboardKey.arrowRight);
-
-      expect(currentMode(tester), InputMode.pointer, reason: 'arrows are playback shortcuts here');
-      expect(focusLabel(), 'PlayerSurface');
-    });
-  });
-
-  group('player navigation enabled', () {
-    setUp(() => setNavigationEnabled(true));
-
-    playerTest('Enter shows the chrome and toggles, leaving focus put', (tester) async {
-      await press(tester, LogicalKeyboardKey.enter);
-
-      expect(chrome.controlsVisible, isTrue);
-      expect(toggles, 1);
-      // Opting into player navigation buys arrow keys, not a focus session from
-      // a plain Enter: focus and input mode move together or not at all.
-      expect(focusLabel(), 'PlayerSurface');
-      expect(currentMode(tester), InputMode.pointer);
-    });
-
-    playerTest('ArrowUp raises the chrome onto Play/Pause', (tester) async {
-      await press(tester, LogicalKeyboardKey.arrowUp);
-
-      expect(chrome.controlsVisible, isTrue);
-      expect(focusLabel(), 'PlayPause');
-      expect(currentMode(tester), InputMode.keyboard);
-    });
-
-    playerTest('ArrowUp hands focus over when the chrome is already up', (tester) async {
-      chrome.show();
-      await tester.pumpAndSettle();
-      expect(focusLabel(), 'PlayerSurface', reason: 'precondition: nothing in the chrome owns focus');
-
-      await press(tester, LogicalKeyboardKey.arrowUp);
-
-      expect(focusLabel(), 'PlayPause', reason: 'the arrow must not be consumed into a dead end');
-    });
-
-    playerTest('a horizontal arrow hands focus over when the chrome is already up', (tester) async {
-      chrome.show();
-      await tester.pumpAndSettle();
-      expect(focusLabel(), 'PlayerSurface', reason: 'precondition: nothing in the chrome owns focus');
-
-      await press(tester, LogicalKeyboardKey.arrowRight);
-
-      // The surface only owns horizontals while the chrome is down, so this
-      // arrow promotes the app into keyboard mode; focus has to become visible
-      // with it or the two diverge.
-      expect(currentMode(tester), InputMode.keyboard);
-      expect(focusLabel(), 'PlayPause', reason: 'the arrow must not be consumed into a dead end');
-    });
-
-    playerTest('a horizontal arrow seeks under the chrome without arming focus', (tester) async {
-      await press(tester, LogicalKeyboardKey.arrowRight);
-
-      expect(currentMode(tester), InputMode.pointer, reason: 'a hidden-chrome seek is not navigation');
-      expect(chrome.controlsVisible, isFalse);
-    });
-  });
-
-  playerTest('the OSD focus entry point is raw mechanism, not policy', (tester) async {
-    await setNavigationEnabled(false);
-    chrome.show();
-    await tester.pumpAndSettle();
-
-    // Internal hand-offs — the skip-marker button's ArrowDown, an item swap —
-    // must keep working even with navigation off and no keyboard session.
-    tester.state<DesktopVideoControlsState>(find.byType(DesktopVideoControls)).requestPlayPauseFocus();
-    await tester.pumpAndSettle();
-
-    expect(focusLabel(), 'PlayPause');
-  });
-
   playerTest('hiding in the frame gap after show cannot strand controlsPresented', (tester) async {
     chrome.show(restartAutoHide: false);
     // One pump: the subtree mounts at opacity 0 and the post-frame callback
@@ -360,32 +230,9 @@ void main() {
     expect(chrome.controlsPresented, isFalse, reason: 'back must resolve to the route pop, not hide-the-chrome');
   });
 
-  // The player surface must own the remote from the moment it mounts, whatever
-  // the chrome is doing. When it does not, the screen node answers the first
-  // key with its chrome-raising self-heal instead of a playback shortcut.
-  group('startup hands the remote to the player surface', () {
-    setUp(() {
-      chrome.dispose();
-      chrome = PlayerChromeController(initiallyVisible: true);
-    });
-
-    playerTest('when the route opens with the chrome already up (desktop)', (tester) async {
-      expect(focusLabel(), 'PlayerSurface');
-    });
-
-    playerTest('and Enter there toggles playback instead of raising a self-heal', (tester) async {
-      await press(tester, LogicalKeyboardKey.enter);
-
-      expect(toggles, 1);
-      expect(focusLabel(), 'PlayerSurface');
-      expect(currentMode(tester), InputMode.pointer);
-    });
-  });
-
   group('startup on a television', () {
     setUp(() async {
-      TvDetectionService.debugSetAppleTVOverride(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
+      TvDetectionService.debugSetTvOverride(true);
       await setNavigationEnabled(true);
     });
 
@@ -397,252 +244,6 @@ void main() {
     });
   });
 
-  // Declining a skip prompt is the mirror of taking it. Back used to fall
-  // through to the screen's staged chain and exit the player outright, so the
-  // only key on a remote that means "no thanks" also ended the episode.
-  // Desktop, not TV, because Apple TV runs Back on key-down: the normal
-  // down-consume/up-act path is where the claim has to hold.
-  group('declining a skip prompt', () {
-    final introMarker = MediaMarker(id: 1, type: 'intro', startTimeOffset: 10000, endTimeOffset: 45000);
-
-    Future<void> showPrompt(WidgetTester tester) async {
-      player.emitPosition(const Duration(seconds: 15));
-      await tester.pumpAndSettle();
-      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'precondition: the prompt is up');
-    }
-
-    playerTest('Back hides the prompt without skipping or exiting', markers: [introMarker], (tester) async {
-      await showPrompt(tester);
-
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-
-      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'the prompt is declined');
-      expect(player.state.position, const Duration(seconds: 15), reason: 'declining must not skip');
-      expect(focusLabel(), 'PlayerSurface', reason: 'the vanished button must hand the remote back');
-      expect(screenBackDispositions, isEmpty, reason: 'the press must not reach the exit chain');
-    });
-
-    playerTest('the next Back belongs to the screen again', markers: [introMarker], (tester) async {
-      await showPrompt(tester);
-
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-
-      expect(screenBackDispositions, [PlayerBackDisposition.exitPlayer], reason: 'one press declines, the next leaves');
-    });
-
-    // The button's own 7s auto-dismiss is armed for every prompt while
-    // auto-skip is off, which is the default. handleBackKeyAction acts on the
-    // key-up, so a timer landing mid-press used to flip the gate and hand the
-    // press to the screen -- exiting the player on the very press meant to
-    // keep it open.
-    playerTest('a mid-press auto-dismiss cannot turn the press into an exit', markers: [introMarker], (tester) async {
-      await showPrompt(tester);
-
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.gameButtonB);
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 8));
-      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'precondition: the timer fired mid-press');
-      await tester.sendKeyUpEvent(LogicalKeyboardKey.gameButtonB);
-      await tester.pumpAndSettle();
-
-      expect(screenBackDispositions, isEmpty, reason: 'the claim is latched for the whole press');
-    });
-
-    playerTest('physical Escape declines it too, having no fullscreen role here', markers: [introMarker], (
-      tester,
-    ) async {
-      await showPrompt(tester);
-
-      await press(tester, LogicalKeyboardKey.escape);
-
-      expect(find.byType(SkipMarkerButton), findsNothing);
-      expect(screenBackDispositions, isEmpty, reason: 'Escape must not exit the player either');
-    });
-
-    playerTest('a screen-level prompt keeps its own Back', markers: [introMarker], playbackPromptOpen: true, (
-      tester,
-    ) async {
-      await showPrompt(tester);
-
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-
-      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'the prompt is not ours to answer');
-      expect(screenBackKeyDowns, 1, reason: 'the press is never claimed, not merely handed back');
-      expect(screenBackDispositions, isNotEmpty, reason: 'the prompt stage lives on the screen');
-    });
-
-    playerTest('a viewer who cannot skip keeps their exit press', markers: [introMarker], canControl: false, (
-      tester,
-    ) async {
-      await showPrompt(tester);
-
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-
-      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'the button is inert, not dismissable');
-      expect(screenBackDispositions, [PlayerBackDisposition.exitPlayer]);
-    });
-
-    playerTest('the chrome owns a press that starts under it', markers: [introMarker], (tester) async {
-      await showPrompt(tester);
-      chrome.show();
-      await tester.pumpAndSettle();
-
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-
-      expect(screenBackKeyDowns, 1, reason: 'the press is never claimed, not merely handed back');
-      expect(screenBackDispositions, [PlayerBackDisposition.hideControls]);
-    });
-
-    // The gesture the feature exists for: "no thanks" while the countdown runs.
-    playerTest('declining stops a running auto-skip countdown', markers: [introMarker], (tester) async {
-      await settings.write(SettingsService.skipIntroMode, SkipMarkerMode.auto);
-      await showPrompt(tester);
-
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-      await tester.pump(const Duration(seconds: 10));
-
-      expect(player.state.position, const Duration(seconds: 15), reason: 'a declined countdown must not fire');
-      expect(screenBackDispositions, isEmpty);
-    });
-
-    // #2138: Off means the marker is invisible — no prompt, no countdown, and
-    // Back goes straight to the screen because there is nothing to decline.
-    playerTest('an Off marker kind plays through without a prompt', markers: [introMarker], (tester) async {
-      await settings.write(SettingsService.skipIntroMode, SkipMarkerMode.off);
-      player.emitPosition(const Duration(seconds: 15));
-      await tester.pump(const Duration(seconds: 10));
-
-      expect(find.byType(SkipMarkerButton), findsNothing);
-      expect(player.state.position, const Duration(seconds: 15));
-
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-      expect(screenBackDispositions, [PlayerBackDisposition.exitPlayer], reason: 'nothing to decline');
-    });
-
-    playerTest('switching a marker kind Off drops a prompt already up', markers: [introMarker], (tester) async {
-      await showPrompt(tester);
-
-      await settings.write(SettingsService.skipIntroMode, SkipMarkerMode.off);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(SkipMarkerButton), findsNothing);
-      expect(player.state.position, const Duration(seconds: 15));
-    });
-
-    playerTest(
-      'an Off intro does not silence a credits prompt',
-      markers: [
-        introMarker,
-        MediaMarker(id: 2, type: 'credits', startTimeOffset: 100000, endTimeOffset: 120000),
-      ],
-      (tester) async {
-        await settings.write(SettingsService.skipIntroMode, SkipMarkerMode.off);
-        player.emitPosition(const Duration(seconds: 110));
-        await tester.pumpAndSettle();
-
-        expect(find.byType(SkipMarkerButton), findsOneWidget);
-      },
-    );
-
-    // The latch covers the button vanishing mid-press, not the chrome rising.
-    // With the OSD up Back belongs to the chrome, so a press that starts under
-    // a bare prompt and ends under the OSD has to be handed back.
-    playerTest('the claim is released when the chrome comes up mid-press', markers: [introMarker], (tester) async {
-      await showPrompt(tester);
-
-      await tester.sendKeyDownEvent(LogicalKeyboardKey.gameButtonB);
-      await tester.pump();
-      chrome.show();
-      await tester.pumpAndSettle();
-      await tester.sendKeyUpEvent(LogicalKeyboardKey.gameButtonB);
-      await tester.pumpAndSettle();
-
-      expect(screenBackDispositions, [
-        PlayerBackDisposition.hideControls,
-      ], reason: 'with the chrome up the press is the chrome to stage');
-    });
-
-    playerTest('a phone Back stays unconditional', markers: [introMarker], platform: TargetPlatform.android, (
-      tester,
-    ) async {
-      await showPrompt(tester);
-
-      await press(tester, LogicalKeyboardKey.gameButtonB);
-
-      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'the prompt does not own a phone Back');
-      expect(screenBackDispositions, [PlayerBackDisposition.exitPlayer], reason: '#1938: mobile Back exits, always');
-    });
-  });
-
-  // Enter is the default skip binding and also the surface's Select key, whose
-  // own skip rule only holds while the chrome is down. Moving the mouse raises
-  // the chrome on desktop, so Select used to swallow the binding and toggle
-  // playback under a prompt the viewer could see (#2577).
-  group('the desktop skip binding', () {
-    final introMarker = MediaMarker(id: 1, type: 'intro', startTimeOffset: 10000, endTimeOffset: 45000);
-
-    Future<void> showPromptUnderChrome(WidgetTester tester) async {
-      player.emitPosition(const Duration(seconds: 15));
-      await tester.pumpAndSettle();
-      chrome.show();
-      await tester.pumpAndSettle();
-      expect(find.byType(SkipMarkerButton), findsOneWidget, reason: 'precondition: the prompt is up');
-      expect(focusLabel(), 'PlayerSurface', reason: 'precondition: nothing in the chrome owns focus');
-    }
-
-    playerTest('Enter skips a prompt with the chrome up', markers: [introMarker], (tester) async {
-      await showPromptUnderChrome(tester);
-
-      await press(tester, LogicalKeyboardKey.enter);
-
-      expect(player.state.position, const Duration(seconds: 45));
-      expect(toggles, 0, reason: 'the binding outranks the Select toggle');
-    });
-
-    playerTest('rebinding the skip gives Enter back to play/pause', markers: [introMarker], (tester) async {
-      await settings.write(SettingsService.keyboardHotkeys, {
-        ...settings.read(SettingsService.keyboardHotkeys),
-        ShortcutAction.skipMarker.id: const HotKey(key: PhysicalKeyboardKey.digit9),
-      });
-      await showPromptUnderChrome(tester);
-
-      await press(tester, LogicalKeyboardKey.enter);
-      expect(toggles, 1);
-      expect(player.state.position, const Duration(seconds: 15), reason: 'Enter is no longer the binding');
-
-      await press(tester, LogicalKeyboardKey.digit9);
-      expect(player.state.position, const Duration(seconds: 45));
-    });
-
-    // Focus drifts off the surface on route opening, window reactivation and
-    // the like; the global fallback used to consume the binding as a no-op.
-    playerTest('the binding skips while focus has drifted off the surface', markers: [introMarker], (tester) async {
-      player.emitPosition(const Duration(seconds: 15));
-      await tester.pumpAndSettle();
-      screenFocusNode.requestFocus();
-      await tester.pump();
-      expect(focusLabel(), 'VideoPlayerScreen', reason: 'precondition: focus has drifted');
-
-      await press(tester, LogicalKeyboardKey.enter);
-
-      expect(player.state.position, const Duration(seconds: 45));
-    });
-
-    playerTest('a drifted Enter does not skip a prompt that already went away', markers: [introMarker], (tester) async {
-      player.emitPosition(const Duration(seconds: 15));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 8));
-      expect(find.byType(SkipMarkerButton), findsNothing, reason: 'precondition: the prompt auto-dismissed');
-      screenFocusNode.requestFocus();
-      await tester.pump();
-
-      await press(tester, LogicalKeyboardKey.enter);
-
-      expect(player.state.position, const Duration(seconds: 15), reason: 'an unseen marker must not be skipped');
-    });
-  });
-
   // Android TV is the platform the report came from, and it is materially
   // different: the marker autofocuses the button, so the key is dispatched
   // from the button's node upward rather than from the surface. The forced-TV
@@ -650,10 +251,9 @@ void main() {
   // sets both isTV and isAppleTV.
   group('declining a skip prompt on Android TV', () {
     setUp(() async {
-      TvDetectionService.debugSetAppleTVOverride(null);
+      TvDetectionService.debugSetTvOverride(null);
       await TvDetectionService.getInstance(forceTv: true);
       TvDetectionService.setForceTVSync(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
       await setNavigationEnabled(true);
     });
 
@@ -679,8 +279,7 @@ void main() {
 
   group('skip intro on a television', () {
     setUp(() async {
-      TvDetectionService.debugSetAppleTVOverride(true);
-      PlatformDetector.debugSetIsDesktopOSOverride(false);
+      TvDetectionService.debugSetTvOverride(true);
       await setNavigationEnabled(true);
     });
 
@@ -716,7 +315,7 @@ void main() {
 
 /// Minimal [Player] reporting steady playback; transport is routed to the
 /// widget's `onPlayPauseRequested` callback so the test can count toggles.
-class _TogglePlayer implements Player {
+class _TogglePlayer with AndroidPlayerNoops implements Player {
   Duration _position = const Duration(minutes: 5);
   final StreamController<Duration> _positionController = StreamController<Duration>.broadcast();
 

@@ -248,7 +248,7 @@ extension _VideoPlayerPlaybackStartMethods on VideoPlayerScreenState {
       );
       _commitPlaybackSession(session);
 
-      // Display matching: mpv and Apple TV open paused and negotiate from the
+      // Display matching: mpv opens paused and negotiate from the
       // decoded stream at the first frame; ExoPlayer switches before creating
       // its decoders when metadata provides an fps.
       final settingsService = await SettingsService.getInstance();

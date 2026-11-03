@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -11,8 +9,6 @@ import '../../models/player_setting_scope.dart';
 import '../../utils/audio_channel_limit_labels.dart';
 import '../../utils/quality_preset_labels.dart';
 import '../../services/settings_service.dart';
-import '../../services/video_decode_capabilities.dart';
-import '../../utils/codec_utils.dart';
 import '../../utils/platform_detector.dart';
 import '../../widgets/setting_tile.dart';
 import '../../widgets/settings_builder.dart';
@@ -36,8 +32,6 @@ class PlaybackSettingsScreen extends StatelessWidget {
     return SettingsBuilder(
       prefs: const [
         SettingsService.useExoPlayer,
-        SettingsService.matchRefreshRate,
-        SettingsService.matchDynamicRange,
         SettingsService.matchContentFrameRate,
         SettingsService.matchContentResolution,
         SettingsService.audioChannelLimit,
@@ -45,24 +39,18 @@ class PlaybackSettingsScreen extends StatelessWidget {
       ],
       builder: (context) {
         final svc = SettingsService.instance;
-        final exoActive = Platform.isAndroid && svc.read(SettingsService.useExoPlayer);
+        final exoActive = svc.read(SettingsService.useExoPlayer);
         // ExoPlayer only has the stereo fold, so a 5.1 limit set on mpv plays
         // (and shows) as Original there.
         final storedChannelLimit = svc.read(SettingsService.audioChannelLimit);
         final channelLimit = exoActive ? storedChannelLimit.onExoPlayer : storedChannelLimit;
         final showDisplaySwitchDelay =
-            PlatformDetector.isAppleTV() ||
-            (Platform.isWindows &&
-                (svc.read(SettingsService.matchRefreshRate) || svc.read(SettingsService.matchDynamicRange))) ||
-            (Platform.isMacOS && svc.read(SettingsService.matchRefreshRate)) ||
-            (Platform.isAndroid &&
-                (svc.read(SettingsService.matchContentFrameRate) || svc.read(SettingsService.matchContentResolution)));
-        // Android mpv and Apple TV only: ExoPlayer is not taking new features, and
-        // elsewhere no Dolby Vision signal ever reaches the display.
-        final showDisableDolbyVision = (Platform.isAndroid && !exoActive) || PlatformDetector.isAppleTV();
+            svc.read(SettingsService.matchContentFrameRate) || svc.read(SettingsService.matchContentResolution);
+        // mpv only: ExoPlayer is not taking new features.
+        final showDisableDolbyVision = !exoActive;
         // With Dolby Vision disabled mpv strips every Profile 7 file, so the
         // conversion choices would change nothing.
-        final showDvConversionMode = Platform.isAndroid && (exoActive || !svc.read(SettingsService.disableDolbyVision));
+        final showDvConversionMode = exoActive || !svc.read(SettingsService.disableDolbyVision);
 
         return SettingsPage(
           title: Text(t.settings.videoPlayback),
@@ -70,8 +58,8 @@ class PlaybackSettingsScreen extends StatelessWidget {
             SettingsGroup(
               title: t.settings.player,
               children: [
-                if (Platform.isAndroid) _playerBackendSelector(),
-                if (PlatformDetector.supportsExternalPlayers()) _externalPlayerTile(),
+                _playerBackendSelector(),
+                _externalPlayerTile(),
                 if (!exoActive) _mpvConfigTile(),
                 _hardwareDecodingTile(),
                 if (exoActive) _playbackBufferTile(),
@@ -83,15 +71,13 @@ class PlaybackSettingsScreen extends StatelessWidget {
             SettingsGroup(
               title: t.settings.videoAndDisplay,
               children: [
-                if (Platform.isAndroid) _matchContentFrameRateTile(),
-                if (Platform.isAndroid && PlatformDetector.isTV()) _matchContentResolutionTile(),
-                if (Platform.isWindows || Platform.isMacOS) _matchRefreshRateTile(),
-                if (Platform.isWindows) _matchDynamicRangeTile(),
+                _matchContentFrameRateTile(),
+                if (PlatformDetector.isTV()) _matchContentResolutionTile(),
                 if (showDisplaySwitchDelay) _displaySwitchDelayTile(),
                 if (showDisableDolbyVision) _disableDolbyVisionTile(),
                 if (showDvConversionMode) _dvConversionModeTile(),
                 // mpv-only: ExoPlayer always leaves the conversion to the device.
-                if (Platform.isAndroid && !exoActive) _hdrSdrConversionTile(),
+                if (!exoActive) _hdrSdrConversionTile(),
                 // mpv-only (#2149): ExoPlayer has no filter chain, so the
                 // tile disappears while the ExoPlayer backend is active.
                 if (!exoActive) _deinterlaceTile(),
@@ -126,7 +112,6 @@ class PlaybackSettingsScreen extends StatelessWidget {
                 _directPlayCoveredQualityTile(),
                 // Desktop has no hardware-decode probe, so this is where a
                 // machine too weak for a codec says so (#2443).
-                if (PlatformDetector.isDesktopOS()) _videoCodecsTile(),
                 _musicQualityTile(),
               ],
             ),
@@ -279,15 +264,6 @@ class PlaybackSettingsScreen extends StatelessWidget {
           title: t.settings.clickVideoTogglesPlayback,
           subtitle: t.settings.clickVideoTogglesPlaybackDescription,
         ),
-      if (PlatformDetector.isDesktopOS())
-        SettingSwitchTile(
-          pref: SettingsService.exitFullscreenOnPlayerClose,
-          icon: Symbols.fullscreen_exit_rounded,
-          title: t.settings.exitFullscreenOnPlayerClose,
-          subtitle: t.settings.exitFullscreenOnPlayerCloseDescription,
-        ),
-      // TODO: "Enter fullscreen when playback starts" toggle (#1641) goes
-      // here, desktop-only, paired with exitFullscreenOnPlayerClose.
     ],
   );
 
@@ -479,20 +455,6 @@ class PlaybackSettingsScreen extends StatelessWidget {
     subtitle: t.settings.matchContentResolutionDescription,
   );
 
-  Widget _matchRefreshRateTile() => SettingSwitchTile(
-    pref: SettingsService.matchRefreshRate,
-    icon: Symbols.display_settings_rounded,
-    title: t.settings.matchRefreshRate,
-    subtitle: t.settings.matchRefreshRateDescription,
-  );
-
-  Widget _matchDynamicRangeTile() => SettingSwitchTile(
-    pref: SettingsService.matchDynamicRange,
-    icon: Symbols.hdr_on_rounded,
-    title: t.settings.matchDynamicRange,
-    subtitle: t.settings.matchDynamicRangeDescription,
-  );
-
   Widget _deinterlaceTile() => SettingSelectionTile<DeinterlaceMode>(
     pref: SettingsService.deinterlaceMode,
     icon: Symbols.deblur_rounded,
@@ -536,10 +498,6 @@ class PlaybackSettingsScreen extends StatelessWidget {
         title: t.settings.audioPassthrough,
         subtitle: normalizationOn
             ? t.settings.audioPassthroughOverriddenByNormalization
-            : Platform.isIOS
-            ? t.settings.audioPassthroughDescriptionAppleSpatial
-            : Platform.isMacOS
-            ? t.settings.audioPassthroughDescriptionApple
             : t.settings.audioPassthroughDescription,
         enabled: !normalizationOn,
       );
@@ -701,25 +659,6 @@ class PlaybackSettingsScreen extends StatelessWidget {
     icon: Symbols.bolt_rounded,
     title: t.settings.directPlayCoveredQuality,
     subtitle: t.settings.directPlayCoveredQualityDescription,
-  );
-
-  Widget _videoCodecsTile() => SettingChecklistTile(
-    uncheckedPref: SettingsService.refusedVideoCodecs,
-    icon: Symbols.video_settings_rounded,
-    title: t.settings.videoCodecs,
-    description: t.settings.videoCodecsDescription,
-    options: [
-      for (final codec in RankedVideoCodec.values)
-        DialogOption(
-          value: codec.id,
-          title: CodecUtils.formatVideoCodec(codec.id),
-          subtitle: codec.isRefusable ? null : t.settings.videoCodecsAlwaysAccepted,
-        ),
-    ],
-    locked: {
-      for (final codec in RankedVideoCodec.values)
-        if (!codec.isRefusable) codec.id,
-    },
   );
 
   Widget _musicQualityTile() => SettingSelectionTile<AudioQualityPreset>(

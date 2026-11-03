@@ -20,6 +20,7 @@ import 'package:plezy/widgets/video_controls/widgets/player_toast_indicator.dart
 import '../test_helpers/media_items.dart';
 import '../test_helpers/prefs.dart';
 import '../test_helpers/theme.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// Issue #1505: on touch devices a two-finger tap toggles playback and leaves
 /// the chrome down, so the frame the viewer paused to read stays uncovered.
@@ -55,8 +56,7 @@ void main() {
 
     // Phone layout: the touch pointer pipeline is wired only when
     // PlatformDetector.isMobile(context) && !PlatformDetector.isTV().
-    TvDetectionService.debugSetAppleTVOverride(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
 
     database = AppDatabase.forTesting(NativeDatabase.memory());
     player = _RecordingPlayer();
@@ -70,8 +70,7 @@ void main() {
   });
 
   tearDown(() async {
-    TvDetectionService.debugSetAppleTVOverride(null);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     volume.dispose();
     playbackState.dispose();
     watchTogether.dispose();
@@ -347,7 +346,7 @@ int _pointerSequence = 0;
 int _nextPointer() => ++_pointerSequence;
 
 /// Minimal [Player] tracking playback state against a fixed 45-minute item.
-class _RecordingPlayer implements Player {
+class _RecordingPlayer with AndroidPlayerNoops implements Player {
   bool _playing = true;
 
   @override

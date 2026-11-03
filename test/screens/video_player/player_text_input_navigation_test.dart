@@ -74,7 +74,7 @@ class _PlayerShellState extends State<_PlayerShell> {
       focusNode: _screenFocusNode,
       autofocus: true,
       onKeyEvent: (node, event) {
-        final navigationKey = classifyPlayerNavigationKey(event, isAppleTV: false);
+        final navigationKey = classifyPlayerNavigationKey(event);
         if (navigationKey != PlayerNavigationKey.none) {
           return handlePlayerNavigationKeyAction(
             event,

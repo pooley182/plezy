@@ -11,8 +11,6 @@ abstract interface class FilePickerDelegate {
     bool withData = false,
   });
 
-  Future<String?> getDirectoryPath({String? dialogTitle});
-
   Future<String?> saveFile({
     String? dialogTitle,
     String? fileName,
@@ -32,11 +30,6 @@ class _PluginFilePickerDelegate implements FilePickerDelegate {
     bool withData = false,
   }) {
     return FilePicker.pickFiles(type: type, allowedExtensions: allowedExtensions, withData: withData);
-  }
-
-  @override
-  Future<String?> getDirectoryPath({String? dialogTitle}) {
-    return FilePicker.getDirectoryPath(dialogTitle: dialogTitle);
   }
 
   @override
@@ -97,10 +90,6 @@ class FilePickerService {
       'pickFiles',
       () => _delegate.pickFiles(type: type, allowedExtensions: allowedExtensions, withData: withData),
     );
-  }
-
-  Future<String?> getDirectoryPath({String? dialogTitle}) {
-    return _guard('getDirectoryPath', () => _delegate.getDirectoryPath(dialogTitle: dialogTitle));
   }
 
   Future<String?> saveFile({

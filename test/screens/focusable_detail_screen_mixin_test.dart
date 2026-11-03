@@ -13,12 +13,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    TvDetectionService.debugSetAppleTVOverride(false);
+    TvDetectionService.debugSetTvOverride(false);
     BackKeyCoordinator.clear();
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     BackKeyCoordinator.clear();
   });
 
@@ -46,31 +46,6 @@ void main() {
     expect(scrollable.position.pixels, 0);
   });
 
-  testWidgets('detail scaffold allows native iOS pop gesture when pushed', (tester) async {
-    MaterialPageRoute<void>? detailRoute;
-
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: monoTheme(MonoPalette.dark).copyWith(platform: TargetPlatform.iOS),
-        home: Builder(
-          builder: (context) => TextButton(
-            onPressed: () {
-              detailRoute = MaterialPageRoute<void>(builder: (_) => const _TestDetailScreen());
-              Navigator.of(context).push(detailRoute!);
-            },
-            child: const Text('Open detail'),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Open detail'));
-    await tester.pumpAndSettle();
-
-    expect(detailRoute, isNotNull);
-    expect(detailRoute!.popGestureEnabled, isTrue);
-  });
-
   testWidgets('collection surface hosts adaptive sheets and system Back closes the sheet before the route', (
     tester,
   ) async {
@@ -91,7 +66,7 @@ void main() {
   });
 
   testWidgets('actor surface D-pad Back closes its hosted sheet, then actor can pop with no actions', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
     await _pushDetailSurface(tester, surfaceName: 'actor', hasActions: false);
 
     await tester.tap(find.text('Open actor sheet'));

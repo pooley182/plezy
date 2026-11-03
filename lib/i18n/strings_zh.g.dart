@@ -145,7 +145,6 @@ class Translations$auth$zh extends Translations$auth$en {
 	@override String get quickConnectWaiting => '等待批准…';
 	@override String get quickConnectCancel => '取消';
 	@override String get quickConnectExpired => 'Quick Connect 已过期。请重试。';
-	@override String get localDataRecoveryRequired => 'Plezy 无法安全恢复本地登录状态和待处理的播放数据。请重新登录。';
 	@override String get pinCheckRejected => 'Plex PIN 检查被拒绝';
 }
 
@@ -199,8 +198,6 @@ class Translations$common$zh extends Translations$common$en {
 	@override String get connectingToServers => '正在连接服务器…';
 	@override String get startingOfflineMode => '正在启动离线模式…';
 	@override String get loading => '加载中…';
-	@override String get fullscreen => '全屏';
-	@override String get exitFullscreen => '退出全屏';
 	@override String get pressBackAgainToExit => '再按一次返回键退出';
 	@override late final Translations$common$ratingSource$zh ratingSource = Translations$common$ratingSource$zh.internal(_root);
 	@override String get notAvailable => 'N/A';
@@ -364,9 +361,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get cellularQualitySameAsDefault => '与默认画质相同';
 	@override String get directPlayCoveredQuality => '以原始画质播放较小视频';
 	@override String get directPlayCoveredQualityDescription => '已在画质限制内的视频直接播放，而非转码';
-	@override String get videoCodecs => '视频编解码器';
-	@override String get videoCodecsDescription => '未勾选的编解码器将由服务器转码';
-	@override String get videoCodecsAlwaysAccepted => '始终接受';
 	@override String get musicQualityTitle => '音乐音质';
 	@override String get subtitleStyling => '字幕样式';
 	@override String get subtitleStylingDescription => '调整字幕外观';
@@ -392,11 +386,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get specialsOrderingLast => '常规季之后';
 	@override String get clickVideoTogglesPlayback => '点击视频可切换播放/暂停';
 	@override String get clickVideoTogglesPlaybackDescription => '点击视频即可播放或暂停，而不是显示控制项。';
-	@override String get videoPlayerControls => '视频播放器控制';
-	@override String get keyboardShortcuts => '键盘快捷键';
-	@override String get keyboardShortcutsDescription => '自定义键盘快捷键';
-	@override String get videoPlayerNavigation => '视频播放器导航';
-	@override String get videoPlayerNavigationDescription => '使用方向键导航视频播放器控件';
 	@override String get watchTogetherRelay => '一起看中继服务器';
 	@override String get watchTogetherRelayDescription => '除非自行设置，否则使用公共 Open Watch Party 中继服务器';
 	@override String get watchTogetherRelayHint => 'https://my-relay.example.com';
@@ -423,8 +412,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get importSettingsSuccess => '设置已导入';
 	@override String get importSettingsInvalidFile => '此文件不是有效的 Plezy 设置导出';
 	@override String get importSettingsNoUser => '导入设置前请先登录';
-	@override String get shortcutsReset => '快捷键已重置为默认值';
-	@override String get resetShortcutsConfirm => '这将用默认快捷键替换你的自定义快捷键。继续吗？';
 	@override String get about => '关于';
 	@override String get aboutDescription => '应用程序信息和许可证';
 	@override String get updates => '更新';
@@ -434,8 +421,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get autoCheckUpdatesOnStartupDescription => '启动时有可用更新则通知';
 	@override String get validationErrorEnterNumber => '请输入有效数字';
 	@override String validationErrorDuration({required Object min, required Object max, required Object unit}) => '时长必须介于 ${min} 和 ${max} ${unit} 之间';
-	@override String shortcutAlreadyAssigned({required Object action}) => '快捷键已被分配给 ${action}';
-	@override String shortcutUpdated({required Object action}) => '快捷键已为 ${action} 更新';
 	@override String get saveFailed => '无法保存更改。请重试。';
 	@override String get autoPlayAndSkip => '自动播放与跳过';
 	@override String get autoPlayNextEpisode => '自动播放下一集';
@@ -484,8 +469,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get maxVolume => '最大音量';
 	@override String get maxVolumeDescription => '允许音量超过 100%，以便播放音量较低的内容';
 	@override String maxVolumePercent({required Object percent}) => '${percent}%';
-	@override String get discordRichPresence => 'Discord 动态状态';
-	@override String get discordRichPresenceDescription => '在 Discord 上显示您正在观看的内容';
 	@override String get services => '服务';
 	@override String get servicesDescription => '连接 Trakt、MyAnimeList、Seerr 等';
 	@override String get manageLibrariesDescription => '重新排序和隐藏媒体库';
@@ -499,17 +482,11 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get matchContentFrameRateDescription => '使显示器刷新率与视频帧率匹配';
 	@override String get matchContentResolution => '匹配内容分辨率';
 	@override String get matchContentResolutionDescription => '将显示切换为视频的原生分辨率，由电视负责放大。播放期间菜单和字幕也会一并放大';
-	@override String get matchRefreshRate => '匹配刷新率';
-	@override String get matchRefreshRateDescription => '全屏时匹配显示刷新率';
-	@override String get matchDynamicRange => '匹配动态范围';
-	@override String get matchDynamicRangeDescription => 'HDR 内容切换到 HDR，随后切回 SDR';
 	@override String get displaySwitchDelay => '显示切换延迟';
 	@override String get tunneledPlayback => '隧道播放';
 	@override String get tunneledPlaybackDescription => '使用视频隧道模式。若播放 HDR 内容时出现黑屏或画面卡顿，请将其关闭。';
 	@override String get audioPassthrough => '音频直通';
 	@override String get audioPassthroughDescription => '将 Dolby/DTS 音频不经重新编码直接发送到功放或电视，保留环绕声。如果没有声音，请关闭。';
-	@override String get audioPassthroughDescriptionApple => '对 Dolby Digital Plus（含 Atmos）使用 Apple 原生 Dolby 解码器。DTS 和 TrueHD 仍以多声道 PCM 播放。如果没有声音，请关闭。';
-	@override String get audioPassthroughDescriptionAppleSpatial => '对 Dolby Digital Plus（含 Atmos）使用 Apple 原生 Dolby 解码器。在 iOS、iPadOS 和 tvOS 26 或更高版本上，TrueHD Atmos 和 DTS:X 以空间音频播放。其他 DTS 和 TrueHD 音轨以多声道 PCM 播放。如果没有声音，请关闭。';
 	@override String get audioPassthroughOverriddenByNormalization => '响度标准化开启时停用';
 	@override String get audioChannelLimit => '音频声道';
 	@override String get audioChannelLimitDescription => '为无法播放所有声道的扬声器、耳机或 HDMI 设备下混解码后的音频';
@@ -557,10 +534,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get requireProfileSelectionOnOpenDescription => '每次打开应用时都显示用户资料选择界面';
 	@override String get forceTvMode => '强制 TV 模式';
 	@override String get forceTvModeDescription => '强制 TV 布局。适用于无法自动检测的设备。需要重启。';
-	@override String get startInFullscreen => '以全屏模式启动';
-	@override String get startInFullscreenDescription => '启动时以全屏模式打开 Plezy';
-	@override String get exitFullscreenOnPlayerClose => '关闭播放器时退出全屏';
-	@override String get exitFullscreenOnPlayerCloseDescription => '关闭视频播放器时自动退出全屏模式';
 	@override String get autoHidePerformanceOverlay => '自动隐藏性能叠加层';
 	@override String get autoHidePerformanceOverlayDescription => '性能叠加层随播放控件一起淡入淡出';
 	@override String get showNavBarLabels => '显示导航栏标签';
@@ -578,7 +551,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get libraryAndCards => '媒体库与卡片';
 	@override String get homeScreen => '主屏幕';
 	@override String get navigation => '导航';
-	@override String get window => '窗口';
 	@override String get liveTv => '直播电视';
 	@override String get player => '播放器';
 	@override String get videoAndDisplay => '视频与显示';
@@ -667,12 +639,7 @@ class Translations$hotkeys$zh extends Translations$hotkeys$en {
 	final TranslationsZh _root; // ignore: unused_field
 
 	// Translations
-	@override String setShortcutFor({required Object actionName}) => '为 ${actionName} 设置快捷键';
-	@override String get clearShortcut => '清除快捷键';
 	@override String get noShortcutSet => '未设置快捷键';
-	@override String get currentShortcut => '当前快捷键：';
-	@override String get pressToRecord => '点击后录入快捷键';
-	@override String get recordingShortcut => '请按下快捷键';
 	@override late final Translations$hotkeys$actions$zh actions = Translations$hotkeys$actions$zh.internal(_root);
 }
 
@@ -977,16 +944,12 @@ class Translations$videoControls$zh extends Translations$videoControls$en {
 	@override String get pipButton => '画中画';
 	@override String get aspectRatioButton => '宽高比';
 	@override String get ambientLighting => '氛围灯光';
-	@override String get fullscreenButton => '进入全屏';
-	@override String get exitFullscreenButton => '退出全屏';
-	@override String get alwaysOnTopButton => '窗口置顶';
 	@override String get rotationLockButton => '旋转锁定';
 	@override String get lockScreen => '锁定屏幕';
 	@override String get screenLockButton => '屏幕锁定';
 	@override String get timelineSlider => '视频时间轴';
 	@override String get volumeSlider => '音量滑块';
 	@override String endsAt({required Object time}) => '结束时间：${time}';
-	@override String get pipActive => '正在以画中画模式播放';
 	@override String get pipFailed => '画中画启动失败';
 	@override String get screenshotSaved => '截图已保存';
 	@override String get screenshotFailed => '无法截图';
@@ -1153,7 +1116,6 @@ class Translations$mpvConfig$zh extends Translations$mpvConfig$en {
 	@override String get lineHint => 'option=value';
 	@override String get addLine => '添加行';
 	@override String get removeLine => '移除行';
-	@override String get embeddedVoHint => 'Linux 上会忽略 vo、gpu-context 和 gpu-api：嵌入式视频始终通过视频平面上的 vo=libmpv 渲染，而 gpu-next（ArtCNN 等计算着色器需要它）无法以嵌入式方式运行。';
 }
 
 // Path: dialog
@@ -1502,7 +1464,6 @@ class Translations$startup$zh extends Translations$startup$en {
 	@override String get repairSucceeded => '存储已修复';
 	@override String get repairNeedsRestart => '存储已修复 — 需要重启';
 	@override String get restartRequiredBody => '你的数据已修复，但 Plezy 需要重新启动后才能使用。请关闭 Plezy 并重新打开。';
-	@override String get quitPlezy => '退出 Plezy';
 	@override String get repairFailed => '修复失败';
 	@override String get repairKeptSignIns => '你的服务器和个人资料仍然保持登录状态。';
 	@override String get repairLostSignIns => '保护已保存登录信息的密钥无法恢复。你需要重新登录每个服务器和个人资料。';
@@ -2068,20 +2029,9 @@ class Translations$videoSettings$zh extends Translations$videoSettings$en {
 	@override String get audioSync => '音频同步';
 	@override String get subtitleSync => '字幕同步';
 	@override String get hdr => 'HDR';
-	@override String get hdrUnsupported => '此处不支持 HDR——当前桌面合成器或视频输出无法传输 HDR。';
-	@override String get hdrToneMapping => 'HDR 色调映射';
-	@override String get hdrToneMappingCompositor => '合成器';
-	@override String get hdrToneMappingCompositorDescription => '直接传递源的 HDR 元数据，并由桌面合成器进行映射。';
-	@override String get hdrToneMappingPlayer => '播放器';
-	@override String get hdrToneMappingPlayerDescription => '在播放器中映射到显示器的峰值亮度，然后将结果告知合成器。';
-	@override String get hdrToneMappingFailed => '无法更改 HDR 色调映射——仍在使用之前的模式。';
 	@override String get audioOutput => '音频输出';
-	@override String get performanceOverlay => '性能监控';
-	@override String get audioOutputDolbyAtmos => 'Dolby Atmos';
-	@override String get audioOutputDolbyAudio => 'Dolby Audio';
-	@override String get audioOutputSurround => '环绕声';
-	@override String get audioOutputSpatial => '空间音频';
 	@override String get audioOutputStereo => '立体声';
+	@override String get performanceOverlay => '性能监控';
 	@override String get audioNormalization => '响度标准化';
 	@override String get audioNormalizationDisablesPassthrough => '将音频解码为 PCM；开启时直通关闭';
 }
@@ -2164,7 +2114,6 @@ class Translations$externalPlayer$zh extends Translations$externalPlayer$en {
 	@override String get addCustomPlayer => '添加自定义播放器';
 	@override String get playerName => '播放器名称';
 	@override String get playerNameHint => '我的播放器';
-	@override String get playerCommand => '命令';
 	@override String get playerPackage => '包名';
 	@override String get playerUrlScheme => 'URL 方案';
 	@override String get off => '关闭';
@@ -2376,7 +2325,6 @@ class Translations$services$zh extends Translations$services$en {
 	// Translations
 	@override String get title => '服务';
 	@override String get hubSubtitle => '同步观看进度并请求新内容。';
-	@override String get integrations => '集成';
 	@override String get notConnected => '未连接';
 	@override String connectedAs({required Object username}) => '已以 @${username} 身份连接';
 	@override String get scrobble => '自动记录进度';
@@ -2611,7 +2559,6 @@ class Translations$videoControls$pipErrors$zh extends Translations$videoControls
 
 	// Translations
 	@override String get androidVersion => '需要 Android 8.0 或更高版本';
-	@override String get iosVersion => '需要 iOS 15.0 或更高版本';
 	@override String get permissionDisabled => '画中画已禁用。请在系统设置中启用。';
 	@override String get notSupported => '此设备不支持画中画模式';
 	@override String get voSwitchFailed => '无法切换画中画的视频输出';
@@ -3430,7 +3377,6 @@ extension on TranslationsZh {
 			'auth.quickConnectWaiting' => '等待批准…',
 			'auth.quickConnectCancel' => '取消',
 			'auth.quickConnectExpired' => 'Quick Connect 已过期。请重试。',
-			'auth.localDataRecoveryRequired' => 'Plezy 无法安全恢复本地登录状态和待处理的播放数据。请重新登录。',
 			'auth.pinCheckRejected' => 'Plex PIN 检查被拒绝',
 			'common.cancel' => '取消',
 			'common.save' => '保存',
@@ -3475,8 +3421,6 @@ extension on TranslationsZh {
 			'common.connectingToServers' => '正在连接服务器…',
 			'common.startingOfflineMode' => '正在启动离线模式…',
 			'common.loading' => '加载中…',
-			'common.fullscreen' => '全屏',
-			'common.exitFullscreen' => '退出全屏',
 			'common.pressBackAgainToExit' => '再按一次返回键退出',
 			'common.ratingSource.critic' => '影评人',
 			'common.ratingSource.audience' => '观众',
@@ -3632,9 +3576,6 @@ extension on TranslationsZh {
 			'settings.cellularQualitySameAsDefault' => '与默认画质相同',
 			'settings.directPlayCoveredQuality' => '以原始画质播放较小视频',
 			'settings.directPlayCoveredQualityDescription' => '已在画质限制内的视频直接播放，而非转码',
-			'settings.videoCodecs' => '视频编解码器',
-			'settings.videoCodecsDescription' => '未勾选的编解码器将由服务器转码',
-			'settings.videoCodecsAlwaysAccepted' => '始终接受',
 			'settings.musicQualityTitle' => '音乐音质',
 			'settings.subtitleStyling' => '字幕样式',
 			'settings.subtitleStylingDescription' => '调整字幕外观',
@@ -3660,11 +3601,6 @@ extension on TranslationsZh {
 			'settings.specialsOrderingLast' => '常规季之后',
 			'settings.clickVideoTogglesPlayback' => '点击视频可切换播放/暂停',
 			'settings.clickVideoTogglesPlaybackDescription' => '点击视频即可播放或暂停，而不是显示控制项。',
-			'settings.videoPlayerControls' => '视频播放器控制',
-			'settings.keyboardShortcuts' => '键盘快捷键',
-			'settings.keyboardShortcutsDescription' => '自定义键盘快捷键',
-			'settings.videoPlayerNavigation' => '视频播放器导航',
-			'settings.videoPlayerNavigationDescription' => '使用方向键导航视频播放器控件',
 			'settings.watchTogetherRelay' => '一起看中继服务器',
 			'settings.watchTogetherRelayDescription' => '除非自行设置，否则使用公共 Open Watch Party 中继服务器',
 			'settings.watchTogetherRelayHint' => 'https://my-relay.example.com',
@@ -3691,8 +3627,6 @@ extension on TranslationsZh {
 			'settings.importSettingsSuccess' => '设置已导入',
 			'settings.importSettingsInvalidFile' => '此文件不是有效的 Plezy 设置导出',
 			'settings.importSettingsNoUser' => '导入设置前请先登录',
-			'settings.shortcutsReset' => '快捷键已重置为默认值',
-			'settings.resetShortcutsConfirm' => '这将用默认快捷键替换你的自定义快捷键。继续吗？',
 			'settings.about' => '关于',
 			'settings.aboutDescription' => '应用程序信息和许可证',
 			'settings.updates' => '更新',
@@ -3702,8 +3636,6 @@ extension on TranslationsZh {
 			'settings.autoCheckUpdatesOnStartupDescription' => '启动时有可用更新则通知',
 			'settings.validationErrorEnterNumber' => '请输入有效数字',
 			'settings.validationErrorDuration' => ({required Object min, required Object max, required Object unit}) => '时长必须介于 ${min} 和 ${max} ${unit} 之间',
-			'settings.shortcutAlreadyAssigned' => ({required Object action}) => '快捷键已被分配给 ${action}',
-			'settings.shortcutUpdated' => ({required Object action}) => '快捷键已为 ${action} 更新',
 			'settings.saveFailed' => '无法保存更改。请重试。',
 			'settings.autoPlayAndSkip' => '自动播放与跳过',
 			'settings.autoPlayNextEpisode' => '自动播放下一集',
@@ -3752,8 +3684,6 @@ extension on TranslationsZh {
 			'settings.maxVolume' => '最大音量',
 			'settings.maxVolumeDescription' => '允许音量超过 100%，以便播放音量较低的内容',
 			'settings.maxVolumePercent' => ({required Object percent}) => '${percent}%',
-			'settings.discordRichPresence' => 'Discord 动态状态',
-			'settings.discordRichPresenceDescription' => '在 Discord 上显示您正在观看的内容',
 			'settings.services' => '服务',
 			'settings.servicesDescription' => '连接 Trakt、MyAnimeList、Seerr 等',
 			'settings.manageLibrariesDescription' => '重新排序和隐藏媒体库',
@@ -3767,17 +3697,11 @@ extension on TranslationsZh {
 			'settings.matchContentFrameRateDescription' => '使显示器刷新率与视频帧率匹配',
 			'settings.matchContentResolution' => '匹配内容分辨率',
 			'settings.matchContentResolutionDescription' => '将显示切换为视频的原生分辨率，由电视负责放大。播放期间菜单和字幕也会一并放大',
-			'settings.matchRefreshRate' => '匹配刷新率',
-			'settings.matchRefreshRateDescription' => '全屏时匹配显示刷新率',
-			'settings.matchDynamicRange' => '匹配动态范围',
-			'settings.matchDynamicRangeDescription' => 'HDR 内容切换到 HDR，随后切回 SDR',
 			'settings.displaySwitchDelay' => '显示切换延迟',
 			'settings.tunneledPlayback' => '隧道播放',
 			'settings.tunneledPlaybackDescription' => '使用视频隧道模式。若播放 HDR 内容时出现黑屏或画面卡顿，请将其关闭。',
 			'settings.audioPassthrough' => '音频直通',
 			'settings.audioPassthroughDescription' => '将 Dolby/DTS 音频不经重新编码直接发送到功放或电视，保留环绕声。如果没有声音，请关闭。',
-			'settings.audioPassthroughDescriptionApple' => '对 Dolby Digital Plus（含 Atmos）使用 Apple 原生 Dolby 解码器。DTS 和 TrueHD 仍以多声道 PCM 播放。如果没有声音，请关闭。',
-			'settings.audioPassthroughDescriptionAppleSpatial' => '对 Dolby Digital Plus（含 Atmos）使用 Apple 原生 Dolby 解码器。在 iOS、iPadOS 和 tvOS 26 或更高版本上，TrueHD Atmos 和 DTS:X 以空间音频播放。其他 DTS 和 TrueHD 音轨以多声道 PCM 播放。如果没有声音，请关闭。',
 			'settings.audioPassthroughOverriddenByNormalization' => '响度标准化开启时停用',
 			'settings.audioChannelLimit' => '音频声道',
 			'settings.audioChannelLimitDescription' => '为无法播放所有声道的扬声器、耳机或 HDMI 设备下混解码后的音频',
@@ -3825,10 +3749,6 @@ extension on TranslationsZh {
 			'settings.requireProfileSelectionOnOpenDescription' => '每次打开应用时都显示用户资料选择界面',
 			'settings.forceTvMode' => '强制 TV 模式',
 			'settings.forceTvModeDescription' => '强制 TV 布局。适用于无法自动检测的设备。需要重启。',
-			'settings.startInFullscreen' => '以全屏模式启动',
-			'settings.startInFullscreenDescription' => '启动时以全屏模式打开 Plezy',
-			'settings.exitFullscreenOnPlayerClose' => '关闭播放器时退出全屏',
-			'settings.exitFullscreenOnPlayerCloseDescription' => '关闭视频播放器时自动退出全屏模式',
 			'settings.autoHidePerformanceOverlay' => '自动隐藏性能叠加层',
 			'settings.autoHidePerformanceOverlayDescription' => '性能叠加层随播放控件一起淡入淡出',
 			'settings.showNavBarLabels' => '显示导航栏标签',
@@ -3846,7 +3766,6 @@ extension on TranslationsZh {
 			'settings.libraryAndCards' => '媒体库与卡片',
 			'settings.homeScreen' => '主屏幕',
 			'settings.navigation' => '导航',
-			'settings.window' => '窗口',
 			'settings.liveTv' => '直播电视',
 			'settings.player' => '播放器',
 			'settings.videoAndDisplay' => '视频与显示',
@@ -3895,8 +3814,6 @@ extension on TranslationsZh {
 			'themeEditor.slots.text' => '文字',
 			'themeEditor.slots.textMuted' => '次要文字',
 			'themeEditor.slots.accent' => '强调色',
-			_ => null,
-		} ?? switch (path) {
 			'themeEditor.opacity' => '不透明度',
 			'themeEditor.hexHint' => '#RRGGBB 或 #AARRGGBB',
 			'themeEditor.fromOtherThemes' => '来自其他主题',
@@ -3921,15 +3838,12 @@ extension on TranslationsZh {
 			'search.searchYourMedia' => '搜索媒体',
 			'search.enterTitleActorOrKeyword' => '输入标题、演员或关键词',
 			'search.people' => '人物',
-			'hotkeys.setShortcutFor' => ({required Object actionName}) => '为 ${actionName} 设置快捷键',
-			'hotkeys.clearShortcut' => '清除快捷键',
 			'hotkeys.noShortcutSet' => '未设置快捷键',
-			'hotkeys.currentShortcut' => '当前快捷键：',
-			'hotkeys.pressToRecord' => '点击后录入快捷键',
-			'hotkeys.recordingShortcut' => '请按下快捷键',
 			'hotkeys.actions.playPause' => '播放/暂停',
 			'hotkeys.actions.volumeUp' => '增大音量',
 			'hotkeys.actions.volumeDown' => '减小音量',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => '快进 (${seconds}秒)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => '快退 (${seconds}秒)',
 			'hotkeys.actions.fullscreenToggle' => '切换全屏',
@@ -4186,23 +4100,18 @@ extension on TranslationsZh {
 			'videoControls.pipButton' => '画中画',
 			'videoControls.aspectRatioButton' => '宽高比',
 			'videoControls.ambientLighting' => '氛围灯光',
-			'videoControls.fullscreenButton' => '进入全屏',
-			'videoControls.exitFullscreenButton' => '退出全屏',
-			'videoControls.alwaysOnTopButton' => '窗口置顶',
 			'videoControls.rotationLockButton' => '旋转锁定',
 			'videoControls.lockScreen' => '锁定屏幕',
 			'videoControls.screenLockButton' => '屏幕锁定',
 			'videoControls.timelineSlider' => '视频时间轴',
 			'videoControls.volumeSlider' => '音量滑块',
 			'videoControls.endsAt' => ({required Object time}) => '结束时间：${time}',
-			'videoControls.pipActive' => '正在以画中画模式播放',
 			'videoControls.pipFailed' => '画中画启动失败',
 			'videoControls.screenshotSaved' => '截图已保存',
 			'videoControls.screenshotFailed' => '无法截图',
 			'videoControls.zoomPercent' => ({required Object percent}) => '缩放 ${percent}%',
 			'videoControls.volumePercent' => ({required Object percent}) => '音量 ${percent}%',
 			'videoControls.pipErrors.androidVersion' => '需要 Android 8.0 或更高版本',
-			'videoControls.pipErrors.iosVersion' => '需要 iOS 15.0 或更高版本',
 			'videoControls.pipErrors.permissionDisabled' => '画中画已禁用。请在系统设置中启用。',
 			'videoControls.pipErrors.notSupported' => '此设备不支持画中画模式',
 			'videoControls.pipErrors.voSwitchFailed' => '无法切换画中画的视频输出',
@@ -4340,7 +4249,6 @@ extension on TranslationsZh {
 			'mpvConfig.lineHint' => 'option=value',
 			'mpvConfig.addLine' => '添加行',
 			'mpvConfig.removeLine' => '移除行',
-			'mpvConfig.embeddedVoHint' => 'Linux 上会忽略 vo、gpu-context 和 gpu-api：嵌入式视频始终通过视频平面上的 vo=libmpv 渲染，而 gpu-next（ArtCNN 等计算着色器需要它）无法以嵌入式方式运行。',
 			'dialog.confirmAction' => '确认操作',
 			'profiles.addPlezyProfile' => '添加 Plezy 用户资料',
 			'profiles.switchingProfile' => '正在切换用户资料…',
@@ -4409,8 +4317,6 @@ extension on TranslationsZh {
 			'profiles.tokenIdentityMismatch' => 'Plex 用户资料令牌解析到了非预期服务器',
 			'connections.sectionTitle' => '连接',
 			'connections.addConnection' => '添加连接',
-			_ => null,
-		} ?? switch (path) {
 			'connections.addConnectionSubtitleNoProfile' => '使用 Plex 登录，或连接 Jellyfin 或 Emby 服务器',
 			'connections.addConnectionSubtitleScoped' => ({required Object displayName}) => '添加到 ${displayName}：Plex、Jellyfin、Emby，或其他用户资料的连接',
 			'connections.sessionExpiredOne' => ({required Object name}) => '${name} 的会话已过期',
@@ -4450,6 +4356,8 @@ extension on TranslationsZh {
 			'accountPreferences.subtitleModes.smart' => '外语音频时显示',
 			'accountPreferences.subtitleModes.smartDescription' => '仅在音频为其他语言时打开字幕。',
 			'accountPreferences.subtitleAccessibility' => 'SDH 字幕',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => '优先非 SDH 字幕',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => '优先 SDH 字幕',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => '仅 SDH 字幕',
@@ -4674,7 +4582,6 @@ extension on TranslationsZh {
 			'startup.repairSucceeded' => '存储已修复',
 			'startup.repairNeedsRestart' => '存储已修复 — 需要重启',
 			'startup.restartRequiredBody' => '你的数据已修复，但 Plezy 需要重新启动后才能使用。请关闭 Plezy 并重新打开。',
-			'startup.quitPlezy' => '退出 Plezy',
 			'startup.repairFailed' => '修复失败',
 			'startup.repairKeptSignIns' => '你的服务器和个人资料仍然保持登录状态。',
 			'startup.repairLostSignIns' => '保护已保存登录信息的密钥无法恢复。你需要重新登录每个服务器和个人资料。',
@@ -4923,8 +4830,6 @@ extension on TranslationsZh {
 			'liveTv.recordSettings.keepUpToHint' => '0 表示保留全部剧集',
 			'liveTv.startingInMinutes' => ({required Object minutes}) => '${minutes} 分钟后开始',
 			'liveTv.dayAtTime' => ({required Object day, required Object time}) => '${day} ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'liveTv.invalidPlaybackData' => ({required Object product}) => '${product} 返回了无效的直播电视播放数据',
 			'liveTv.failedToStartChannel' => '无法播放直播频道',
 			'liveTv.failedToBuildStreamUrl' => '无法生成视频流 URL',
@@ -4965,6 +4870,8 @@ extension on TranslationsZh {
 			'playlists.deleteConfirm' => '删除播放列表？',
 			'playlists.deleteMessage' => ({required Object name}) => '确定要删除“${name}”吗？',
 			'playlists.created' => '播放列表已创建',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.deleted' => '播放列表已删除',
 			'playlists.itemAdded' => '已添加到播放列表',
 			'playlists.itemRemoved' => '已从播放列表中移除',
@@ -5368,20 +5275,9 @@ extension on TranslationsZh {
 			'videoSettings.audioSync' => '音频同步',
 			'videoSettings.subtitleSync' => '字幕同步',
 			'videoSettings.hdr' => 'HDR',
-			'videoSettings.hdrUnsupported' => '此处不支持 HDR——当前桌面合成器或视频输出无法传输 HDR。',
-			'videoSettings.hdrToneMapping' => 'HDR 色调映射',
-			'videoSettings.hdrToneMappingCompositor' => '合成器',
-			'videoSettings.hdrToneMappingCompositorDescription' => '直接传递源的 HDR 元数据，并由桌面合成器进行映射。',
-			'videoSettings.hdrToneMappingPlayer' => '播放器',
-			'videoSettings.hdrToneMappingPlayerDescription' => '在播放器中映射到显示器的峰值亮度，然后将结果告知合成器。',
-			'videoSettings.hdrToneMappingFailed' => '无法更改 HDR 色调映射——仍在使用之前的模式。',
 			'videoSettings.audioOutput' => '音频输出',
-			'videoSettings.performanceOverlay' => '性能监控',
-			'videoSettings.audioOutputDolbyAtmos' => 'Dolby Atmos',
-			'videoSettings.audioOutputDolbyAudio' => 'Dolby Audio',
-			'videoSettings.audioOutputSurround' => '环绕声',
-			'videoSettings.audioOutputSpatial' => '空间音频',
 			'videoSettings.audioOutputStereo' => '立体声',
+			'videoSettings.performanceOverlay' => '性能监控',
 			'videoSettings.audioNormalization' => '响度标准化',
 			'videoSettings.audioNormalizationDisablesPassthrough' => '将音频解码为 PCM；开启时直通关闭',
 			'performanceOverlay.color' => '颜色',
@@ -5437,8 +5333,6 @@ extension on TranslationsZh {
 			'performanceOverlay.decoderHardware' => '硬件',
 			'performanceOverlay.tunnelingActive' => '已启用',
 			'performanceOverlay.dvRpuFailed' => ({required Object converted, required Object failures}) => '${converted}（${failures} 个失败）',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.title' => '外部播放器',
 			'externalPlayer.useExternalPlayer' => '使用外部播放器',
 			'externalPlayer.useExternalPlayerDescription' => '在其他应用中打开视频',
@@ -5448,7 +5342,6 @@ extension on TranslationsZh {
 			'externalPlayer.addCustomPlayer' => '添加自定义播放器',
 			'externalPlayer.playerName' => '播放器名称',
 			'externalPlayer.playerNameHint' => '我的播放器',
-			'externalPlayer.playerCommand' => '命令',
 			'externalPlayer.playerPackage' => '包名',
 			'externalPlayer.playerUrlScheme' => 'URL 方案',
 			'externalPlayer.off' => '关闭',
@@ -5491,6 +5384,8 @@ extension on TranslationsZh {
 			'metadataEdit.libraryDefault' => '媒体库默认',
 			'metadataEdit.accountDefault' => '账户默认',
 			'metadataEdit.seriesDefault' => '剧集默认',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => '剧集排序',
 			'metadataEdit.oldestFirst' => '最旧优先',
 			'metadataEdit.newestFirst' => '最新优先',
@@ -5606,7 +5501,6 @@ extension on TranslationsZh {
 			'seerr.permissionRevoked' => '你不再拥有请求此内容的权限',
 			'services.title' => '服务',
 			'services.hubSubtitle' => '同步观看进度并请求新内容。',
-			'services.integrations' => '集成',
 			'services.notConnected' => '未连接',
 			'services.connectedAs' => ({required Object username}) => '已以 @${username} 身份连接',
 			'services.scrobble' => '自动记录进度',

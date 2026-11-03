@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:drift/native.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -37,6 +38,10 @@ import '../test_helpers/saf_fakes.dart';
 
 void main() {
   testWidgets('replacement releases the native owner and Back never exposes an abandoned player', (tester) async {
+    // Android's initialize reads the subtitle render scale from settings.
+    resetSharedPreferencesForTest();
+    SettingsService.resetForTesting();
+    await SettingsService.getInstance();
     final navigator = GlobalKey<NavigatorState>();
     final pages = <_PlaybackPageState>[];
     int? nativeOwner;
@@ -295,7 +300,7 @@ void main() {
   });
 
   group('launching a downloaded item while its server is reachable (issue #2466)', () {
-    const urlLauncherChannel = MethodChannel('plugins.flutter.io/url_launcher');
+    const externalPlayerChannel = MethodChannel('com.plezy/external_player');
     const localCopy = 'content://sdcard/Movie.mkv';
     final movie = testMediaItem(id: 'movie-1', backend: MediaBackend.plex, kind: MediaKind.movie, serverId: 'srv');
     // Only the second version is on disk, so a launch that ignored the
@@ -325,18 +330,19 @@ void main() {
       await (await SettingsService.getInstance()).write(SettingsService.useExternalPlayer, true);
       externalLaunches = [];
       client = _ExternalUrlClient();
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(urlLauncherChannel, (
-        call,
-      ) async {
-        if (call.method != 'launch') return null;
-        externalLaunches.add((call.arguments as Map)['url'] as String);
-        return true;
-      });
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+        externalPlayerChannel,
+        (call) async {
+          if (call.method != 'openVideo') return null;
+          externalLaunches.add((call.arguments as Map)['filePath'] as String);
+          return <String, Object?>{'launched': true};
+        },
+      );
     });
 
     tearDown(() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-        urlLauncherChannel,
+        externalPlayerChannel,
         null,
       );
       SafStorageService.setOpsForTesting(null);
@@ -349,9 +355,12 @@ void main() {
       final offlineWatch = _OfflineWatchSync();
       addTearDown(downloads.dispose);
       addTearDown(offlineWatch.dispose);
+      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(database.close);
       await tester.pumpWidget(
         MultiProvider(
           providers: [
+            Provider<AppDatabase>.value(value: database),
             ChangeNotifierProvider<MultiServerProvider>.value(value: servers.provider),
             ChangeNotifierProvider<DownloadProvider>.value(value: downloads),
             ChangeNotifierProvider<OfflineWatchSyncService>.value(value: offlineWatch),
@@ -416,7 +425,7 @@ void main() {
     });
 
     group('launching the room item', () {
-      const urlLauncherChannel = MethodChannel('plugins.flutter.io/url_launcher');
+      const externalPlayerChannel = MethodChannel('com.plezy/external_player');
       late List<String> externalLaunches;
       late _ExternalUrlClient client;
 
@@ -426,18 +435,19 @@ void main() {
         await (await SettingsService.getInstance()).write(SettingsService.useExternalPlayer, true);
         externalLaunches = [];
         client = _ExternalUrlClient();
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(urlLauncherChannel, (
-          call,
-        ) async {
-          if (call.method != 'launch') return null;
-          externalLaunches.add((call.arguments as Map)['url'] as String);
-          return true;
-        });
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+          externalPlayerChannel,
+          (call) async {
+            if (call.method != 'openVideo') return null;
+            externalLaunches.add((call.arguments as Map)['filePath'] as String);
+            return <String, Object?>{'launched': true};
+          },
+        );
       });
 
       tearDown(() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-          urlLauncherChannel,
+          externalPlayerChannel,
           null,
         );
         SettingsService.resetForTesting();

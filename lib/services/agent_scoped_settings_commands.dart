@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:provider/provider.dart';
 
@@ -179,7 +178,7 @@ class AgentScopedSettingsCommands {
           if (v is! num || !v.isFinite || v < minimumPlaybackRate || v > maximumPlaybackRate) {
             _invalid('Playback speed is outside the supported range.');
           }
-          return (v).toDouble();
+          return v.toDouble();
         },
       ),
       _playerValue(
@@ -192,8 +191,7 @@ class AgentScopedSettingsCommands {
         type: 'string',
         defaultValue: SettingsService.globalShaderPreset.defaultValue,
         choices: shaderProvider.allPresets.map((p) => p.id).toList(),
-        isSupported: () =>
-            ShaderService.isPlatformSupported && !(Platform.isAndroid && settings.read(SettingsService.useExoPlayer)),
+        isSupported: () => ShaderService.isPlatformSupported && !settings.read(SettingsService.useExoPlayer),
         decode: (v) {
           if (v is! String || shaderProvider.findPresetById(v) == null) _invalid('Select an available shader preset.');
           return v;
@@ -901,7 +899,7 @@ class AgentScopedSettingsCommands {
           },
           normalize: (v) {
             if (v is! String || v.trim().isEmpty) _invalid('A nonempty profile name is required.');
-            return (v).trim();
+            return v.trim();
           },
           write: (v, reset) => registry.rename(guard.profileId, v as String, checkCurrent: guard.check),
         )
@@ -1013,7 +1011,7 @@ class AgentScopedSettingsCommands {
           final urls = <String>[];
           for (final raw in value) {
             if (raw is! String) _invalid('Every endpoint must be a URL string.');
-            final uri = Uri.tryParse((raw).trim());
+            final uri = Uri.tryParse(raw.trim());
             if (uri == null ||
                 !const ['http', 'https'].contains(uri.scheme) ||
                 uri.host.isEmpty ||

@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +7,6 @@ import '../../navigation/navigation_tabs.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../services/settings_service.dart';
 import '../../services/settings_mutation_service.dart';
-import '../../utils/platform_detector.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/focusable_list_tile.dart';
 import '../../widgets/setting_tile.dart';
@@ -43,28 +40,15 @@ class GeneralSettingsScreen extends StatelessWidget {
                 title: t.settings.requireProfileSelectionOnOpen,
                 subtitle: t.settings.requireProfileSelectionOnOpenDescription,
               ),
-            if (Platform.isAndroid || PlatformDetector.isDesktopOS())
-              SettingSwitchTile(
-                pref: SettingsService.forceTvMode,
-                icon: Symbols.tv_rounded,
-                title: t.settings.forceTvMode,
-                subtitle: t.settings.forceTvModeDescription,
-              ),
+            SettingSwitchTile(
+              pref: SettingsService.forceTvMode,
+              icon: Symbols.tv_rounded,
+              title: t.settings.forceTvMode,
+              subtitle: t.settings.forceTvModeDescription,
+            ),
           ],
         ),
 
-        if (PlatformDetector.isDesktopOS())
-          SettingsGroup(
-            title: t.settings.window,
-            children: [
-              SettingSwitchTile(
-                pref: SettingsService.startInFullscreen,
-                icon: Symbols.fullscreen_rounded,
-                title: t.settings.startInFullscreen,
-                subtitle: t.settings.startInFullscreenDescription,
-              ),
-            ],
-          ),
         const SizedBox(height: 24),
       ],
     );

@@ -341,9 +341,8 @@ void main() {
   });
 
   tearDown(() {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     TvDetectionService.setForceTVSync(false);
-    PlatformDetector.debugSetIsDesktopOSOverride(null);
   });
 
   testWidgets('autofocuses the server URL field', (tester) async {
@@ -356,7 +355,7 @@ void main() {
   });
 
   testWidgets('TV initial focus keeps server URL focused without opening keyboard', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
 
     await tester.pumpWidget(
       InputModeTracker(child: _testApp(AddJellyfinScreen(localDiscoveryFactory: _noLocalServers))),
@@ -369,7 +368,7 @@ void main() {
   });
 
   testWidgets('Android TV D-pad can leave initial URL focus before keyboard opens', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     await TvDetectionService.getInstance(forceTv: true);
     TvDetectionService.setForceTVSync(true);
 
@@ -398,7 +397,7 @@ void main() {
   });
 
   testWidgets('TV discovery keeps initial URL focus and D-pad reaches discovered servers', (tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
+    TvDetectionService.debugSetTvOverride(true);
 
     await tester.pumpWidget(
       InputModeTracker(
@@ -432,10 +431,9 @@ void main() {
 
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'AddJellyfin:Url');
     expect(find.byKey(const Key('tv_virtual_keyboard_panel')), findsNothing);
-    // Returning to the URL field by D-pad must not raise the system keyboard;
-    // only an explicit Select does. Auto-opening on focus made the form
-    // untraversable on Apple TV (#1728).
-    expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isTrue);
+    // Android TV's docked IME skips the first focus and opens on a deliberate
+    // return to the field.
+    expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isFalse);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.select);
     await tester.pumpAndSettle();
@@ -443,11 +441,10 @@ void main() {
     expect(tester.widget<TextField>(find.byType(TextField)).readOnly, isFalse);
   });
 
-  /// Drives the Apple TV Add Jellyfin flow up to the credentials step and
+  /// Drives the TV Add Jellyfin flow up to the credentials step and
   /// leaves focus on the username field, as the probe does.
-  Future<void> pumpAppleTvCredentialsStep(WidgetTester tester) async {
-    TvDetectionService.debugSetAppleTVOverride(true);
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
+  Future<void> pumpTvCredentialsStep(WidgetTester tester) async {
+    TvDetectionService.debugSetTvOverride(true);
     await tester.pumpWidget(
       InputModeTracker(
         child: _testApp(
@@ -469,7 +466,7 @@ void main() {
   }
 
   testWidgets('Apple TV probe handoff attaches text input exactly once', (tester) async {
-    await pumpAppleTvCredentialsStep(tester);
+    await pumpTvCredentialsStep(tester);
 
     drainTextInput(tester);
     await tester.testTextInput.receiveAction(TextInputAction.go);
@@ -487,49 +484,6 @@ void main() {
 
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'AddJellyfin:Username');
     expect(tester.widget<TextField>(find.byType(TextField).at(1)).readOnly, isFalse);
-  });
-
-  testWidgets('Apple TV D-pad traversal stops raising the keyboard after each field is seen', (tester) async {
-    await pumpAppleTvCredentialsStep(tester);
-    await tester.testTextInput.receiveAction(TextInputAction.go);
-    await tester.pumpAndSettle();
-
-    // On device the D-pad belongs to the tvOS keyboard while it is up, so a
-    // user can only traverse after dismissing it. Model that: dismiss via the
-    // platform (as UIKit does), which must leave focus on the field, and only
-    // then send the arrow.
-    Future<void> dismissIfOpen() async {
-      final open = tester.widgetList<TextField>(find.byType(TextField)).any((field) => !field.readOnly);
-      if (!open) return;
-      final focused = FocusManager.instance.primaryFocus?.debugLabel;
-      tester.testTextInput.closeConnection();
-      await tester.pumpAndSettle();
-      expect(FocusManager.instance.primaryFocus?.debugLabel, focused, reason: 'dismissal must not move focus');
-    }
-
-    Future<void> walk() async {
-      for (final key in [LogicalKeyboardKey.arrowDown, LogicalKeyboardKey.arrowUp]) {
-        for (var step = 0; step < 3; step++) {
-          await dismissIfOpen();
-          await tester.sendKeyEvent(key);
-          await tester.pumpAndSettle();
-        }
-      }
-    }
-
-    // First pass may raise input once per field it has never focused before —
-    // arriving at a field is an intent to type.
-    await walk();
-
-    // Every later pass must be silent. Re-raising the system keyboard on
-    // every single traversal step made the form unusable.
-    for (var pass = 2; pass <= 3; pass++) {
-      drainTextInput(tester);
-      await walk();
-      final traversal = drainTextInput(tester);
-      expect(traversal, isNot(contains('TextInput.setClient')), reason: 'pass $pass');
-      expect(traversal, isNot(contains('TextInput.show')), reason: 'pass $pass');
-    }
   });
 
   testWidgets('D-pad moves from URL through Change to credentials after server is found', (tester) async {
@@ -683,11 +637,10 @@ void main() {
 
   testWidgets('TV auto Quick Connect never opens the keyboard across the panel swap', (tester) async {
     resetSharedPreferencesForTest();
-    TvDetectionService.debugSetAppleTVOverride(null);
+    TvDetectionService.debugSetTvOverride(null);
     await TvDetectionService.getInstance(forceTv: true);
     TvDetectionService.setForceTVSync(true);
     // Simulated TV device, not desktop force-TV: keep locked keyboard mode.
-    PlatformDetector.debugSetIsDesktopOSOverride(false);
 
     await tester.pumpWidget(
       InputModeTracker(

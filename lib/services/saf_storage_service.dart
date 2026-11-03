@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:saf_util/saf_util.dart';
 import '../utils/app_logger.dart';
@@ -46,7 +44,7 @@ class SafStorageService implements SafStorageOperations {
   final SafUtil _safUtil = SafUtil();
 
   /// Check if SAF is available (Android only)
-  bool get isAvailable => Platform.isAndroid;
+  bool get isAvailable => true;
 
   /// Android TV distributions commonly have no DocumentsUI activity, so a
   /// custom SAF root cannot be selected there.

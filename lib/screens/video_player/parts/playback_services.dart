@@ -112,14 +112,9 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
       unawaited(progressTracker.sendProgress('playing'));
     }
 
-    if (Platform.isAndroid &&
-        (settingsService.read(SettingsService.matchContentFrameRate) ||
-            settingsService.read(SettingsService.matchContentResolution))) {
+    if (settingsService.read(SettingsService.matchContentFrameRate) ||
+        settingsService.read(SettingsService.matchContentResolution)) {
       await _applyFrameRateMatching();
-    }
-
-    if (_displayModeService != null) {
-      await _applyDisplayModeMatching();
     }
   }
 
@@ -130,7 +125,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
   }) async {
     // Re-wire scope: exactly the player-stream slice of
     // [_cancelPlayerStreamSubscriptions]. The media-controls listeners belong
-    // to _initializeServices in this file and the sleep-timer/Apple TV ones to
+    // to _initializeServices in this file and the sleep-timer one to
     // initState; both outlive a re-wire.
     await Future.wait<void>(_cancelPlayerStreamSubscriptions(includeMediaControls: false));
     if (!mounted || _shuttingDown || player != currentPlayer) return;
@@ -197,7 +192,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
           .listen(_onPlayerLog),
     );
 
-    if (Platform.isAndroid && useExoPlayer) {
+    if (useExoPlayer) {
       _playerStreamSubscriptions.add(currentPlayer.streams.backendSwitched.listen((_) => _onBackendSwitched()));
     }
 
@@ -271,7 +266,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
         // Android ExoPlayer position can advance on its standalone clock without
         // a renderer, so it may infer readiness only after switching to MPV.
         final canInferRenderedFrameFromPosition =
-            !(Platform.isAndroid && useExoPlayer) || (currentPlayer is PlayerAndroid && currentPlayer.usingMpvFallback);
+            !useExoPlayer || (currentPlayer is PlayerAndroid && currentPlayer.usingMpvFallback);
         if (canInferRenderedFrameFromPosition && !_firstFrame.rendered) {
           if (lastObservedPositionMs != null && position.inMilliseconds != lastObservedPositionMs) {
             unawaited(_markFirstFrameReady(currentPlayer, settingsService));
@@ -308,7 +303,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     // Rollback scope: the player streams plus the media-controls listeners —
     // see [_cancelPlayerStreamSubscriptions] for the ownership boundary that
-    // keeps the sleep-timer and Apple TV subscriptions alive.
+    // keeps the sleep-timer subscription alive.
     final cancellationFutures = _cancelPlayerStreamSubscriptions(includeMediaControls: true);
     try {
       await Future.wait(cancellationFutures);
@@ -386,10 +381,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     if (progressTracker != null) {
       try {
-        await Future.wait<void>([
-          DiscordRPCService.instance.stopPlayback(),
-          TrackerCoordinator.instance.stopPlayback(),
-        ]);
+        await TrackerCoordinator.instance.stopPlayback();
       } catch (e, st) {
         appLogger.w('Failed to stop scrobblers during initialization rollback', error: e, stackTrace: st);
       }
@@ -407,7 +399,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
   /// Wire the per-item playback services that need to (re)bind whenever
   /// the active media item changes: [PlaybackProgressTracker],
   /// [MediaControlsManager.updateMetadata], and the
-  /// Discord/Trakt/Tracker scrobblers. Both [_initializeServices] and
+  /// Trakt/Tracker scrobblers. Both [_initializeServices] and
   /// [_reloadMediaInPlace] call this so the two flows can't drift.
   ///
   /// The caller is responsible for ensuring `player != null` and (if the
@@ -442,15 +434,9 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
 
     _publishMediaControlsMetadata(metadata, mediaClient);
 
-    // Scrobblers — Discord RPC plus the tracker coordinator, which fans out to
-    // every connected service. Both accept the neutral [MediaServerClient]; null
-    // short-circuits cleanly.
+    // Scrobblers — the tracker coordinator fans out to every connected
+    // service and takes the live decision itself.
     if (mediaClient != null) {
-      // Discord renders a timeline the live placeholder does not have; the
-      // tracker coordinator takes the live decision itself.
-      if (!widget.isLive) {
-        unawaited(DiscordRPCService.instance.startPlayback(metadata, mediaClient));
-      }
       unawaited(TrackerCoordinator.instance.startPlayback(metadata, mediaClient, isLive: widget.isLive));
     }
   }
@@ -599,22 +585,12 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
           return;
         }
 
-        if (_isAppleAudioSessionEvent(event)) {
-          unawaited(_handleAppleAudioSessionEvent(event));
-          return;
-        }
-
-        if (PlatformDetector.isAppleTV() && _isPlaybackMediaControlEvent(event)) {
-          appLogger.d('Media control: ${event.runtimeType} ignored on Apple TV; using native remote bridge');
-          return;
-        }
-
         mediaControlRouter.route(event);
       }),
     );
 
     // Wire progress tracker, media-controls metadata, and the
-    // Discord/Trakt/Tracker scrobblers. Shared with [_reloadMediaInPlace]
+    // Trakt/Tracker scrobblers. Shared with [_reloadMediaInPlace]
     // so the two flows can't drift.
     if (perItemServicesWired) {
       _publishMediaControlsMetadata(_currentMetadata, mediaClient);
@@ -645,10 +621,9 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
           position: position,
           speed: currentPlayer.state.rate,
         );
-        // Live reports through [_sendLiveTimeline] alone; Discord and the
-        // trackers were never started for it.
+        // Live reports through [_sendLiveTimeline] alone; the trackers were
+        // never started for it.
         if (widget.isLive) return;
-        DiscordRPCService.instance.updatePosition(position);
         TrackerCoordinator.instance.updatePosition(position);
         // Keep the trackers' known duration current — mpv only emits on the
         // duration stream once per load, but this is cheap and avoids an extra
@@ -656,15 +631,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
         TrackerCoordinator.instance.updateDuration(currentPlayer.state.duration);
       }),
     );
-
-    if (!widget.isLive) {
-      // Listen to playback rate changes for Discord Rich Presence
-      _mediaControlSubscriptions.add(
-        currentPlayer.streams.rate.listen((rate) {
-          DiscordRPCService.instance.updatePlaybackSpeed(rate);
-        }),
-      );
-    }
 
     _mediaControlSubscriptions.add(
       currentPlayer.streams.seekable.listen((_) {
@@ -761,10 +727,6 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
   }
 
   void _onPlayingStateChanged(bool isPlaying) {
-    if (!isPlaying) {
-      _lastPlaybackPauseAt = DateTime.now();
-    }
-
     if (isPlaying && !automotivePlaybackAllowedNow()) {
       // Native audio-focus regain resumes the platform player directly
       // (ExoPlayer's AudioFocusManager, mpv's resumeAfterAudioFocusGain), so it
@@ -803,9 +765,7 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     unawaited(_wakelockController.setEnabled(isPlaying && !(player?.state.completed ?? false)));
 
     if (isPlaying) {
-      // Force a texture refresh on resume to unstick stale frames
-      // (Linux/macOS texture registrars can miss frame-available
-      // notifications after extended pause periods)
+      // Force a texture refresh on resume to unstick stale frames.
       player?.updateFrame();
     }
 
@@ -815,92 +775,16 @@ extension _VideoPlayerPlaybackServiceMethods on VideoPlayerScreenState {
     // Update OS media controls playback state
     _mediaControls.pushPlaybackState();
 
-    // Update Discord Rich Presence + real-time trackers
+    // Update real-time trackers
     if (isPlaying) {
-      DiscordRPCService.instance.resumePlayback();
       TrackerCoordinator.instance.resumePlayback();
     } else {
-      DiscordRPCService.instance.pausePlayback();
       TrackerCoordinator.instance.pausePlayback();
     }
 
     // Update auto-PiP readiness
     if (_autoPipEnabled) {
       unawaited(_updateAutoPipState(isPlaying: isPlaying));
-    }
-  }
-
-  bool _isAppleAudioSessionEvent(Object event) =>
-      event is AudioInterruptionBeganEvent ||
-      event is AudioInterruptionEndedEvent ||
-      event is AudioRouteOldDeviceUnavailableEvent ||
-      event is AudioRouteNewDeviceAvailableEvent;
-
-  bool _isPlaybackMediaControlEvent(Object event) =>
-      event is PlayEvent || event is PauseEvent || event is TogglePlayPauseEvent;
-
-  Future<void> _handleAppleAudioSessionEvent(Object event) async {
-    if (!Platform.isIOS || PlatformDetector.isTV()) return;
-
-    final currentPlayer = player;
-    if (!mounted || currentPlayer == null || !_isPlayerInitialized) return;
-
-    if (event is AudioInterruptionBeganEvent) {
-      await _pauseForAppleAudioSessionEvent(currentPlayer, 'interruption began');
-    } else if (event is AudioRouteOldDeviceUnavailableEvent) {
-      await _pauseForAppleAudioSessionEvent(currentPlayer, 'private audio route disconnected');
-    } else if (event is AudioInterruptionEndedEvent) {
-      if (event.shouldResume) {
-        await _resumeAfterAppleAudioSessionEvent(currentPlayer, 'interruption ended');
-      } else {
-        _resumeAfterAppleAudioSessionPause = false;
-      }
-    } else if (event is AudioRouteNewDeviceAvailableEvent) {
-      await _resumeAfterAppleAudioSessionEvent(currentPlayer, 'private audio route connected');
-    }
-  }
-
-  Future<void> _pauseForAppleAudioSessionEvent(Player currentPlayer, String reason) async {
-    final wasPlayingBeforeEvent = currentPlayer.state.isActive || _wasRecentlyPaused();
-    if (wasPlayingBeforeEvent) {
-      _resumeAfterAppleAudioSessionPause = true;
-    }
-
-    try {
-      await _pauseWithPlaybackIntent(currentPlayer);
-      appLogger.d('Video paused after Apple audio session $reason');
-    } catch (e) {
-      appLogger.w('Failed to pause after Apple audio session $reason', error: e);
-    } finally {
-      _mediaControls.pushPlaybackState();
-    }
-  }
-
-  bool _wasRecentlyPaused() {
-    final pauseAt = _lastPlaybackPauseAt;
-    if (pauseAt == null) return false;
-    return DateTime.now().difference(pauseAt) < const Duration(seconds: 1);
-  }
-
-  Future<void> _resumeAfterAppleAudioSessionEvent(Player expectedPlayer, String reason) async {
-    if (!_resumeAfterAppleAudioSessionPause) return;
-    _resumeAfterAppleAudioSessionPause = false;
-
-    if (!mounted || player != expectedPlayer || !_isPlayerInitialized) return;
-    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
-      appLogger.d('Skipped Apple audio session resume after $reason because app is not resumed');
-      return;
-    }
-    if (expectedPlayer.state.isActive) return;
-
-    try {
-      await _playWithPlaybackIntent(expectedPlayer);
-      _wasPlayingBeforeInactive = false;
-      appLogger.d('Video resumed after Apple audio session $reason');
-    } catch (e) {
-      appLogger.w('Failed to resume after Apple audio session $reason', error: e);
-    } finally {
-      _mediaControls.pushPlaybackState();
     }
   }
 

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -227,12 +226,7 @@ class _MpvConfigScreenState extends State<MpvConfigScreen> with ListenableBindin
       listenable: _textFieldFocusNode,
       builder: (context, _) {
         return PopScope(
-          canPop:
-              _allowPop ||
-              (PlatformDetector.isHandheldIOS(context) &&
-                  !_textFieldFocusNode.hasFocus &&
-                  !_hasUnsavedWork &&
-                  !_isLeaving),
+          canPop: _allowPop,
           onPopInvokedWithResult: (didPop, _) {
             if (didPop || _isLeaving) return;
             if (BackKeyCoordinator.consumeIfHandled()) return;
@@ -256,18 +250,6 @@ class _MpvConfigScreenState extends State<MpvConfigScreen> with ListenableBindin
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     _buildConfigEditor(),
-                    if (Platform.isLinux) ...[
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(
-                          t.mpvConfig.embeddedVoHint,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 16),
                     _buildPresetsCard(),
                     const SizedBox(height: 24),

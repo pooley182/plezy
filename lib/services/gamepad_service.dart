@@ -5,12 +5,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:universal_gamepad/universal_gamepad.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '../focus/input_mode_tracker.dart';
 import '../utils/app_logger.dart';
 import '../utils/key_event_simulator.dart' as key_sim;
-import '../utils/platform_detector.dart';
 import '../utils/text_input_diagnostics.dart';
 
 String _describeGamepadButton(GamepadButtonEvent event) {
@@ -25,113 +23,12 @@ void _logGamepadDiag(String message) {
   TextInputDiagnostics.log('GamepadService', message);
 }
 
-/// Suppresses synthetic gamepad key events when the OS has just delivered an
-/// equivalent native key event, which happens when Steam Input's desktop layout
-/// injects keyboard keys on Windows and Linux while the physical controller
-/// stays readable.
-class GamepadDuplicateInputGuard {
-  static const defaultSuppressionWindow = Duration(milliseconds: 120);
-  static const LogicalKeyboardKey _rawEnterKey = LogicalKeyboardKey(0x0d);
-
-  static final Map<LogicalKeyboardKey, Set<LogicalKeyboardKey>> _nativeAliasesBySyntheticKey = {
-    LogicalKeyboardKey.arrowUp: {LogicalKeyboardKey.arrowUp},
-    LogicalKeyboardKey.arrowDown: {LogicalKeyboardKey.arrowDown},
-    LogicalKeyboardKey.arrowLeft: {LogicalKeyboardKey.arrowLeft},
-    LogicalKeyboardKey.arrowRight: {LogicalKeyboardKey.arrowRight},
-    LogicalKeyboardKey.enter: {
-      LogicalKeyboardKey.enter,
-      _rawEnterKey,
-      LogicalKeyboardKey.numpadEnter,
-      LogicalKeyboardKey.select,
-      LogicalKeyboardKey.gameButtonA,
-    },
-    LogicalKeyboardKey.gameButtonB: {
-      LogicalKeyboardKey.escape,
-      LogicalKeyboardKey.goBack,
-      LogicalKeyboardKey.browserBack,
-      LogicalKeyboardKey.gameButtonB,
-    },
-    LogicalKeyboardKey.gameButtonX: {LogicalKeyboardKey.gameButtonX, LogicalKeyboardKey.contextMenu},
-  };
-
-  static final Set<LogicalKeyboardKey> _trackedNativeKeys = _nativeAliasesBySyntheticKey.values
-      .expand((keys) => keys)
-      .toSet();
-
-  final DateTime Function() _now;
-  final bool Function()? _enabled;
-  final Duration suppressionWindow;
-  final Map<LogicalKeyboardKey, DateTime> _lastNativeEvents = {};
-  final Set<LogicalKeyboardKey> _nativeKeysPressed = {};
-
-  GamepadDuplicateInputGuard({
-    DateTime Function()? now,
-    this._enabled,
-    this.suppressionWindow = defaultSuppressionWindow,
-  }) : _now = now ?? DateTime.now;
-
-  bool get _isEnabled => _enabled?.call() ?? true;
-
-  bool handleNativeKeyEvent(KeyEvent event) {
-    if (!_isEnabled || !_trackedNativeKeys.contains(event.logicalKey)) return false;
-
-    final now = _now();
-    _lastNativeEvents[event.logicalKey] = now;
-    if (event is KeyUpEvent) {
-      _nativeKeysPressed.remove(event.logicalKey);
-    } else {
-      _nativeKeysPressed.add(event.logicalKey);
-    }
-    _prune(now);
-    return false;
-  }
-
-  bool shouldSuppressSyntheticKey(LogicalKeyboardKey logicalKey) {
-    if (!_isEnabled) return false;
-
-    final now = _now();
-    _prune(now);
-    for (final key in _nativeAliasesBySyntheticKey[logicalKey] ?? {logicalKey}) {
-      if (_nativeKeysPressed.contains(key)) return true;
-
-      final lastNativeEvent = _lastNativeEvents[key];
-      if (lastNativeEvent != null && now.difference(lastNativeEvent) <= suppressionWindow) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  void clear() {
-    _lastNativeEvents.clear();
-    _nativeKeysPressed.clear();
-  }
-
-  void _prune(DateTime now) {
-    _lastNativeEvents.removeWhere((_, timestamp) => now.difference(timestamp) > suppressionWindow);
-  }
-}
-
-@visibleForTesting
-bool isTvosEngineOwnedGamepadButton({required bool isAppleTV, required GamepadButton button}) {
-  if (!isAppleTV) return false;
-  return switch (button) {
-    GamepadButton.dpadUp ||
-    GamepadButton.dpadDown ||
-    GamepadButton.dpadLeft ||
-    GamepadButton.dpadRight ||
-    GamepadButton.a ||
-    GamepadButton.b => true,
-    _ => false,
-  };
-}
-
 /// Service that bridges gamepad input to Flutter's focus navigation system.
 ///
 /// Listens to gamepad events from the `universal_gamepad` package and translates
 /// them into focus navigation actions and key events that integrate with the
 /// existing keyboard navigation system.
-class GamepadService with WindowListener {
+class GamepadService {
   static final Map<GamepadButton, LogicalKeyboardKey> _syntheticKeyByButton = {
     GamepadButton.dpadUp: LogicalKeyboardKey.arrowUp,
     GamepadButton.dpadDown: LogicalKeyboardKey.arrowDown,
@@ -170,7 +67,6 @@ class GamepadService with WindowListener {
 
   static GamepadService? _instance;
   StreamSubscription<GamepadEvent>? _subscription;
-  final GamepadDuplicateInputGuard _duplicateInputGuard;
 
   static final Map<Object, ({VoidCallback previous, VoidCallback next, bool Function() isActive})>
   _tabNavigationHandlers = {};
@@ -220,24 +116,16 @@ class GamepadService with WindowListener {
 
   final Set<GamepadButton> _pressedButtons = {};
   final Set<GamepadButton> _suppressedButtons = {};
-  bool _windowFocused = true;
-  bool _nativeKeyHandlerRegistered = false;
   bool _nativeTextInputFocused = false;
 
   @visibleForTesting
   static Future<void> Function(bool focused)? debugNativeTextInputFocusHandler;
 
-  GamepadService._({GamepadDuplicateInputGuard? duplicateInputGuard})
-    : _duplicateInputGuard = duplicateInputGuard ?? GamepadDuplicateInputGuard(enabled: _steamInputInjectsKeys);
-
-  /// Steam Input emulates keyboard keys alongside the physical controller on
-  /// these platforms; macOS reads gamepads through GameController and is not
-  /// affected.
-  static bool _steamInputInjectsKeys() => Platform.isWindows || Platform.isLinux;
+  GamepadService._();
 
   /// Standalone instance for tests; never wired to the platform stream.
   @visibleForTesting
-  factory GamepadService.forTesting({GamepadDuplicateInputGuard? duplicateInputGuard}) = GamepadService._;
+  factory GamepadService.forTesting() = GamepadService._;
 
   /// Feeds [event] through the production event handler.
   @visibleForTesting
@@ -261,8 +149,6 @@ class GamepadService with WindowListener {
   }
 
   /// Start listening to gamepad events.
-  /// Only active on desktop platforms (macOS, Windows, Linux).
-  static bool get _isDesktop => PlatformDetector.isDesktopOS();
 
   void start() async {
     appLogger.i('GamepadService: Starting on ${Platform.operatingSystem}');
@@ -277,36 +163,12 @@ class GamepadService with WindowListener {
       appLogger.e('GamepadService: Error listing gamepads', error: e);
     }
 
-    // Track window focus so we ignore gamepad input when another app is active
-    // (window_manager is desktop-only)
-    if (_isDesktop) {
-      windowManager.addListener(this);
-      _windowFocused = await windowManager.isFocused();
-    }
-    _registerNativeKeyHandler();
-
     unawaited(_subscription?.cancel());
     _subscription = Gamepad.instance.events.listen(
       _handleGamepadEvent,
       onError: (e) => appLogger.e('GamepadService: Stream error', error: e),
     );
     appLogger.i('GamepadService: Listening for gamepad events');
-  }
-
-  @override
-  void onWindowFocus() {
-    _windowFocused = true;
-    _duplicateInputGuard.clear();
-    Gamepad.instance.resume();
-  }
-
-  @override
-  void onWindowBlur() {
-    _windowFocused = false;
-    _releaseHeldInputState();
-
-    // Release native device handles so other apps can use the gamepad.
-    Gamepad.instance.pause();
   }
 
   /// Stops direction repeat and clears every held button and stick latch.
@@ -324,21 +186,10 @@ class GamepadService with WindowListener {
     ]);
     _pressedButtons.clear();
     _suppressedButtons.clear();
-    _duplicateInputGuard.clear();
 
     // Reset analog stick state so re-focus doesn't inherit stale direction
     _leftStickYLatch = null;
     _leftStickXLatch = null;
-  }
-
-  void _registerNativeKeyHandler() {
-    if (_nativeKeyHandlerRegistered || !_steamInputInjectsKeys()) return;
-    HardwareKeyboard.instance.addHandler(_handleNativeKeyEvent);
-    _nativeKeyHandlerRegistered = true;
-  }
-
-  bool _handleNativeKeyEvent(KeyEvent event) {
-    return _duplicateInputGuard.handleNativeKeyEvent(event);
   }
 
   Future<void> _setNativeTextInputFocused(bool focused) async {
@@ -359,7 +210,6 @@ class GamepadService with WindowListener {
       _pressedButtons.clear();
       _suppressedButtons.clear();
       _keyEventSimulator?.clearHeldKeys();
-      _duplicateInputGuard.clear();
     }
 
     final debugHandler = debugNativeTextInputFocusHandler;
@@ -410,20 +260,8 @@ class GamepadService with WindowListener {
   void _handleButton(GamepadButtonEvent event) {
     if (TextInputDiagnostics.enabled) {
       _logGamepadDiag(
-        'button received ${_describeGamepadButton(event)} windowFocused=$_windowFocused nativeTextInputFocused=$_nativeTextInputFocused',
+        'button received ${_describeGamepadButton(event)} nativeTextInputFocused=$_nativeTextInputFocused',
       );
-    }
-    if (!_windowFocused) {
-      if (TextInputDiagnostics.enabled) {
-        _logGamepadDiag('button ignored because window is not focused ${_describeGamepadButton(event)}');
-      }
-      return;
-    }
-    if (isTvosEngineOwnedGamepadButton(isAppleTV: PlatformDetector.isAppleTV(), button: event.button)) {
-      if (TextInputDiagnostics.enabled) {
-        _logGamepadDiag('button ignored because tvOS engine owns its key lifecycle ${_describeGamepadButton(event)}');
-      }
-      return;
     }
 
     // Switch to keyboard mode on any button press
@@ -440,13 +278,6 @@ class GamepadService with WindowListener {
 
     if (event.pressed && !wasPressed) {
       _pressedButtons.add(event.button);
-      if (_shouldSuppressButton(event.button)) {
-        if (TextInputDiagnostics.enabled) {
-          _logGamepadDiag('button suppressed by duplicate guard ${_describeGamepadButton(event)}');
-        }
-        _suppressedButtons.add(event.button);
-        return;
-      }
 
       // D-pad — navigate with auto-repeat while held
       final direction = _directionByDpadButton[event.button];
@@ -520,26 +351,9 @@ class GamepadService with WindowListener {
     }
   }
 
-  bool _shouldSuppressButton(GamepadButton button) {
-    final syntheticKey = _syntheticKeyByButton[button];
-    final suppressed = syntheticKey != null && _duplicateInputGuard.shouldSuppressSyntheticKey(syntheticKey);
-    if (TextInputDiagnostics.enabled) {
-      _logGamepadDiag('duplicate guard button=$button syntheticKey=$syntheticKey suppressed=$suppressed');
-    }
-    return suppressed;
-  }
-
   void _handleAxis(GamepadAxisEvent event) {
     if (TextInputDiagnostics.enabled) {
-      _logGamepadDiag(
-        'axis received ${_describeGamepadAxis(event)} windowFocused=$_windowFocused nativeTextInputFocused=$_nativeTextInputFocused',
-      );
-    }
-    if (!_windowFocused) {
-      if (TextInputDiagnostics.enabled) {
-        _logGamepadDiag('axis ignored because window is not focused ${_describeGamepadAxis(event)}');
-      }
-      return;
+      _logGamepadDiag('axis received ${_describeGamepadAxis(event)} nativeTextInputFocused=$_nativeTextInputFocused');
     }
 
     // Promotion must fire on the same event that navigates: gating below the

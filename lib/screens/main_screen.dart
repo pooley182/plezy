@@ -2,8 +2,6 @@ import 'dart:async';
 import '../media/ids.dart';
 import '../media/media_server_client.dart';
 import '../navigation/main_screen_scope.dart';
-import '../navigation/page_refresh_shortcut.dart';
-import 'dart:io' show Platform, exit;
 
 export '../navigation/main_screen_scope.dart'
     show MainScreenFocusScope, MainScreenScopeAspect, SideNavigationBleedBuilder;
@@ -14,10 +12,8 @@ import 'package:flutter/services.dart'
     show HardwareKeyboard, KeyDownEvent, KeyRepeatEvent, KeyUpEvent, LogicalKeyboardKey;
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
-import 'package:window_manager/window_manager.dart';
 import '../i18n/strings.g.dart';
 import '../services/app_exit_service.dart';
-import '../services/tvos_system_navigation_service.dart';
 import '../services/update_service.dart';
 import '../utils/app_logger.dart';
 import '../widgets/auth_error_banner.dart';
@@ -55,7 +51,6 @@ import '../services/settings_service.dart';
 import '../providers/offline_mode_provider.dart';
 import '../services/companion_remote/companion_remote_host_controller.dart';
 import '../services/companion_remote/companion_remote_receiver.dart';
-import '../services/fullscreen_state_manager.dart';
 import '../providers/companion_remote_provider.dart';
 import '../utils/desktop_window_padding.dart';
 import '../services/deep_links/deep_link_launcher.dart';
@@ -84,27 +79,6 @@ import '../watch_together/watch_together.dart';
 // MainScreenFocusScope and SideNavigationBleedBuilder live in
 // navigation/main_screen_scope.dart (re-exported above) so widgets like the
 // browse rail can import the scope without an import cycle through this file.
-
-/// Desktop embedders report every hardware key as a keyboard key, so a remote
-/// (HDMI-CEC, IR receiver) Escape cannot be told apart from a keyboard Escape.
-/// TV mode is the signal that the machine is remote-driven: there Escape stays
-/// Back and keeps the press-back-again exit (#2490).
-@visibleForTesting
-bool shouldHandleDesktopRootEscape({
-  required bool isDesktop,
-  required bool isTV,
-  required bool isPhysicalKeyboardEvent,
-  required LogicalKeyboardKey logicalKey,
-  required bool isCurrentRoute,
-  required bool isHomeTab,
-}) {
-  return isDesktop &&
-      !isTV &&
-      isPhysicalKeyboardEvent &&
-      logicalKey == LogicalKeyboardKey.escape &&
-      isCurrentRoute &&
-      isHomeTab;
-}
 
 /// Whether a lifecycle resume should raise the "ask for a profile on open"
 /// picker.
@@ -263,25 +237,6 @@ List<NavigationTab> mainScreenBottomNavigationTabs({
 }
 
 @visibleForTesting
-bool shouldPassTvosMenuToSystem({
-  required bool isAppleTV,
-  required bool isShowingProfileSelection,
-  required bool isOverlaySheetOpen,
-  required bool isRouteCurrent,
-  required bool isSidebarFocused,
-  required bool hasVisibleTabs,
-  required bool isCurrentTabRoot,
-}) {
-  return isAppleTV &&
-      isSidebarFocused &&
-      !isShowingProfileSelection &&
-      !isOverlaySheetOpen &&
-      isRouteCurrent &&
-      hasVisibleTabs &&
-      isCurrentTabRoot;
-}
-
-@visibleForTesting
 enum ProfileInvalidationAction { none, invalidateNow }
 
 @visibleForTesting
@@ -381,11 +336,9 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>
-    with RouteAware, WindowListener, WidgetsBindingObserver, MountedSetStateMixin {
+class _MainScreenState extends State<MainScreen> with RouteAware, WidgetsBindingObserver, MountedSetStateMixin {
   NavigationTabId _currentTab = NavigationTabId.discover;
   String? _selectedLibraryGlobalKey;
-  Future<void>? _desktopExitFuture;
 
   /// Whether the app is in offline mode (no server connection)
   bool _isOffline = false;
@@ -525,11 +478,6 @@ class _MainScreenState extends State<MainScreen>
     WidgetsBinding.instance.addObserver(this);
     _contentFocusScope.addListener(_syncSidebarFocusWithContent);
 
-    if (PlatformDetector.isDesktopOS()) {
-      windowManager.addListener(this);
-      windowManager.setPreventClose(true);
-    }
-
     // Synchronize _lastHasLiveTv with provider before building screens
     // so _buildScreens and _hasLiveTv getter agree from the start.
     try {
@@ -629,8 +577,6 @@ class _MainScreenState extends State<MainScreen>
       if (!_isSidebarFocused && !_isShowingProfileSelection) {
         CoveredRouteFocusBoundary.requestInitialFocus(context, _contentFocusScope);
       }
-
-      _updateTvosMenuPassthrough();
 
       // Check for updates on startup
       unawaited(_checkForUpdatesOnStartup());
@@ -828,11 +774,9 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  /// Push the picker in "must choose" mode, suppressing the tvOS menu-button
-  /// passthrough for as long as it is up.
+  /// Push the picker in "must choose" mode.
   Future<void> _pushProfileSelection() async {
     _isShowingProfileSelection = true;
-    _setTvosMenuPassthrough(false);
     // A link waits for the viewer's choice; a different profile acts on it
     // in its own session.
     _detachDeepLinks();
@@ -842,7 +786,6 @@ class _MainScreenState extends State<MainScreen>
     ).push(MaterialPageRoute(builder: (context) => const ProfileSwitchScreen(requireSelection: true)));
     if (!mounted) return;
     _isShowingProfileSelection = false;
-    _updateTvosMenuPassthrough();
     _attachDeepLinks();
   }
 
@@ -869,12 +812,6 @@ class _MainScreenState extends State<MainScreen>
 
     final settingsService = await SettingsService.getInstance();
     if (!settingsService.read(SettingsService.autoCheckUpdatesOnStartup)) return;
-
-    // Native updater (Sparkle/WinSparkle) handles everything — skip Flutter dialog
-    if (UpdateService.useNativeUpdater) {
-      await UpdateService.checkForUpdatesNative(inBackground: true);
-      return;
-    }
 
     try {
       final updateInfo = await UpdateService.checkForUpdatesOnStartup();
@@ -1039,10 +976,6 @@ class _MainScreenState extends State<MainScreen>
     if (_watchTogether?.navigatorOpener == _navigateToWatchTogetherMedia) _watchTogether?.navigatorOpener = null;
     WidgetsBinding.instance.removeObserver(this);
     _profileRouteObserver?.unsubscribe(this);
-    if (PlatformDetector.isDesktopOS()) {
-      windowManager.removeListener(this);
-      windowManager.setPreventClose(false);
-    }
     _offlineModeProvider?.removeListener(_handleOfflineStatusChanged);
     _multiServerProvider?.removeListener(_handleLiveTvChanged);
     _catalogSourcesProvider?.removeListener(_handleCatalogSourcesChanged);
@@ -1057,7 +990,6 @@ class _MainScreenState extends State<MainScreen>
     _sidebarFocusScope.dispose();
     _contentFocusScope.removeListener(_syncSidebarFocusWithContent);
     _contentFocusScope.dispose();
-    _setTvosMenuPassthrough(false);
 
     // Clean up only callbacks still owned by this screen. A replacement
     // MainScreen may already have installed its callbacks this frame.
@@ -1083,36 +1015,6 @@ class _MainScreenState extends State<MainScreen>
   }
 
   @override
-  void onWindowClose() => _requestDesktopExit();
-
-  /// Quits through the root exit observer so exit teardown runs. Shared by the
-  /// window close button and the root press-back-again exit; overlapping
-  /// requests join the one in flight.
-  void _requestDesktopExit() {
-    unawaited(
-      _desktopExitFuture ??= _exitDesktopGracefully().whenComplete(() {
-        _desktopExitFuture = null;
-      }),
-    );
-  }
-
-  /// The root exit observer owns the shutdown deadline. Do not time out its
-  /// dispatch here or interpret a canceled close as permission to force exit.
-  Future<void> _exitDesktopGracefully() async {
-    try {
-      await AppExitService.requestGracefulExit();
-    } catch (e, st) {
-      appLogger.w('Graceful window close failed; destroying window', error: e, stackTrace: st);
-      try {
-        await windowManager.destroy().timeout(const Duration(seconds: 3));
-      } catch (fallbackError, fallbackStack) {
-        appLogger.e('Window destruction failed; forcing exit', error: fallbackError, stackTrace: fallbackStack);
-        exit(1);
-      }
-    }
-  }
-
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Always consume: the gates latch backgrounding on every lifecycle event.
     final resumedFromBackground = _profileSelectionResumeGate.consumePromptOn(state);
@@ -1126,7 +1028,7 @@ class _MainScreenState extends State<MainScreen>
       resumedFromBackground: resumedFromBackground,
       isOffline: _isOffline,
       alreadyShowingProfileSelection: _isShowingProfileSelection,
-      isMobilePlatform: Platform.isAndroid || Platform.isIOS,
+      isMobilePlatform: true,
       hasActiveVideoPlayback: VideoPlayerScreenState.activeGlobalKey != null,
       // Short-circuit on resumedFromBackground: the provider is lazy and
       // otherwise unused on phones, so an unconditional read would create it
@@ -1278,7 +1180,6 @@ class _MainScreenState extends State<MainScreen>
       _mountedTabs.add(nextTab);
       _screens = _buildScreens(_isOffline);
     });
-    _updateTvosMenuPassthrough();
 
     if (restoreContentFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1370,7 +1271,6 @@ class _MainScreenState extends State<MainScreen>
         _onScreen<FocusableTab>(currentTab, (screen) => screen.focusActiveTabIfReady());
       });
     }
-    _updateTvosMenuPassthrough();
 
     // Refresh sidebar focus after rebuilding navigation. Not when the content
     // held focus: it keeps it (or has it restored above), and pulling it into
@@ -1409,7 +1309,6 @@ class _MainScreenState extends State<MainScreen>
     // and overwrites lastFocusedKey (e.g. to the Libraries toggle button).
     final targetKey = _sideNavKey.currentState?.lastFocusedKey;
     setState(() => _isSidebarFocused = true);
-    _updateTvosMenuPassthrough();
     _sidebarFocusScope.requestFocus();
     // Focus the active item after the focus scope has focus
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1419,7 +1318,6 @@ class _MainScreenState extends State<MainScreen>
 
   void _focusContent({bool restorePreviousFocus = true}) {
     setState(() => _isSidebarFocused = false);
-    _updateTvosMenuPassthrough();
     if (restorePreviousFocus) {
       _contentFocusScope.requestFocus();
     }
@@ -1438,13 +1336,11 @@ class _MainScreenState extends State<MainScreen>
   void _syncSidebarFocusWithContent() {
     if (!mounted || !_isSidebarFocused || !_contentFocusScope.hasFocus) return;
     setState(() => _isSidebarFocused = false);
-    _updateTvosMenuPassthrough();
   }
 
   void _handleOverlaySheetOpenChanged(bool open) {
     if (_isOverlaySheetOpen == open) return;
     _isOverlaySheetOpen = open;
-    _updateTvosMenuPassthrough();
   }
 
   double _sideNavigationWidth(BuildContext context, {required bool alwaysExpanded}) {
@@ -1452,29 +1348,6 @@ class _MainScreenState extends State<MainScreen>
     return isExpanded
         ? SideNavigationRailState.expandedWidth
         : SideNavigationRailState.collapsedWidthForContext(context);
-  }
-
-  bool get _shouldPassTvosMenuToSystem {
-    final tabs = _getVisibleTabs(_isOffline);
-    return shouldPassTvosMenuToSystem(
-      isAppleTV: PlatformDetector.isAppleTV(),
-      isShowingProfileSelection: _isShowingProfileSelection,
-      isOverlaySheetOpen: _isOverlaySheetOpen,
-      isRouteCurrent: ModalRoute.of(context)?.isCurrent == true,
-      isSidebarFocused: _isSidebarFocused,
-      hasVisibleTabs: tabs.isNotEmpty,
-      isCurrentTabRoot: tabs.isNotEmpty && _currentTab == tabs.first.id,
-    );
-  }
-
-  void _setTvosMenuPassthrough(bool enabled) {
-    if (!PlatformDetector.isAppleTV()) return;
-    unawaited(TvosSystemNavigationService.setMenuPassthroughEnabled(enabled));
-  }
-
-  void _updateTvosMenuPassthrough() {
-    if (!mounted) return;
-    _setTvosMenuPassthrough(_shouldPassTvosMenuToSystem);
   }
 
   /// Suppress stray back events after a child route pops.
@@ -1496,31 +1369,13 @@ class _MainScreenState extends State<MainScreen>
       return KeyEventResult.handled;
     }
 
-    // The tvOS engine normally passes root Menu presses through to UIKit. If a
-    // stale event still reaches Flutter, avoid showing an exit prompt that
-    // cannot be honored app-side. Log it: a Menu swallowed here with the
-    // picker up or focus off this route is how #2239 read as a dead remote.
-    if (PlatformDetector.isAppleTV()) {
-      _lastBackPressAt = null;
-      appLogger.d(
-        'tvOS Menu reached MainScreen at the home root: '
-        'passthrough=$_shouldPassTvosMenuToSystem picker=$_isShowingProfileSelection '
-        'focus=${FocusManager.instance.primaryFocus?.debugLabel}',
-      );
-      return KeyEventResult.handled;
-    }
-
     final now = DateTime.now();
     final lastBackPressAt = _lastBackPressAt;
     if (lastBackPressAt != null && now.difference(lastBackPressAt) < _backExitWindow) {
       _lastBackPressAt = null;
       // AppExitService.requestExit is a required exit on desktop, which skips
       // the root exit observer's teardown; quit the way the close button does.
-      if (PlatformDetector.isDesktopOS()) {
-        _requestDesktopExit();
-      } else {
-        unawaited(AppExitService.requestExit());
-      }
+      unawaited(AppExitService.requestExit());
       return KeyEventResult.handled;
     }
 
@@ -1533,20 +1388,6 @@ class _MainScreenState extends State<MainScreen>
     if (!event.logicalKey.isBackKey) return KeyEventResult.ignored;
 
     if (BackKeyUpSuppressor.consumeIfSuppressed(event)) {
-      return KeyEventResult.handled;
-    }
-
-    // AppleTV: KeyDown does the work, KeyUp is consumed silently. See the
-    // matching comment in handleBackKeyAction for why the suppressor pattern
-    // doesn't fit here.
-    if (PlatformDetector.isAppleTV() && event is KeyDownEvent) {
-      final result = _handleMainBack();
-      if (result == KeyEventResult.handled) {
-        BackKeyCoordinator.markHandled();
-      }
-      return result;
-    }
-    if (PlatformDetector.isAppleTV() && event is KeyUpEvent) {
       return KeyEventResult.handled;
     }
 
@@ -1581,62 +1422,13 @@ class _MainScreenState extends State<MainScreen>
     return _handleMainBackKeyAction(event);
   }
 
-  /// F11 toggles OS fullscreen from anywhere in the main UI. The in-player
-  /// hotkey (default `f`) only works while the player is mounted; this is
-  /// the escape hatch when fullscreen persists after the player closes.
-  KeyEventResult _handleFullscreenShortcut(KeyEvent event) {
-    if (event is! KeyDownEvent) return KeyEventResult.ignored;
-    if (event.logicalKey != LogicalKeyboardKey.f11) return KeyEventResult.ignored;
-    if (!PlatformDetector.isDesktopOS()) return KeyEventResult.ignored;
-
-    unawaited(FullscreenStateManager().toggleFullscreen());
-    return KeyEventResult.handled;
-  }
-
-  /// Desktop physical-keyboard Escape at root Home is reserved for leaving
-  /// window fullscreen; it never arms the press-back-again quit, so an Escape
-  /// aimed at fullscreen can't close the app (#1748). In TV mode Escape is the
-  /// remote's Back and keeps the double-press exit path, as do gamepad B,
-  /// companion-remote back, and system back. On macOS this also keeps player
-  /// Escape away from native fullscreen, which is window state shared by
-  /// every route.
-  KeyEventResult _handleDesktopRootEscape(KeyEvent event) {
-    final tabs = _getVisibleTabs(_isOffline);
-    final shouldHandle = shouldHandleDesktopRootEscape(
-      isDesktop: PlatformDetector.isDesktopOS(),
-      isTV: PlatformDetector.isTV(),
-      isPhysicalKeyboardEvent: event.isPhysicalKeyboardEvent,
-      logicalKey: event.logicalKey,
-      isCurrentRoute: ModalRoute.of(context)?.isCurrent == true,
-      isHomeTab: tabs.isNotEmpty && _currentTab == tabs.first.id,
-    );
-    if (!shouldHandle) return KeyEventResult.ignored;
-
-    if (event is KeyUpEvent) {
-      BackKeyCoordinator.markHandled();
-      unawaited(FullscreenStateManager().exitFullscreenIfActive());
-    }
-    return event is KeyDownEvent || event is KeyRepeatEvent || event is KeyUpEvent
-        ? KeyEventResult.handled
-        : KeyEventResult.ignored;
-  }
-
-  KeyEventResult _handlePageRefreshShortcut(KeyEvent event) {
-    return dispatchPageRefreshShortcut(event, _screenKeys[_currentTab]?.currentState);
-  }
-
-  /// Handle Cmd+F (macOS) / Ctrl+F (Windows/Linux) to navigate to search.
+  /// Handle Ctrl+F to navigate to search.
   KeyEventResult _handleSearchShortcut(KeyEvent event) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
     if (event.logicalKey != LogicalKeyboardKey.keyF) return KeyEventResult.ignored;
 
-    final isMetaPressed = HardwareKeyboard.instance.isMetaPressed;
-    final isControlPressed = HardwareKeyboard.instance.isControlPressed;
-
-    final isMacShortcut = Platform.isMacOS && isMetaPressed && !isControlPressed;
-    final isOtherShortcut = !Platform.isMacOS && isControlPressed && !isMetaPressed;
-
-    if (!isMacShortcut && !isOtherShortcut) return KeyEventResult.ignored;
+    final keyboard = HardwareKeyboard.instance;
+    if (!keyboard.isControlPressed || keyboard.isMetaPressed) return KeyEventResult.ignored;
     if (_isOffline) return KeyEventResult.handled;
 
     _selectTab(NavigationTabId.search);
@@ -1645,15 +1437,6 @@ class _MainScreenState extends State<MainScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _onScreen<SearchInputFocusable>(NavigationTabId.search, (screen) => screen.focusSearchInput());
     });
-    return KeyEventResult.handled;
-  }
-
-  /// Handle Cmd+, (macOS) / Ctrl+, (Windows/Linux) to open settings (#1909).
-  /// Only sees the chord while this route has focus; [SettingsShortcut] above
-  /// the profile navigator covers pushed content routes.
-  KeyEventResult _handleSettingsShortcut(KeyEvent event) {
-    if (!isSettingsShortcut(event)) return KeyEventResult.ignored;
-    _openSettings();
     return KeyEventResult.handled;
   }
 
@@ -1667,7 +1450,6 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void didPushNext() {
-    _setTvosMenuPassthrough(false);
     // A pushed detail route covers the bottom bar — drop the mini-player to
     // the true (safe-area) bottom while it's hidden.
     _miniPlayerInsets?.setNavBarSuspended(true);
@@ -1689,7 +1471,6 @@ class _MainScreenState extends State<MainScreen>
     });
 
     // Called when returning to this route from a child route (e.g., from video player)
-    _updateTvosMenuPassthrough();
     _miniPlayerInsets?.setNavBarSuspended(false);
     if (_currentTab == NavigationTabId.discover) {
       _onScreen<TabVisibilityAware>(NavigationTabId.discover, (screen) => screen.onTabShown());
@@ -1769,7 +1550,6 @@ class _MainScreenState extends State<MainScreen>
         _autoSwitchedToDownloads = false;
       }
     });
-    _updateTvosMenuPassthrough();
 
     if (previousTab != tab) {
       // The previous tab is necessarily mounted because it was current.
@@ -2049,16 +1829,8 @@ class _MainScreenState extends State<MainScreen>
             canPop: false,
             child: Focus(
               onKeyEvent: (node, event) {
-                final rootEscapeResult = _handleDesktopRootEscape(event);
-                if (rootEscapeResult == KeyEventResult.handled) return rootEscapeResult;
-                final fullscreenResult = _handleFullscreenShortcut(event);
-                if (fullscreenResult == KeyEventResult.handled) return fullscreenResult;
-                final refreshResult = _handlePageRefreshShortcut(event);
-                if (refreshResult == KeyEventResult.handled) return refreshResult;
                 final searchResult = _handleSearchShortcut(event);
                 if (searchResult == KeyEventResult.handled) return searchResult;
-                final settingsResult = _handleSettingsShortcut(event);
-                if (settingsResult == KeyEventResult.handled) return settingsResult;
                 return _handleBackKey(event);
               },
               child: LayoutBuilder(

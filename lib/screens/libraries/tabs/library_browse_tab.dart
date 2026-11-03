@@ -1075,7 +1075,7 @@ class _LibraryBrowseTabState extends BaseLibraryTabState<MediaItem, LibraryBrows
   }
 
   void _showGroupingBottomSheet() {
-    final anchorRect = useAnchoredChipMenus(context) ? chipAnchorRect(_groupingChipKey) : null;
+    final anchorRect = null;
     if (anchorRect != null) {
       showAnchoredSelectionMenu<String>(
         context,
@@ -1183,7 +1183,7 @@ class _LibraryBrowseTabState extends BaseLibraryTabState<MediaItem, LibraryBrows
   }
 
   void _showFiltersBottomSheet() {
-    final anchorRect = useAnchoredChipMenus(context) ? chipAnchorRect(_filtersChipKey) : null;
+    final anchorRect = null;
     if (anchorRect != null) {
       unawaited(_showFiltersMenu(anchorRect));
       return;
@@ -1288,7 +1288,7 @@ class _LibraryBrowseTabState extends BaseLibraryTabState<MediaItem, LibraryBrows
   }
 
   void _showSortBottomSheet() {
-    final anchorRect = useAnchoredChipMenus(context) ? chipAnchorRect(_sortChipKey) : null;
+    final anchorRect = null;
     if (anchorRect != null) {
       unawaited(_showSortMenu(anchorRect));
       return;

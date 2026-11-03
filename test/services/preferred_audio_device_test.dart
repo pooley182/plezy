@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/mpv/models.dart';
 import 'package:plezy/mpv/player/player.dart';
 import 'package:plezy/services/preferred_audio_device.dart';
+import '../test_helpers/android_player_noops.dart';
 
 /// mpv answers a string read of a node property with JSON, which is what the
 /// native getProperty bridges hand back.
@@ -38,7 +39,7 @@ void main() {
   });
 }
 
-class _DeviceListPlayer implements Player {
+class _DeviceListPlayer with AndroidPlayerNoops implements Player {
   _DeviceListPlayer({required this.deviceList});
 
   final Future<String?> Function() deviceList;

@@ -4,19 +4,14 @@
 /// Chosen per build with `--dart-define=SUPPORTER_MODE=<name>`. Leaving it unset
 /// compiles the perks out.
 enum SupporterMode {
-  /// Perks compiled out: the GitHub iOS IPA and Android APK, and local builds.
+  /// Perks compiled out: the GitHub APK and local builds.
   off,
 
-  /// Perks unlock through the one-time Supporter purchase: App Store and Google Play.
+  /// Perks unlock through the one-time Supporter purchase: Google Play.
   iap,
 
-  /// Perks are free: Amazon Appstore, macOS and Linux.
+  /// Perks are free: Amazon Appstore.
   unlocked,
-
-  /// Free inside a Microsoft Store (MSIX) install, hidden everywhere else. The
-  /// GitHub Windows build is the same compile as the Store package, so only a
-  /// runtime check can tell them apart.
-  msstore,
 }
 
 const String _supporterModeDefine = String.fromEnvironment('SUPPORTER_MODE');
@@ -27,8 +22,6 @@ const SupporterMode supporterBuildMode = _supporterModeDefine == 'iap'
     ? SupporterMode.iap
     : _supporterModeDefine == 'unlocked'
     ? SupporterMode.unlocked
-    : _supporterModeDefine == 'msstore'
-    ? SupporterMode.msstore
     : SupporterMode.off;
 
 /// Whether this install shows the perks and how they unlock.
@@ -43,9 +36,8 @@ enum SupporterAvailability {
   purchasable,
 }
 
-SupporterAvailability supporterAvailabilityFor(SupporterMode mode, {required bool isPackagedInstall}) => switch (mode) {
+SupporterAvailability supporterAvailabilityFor(SupporterMode mode) => switch (mode) {
   SupporterMode.off => SupporterAvailability.hidden,
   SupporterMode.iap => SupporterAvailability.purchasable,
   SupporterMode.unlocked => SupporterAvailability.free,
-  SupporterMode.msstore => isPackagedInstall ? SupporterAvailability.free : SupporterAvailability.hidden,
 };

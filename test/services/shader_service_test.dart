@@ -9,6 +9,7 @@ import 'package:plezy/services/shader_asset_loader.dart';
 import 'package:plezy/services/shader_service.dart';
 
 import '../test_helpers/io_fakes.dart';
+import '../test_helpers/android_player_noops.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -119,7 +120,7 @@ void main() {
   });
 }
 
-class _RecordingPlayer implements Player {
+class _RecordingPlayer with AndroidPlayerNoops implements Player {
   final commands = <List<String>>[];
 
   /// mpv property answers; anything absent is unavailable (null), which is
