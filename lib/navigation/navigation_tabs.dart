@@ -96,7 +96,7 @@ const customizableNavItems = [
   NavigationTabId.downloads,
 ];
 
-/// The rail order for [stored] item names (`SettingsService.navItemOrder`):
+/// The rail order for [stored] item names (`SettingsService.navItemOrderFor`):
 /// unknown names dropped, items missing from it appended in default order.
 List<NavigationTabId> resolveNavItemOrder(List<String> stored) {
   final byName = NavigationTabId.values.asNameMap();

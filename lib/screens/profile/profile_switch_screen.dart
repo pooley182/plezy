@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../connection/connection.dart';
 import '../../focus/focusable_wrapper.dart';
 import '../../i18n/strings.g.dart';
-import '../../media/media_backend.dart';
 import '../../mixins/mounted_set_state_mixin.dart';
 import '../../profiles/active_profile_provider.dart';
 import '../../profiles/profile.dart';
@@ -17,9 +16,9 @@ import '../../profiles/profile_connection.dart';
 import '../../profiles/profile_merge.dart';
 import '../../services/app_exit_service.dart';
 import '../../theme/mono_tokens.dart';
+import '../../utils/initials_palette.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/app_menu.dart';
-import '../../widgets/backend_badge.dart';
 import '../../widgets/focusable_popup_menu_button.dart';
 import '../../widgets/focused_scroll_scaffold.dart';
 import '../../widgets/profile_switching_overlay.dart';
@@ -30,12 +29,13 @@ import 'pin_entry_dialog.dart';
 import 'profile_teardown.dart';
 import 'profile_detail_screen.dart';
 
-/// Flat picker showing every [Profile] in the system — Plex Home users
-/// auto-surfaced from connected accounts, plus user-created locals.
+/// TV picker showing every [Profile] in the system (Plex Home users
+/// auto-surfaced from connected accounts, plus user-created locals) as a row
+/// of cards, followed by an Add card.
 ///
-/// Each tile shows avatar, name, an Active badge for the current profile,
-/// and one backend chip per connection bound to the profile (parent Plex
-/// account + any borrowed connections for Plex Home users).
+/// Each card shows avatar, name, a check badge on the current profile, and
+/// the connections bound to the profile (parent Plex account + any borrowed
+/// connections for Plex Home users).
 class ProfileSwitchScreen extends StatefulWidget {
   final bool requireSelection;
 
@@ -98,26 +98,8 @@ class _ProfileSwitchScreenState extends State<ProfileSwitchScreen> with MountedS
                           subtitle: t.messages.contactAdminForProfiles,
                           icon: Symbols.person_off_rounded,
                         ),
-                )
-              else
-                ..._buildSections(activeProvider, activeId),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                sliver: SliverToBoxAdapter(
-                  child: FocusableWrapper(
-                    disableScale: true,
-                    borderRadius: 100,
-                    useBackgroundFocus: true,
-                    descendantsAreFocusable: false,
-                    onSelect: _switching ? null : _addLocalProfile,
-                    child: OutlinedButton.icon(
-                      onPressed: _switching ? null : _addLocalProfile,
-                      icon: const AppIcon(Symbols.person_add_rounded, fill: 1),
-                      label: Text(t.profiles.addPlezyProfile),
-                    ),
-                  ),
                 ),
-              ),
+              SliverToBoxAdapter(child: _buildCarousel(activeProvider, activeId)),
             ],
           ),
           if (_switching) const ProfileSwitchingOverlay(),
@@ -176,99 +158,105 @@ class _ProfileSwitchScreenState extends State<ProfileSwitchScreen> with MountedS
     _profileMenuKeys[profile.id]?.currentState?.showButtonMenu();
   }
 
-  List<Widget> _buildSections(ActiveProfileProvider activeProvider, String? activeId) {
-    return [_profileList(activeProvider.profiles, activeProvider, activeId, autofocusFirst: true)];
-  }
-
-  SliverList _profileList(
-    List<Profile> profiles,
-    ActiveProfileProvider activeProvider,
-    String? activeId, {
-    required bool autofocusFirst,
-  }) {
-    // The tile keys and `findChildIndexCallback` below are one mechanism, not
-    // two independent safeguards. A refreshed profile source can re-sort this
-    // list after first paint; the key stops the sliver handing a tile's
-    // Element the next profile's focus node, and the lookup lets it map that
-    // key to its new index. Without the lookup the tile is destroyed and
-    // re-inflated instead of moved, which keeps primary focus but resets
-    // FocusableWrapper's chrome — a focused tile with no highlight (#1792).
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final profile = profiles[index];
-          final isActive = profile.id == activeId;
-          final tokensRef = tokens(context);
-          final tileRadii = groupItemRadii(context, index, profiles.length);
-          final isFirstSelectable = autofocusFirst && index == 0;
-          final profileFocusNode = _profileFocusNode(profile);
-          final menuFocusNode = _profileMenuFocusNode(profile);
-          final menuKey = _profileMenuKey(profile);
-          // All tile actions are disabled while a switch is binding: the
-          // overlay's barrier blocks pointers but not DPAD key events, and a
-          // Manage/Delete flow racing the in-flight switch corrupts state
-          // (e.g. a delete confirmation left open when the switch settles).
-          final actionsEnabled = !widget.requireSelection && !_switching;
-          final onManage = actionsEnabled ? () => _manageProfile(profile) : null;
-          final onShowLink = actionsEnabled ? () => _showProfileLink(profile) : null;
-          final onDelete = profile.isLocal && actionsEnabled ? () => _deleteProfile(profile) : null;
-          final onSignOut = profile.isPlexHome && profile.parentConnectionId != null && actionsEnabled
-              ? () => _signOutPlexAccount(profile)
-              : null;
-          final hasMenu = onManage != null || onShowLink != null || onDelete != null || onSignOut != null;
-          final connections = _chipsFor(profile, activeProvider);
-
-          return Padding(
-            key: ValueKey(profile.id),
-            padding: EdgeInsets.fromLTRB(16, index == 0 ? 4 : tokensRef.groupGap, 16, 0),
-            // The focus fill must paint above the opaque Card surface, so the
-            // wrapper sits inside the Card (clipped by its shape) rather than
-            // around it.
-            child: Card(
-              shape: RoundedRectangleBorder(borderRadius: tileRadii),
-              clipBehavior: Clip.antiAlias,
-              child: FocusableWrapper(
-                autofocus: isFirstSelectable,
-                focusNode: profileFocusNode,
-                disableScale: true,
-                useBackgroundFocus: true,
-                borderRadii: tileRadii,
-                enableLongPress: hasMenu,
-                onLongPress: hasMenu ? () => _openProfileMenu(profile) : null,
-                onNavigateRight: hasMenu ? () => menuFocusNode.requestFocus() : null,
-                onSelect: _switching || (isActive && !widget.requireSelection) ? null : () => _switchTo(profile),
-                child: _ProfileTile(
-                  borderRadius: tileRadii,
-                  profile: profile,
-                  avatarUrl: activeProvider.avatarUrlFor(profile.id),
-                  isActive: isActive && !widget.requireSelection,
-                  chips: connections.chips,
-                  hasConnections: connections.hasConnections,
-                  onTap: () => _switchTo(profile),
-                  onLongPress: hasMenu ? () => _openProfileMenu(profile) : null,
-                  // Manage available for any profile — adding/removing
-                  // borrowed connections is supported on plex_home too. Delete
-                  // stays local-only (Plex Home users are owned by Plex).
-                  onManage: onManage,
-                  onShowLink: onShowLink,
-                  onDelete: onDelete,
-                  onSignOut: onSignOut,
-                  menuFocusNode: menuFocusNode,
-                  menuKey: menuKey,
-                  onMenuNavigateLeft: () => profileFocusNode.requestFocus(),
-                ),
-              ),
+  /// One card per profile plus an Add card, in a horizontal row like the
+  /// Plex TV user picker. Each card's actions menu sits below it (D-pad down).
+  Widget _buildCarousel(ActiveProfileProvider activeProvider, String? activeId) {
+    final profiles = activeProvider.profiles;
+    // ponytail: a plain Row builds every card; fine for a household of profiles.
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(48, 24, 48, 24),
+      child: Row(
+        crossAxisAlignment: .start,
+        children: [
+          for (final (index, profile) in profiles.indexed)
+            // Keyed so a re-sorted list moves each card with its focus node
+            // instead of rebinding nodes by position (#1792).
+            Padding(
+              key: ValueKey(profile.id),
+              padding: const EdgeInsetsDirectional.only(end: _cardGap),
+              child: _buildProfileCard(profile, activeProvider, activeId, autofocus: index == 0),
             ),
-          );
-        },
-        childCount: profiles.length,
-        findChildIndexCallback: (key) {
-          final id = (key as ValueKey<String>).value;
-          final index = profiles.indexWhere((profile) => profile.id == id);
-          return index < 0 ? null : index;
-        },
+          _AddProfileCard(onSelect: _switching ? null : _addLocalProfile, autofocus: profiles.isEmpty),
+        ],
       ),
     );
+  }
+
+  Widget _buildProfileCard(
+    Profile profile,
+    ActiveProfileProvider activeProvider,
+    String? activeId, {
+    required bool autofocus,
+  }) {
+    final isActive = profile.id == activeId && !widget.requireSelection;
+    final profileFocusNode = _profileFocusNode(profile);
+    final menuFocusNode = _profileMenuFocusNode(profile);
+    // All tile actions are disabled while a switch is binding: the overlay's
+    // barrier blocks pointers but not DPAD key events, and a Manage/Delete
+    // flow racing the in-flight switch corrupts state (e.g. a delete
+    // confirmation left open when the switch settles).
+    final actionsEnabled = !widget.requireSelection && !_switching;
+    // Manage is available for any profile (borrowed connections can be edited
+    // on plex_home too); Delete stays local-only (Plex owns Home users).
+    final actions = [
+      if (actionsEnabled) _TileAction.manage,
+      if (actionsEnabled) _TileAction.showLink,
+      if (actionsEnabled && profile.isLocal) _TileAction.delete,
+      if (actionsEnabled && profile.isPlexHome && profile.parentConnectionId != null) _TileAction.signOut,
+    ];
+    final hasMenu = actions.isNotEmpty;
+    final connections = _chipsFor(profile, activeProvider);
+
+    return Column(
+      mainAxisSize: .min,
+      children: [
+        _ProfileCard(
+          profile: profile,
+          avatarUrl: activeProvider.avatarUrlFor(profile.id),
+          isActive: isActive,
+          chips: connections.chips,
+          hasConnections: connections.hasConnections,
+          focusNode: profileFocusNode,
+          autofocus: autofocus,
+          onSelect: _switching || isActive ? null : () => _switchTo(profile),
+          onLongPress: hasMenu ? () => _openProfileMenu(profile) : null,
+          onNavigateDown: hasMenu ? () => menuFocusNode.requestFocus() : null,
+        ),
+        const SizedBox(height: 8),
+        // Fixed slot so cards line up whether or not they have a menu.
+        SizedBox(
+          height: 48,
+          child: hasMenu
+              ? FocusablePopupMenuButton<_TileAction>(
+                  menuKey: _profileMenuKey(profile),
+                  focusNode: menuFocusNode,
+                  semanticLabel: t.profiles.manage,
+                  onNavigateUp: () => profileFocusNode.requestFocus(),
+                  icon: const AppIcon(Symbols.more_horiz_rounded, fill: 1),
+                  tooltip: t.profiles.manage,
+                  onSelected: (action) => _handleAction(profile, action),
+                  itemBuilder: (_) => [for (final action in actions) AppMenuItem(value: action, label: action.label)],
+                )
+              : null,
+        ),
+      ],
+    );
+  }
+
+  void _handleAction(Profile profile, _TileAction action) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      switch (action) {
+        case _TileAction.manage:
+          unawaited(_manageProfile(profile));
+        case _TileAction.showLink:
+          unawaited(_showProfileLink(profile));
+        case _TileAction.delete:
+          unawaited(_deleteProfile(profile));
+        case _TileAction.signOut:
+          unawaited(_signOutPlexAccount(profile));
+      }
+    });
   }
 
   /// Gate Manage/Delete on a non-active, PIN-protected local profile behind
@@ -375,7 +363,6 @@ class _ProfileSwitchScreenState extends State<ProfileSwitchScreen> with MountedS
   /// connection's uuid yet, which falls back to naming the account alone.
   _ChipData _chipFor(Connection conn, {required String? user, required bool namesAccount}) {
     return _ChipData(
-      backend: conn.backend,
       label: switch (conn) {
         PlexAccountConnection() when user != null && !namesAccount => user,
         PlexAccountConnection(:final accountLabel) when user != null => t.profiles.plexAccountUserChip(
@@ -429,160 +416,6 @@ class _ProfileSwitchScreenState extends State<ProfileSwitchScreen> with MountedS
   }
 }
 
-class _ProfileTile extends StatelessWidget {
-  final Profile profile;
-  final String? avatarUrl;
-  final bool isActive;
-  final BorderRadius borderRadius;
-  final List<_ChipData> chips;
-
-  /// False only when the profile reaches no connection at all, which the tile
-  /// reports as an error. Otherwise empty [chips] leave the name on its own.
-  final bool hasConnections;
-  final VoidCallback onTap;
-  final VoidCallback? onLongPress;
-  final VoidCallback? onManage;
-  final VoidCallback? onShowLink;
-  final VoidCallback? onDelete;
-  final VoidCallback? onSignOut;
-  final FocusNode menuFocusNode;
-  final GlobalKey<AppMenuButtonState<_TileAction>> menuKey;
-  final VoidCallback onMenuNavigateLeft;
-
-  const _ProfileTile({
-    required this.profile,
-    required this.avatarUrl,
-    required this.isActive,
-    required this.borderRadius,
-    required this.chips,
-    required this.hasConnections,
-    required this.onTap,
-    this.onLongPress,
-    this.onManage,
-    this.onShowLink,
-    this.onDelete,
-    this.onSignOut,
-    required this.menuFocusNode,
-    required this.menuKey,
-    required this.onMenuNavigateLeft,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final hasMenu = onManage != null || onShowLink != null || onDelete != null || onSignOut != null;
-    return InkWell(
-      canRequestFocus: false,
-      onTap: isActive ? null : onTap,
-      onLongPress: onLongPress,
-      borderRadius: borderRadius,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            ProfileAvatar(profile: profile, size: 44, avatarUrl: avatarUrl),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: .start,
-                mainAxisSize: .min,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(profile.displayName, style: theme.textTheme.titleMedium, overflow: .ellipsis),
-                      ),
-                      if (isActive) ...[
-                        const SizedBox(width: 8),
-                        // Plain inline indicator instead of a boxed badge: a
-                        // filled pill fights the tile's own focus fill.
-                        AppIcon(Symbols.check_circle_rounded, fill: 1, size: 16, color: tokens(context).textMuted),
-                        const SizedBox(width: 4),
-                        Text(
-                          t.profiles.active,
-                          style: theme.textTheme.labelMedium?.copyWith(color: tokens(context).textMuted),
-                        ),
-                      ],
-                    ],
-                  ),
-                  if (chips.isNotEmpty || !hasConnections) ...[
-                    const SizedBox(height: 4),
-                    _ConnectionChips(chips: chips),
-                  ],
-                ],
-              ),
-            ),
-            if (hasMenu)
-              _ProfileActionsButton(
-                menuKey: menuKey,
-                focusNode: menuFocusNode,
-                onNavigateLeft: onMenuNavigateLeft,
-                onSelected: _handleAction,
-                actions: [
-                  if (onManage != null) _TileAction.manage,
-                  if (onShowLink != null) _TileAction.showLink,
-                  if (onDelete != null) _TileAction.delete,
-                  if (onSignOut != null) _TileAction.signOut,
-                ],
-              )
-            else if (!isActive)
-              const Padding(padding: .only(left: 8), child: AppIcon(Symbols.chevron_right_rounded, fill: 1)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _handleAction(_TileAction action) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      switch (action) {
-        case _TileAction.manage:
-          onManage?.call();
-          break;
-        case _TileAction.showLink:
-          onShowLink?.call();
-          break;
-        case _TileAction.delete:
-          onDelete?.call();
-          break;
-        case _TileAction.signOut:
-          onSignOut?.call();
-          break;
-      }
-    });
-  }
-}
-
-class _ProfileActionsButton extends StatelessWidget {
-  final GlobalKey<AppMenuButtonState<_TileAction>> menuKey;
-  final FocusNode focusNode;
-  final VoidCallback onNavigateLeft;
-  final ValueChanged<_TileAction> onSelected;
-  final List<_TileAction> actions;
-
-  const _ProfileActionsButton({
-    required this.menuKey,
-    required this.focusNode,
-    required this.onNavigateLeft,
-    required this.onSelected,
-    required this.actions,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return FocusablePopupMenuButton<_TileAction>(
-      menuKey: menuKey,
-      focusNode: focusNode,
-      semanticLabel: t.profiles.manage,
-      onNavigateLeft: onNavigateLeft,
-      icon: const AppIcon(Symbols.more_vert_rounded, fill: 1),
-      tooltip: t.profiles.manage,
-      onSelected: onSelected,
-      itemBuilder: (_) => [for (final action in actions) AppMenuItem(value: action, label: action.label)],
-    );
-  }
-}
-
 extension _TileActionLabel on _TileAction {
   String get label {
     return switch (this) {
@@ -596,49 +429,230 @@ extension _TileActionLabel on _TileAction {
 
 enum _TileAction { manage, showLink, delete, signOut }
 
-class _ConnectionChips extends StatelessWidget {
+const double _cardWidth = 200;
+const double _cardHeight = 260;
+const double _cardGap = 32;
+const double _cardBandHeight = 76;
+final BorderRadius _cardRadius = BorderRadius.circular(8);
+
+/// Shared card chrome: a tinted upper half holding [art] over a darker band
+/// holding [label]. Focus scales the card and draws the theme's focus border.
+class _CardFrame extends StatelessWidget {
+  final Color tint;
+  final Widget art;
+  final Widget label;
+  final FocusNode? focusNode;
+  final bool autofocus;
+  final VoidCallback? onSelect;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onNavigateDown;
+  final String? semanticLabel;
+
+  const _CardFrame({
+    required this.tint,
+    required this.art,
+    required this.label,
+    this.focusNode,
+    this.autofocus = false,
+    this.onSelect,
+    this.onLongPress,
+    this.onNavigateDown,
+    this.semanticLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = Theme.of(context).colorScheme.surfaceContainerHigh;
+    return FocusableWrapper(
+      focusNode: focusNode,
+      autofocus: autofocus,
+      borderRadii: _cardRadius,
+      // FocusableWrapper's auto-scroll is vertical-only; a horizontal row
+      // brings the focused card into view itself.
+      autoScroll: false,
+      onFocusChange: (focused) {
+        if (focused) unawaited(Scrollable.ensureVisible(context, alignment: 0.5, duration: _scrollDuration));
+      },
+      enableLongPress: onLongPress != null,
+      onLongPress: onLongPress,
+      onNavigateDown: onNavigateDown,
+      onSelect: onSelect,
+      semanticLabel: semanticLabel,
+      child: Material(
+        color: Color.alphaBlend(tint.withValues(alpha: 0.3), surface),
+        borderRadius: _cardRadius,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          canRequestFocus: false,
+          onTap: onSelect,
+          onLongPress: onLongPress,
+          child: SizedBox(
+            width: _cardWidth,
+            height: _cardHeight,
+            child: Column(
+              children: [
+                Expanded(child: Center(child: art)),
+                Container(
+                  height: _cardBandHeight,
+                  width: double.infinity,
+                  color: Colors.black.withValues(alpha: 0.35),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  alignment: .center,
+                  child: label,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+const Duration _scrollDuration = Duration(milliseconds: 200);
+
+class _ProfileCard extends StatelessWidget {
+  final Profile profile;
+  final String? avatarUrl;
+  final bool isActive;
   final List<_ChipData> chips;
 
-  const _ConnectionChips({required this.chips});
+  /// False only when the profile reaches no connection at all, which the card
+  /// reports as an error. Otherwise empty [chips] leave the name on its own.
+  final bool hasConnections;
+  final FocusNode focusNode;
+  final bool autofocus;
+  final VoidCallback? onSelect;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onNavigateDown;
+
+  const _ProfileCard({
+    required this.profile,
+    required this.avatarUrl,
+    required this.isActive,
+    required this.chips,
+    required this.hasConnections,
+    required this.focusNode,
+    required this.autofocus,
+    this.onSelect,
+    this.onLongPress,
+    this.onNavigateDown,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    if (chips.isEmpty) {
-      return Text(t.profiles.noConnections, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error));
-    }
-    // Plain muted metadata instead of boxed chips: any filled pill fights the
-    // tile's own focus fill (and the opaque theme surfaces read as dark holes
-    // on it), so the connections render like the app's other meta rows.
-    return Wrap(
-      spacing: 12,
-      runSpacing: 4,
-      children: [
-        for (final c in chips)
-          Row(
-            mainAxisSize: .min,
-            children: [
-              BackendBadge(backend: c.backend, size: 12),
-              const SizedBox(width: 5),
-              // Account labels are often an email address, and an entry in a
-              // Wrap gets unbounded main-axis space — without this the row
-              // overflows the tile instead of ellipsizing.
-              Flexible(
-                child: Text(
-                  c.label,
-                  style: theme.textTheme.labelSmall?.copyWith(color: tokens(context).textMuted),
-                  overflow: .ellipsis,
+    final muted = tokens(context).textMuted;
+    final subtitle = !hasConnections
+        ? Text(
+            t.profiles.noConnections,
+            style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.error),
+            maxLines: 1,
+            overflow: .ellipsis,
+          )
+        : chips.isNotEmpty
+        ? Text(
+            chips.map((c) => c.label).join(' · '),
+            style: theme.textTheme.labelMedium?.copyWith(color: muted),
+            maxLines: 1,
+            overflow: .ellipsis,
+            textAlign: .center,
+          )
+        : null;
+
+    return _CardFrame(
+      tint: colorForName(profile.displayName, theme),
+      focusNode: focusNode,
+      autofocus: autofocus,
+      onSelect: onSelect,
+      onLongPress: onLongPress,
+      onNavigateDown: onNavigateDown,
+      art: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          _AvatarRing(
+            child: ProfileAvatar(profile: profile, size: 128, avatarUrl: avatarUrl),
+          ),
+          if (isActive)
+            Positioned(
+              right: 0,
+              bottom: 4,
+              child: Tooltip(
+                message: t.profiles.active,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+                  child: AppIcon(Symbols.check_circle_rounded, fill: 1, size: 22, color: theme.colorScheme.primary),
                 ),
               ),
-            ],
+            ),
+        ],
+      ),
+      label: Column(
+        mainAxisSize: .min,
+        children: [
+          Text(
+            profile.displayName,
+            style: theme.textTheme.titleMedium,
+            maxLines: 1,
+            overflow: .ellipsis,
+            textAlign: .center,
           ),
-      ],
+          if (subtitle != null) ...[const SizedBox(height: 2), subtitle],
+        ],
+      ),
+    );
+  }
+}
+
+class _AddProfileCard extends StatelessWidget {
+  final VoidCallback? onSelect;
+  final bool autofocus;
+
+  const _AddProfileCard({required this.onSelect, required this.autofocus});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return _CardFrame(
+      tint: Colors.transparent,
+      autofocus: autofocus,
+      onSelect: onSelect,
+      semanticLabel: t.profiles.addPlezyProfile,
+      art: _AvatarRing(
+        child: SizedBox.square(
+          dimension: 128,
+          child: Center(child: AppIcon(Symbols.add_rounded, size: 80, color: theme.colorScheme.primary)),
+        ),
+      ),
+      label: Text(
+        t.profiles.addPlezyProfile,
+        style: theme.textTheme.titleMedium,
+        maxLines: 2,
+        overflow: .ellipsis,
+        textAlign: .center,
+      ),
+    );
+  }
+}
+
+/// The translucent ring Plex draws around each avatar.
+class _AvatarRing extends StatelessWidget {
+  final Widget child;
+
+  const _AvatarRing({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.1), shape: BoxShape.circle),
+      child: child,
     );
   }
 }
 
 class _ChipData {
-  final MediaBackend backend;
   final String label;
-  const _ChipData({required this.backend, required this.label});
+  const _ChipData({required this.label});
 }

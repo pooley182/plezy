@@ -14,6 +14,8 @@ import 'package:plezy/media/media_library.dart';
 import 'package:plezy/media/media_server_client.dart';
 import 'package:plezy/media/server_capabilities.dart';
 import 'package:plezy/navigation/navigation_tabs.dart';
+import 'package:plezy/profiles/active_profile_provider.dart';
+import 'package:plezy/profiles/profile.dart';
 import 'package:plezy/providers/catalog_sources_provider.dart';
 import 'package:plezy/providers/hidden_libraries_provider.dart';
 import 'package:plezy/providers/libraries_provider.dart';
@@ -97,8 +99,32 @@ AnimatedOpacity _railSurfaceOpacity(WidgetTester tester) {
       .singleWhere((widget) => widget.child is AnimatedContainer);
 }
 
-/// The Libraries header's expand/collapse chevron, matched by the symbol that
-/// only the given state renders.
+/// The rail reads only the active profile's id.
+class _FakeActiveProfile extends ChangeNotifier implements ActiveProfileProvider {
+  _FakeActiveProfile(this._id);
+  String _id;
+
+  @override
+  String? get activeId => _id;
+
+  @override
+  Profile? get active => Profile.local(id: _id, displayName: 'Name $_id', createdAt: DateTime(2026));
+
+  @override
+  List<Profile> get profiles => [active!];
+
+  @override
+  String? avatarUrlFor(String profileId) => null;
+
+  void switchTo(String id) {
+    _id = id;
+    notifyListeners();
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 Future<void> _pumpBasicRail(
   WidgetTester tester, {
   GlobalKey<SideNavigationRailState>? sideNavKey,
@@ -110,6 +136,7 @@ Future<void> _pumpBasicRail(
   bool isOfflineMode = false,
   double? height,
   CatalogSourcesProvider? catalogSources,
+  ActiveProfileProvider? activeProfile,
   ValueChanged<bool>? onFloatingPanelChanged,
 }) async {
   await SettingsService.getInstance();
@@ -148,6 +175,7 @@ Future<void> _pumpBasicRail(
           ChangeNotifierProvider<HiddenLibrariesProvider>.value(value: hiddenLibrariesProvider),
           ChangeNotifierProvider<MultiServerProvider>.value(value: multiServerProvider),
           if (catalogSources != null) ChangeNotifierProvider<CatalogSourcesProvider>.value(value: catalogSources),
+          if (activeProfile != null) ChangeNotifierProvider<ActiveProfileProvider>.value(value: activeProfile),
         ],
         child: MaterialApp(
           theme: ThemeData(extensions: const [testMonoTokens]),
@@ -452,28 +480,56 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('Explore item follows the showExploreTab appearance setting', (tester) async {
-    final catalogSources = _FakeCatalogSourcesProvider();
-    addTearDown(catalogSources.dispose);
+  testWidgets('each profile keeps its own menu order and hidden items', (tester) async {
+    final profile = _FakeActiveProfile('profile-a');
+    addTearDown(profile.dispose);
+    await SettingsService.getInstance();
+    await SettingsService.instance.write(SettingsService.hiddenNavItemsFor('profile-a'), ['search']);
+    await SettingsService.instance.write(SettingsService.navItemOrderFor('profile-b'), ['downloads']);
 
-    await _pumpBasicRail(tester, alwaysExpanded: true, catalogSources: catalogSources);
-    expect(find.widgetWithText(NavigationRailItem, 'Lists'), findsOneWidget);
+    await _pumpBasicRail(tester, alwaysExpanded: true, activeProfile: profile);
+    Iterable<String?> labels() =>
+        tester.widgetList<NavigationRailItem>(find.byType(NavigationRailItem)).map((i) => i.collapsedLabel);
+    expect(labels(), ['Name profile-a', 'Home', 'Downloads', 'Settings']);
 
-    await SettingsService.instance.write(SettingsService.showExploreTab, false);
+    profile.switchTo('profile-b');
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(NavigationRailItem, 'Lists'), findsNothing);
+    expect(labels(), ['Name profile-b', 'Home', 'Downloads', 'Search', 'Settings']);
+  });
 
-    await SettingsService.instance.write(SettingsService.showExploreTab, true);
+  testWidgets('the active profile heads the rail and opens the profile menu', (tester) async {
+    final profile = _FakeActiveProfile('profile-a');
+    addTearDown(profile.dispose);
+    final sideNavKey = GlobalKey<SideNavigationRailState>();
+    await _pumpBasicRail(
+      tester,
+      sideNavKey: sideNavKey,
+      isSidebarFocused: true,
+      alwaysExpanded: true,
+      activeProfile: profile,
+    );
+
+    String? focusedLabel() => FocusManager.instance.primaryFocus?.context
+        ?.findAncestorWidgetOfExactType<NavigationRailItem>()
+        ?.collapsedLabel;
+    sideNavKey.currentState!.focusActiveItem();
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(NavigationRailItem, 'Lists'), findsOneWidget);
+    expect(focusedLabel(), 'Home');
+    await _press(tester, LogicalKeyboardKey.arrowUp);
+    expect(focusedLabel(), 'Name profile-a');
+
+    await _press(tester, LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(find.text(t.common.logout), findsOneWidget);
+    expect(find.text(t.profiles.sectionTitle), findsOneWidget);
   });
 
   testWidgets('the rail draws and D-pad-walks the customised item order', (tester) async {
     final catalogSources = _FakeCatalogSourcesProvider();
     addTearDown(catalogSources.dispose);
     await SettingsService.getInstance();
-    await SettingsService.instance.write(SettingsService.navItemOrder, ['search', 'explore', 'libraries']);
-    await SettingsService.instance.write(SettingsService.hiddenNavItems, ['libraries']);
+    await SettingsService.instance.write(SettingsService.navItemOrderFor(null), ['search', 'explore', 'libraries']);
+    await SettingsService.instance.write(SettingsService.hiddenNavItemsFor(null), ['libraries']);
 
     final sideNavKey = GlobalKey<SideNavigationRailState>();
     await _pumpBasicRail(
@@ -547,7 +603,7 @@ void main() {
 
   testWidgets('hidden Downloads leaves the rail online but stays offline', (tester) async {
     await SettingsService.getInstance();
-    await SettingsService.instance.write(SettingsService.hiddenNavItems, ['downloads']);
+    await SettingsService.instance.write(SettingsService.hiddenNavItemsFor(null), ['downloads']);
 
     await _pumpBasicRail(tester, alwaysExpanded: true);
     expect(find.widgetWithText(NavigationRailItem, 'Downloads'), findsNothing);

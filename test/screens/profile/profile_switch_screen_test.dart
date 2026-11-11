@@ -38,7 +38,7 @@ void main() {
     LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
-  testWidgets('D-pad can focus profile actions and open the manage menu', (tester) async {
+  testWidgets('D-pad down from a card focuses its actions and open the manage menu', (tester) async {
     await _pumpPicker(
       tester,
       profiles: [Profile.local(id: 'local-owner', displayName: 'Owner', createdAt: DateTime(2026, 1, 1))],
@@ -48,7 +48,7 @@ void main() {
     expect(find.text('Owner'), findsOneWidget);
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'ProfileTile:local-owner');
 
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.pump();
 
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'ProfileActions:local-owner');
@@ -67,7 +67,7 @@ void main() {
     final owner = Profile.local(id: 'local-owner', displayName: 'Owner', createdAt: DateTime(2026, 1, 1));
     await _pumpPicker(tester, profiles: [owner], connections: const []);
 
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.pump();
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await tester.pumpAndSettle();
@@ -101,7 +101,7 @@ void main() {
       lastUsedAt: {'local-kids': DateTime(2026, 1, 3)},
     );
 
-    expect(tester.getTopLeft(find.text('Kids')).dy, lessThan(tester.getTopLeft(find.text('Owner')).dy));
+    expect(tester.getTopLeft(find.text('Kids')).dx, lessThan(tester.getTopLeft(find.text('Owner')).dx));
   });
 
   testWidgets('passes derived Jellyfin avatar URLs only to linked profile tiles', (tester) async {
@@ -667,9 +667,10 @@ Finder _tileFor(String displayName) {
   return find.ancestor(of: find.text(displayName), matching: find.byType(FocusableWrapper));
 }
 
-/// Opens the actions menu on the tile named [name] via its trailing button.
+/// Opens the actions menu of the card named [name] via the button below it.
 Future<void> _openTileMenu(WidgetTester tester, String name) async {
-  await tester.tap(find.descendant(of: _tileFor(name), matching: find.byTooltip(t.profiles.manage)));
+  final column = find.ancestor(of: _tileFor(name), matching: find.byType(Column)).first;
+  await tester.tap(find.descendant(of: column, matching: find.byTooltip(t.profiles.manage)));
   await tester.pumpAndSettle();
 }
 

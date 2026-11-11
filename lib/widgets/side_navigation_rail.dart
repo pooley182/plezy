@@ -27,6 +27,10 @@ import '../utils/platform_detector.dart';
 import '../utils/scroll_utils.dart';
 import '../utils/library_grouping.dart';
 import 'music/equalizer_icon.dart';
+import '../profiles/active_profile_provider.dart';
+import '../profiles/profile.dart';
+import '../profiles/profile_avatar.dart';
+import '../profiles/profile_menu.dart';
 import '../providers/multi_server_provider.dart';
 import '../theme/mono_tokens.dart';
 import '../widgets/backend_badge.dart';
@@ -457,6 +461,7 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
     return isCollapsed ? _collapsedHorizontalPadding : _horizontalPadding;
   }
 
+  static const _kProfile = 'profile';
   static const _kHome = 'home';
   static const _kExplore = 'explore';
   static const _kNowPlaying = 'nowPlaying';
@@ -653,6 +658,7 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
     required bool hasNowPlaying,
   }) {
     return {
+      _kProfile,
       _kHome,
       if (hasNowPlaying) _kNowPlaying,
       ...navItems.map(_navItemFocusKey),
@@ -697,6 +703,7 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
     return [
       if (widget.isOfflineMode && widget.onReconnect != null) _kReconnect,
       if (!widget.isOfflineMode) ...[
+        if (_hasActiveProfile) _kProfile,
         _kHome,
         if (hasNowPlaying) _kNowPlaying,
         for (final id in navItems)
@@ -794,25 +801,33 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
     final musicService = context.watch<MusicPlaybackService?>();
     final nowPlayingTrack = widget.isOfflineMode || !PlatformDetector.isTV() ? null : musicService?.currentTrack;
 
-    // Listen to the groupLibrariesByServer / showExploreTab / nav item
-    // settings so the rail rebuilds when they are changed in Appearance.
+    // The menu order and hidden items belong to the active profile. Nullable
+    // watch: hosts without a profile scope (tests) use the unscoped keys.
+    final activeProfileProvider = context.watch<ActiveProfileProvider?>();
+    final profileId = activeProfileProvider?.activeId;
+    final activeProfile = activeProfileProvider?.active;
+    _hasActiveProfile = activeProfile != null;
+    final navItemOrderPref = SettingsService.navItemOrderFor(profileId);
+    final hiddenNavItemsPref = SettingsService.hiddenNavItemsFor(profileId);
+
+    // Listen to the groupLibrariesByServer / nav item settings so the rail
+    // rebuilds when they are changed in Appearance.
     return ListenableBuilder(
       listenable: Listenable.merge([
         SettingsService.instance.listenable(SettingsService.groupLibrariesByServer),
-        SettingsService.instance.listenable(SettingsService.showExploreTab),
-        SettingsService.instance.listenable(SettingsService.navItemOrder),
-        SettingsService.instance.listenable(SettingsService.hiddenNavItems),
+        SettingsService.instance.listenable(navItemOrderPref),
+        SettingsService.instance.listenable(hiddenNavItemsPref),
       ]),
       builder: (context, _) {
-        final hasExplore = hasExploreSource && SettingsService.instance.read(SettingsService.showExploreTab);
-        final hiddenNavItems = SettingsService.instance.read(SettingsService.hiddenNavItems).toSet();
+        final hasExplore = hasExploreSource;
+        final hiddenNavItems = SettingsService.instance.read(hiddenNavItemsPref).toSet();
         // The items between Home and Settings, in the user's order, minus the
         // hidden and the unavailable ones. Offline, only Downloads: it is the
         // offline screen, so it shows even when hidden.
         final navItems = widget.isOfflineMode
             ? const [NavigationTabId.downloads]
             : [
-                for (final id in resolveNavItemOrder(SettingsService.instance.read(SettingsService.navItemOrder)))
+                for (final id in resolveNavItemOrder(SettingsService.instance.read(navItemOrderPref)))
                   if (!hiddenNavItems.contains(id.name) &&
                       switch (id) {
                         NavigationTabId.liveTv => hasLiveTv,
@@ -913,6 +928,10 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
                                         const SizedBox(height: _itemGap),
                                       ],
                                       if (!widget.isOfflineMode) ...[
+                                        if (activeProfile != null) ...[
+                                          _buildProfileItem(activeProfile, isCollapsed: isCollapsed),
+                                          const SizedBox(height: _itemGap),
+                                        ],
                                         _buildNavItem(
                                           icon: Symbols.home_rounded,
                                           selectedIcon: Symbols.home_rounded,
@@ -967,6 +986,29 @@ class SideNavigationRailState extends State<SideNavigationRail> with MountedSetS
           ),
         );
       },
+    );
+  }
+
+  /// Whether the last build showed the profile item (it heads the focus order).
+  bool _hasActiveProfile = false;
+
+  /// The active profile's avatar and name, always first. SELECT opens the
+  /// profile menu (switch, manage, log out).
+  Widget _buildProfileItem(Profile profile, {required bool isCollapsed}) {
+    final avatarUrl = context.read<ActiveProfileProvider>().avatarUrlFor(profile.id);
+    return NavigationRailItem(
+      icon: Symbols.account_circle_rounded,
+      iconWidget: ProfileAvatar(profile: profile, size: 28, avatarUrl: avatarUrl, showLockBadge: false),
+      iconSize: 28,
+      label: Text(profile.displayName, style: const TextStyle(fontSize: 14), overflow: .ellipsis, maxLines: 1),
+      labelColor: tokens(context).text,
+      collapsedLabel: profile.displayName,
+      isSelected: false,
+      isCollapsed: isCollapsed,
+      onTap: () => unawaited(showProfileMenu(context)),
+      focusNode: _focusTracker.get(_kProfile),
+      suppressSelectedBackground: widget.isSidebarFocused,
+      onNavigateRight: widget.onNavigateToContent,
     );
   }
 

@@ -2,18 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:provider/provider.dart';
 
 import '../../focus/dpad_reorder_mixin.dart';
 import '../../focus/focus_theme.dart';
 import '../../focus/input_mode_tracker.dart';
 import '../../i18n/strings.g.dart';
 import '../../navigation/navigation_tabs.dart';
+import '../../profiles/active_profile_provider.dart';
 import '../../services/settings_service.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/bottom_sheet_page_scaffold.dart';
 
 /// Reorders and hides the side-rail items between Home and Settings
-/// ([customizableNavItems]). Each change is saved as it is made.
+/// ([customizableNavItems]) for the active profile. Each change is saved as
+/// it is made.
 class NavigationMenuSheet extends StatefulWidget {
   const NavigationMenuSheet({super.key});
 
@@ -25,7 +28,12 @@ class _NavigationMenuSheetState extends State<NavigationMenuSheet>
     with DpadReorderListMixin<NavigationTabId, NavigationMenuSheet> {
   static SettingsService get _settings => SettingsService.instance;
 
-  late List<NavigationTabId> _items = resolveNavItemOrder(_settings.read(SettingsService.navItemOrder));
+  // Bound to the profile active when the sheet opened.
+  late final String? _profileId = context.read<ActiveProfileProvider?>()?.activeId;
+  late final StringListPref _orderPref = SettingsService.navItemOrderFor(_profileId);
+  late final StringListPref _hiddenPref = SettingsService.hiddenNavItemsFor(_profileId);
+
+  late List<NavigationTabId> _items = resolveNavItemOrder(_settings.read(_orderPref));
 
   final FocusNode _listFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
@@ -58,7 +66,7 @@ class _NavigationMenuSheetState extends State<NavigationMenuSheet>
     super.dispose();
   }
 
-  void _saveOrder() => unawaited(_settings.write(SettingsService.navItemOrder, [for (final id in _items) id.name]));
+  void _saveOrder() => unawaited(_settings.write(_orderPref, [for (final id in _items) id.name]));
 
   /// Pointer drag.
   void _onReorder(int oldIndex, int newIndex) {
@@ -66,16 +74,12 @@ class _NavigationMenuSheetState extends State<NavigationMenuSheet>
     _saveOrder();
   }
 
-  /// Explore keeps its own setting, which also drops the Explore tab itself.
-  bool _isHidden(NavigationTabId id) => id == NavigationTabId.explore
-      ? !_settings.read(SettingsService.showExploreTab)
-      : _settings.read(SettingsService.hiddenNavItems).contains(id.name);
+  bool _isHidden(NavigationTabId id) => _settings.read(_hiddenPref).contains(id.name);
 
   Future<void> _toggleHidden(NavigationTabId id) {
-    if (id == NavigationTabId.explore) return _settings.write(SettingsService.showExploreTab, _isHidden(id));
-    final hidden = Set.of(_settings.read(SettingsService.hiddenNavItems));
+    final hidden = Set.of(_settings.read(_hiddenPref));
     if (!hidden.remove(id.name)) hidden.add(id.name);
-    return _settings.write(SettingsService.hiddenNavItems, hidden.toList());
+    return _settings.write(_hiddenPref, hidden.toList());
   }
 
   @override
@@ -91,10 +95,7 @@ class _NavigationMenuSheetState extends State<NavigationMenuSheet>
         autofocus: isKeyboardMode,
         onKeyEvent: handleReorderKeyEvent,
         child: ListenableBuilder(
-          listenable: Listenable.merge([
-            _settings.listenable(SettingsService.hiddenNavItems),
-            _settings.listenable(SettingsService.showExploreTab),
-          ]),
+          listenable: _settings.listenable(_hiddenPref),
           builder: (context, _) => ReorderableListView.builder(
             shrinkWrap: true,
             scrollController: _scrollController,

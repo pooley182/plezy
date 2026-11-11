@@ -59,16 +59,21 @@ void main() {
 
     // Move Libraries below Live TV.
     await pressKeys(tester, [select, down, select]);
-    expect(settings.read(SettingsService.navItemOrder), ['liveTv', 'libraries', 'explore', 'search', 'downloads']);
+    expect(settings.read(SettingsService.navItemOrderFor(null)), [
+      'liveTv',
+      'libraries',
+      'explore',
+      'search',
+      'downloads',
+    ]);
 
     // The cursor followed Libraries: its eye hides it.
     await pressKeys(tester, [right, select]);
-    expect(settings.read(SettingsService.hiddenNavItems), ['libraries']);
+    expect(settings.read(SettingsService.hiddenNavItemsFor(null)), ['libraries']);
     expect(find.byTooltip(t.settings.showNavItem), findsOneWidget);
 
-    // Explore's eye writes its own setting.
+    // Explore hides the same way as the rest.
     await pressKeys(tester, [down, select]);
-    expect(settings.read(SettingsService.showExploreTab), isFalse);
-    expect(settings.read(SettingsService.hiddenNavItems), ['libraries']);
+    expect(settings.read(SettingsService.hiddenNavItemsFor(null)), ['libraries', 'explore']);
   });
 }

@@ -839,18 +839,14 @@ class SettingsService extends BaseSharedPreferencesService {
     defaultValue: NavigationTabId.discover,
   );
 
-  /// Whether the Explore tab (Plex Discover / tracker catalog rows) is shown
-  /// at all. UI-only: catalog sources stay connected so watchlist surfaces
-  /// keep working while the tab is hidden.
-  static const showExploreTab = BoolPref('show_explore_tab', defaultValue: true);
+  /// Side-rail order of [customizableNavItems] for [profileId], by name; read
+  /// it through [resolveNavItemOrder]. Per profile, like the library order.
+  static StringListPref navItemOrderFor(String? profileId) =>
+      StringListPref(profileScopedPrefsKey(profileId ?? '', 'nav_item_order'));
 
-  /// Side-rail order of [customizableNavItems], by name; read it through
-  /// [resolveNavItemOrder].
-  static const navItemOrder = StringListPref('nav_item_order');
-
-  /// [customizableNavItems] hidden from the side rail, by name. Explore uses
-  /// [showExploreTab] instead, which also drops the tab itself.
-  static const hiddenNavItems = StringListPref('hidden_nav_items');
+  /// [customizableNavItems] that [profileId] hid from the side rail, by name.
+  static StringListPref hiddenNavItemsFor(String? profileId) =>
+      StringListPref(profileScopedPrefsKey(profileId ?? '', 'hidden_nav_items'));
   static const alwaysKeepSidebarOpen = BoolPref('always_keep_sidebar_open');
   static const showUnwatchedCount = BoolPref('show_unwatched_count', defaultValue: true);
 
@@ -1491,9 +1487,6 @@ class SettingsService extends BaseSharedPreferencesService {
     specialsOrdering,
     useExoPlayer,
     startupSection,
-    showExploreTab,
-    navItemOrder,
-    hiddenNavItems,
     alwaysKeepSidebarOpen,
     showUnwatchedCount,
     showWatchedIndicators,
