@@ -540,10 +540,6 @@ class _Translations$settings$zh_Hant extends Translations$settings$zh {
 	@override String get showNavBarLabels => '顯示導覽列標籤';
 	@override String get showNavBarLabelsDescription => '在導覽列圖示下方顯示文字標籤';
 	@override String get startupSection => '啟動頁面';
-	@override String get showExploreTab => '顯示探索分頁';
-	@override String get showExploreTabDescription => '顯示探索分頁，其中包含來自 Plex Discover 和已連結追蹤服務的內容';
-	@override String get liveTvDefaultFavorites => '預設顯示最愛頻道';
-	@override String get liveTvDefaultFavoritesDescription => '開啟直播電視時僅顯示最愛頻道';
 	@override String get general => '一般';
 	@override String get generalDescription => '語言、啟動與視窗行為';
 	@override String get languageAndRegion => '語言與地區';
@@ -552,7 +548,6 @@ class _Translations$settings$zh_Hant extends Translations$settings$zh {
 	@override String get libraryAndCards => '媒體庫與卡片';
 	@override String get homeScreen => '主畫面';
 	@override String get navigation => '導覽';
-	@override String get liveTv => '直播電視';
 	@override String get player => '播放器';
 	@override String get videoAndDisplay => '影片與顯示器';
 	@override String get audio => '音訊';
@@ -1354,7 +1349,6 @@ class _Translations$libraries$zh_Hant extends Translations$libraries$zh {
 	@override String failedToAnalyze({required Object error}) => '無法分析媒體庫：${error}';
 	@override String get noLibrariesFound => '找不到媒體庫';
 	@override String get allLibrariesHidden => '所有媒體庫都已隱藏';
-	@override String hiddenLibrariesCount({required Object count}) => '已隱藏的媒體庫（${count}）';
 	@override String get thisLibraryIsEmpty => '此媒體庫為空';
 	@override String get noItemsMatchFilters => '沒有符合目前篩選條件的項目';
 	@override String get resetFilters => '重設篩選條件';
@@ -3755,10 +3749,6 @@ extension on TranslationsZhHant {
 			'settings.showNavBarLabels' => '顯示導覽列標籤',
 			'settings.showNavBarLabelsDescription' => '在導覽列圖示下方顯示文字標籤',
 			'settings.startupSection' => '啟動頁面',
-			'settings.showExploreTab' => '顯示探索分頁',
-			'settings.showExploreTabDescription' => '顯示探索分頁，其中包含來自 Plex Discover 和已連結追蹤服務的內容',
-			'settings.liveTvDefaultFavorites' => '預設顯示最愛頻道',
-			'settings.liveTvDefaultFavoritesDescription' => '開啟直播電視時僅顯示最愛頻道',
 			'settings.general' => '一般',
 			'settings.generalDescription' => '語言、啟動與視窗行為',
 			'settings.languageAndRegion' => '語言與地區',
@@ -3767,7 +3757,6 @@ extension on TranslationsZhHant {
 			'settings.libraryAndCards' => '媒體庫與卡片',
 			'settings.homeScreen' => '主畫面',
 			'settings.navigation' => '導覽',
-			'settings.liveTv' => '直播電視',
 			'settings.player' => '播放器',
 			'settings.videoAndDisplay' => '影片與顯示器',
 			'settings.audio' => '音訊',
@@ -3843,13 +3832,13 @@ extension on TranslationsZhHant {
 			'hotkeys.actions.playPause' => '播放/暫停',
 			'hotkeys.actions.volumeUp' => '調大音量',
 			'hotkeys.actions.volumeDown' => '調小音量',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => '快進（${seconds} 秒）',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => '快退（${seconds} 秒）',
 			'hotkeys.actions.fullscreenToggle' => '切換全螢幕',
 			'hotkeys.actions.muteToggle' => '切換靜音',
 			'hotkeys.actions.subtitleToggle' => '切換字幕',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => '下一個音軌',
 			'hotkeys.actions.subtitleTrackNext' => '下一個字幕軌',
 			'hotkeys.actions.chapterNext' => '下一個章節',
@@ -4357,13 +4346,13 @@ extension on TranslationsZhHant {
 			'accountPreferences.subtitleModes.smart' => '外語配音時顯示',
 			'accountPreferences.subtitleModes.smartDescription' => '僅在音訊為其他語言時開啟字幕。',
 			'accountPreferences.subtitleAccessibility' => 'SDH 字幕',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => '偏好非 SDH 字幕',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => '偏好 SDH 字幕',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => '僅 SDH 字幕',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => '僅非 SDH 字幕',
 			'accountPreferences.forcedSubtitles' => '強制字幕',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => '偏好非強制字幕',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => '偏好強制字幕',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => '僅強制字幕',
@@ -4451,7 +4440,6 @@ extension on TranslationsZhHant {
 			'libraries.failedToAnalyze' => ({required Object error}) => '無法分析媒體庫：${error}',
 			'libraries.noLibrariesFound' => '找不到媒體庫',
 			'libraries.allLibrariesHidden' => '所有媒體庫都已隱藏',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => '已隱藏的媒體庫（${count}）',
 			'libraries.thisLibraryIsEmpty' => '此媒體庫為空',
 			'libraries.noItemsMatchFilters' => '沒有符合目前篩選條件的項目',
 			'libraries.resetFilters' => '重設篩選條件',
@@ -4871,14 +4859,14 @@ extension on TranslationsZhHant {
 			'playlists.deleteConfirm' => '刪除播放清單？',
 			'playlists.deleteMessage' => ({required Object name}) => '確定要刪除「${name}」嗎？',
 			'playlists.created' => '播放清單已建立',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => '播放清單已刪除',
 			'playlists.itemAdded' => '已新增至播放清單',
 			'playlists.itemRemoved' => '已從播放清單移除',
 			'playlists.selectPlaylist' => '選擇播放清單',
 			'playlists.searchPlaylists' => '搜尋播放清單…',
 			'playlists.errorCreating' => '建立播放清單失敗',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => '刪除播放清單失敗',
 			'playlists.errorLoading' => '載入播放清單失敗',
 			'playlists.errorAdding' => '新增至播放清單失敗',
@@ -5385,14 +5373,14 @@ extension on TranslationsZhHant {
 			'metadataEdit.libraryDefault' => '媒體庫預設',
 			'metadataEdit.accountDefault' => '帳戶預設',
 			'metadataEdit.seriesDefault' => '影集預設',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => '單集排序方式',
 			'metadataEdit.oldestFirst' => '由舊到新',
 			'metadataEdit.newestFirst' => '由新到舊',
 			'metadataEdit.keep' => '保留集數',
 			'metadataEdit.allEpisodes' => '所有單集',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '最新 ${count} 集',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => '最新一集',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => '過去 ${count} 天內新增的單集',
 			'metadataEdit.deleteAfterPlaying' => '播放後刪除單集',

@@ -3,12 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plezy/i18n/strings.g.dart';
 import 'package:plezy/providers/theme_provider.dart';
 import 'package:plezy/screens/settings/appearance_settings_screen.dart';
+import 'package:plezy/screens/settings/navigation_menu_sheet.dart';
 import 'package:plezy/screens/settings/theme_settings_screen.dart';
 import 'package:plezy/services/settings_service.dart' hide ThemeMode;
 import 'package:plezy/services/settings_service.dart' as settings show ThemeMode;
 import 'package:plezy/services/supporter/supporter_mode.dart';
 import 'package:plezy/services/supporter/supporter_service.dart';
 import 'package:plezy/theme/mono_theme.dart';
+import 'package:plezy/utils/platform_detector.dart';
 import 'package:provider/provider.dart';
 
 import '../../test_helpers/prefs.dart';
@@ -22,6 +24,9 @@ void main() {
   });
 
   testWidgets('appearance screen renders every reorganized group', (tester) async {
+    // TV: the side rail, so the Navigation Menu entry shows.
+    TvDetectionService.debugSetTvOverride(true);
+    addTearDown(() => TvDetectionService.debugSetTvOverride(null));
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1000, 3000);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -48,6 +53,12 @@ void main() {
       expect(find.text(group), findsOneWidget, reason: 'group $group missing');
     }
     final scrollable = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(find.text(t.settings.navigationMenu), 500, scrollable: scrollable);
+    await tester.tap(find.text(t.settings.navigationMenu));
+    await tester.pumpAndSettle();
+    expect(find.byType(NavigationMenuSheet), findsOneWidget);
+    await tester.tapAt(const Offset(500, 20)); // dismiss
+    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text(t.settings.liveTv), 500, scrollable: scrollable);
     expect(find.text(t.settings.liveTvDefaultFavorites), findsOneWidget);
     // Moved away: profile prompt and performance overlay no longer live here.

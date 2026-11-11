@@ -77,4 +77,15 @@ void main() {
       expect(offline.map((tab) => tab.id), isNot(contains(NavigationTabId.explore)));
     });
   });
+
+  test('resolveNavItemOrder keeps the stored order and appends what it lacks', () {
+    expect(resolveNavItemOrder(const []), customizableNavItems);
+    expect(resolveNavItemOrder(const ['search', 'bogus', 'discover', 'downloads', 'settings', 'libraries', 'search']), [
+      NavigationTabId.search,
+      NavigationTabId.downloads,
+      NavigationTabId.libraries,
+      NavigationTabId.liveTv,
+      NavigationTabId.explore,
+    ]);
+  });
 }

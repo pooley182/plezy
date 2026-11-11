@@ -1286,17 +1286,23 @@ class Translations$settings$en {
 	/// en: 'Startup Section'
 	String get startupSection => 'Startup Section';
 
-	/// en: 'Show Explore Tab'
-	String get showExploreTab => 'Show Explore Tab';
+	/// en: 'Navigation Menu'
+	String get navigationMenu => 'Navigation Menu';
 
-	/// en: 'Display the Explore tab with content from Plex Discover and connected trackers'
-	String get showExploreTabDescription => 'Display the Explore tab with content from Plex Discover and connected trackers';
+	/// en: 'Reorder and hide side menu items'
+	String get navigationMenuDescription => 'Reorder and hide side menu items';
+
+	/// en: 'Show in menu'
+	String get showNavItem => 'Show in menu';
+
+	/// en: 'Hide from menu'
+	String get hideNavItem => 'Hide from menu';
 
 	/// en: 'Default to Favorite Channels'
 	String get liveTvDefaultFavorites => 'Default to Favorite Channels';
 
-	/// en: 'Show only favorite channels when opening Live TV'
-	String get liveTvDefaultFavoritesDescription => 'Show only favorite channels when opening Live TV';
+	/// en: 'Open Live TV on your favorite channels when you have any'
+	String get liveTvDefaultFavoritesDescription => 'Open Live TV on your favorite channels when you have any';
 
 	/// en: 'General'
 	String get general => 'General';
@@ -3354,9 +3360,6 @@ class Translations$libraries$en {
 	/// en: 'All libraries are hidden'
 	String get allLibrariesHidden => 'All libraries are hidden';
 
-	/// en: 'Hidden libraries (${count})'
-	String hiddenLibrariesCount({required Object count}) => 'Hidden libraries (${count})';
-
 	/// en: 'This library is empty'
 	String get thisLibraryIsEmpty => 'This library is empty';
 
@@ -3404,6 +3407,18 @@ class Translations$libraries$en {
 
 	/// en: 'Hide library'
 	String get hideLibrary => 'Hide library';
+
+	/// en: 'Show server'
+	String get showServer => 'Show server';
+
+	/// en: 'Hide server'
+	String get hideServer => 'Hide server';
+
+	/// en: 'Collapse server'
+	String get collapseServer => 'Collapse server';
+
+	/// en: 'Expand server'
+	String get expandServer => 'Expand server';
 
 	/// en: 'Library options'
 	String get libraryOptions => 'Library options';
@@ -3660,8 +3675,8 @@ class Translations$navigation$en {
 	/// en: 'Live TV'
 	String get liveTv => 'Live TV';
 
-	/// en: 'Explore'
-	String get explore => 'Explore';
+	/// en: 'Lists'
+	String get explore => 'Lists';
 }
 
 // Path: explore
@@ -8375,10 +8390,12 @@ extension on Translations {
 			'settings.showNavBarLabels' => 'Show Navigation Bar Labels',
 			'settings.showNavBarLabelsDescription' => 'Display text labels under navigation bar icons',
 			'settings.startupSection' => 'Startup Section',
-			'settings.showExploreTab' => 'Show Explore Tab',
-			'settings.showExploreTabDescription' => 'Display the Explore tab with content from Plex Discover and connected trackers',
+			'settings.navigationMenu' => 'Navigation Menu',
+			'settings.navigationMenuDescription' => 'Reorder and hide side menu items',
+			'settings.showNavItem' => 'Show in menu',
+			'settings.hideNavItem' => 'Hide from menu',
 			'settings.liveTvDefaultFavorites' => 'Default to Favorite Channels',
-			'settings.liveTvDefaultFavoritesDescription' => 'Show only favorite channels when opening Live TV',
+			'settings.liveTvDefaultFavoritesDescription' => 'Open Live TV on your favorite channels when you have any',
 			'settings.general' => 'General',
 			'settings.generalDescription' => 'Language, startup, and window behavior',
 			'settings.languageAndRegion' => 'Language & Region',
@@ -8461,10 +8478,10 @@ extension on Translations {
 			'search.people' => 'People',
 			'hotkeys.noShortcutSet' => 'No shortcut set',
 			'hotkeys.actions.playPause' => 'Play/Pause',
-			'hotkeys.actions.volumeUp' => 'Volume Up',
-			'hotkeys.actions.volumeDown' => 'Volume Down',
 			_ => null,
 		} ?? switch (path) {
+			'hotkeys.actions.volumeUp' => 'Volume Up',
+			'hotkeys.actions.volumeDown' => 'Volume Down',
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Seek Forward (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Seek Backward (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Toggle Fullscreen',
@@ -8975,10 +8992,10 @@ extension on Translations {
 			'accountPreferences.subtitleModes.defaultModeDescription' => 'Use the default and forced flags stored on each subtitle track.',
 			'accountPreferences.subtitleModes.always' => 'Always enabled',
 			'accountPreferences.subtitleModes.alwaysDescription' => 'Turn on a subtitle track in the preferred language whenever one exists.',
-			'accountPreferences.subtitleModes.onlyForced' => 'Only forced subtitles',
-			'accountPreferences.subtitleModes.onlyForcedDescription' => 'Load only the tracks marked as forced.',
 			_ => null,
 		} ?? switch (path) {
+			'accountPreferences.subtitleModes.onlyForced' => 'Only forced subtitles',
+			'accountPreferences.subtitleModes.onlyForcedDescription' => 'Load only the tracks marked as forced.',
 			'accountPreferences.subtitleModes.smart' => 'Shown with foreign audio',
 			'accountPreferences.subtitleModes.smartDescription' => 'Turn subtitles on only when the audio is in another language.',
 			'accountPreferences.subtitleAccessibility' => 'SDH subtitles',
@@ -9075,7 +9092,6 @@ extension on Translations {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Failed to analyze library: ${error}',
 			'libraries.noLibrariesFound' => 'No libraries found',
 			'libraries.allLibrariesHidden' => 'All libraries are hidden',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Hidden libraries (${count})',
 			'libraries.thisLibraryIsEmpty' => 'This library is empty',
 			'libraries.noItemsMatchFilters' => 'No items match the active filters',
 			'libraries.resetFilters' => 'Reset filters',
@@ -9092,6 +9108,10 @@ extension on Translations {
 			'libraries.confirmActionMessage' => 'Are you sure you want to perform this action?',
 			'libraries.showLibrary' => 'Show library',
 			'libraries.hideLibrary' => 'Hide library',
+			'libraries.showServer' => 'Show server',
+			'libraries.hideServer' => 'Hide server',
+			'libraries.collapseServer' => 'Collapse server',
+			'libraries.expandServer' => 'Expand server',
 			'libraries.libraryOptions' => 'Library options',
 			'libraries.shuffleLibrary' => 'Shuffle library',
 			'libraries.content' => 'library content',
@@ -9226,7 +9246,7 @@ extension on Translations {
 			'navigation.libraries' => 'Libraries',
 			'navigation.downloads' => 'Downloads',
 			'navigation.liveTv' => 'Live TV',
-			'navigation.explore' => 'Explore',
+			'navigation.explore' => 'Lists',
 			'explore.title' => 'Explore',
 			'explore.selectSource' => 'Select source',
 			'explore.rows.watchlist' => 'Watchlist',
@@ -9486,13 +9506,13 @@ extension on Translations {
 			'collections.searchCollections' => 'Search collections...',
 			'playlists.title' => 'Playlists',
 			'playlists.playlist' => 'Playlist',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.noPlaylists' => 'No playlists found',
 			'playlists.create' => 'Create Playlist',
 			'playlists.playlistName' => 'Playlist Name',
 			'playlists.enterPlaylistName' => 'Enter playlist name',
 			'playlists.delete' => 'Delete Playlist',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.removeItem' => 'Remove from Playlist',
 			'playlists.smartPlaylist' => 'Smart Playlist',
 			'playlists.itemCount' => ({required Object count}) => '${count} items',
@@ -10000,13 +10020,13 @@ extension on Translations {
 			'metadataEdit.selectLogo' => 'Select Logo',
 			'metadataEdit.selectSquareArt' => 'Select Square Art',
 			'metadataEdit.fromUrl' => 'From URL',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.uploadFile' => 'Upload File',
 			'metadataEdit.enterImageUrl' => 'Enter image URL',
 			'metadataEdit.imageUrl' => 'Image URL',
 			'metadataEdit.metadataUpdated' => 'Metadata updated',
 			'metadataEdit.metadataUpdateFailed' => 'Failed to update metadata',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.artworkUpdated' => 'Artwork updated',
 			'metadataEdit.artworkUpdateFailed' => 'Failed to update artwork',
 			'metadataEdit.noArtworkAvailable' => 'No artwork available',

@@ -3,7 +3,6 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
 import '../../i18n/strings.g.dart';
-import '../../providers/catalog_sources_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/settings_service.dart' hide ThemeMode;
 import '../../focus/focusable_slider.dart';
@@ -16,6 +15,7 @@ import '../../widgets/settings_page.dart';
 import '../../widgets/settings_builder.dart';
 import '../../widgets/settings_section.dart';
 import 'app_icon_setting.dart';
+import 'navigation_menu_sheet.dart';
 import 'settings_utils.dart';
 import 'theme_settings_screen.dart';
 
@@ -31,9 +31,6 @@ class AppearanceSettingsScreen extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    // Nullable watch: hosts without the profile session scope (tests) simply
-    // never show the Explore toggle, mirroring the tab's own visibility.
-    final hasExplore = context.watch<CatalogSourcesProvider?>()?.hasAnySource ?? false;
     return SettingsPage(
       title: Text(t.settings.appearance),
       children: [
@@ -133,12 +130,17 @@ class AppearanceSettingsScreen extends StatelessWidget {
         SettingsGroup(
           title: t.settings.navigation,
           children: [
-            if (hasExplore)
-              SettingSwitchTile(
-                pref: SettingsService.showExploreTab,
-                icon: Symbols.explore_rounded,
-                title: t.settings.showExploreTab,
-                subtitle: t.settings.showExploreTabDescription,
+            if (PlatformDetector.shouldUseSideNavigation(context))
+              SettingNavigationTile(
+                icon: Symbols.menu_rounded,
+                title: t.settings.navigationMenu,
+                subtitle: t.settings.navigationMenuDescription,
+                onTap: () => OverlaySheetController.showAdaptive<void>(
+                  context,
+                  isScrollControlled: true,
+                  showDragHandle: true,
+                  builder: (_) => const NavigationMenuSheet(),
+                ),
               ),
             if (PlatformDetector.shouldUseSideNavigation(context))
               SettingSwitchTile(
@@ -169,7 +171,6 @@ class AppearanceSettingsScreen extends StatelessWidget {
             ),
           ],
         ),
-
         SettingsGroup(
           title: t.settings.liveTv,
           children: [

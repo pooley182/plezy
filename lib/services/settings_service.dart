@@ -843,11 +843,15 @@ class SettingsService extends BaseSharedPreferencesService {
   /// at all. UI-only: catalog sources stay connected so watchlist surfaces
   /// keep working while the tab is hidden.
   static const showExploreTab = BoolPref('show_explore_tab', defaultValue: true);
-  static const alwaysKeepSidebarOpen = BoolPref('always_keep_sidebar_open');
 
-  /// Sidebar Libraries section expansion. Persisted so a collapsed section
-  /// stays collapsed across launches instead of springing back open (#1896).
-  static const librariesSectionExpanded = BoolPref('libraries_section_expanded', defaultValue: true);
+  /// Side-rail order of [customizableNavItems], by name; read it through
+  /// [resolveNavItemOrder].
+  static const navItemOrder = StringListPref('nav_item_order');
+
+  /// [customizableNavItems] hidden from the side rail, by name. Explore uses
+  /// [showExploreTab] instead, which also drops the tab itself.
+  static const hiddenNavItems = StringListPref('hidden_nav_items');
+  static const alwaysKeepSidebarOpen = BoolPref('always_keep_sidebar_open');
   static const showUnwatchedCount = BoolPref('show_unwatched_count', defaultValue: true);
 
   /// The corner checkmark on watched posters/thumbnails (#1998). Progress bars
@@ -886,7 +890,9 @@ class SettingsService extends BaseSharedPreferencesService {
   /// that core lists the device (see `applyPreferredAudioDevice`). Names are
   /// per machine, so reset-only in the registry.
   static const audioOutputDevice = StringPref('audio_output_device', defaultValue: 'auto');
-  static const liveTvDefaultFavorites = BoolPref('live_tv_default_favorites');
+
+  /// Open Live TV on the favorites view once favorites load, if there are any.
+  static const liveTvDefaultFavorites = BoolPref('live_tv_default_favorites', defaultValue: true);
   static const appLocale = _AppLocalePref();
   static const autoPip = _AutoPipPref();
   static const customDownloadPath = NullableStringPref('custom_download_path');
@@ -1486,8 +1492,9 @@ class SettingsService extends BaseSharedPreferencesService {
     useExoPlayer,
     startupSection,
     showExploreTab,
+    navItemOrder,
+    hiddenNavItems,
     alwaysKeepSidebarOpen,
-    librariesSectionExpanded,
     showUnwatchedCount,
     showWatchedIndicators,
     showEpisodeNumberOnCards,

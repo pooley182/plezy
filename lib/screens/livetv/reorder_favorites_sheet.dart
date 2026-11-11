@@ -154,8 +154,10 @@ class _ReorderFavoritesSheetState extends State<ReorderFavoritesSheet>
     Color? tileColor;
     if (isMoving) {
       tileColor = colorScheme.primaryContainer;
-    } else if (isFocused && focusedColumn == 0) {
-      tileColor = colorScheme.surfaceContainerHighest;
+    } else if (isFocused) {
+      // The theme's list focus fill, not a surface colour: a surface colour
+      // can match the sheet's own background and vanish.
+      tileColor = Theme.of(context).focusColor;
     }
 
     final isRemoveButtonFocused = isFocused && focusedColumn == 1;

@@ -539,10 +539,6 @@ class _Translations$settings$pl extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Pokaż etykiety paska nawigacji';
 	@override String get showNavBarLabelsDescription => 'Wyświetl tekstowe etykiety pod ikonami paska nawigacji';
 	@override String get startupSection => 'Sekcja startowa';
-	@override String get showExploreTab => 'Pokaż kartę Odkryj';
-	@override String get showExploreTabDescription => 'Wyświetlaj kartę Odkryj z treściami z Plex Discover i połączonych serwisów śledzących';
-	@override String get liveTvDefaultFavorites => 'Domyślnie ulubione kanały';
-	@override String get liveTvDefaultFavoritesDescription => 'Pokaż tylko ulubione kanały po otwarciu telewizji na żywo';
 	@override String get general => 'Ogólne';
 	@override String get generalDescription => 'Język, uruchamianie i zachowanie okna';
 	@override String get languageAndRegion => 'Język i region';
@@ -551,7 +547,6 @@ class _Translations$settings$pl extends Translations$settings$en {
 	@override String get libraryAndCards => 'Biblioteka i karty';
 	@override String get homeScreen => 'Ekran główny';
 	@override String get navigation => 'Nawigacja';
-	@override String get liveTv => 'TV na żywo';
 	@override String get player => 'Odtwarzacz';
 	@override String get videoAndDisplay => 'Wideo i ekran';
 	@override String get audio => 'Audio';
@@ -1368,7 +1363,6 @@ class _Translations$libraries$pl extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Nie udało się przeanalizować biblioteki: ${error}';
 	@override String get noLibrariesFound => 'Nie znaleziono bibliotek';
 	@override String get allLibrariesHidden => 'Wszystkie biblioteki są ukryte';
-	@override String hiddenLibrariesCount({required Object count}) => 'Ukryte biblioteki (${count})';
 	@override String get thisLibraryIsEmpty => 'Ta biblioteka jest pusta';
 	@override String get noItemsMatchFilters => 'Żaden element nie pasuje do aktywnych filtrów';
 	@override String get resetFilters => 'Resetuj filtry';
@@ -3790,10 +3784,6 @@ extension on TranslationsPl {
 			'settings.showNavBarLabels' => 'Pokaż etykiety paska nawigacji',
 			'settings.showNavBarLabelsDescription' => 'Wyświetl tekstowe etykiety pod ikonami paska nawigacji',
 			'settings.startupSection' => 'Sekcja startowa',
-			'settings.showExploreTab' => 'Pokaż kartę Odkryj',
-			'settings.showExploreTabDescription' => 'Wyświetlaj kartę Odkryj z treściami z Plex Discover i połączonych serwisów śledzących',
-			'settings.liveTvDefaultFavorites' => 'Domyślnie ulubione kanały',
-			'settings.liveTvDefaultFavoritesDescription' => 'Pokaż tylko ulubione kanały po otwarciu telewizji na żywo',
 			'settings.general' => 'Ogólne',
 			'settings.generalDescription' => 'Język, uruchamianie i zachowanie okna',
 			'settings.languageAndRegion' => 'Język i region',
@@ -3802,7 +3792,6 @@ extension on TranslationsPl {
 			'settings.libraryAndCards' => 'Biblioteka i karty',
 			'settings.homeScreen' => 'Ekran główny',
 			'settings.navigation' => 'Nawigacja',
-			'settings.liveTv' => 'TV na żywo',
 			'settings.player' => 'Odtwarzacz',
 			'settings.videoAndDisplay' => 'Wideo i ekran',
 			'settings.audio' => 'Audio',
@@ -3878,13 +3867,13 @@ extension on TranslationsPl {
 			'hotkeys.actions.playPause' => 'Odtwórz/Pauza',
 			'hotkeys.actions.volumeUp' => 'Głośniej',
 			'hotkeys.actions.volumeDown' => 'Ciszej',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Przewiń do przodu (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Przewiń do tyłu (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Pełny ekran',
 			'hotkeys.actions.muteToggle' => 'Wyciszenie',
 			'hotkeys.actions.subtitleToggle' => 'Napisy',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Następna ścieżka audio',
 			'hotkeys.actions.subtitleTrackNext' => 'Następna ścieżka napisów',
 			'hotkeys.actions.chapterNext' => 'Następny rozdział',
@@ -4392,13 +4381,13 @@ extension on TranslationsPl {
 			'accountPreferences.subtitleModes.smart' => 'Wyświetlane przy dźwięku w obcym języku',
 			'accountPreferences.subtitleModes.smartDescription' => 'Włączaj napisy tylko wtedy, gdy dźwięk jest w innym języku.',
 			'accountPreferences.subtitleAccessibility' => 'Napisy SDH',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Preferuj napisy bez SDH',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Preferuj napisy SDH',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Tylko napisy SDH',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Tylko napisy bez SDH',
 			'accountPreferences.forcedSubtitles' => 'Wymuszone napisy',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Preferuj niewymuszone napisy',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Preferuj wymuszone napisy',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Tylko wymuszone napisy',
@@ -4486,7 +4475,6 @@ extension on TranslationsPl {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Nie udało się przeanalizować biblioteki: ${error}',
 			'libraries.noLibrariesFound' => 'Nie znaleziono bibliotek',
 			'libraries.allLibrariesHidden' => 'Wszystkie biblioteki są ukryte',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Ukryte biblioteki (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Ta biblioteka jest pusta',
 			'libraries.noItemsMatchFilters' => 'Żaden element nie pasuje do aktywnych filtrów',
 			'libraries.resetFilters' => 'Resetuj filtry',
@@ -4906,14 +4894,14 @@ extension on TranslationsPl {
 			'playlists.deleteConfirm' => 'Usunąć playlistę?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Czy na pewno chcesz usunąć "${name}"?',
 			'playlists.created' => 'Playlista utworzona',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Playlista usunięta',
 			'playlists.itemAdded' => 'Dodano do playlisty',
 			'playlists.itemRemoved' => 'Usunięto z playlisty',
 			'playlists.selectPlaylist' => 'Wybierz playlistę',
 			'playlists.searchPlaylists' => 'Szukaj playlist...',
 			'playlists.errorCreating' => 'Nie udało się utworzyć playlisty',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Nie udało się usunąć playlisty',
 			'playlists.errorLoading' => 'Nie udało się załadować playlist',
 			'playlists.errorAdding' => 'Nie udało się dodać do playlisty',
@@ -5420,14 +5408,14 @@ extension on TranslationsPl {
 			'metadataEdit.libraryDefault' => 'Domyślne dla biblioteki',
 			'metadataEdit.accountDefault' => 'Domyślne dla konta',
 			'metadataEdit.seriesDefault' => 'Domyślne dla serialu',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Sortowanie odcinków',
 			'metadataEdit.oldestFirst' => 'Najstarsze najpierw',
 			'metadataEdit.newestFirst' => 'Najnowsze najpierw',
 			'metadataEdit.keep' => 'Zachowaj',
 			'metadataEdit.allEpisodes' => 'Wszystkie odcinki',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '${count} najnowszych odcinków',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Najnowszy odcinek',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Odcinki dodane w ciągu ostatnich ${count} dni',
 			'metadataEdit.deleteAfterPlaying' => 'Usuń odcinki po odtworzeniu',

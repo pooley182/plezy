@@ -539,10 +539,6 @@ class _Translations$settings$kk extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Навигация панелінің мәтіндерін көрсету';
 	@override String get showNavBarLabelsDescription => 'Навигация белгішелерінің астында мәтінді көрсету';
 	@override String get startupSection => 'Бастапқы бөлім';
-	@override String get showExploreTab => '«Шолу» қойындысын көрсету';
-	@override String get showExploreTabDescription => 'Plex шолуынан және қосылған трекерлерден алынған контенті бар «Шолу» қойындысын көрсету';
-	@override String get liveTvDefaultFavorites => 'Тікелей TV-де таңдаулы арналарды әдепкі ету';
-	@override String get liveTvDefaultFavoritesDescription => 'Тікелей TV ашылғанда тек таңдаулы арналарды көрсету';
 	@override String get general => 'Жалпы';
 	@override String get generalDescription => 'Тіл, іске қосу және терезе мінез-құлқы';
 	@override String get languageAndRegion => 'Тіл және аймақ';
@@ -551,7 +547,6 @@ class _Translations$settings$kk extends Translations$settings$en {
 	@override String get libraryAndCards => 'Кітапхана және карточкалар';
 	@override String get homeScreen => 'Басты экран';
 	@override String get navigation => 'Навигация';
-	@override String get liveTv => 'Тікелей TV';
 	@override String get player => 'Ойнатқыш';
 	@override String get videoAndDisplay => 'Видео және дисплей';
 	@override String get audio => 'Аудио';
@@ -1358,7 +1353,6 @@ class _Translations$libraries$kk extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Талдау жасау мүмкін болмады: ${error}';
 	@override String get noLibrariesFound => 'Кітапханалар табылмады';
 	@override String get allLibrariesHidden => 'Барлық кітапханалар жасырылған';
-	@override String hiddenLibrariesCount({required Object count}) => 'Жасырын кітапханалар (${count})';
 	@override String get thisLibraryIsEmpty => 'Бұл кітапхана бос';
 	@override String get noItemsMatchFilters => 'Фильтрлерге сәйкес элементтер табылмады';
 	@override String get resetFilters => 'Фильтрлерді қалпына келтіру';
@@ -3766,10 +3760,6 @@ extension on TranslationsKk {
 			'settings.showNavBarLabels' => 'Навигация панелінің мәтіндерін көрсету',
 			'settings.showNavBarLabelsDescription' => 'Навигация белгішелерінің астында мәтінді көрсету',
 			'settings.startupSection' => 'Бастапқы бөлім',
-			'settings.showExploreTab' => '«Шолу» қойындысын көрсету',
-			'settings.showExploreTabDescription' => 'Plex шолуынан және қосылған трекерлерден алынған контенті бар «Шолу» қойындысын көрсету',
-			'settings.liveTvDefaultFavorites' => 'Тікелей TV-де таңдаулы арналарды әдепкі ету',
-			'settings.liveTvDefaultFavoritesDescription' => 'Тікелей TV ашылғанда тек таңдаулы арналарды көрсету',
 			'settings.general' => 'Жалпы',
 			'settings.generalDescription' => 'Тіл, іске қосу және терезе мінез-құлқы',
 			'settings.languageAndRegion' => 'Тіл және аймақ',
@@ -3778,7 +3768,6 @@ extension on TranslationsKk {
 			'settings.libraryAndCards' => 'Кітапхана және карточкалар',
 			'settings.homeScreen' => 'Басты экран',
 			'settings.navigation' => 'Навигация',
-			'settings.liveTv' => 'Тікелей TV',
 			'settings.player' => 'Ойнатқыш',
 			'settings.videoAndDisplay' => 'Видео және дисплей',
 			'settings.audio' => 'Аудио',
@@ -3854,13 +3843,13 @@ extension on TranslationsKk {
 			'hotkeys.actions.playPause' => 'Ойнату/Кідірту',
 			'hotkeys.actions.volumeUp' => 'Дыбысты үлкейту',
 			'hotkeys.actions.volumeDown' => 'Дыбысты азайту',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Алға айналдыру (${seconds}сек)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Артқа айналдыру (${seconds}сек)',
 			'hotkeys.actions.fullscreenToggle' => 'Толық экранды ауыстыру',
 			'hotkeys.actions.muteToggle' => 'Дыбысты өшіру/қосу',
 			'hotkeys.actions.subtitleToggle' => 'Субтитрді қосу/өшіру',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Келесі аудиожол',
 			'hotkeys.actions.subtitleTrackNext' => 'Келесі субтитр жолы',
 			'hotkeys.actions.chapterNext' => 'Келесі бөлім',
@@ -4368,13 +4357,13 @@ extension on TranslationsKk {
 			'accountPreferences.subtitleModes.smart' => 'Шет тіліндегі аудио кезінде көрсету',
 			'accountPreferences.subtitleModes.smartDescription' => 'Субтитрлерді тек аудио басқа тілде болғанда қосу.',
 			'accountPreferences.subtitleAccessibility' => 'SDH субтитрлері',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'SDH емес субтитрлерді артық көру',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH субтитрлерін артық көру',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Тек SDH субтитрлері',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Тек SDH емес субтитрлер',
 			'accountPreferences.forcedSubtitles' => 'Мәжбүрлі субтитрлер',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Мәжбүрлі емес субтитрлерді артық көру',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Мәжбүрлі субтитрлерді артық көру',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Тек мәжбүрлі субтитрлер',
@@ -4462,7 +4451,6 @@ extension on TranslationsKk {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Талдау жасау мүмкін болмады: ${error}',
 			'libraries.noLibrariesFound' => 'Кітапханалар табылмады',
 			'libraries.allLibrariesHidden' => 'Барлық кітапханалар жасырылған',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Жасырын кітапханалар (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Бұл кітапхана бос',
 			'libraries.noItemsMatchFilters' => 'Фильтрлерге сәйкес элементтер табылмады',
 			'libraries.resetFilters' => 'Фильтрлерді қалпына келтіру',
@@ -4882,14 +4870,14 @@ extension on TranslationsKk {
 			'playlists.deleteConfirm' => 'Ойнату тізімі өшірілсін бе?',
 			'playlists.deleteMessage' => ({required Object name}) => '"${name}" өшірілсін бе?',
 			'playlists.created' => 'Ойнату тізімі жасалды',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Ойнату тізімі өшірілді',
 			'playlists.itemAdded' => 'Тізімге қосылды',
 			'playlists.itemRemoved' => 'Тізімнен өшірілді',
 			'playlists.selectPlaylist' => 'Тізімді таңдау',
 			'playlists.searchPlaylists' => 'Ойнату тізімдерінен іздеу...',
 			'playlists.errorCreating' => 'Тізімді жасау мүмкін болмады',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Тізімді өшіру мүмкін болмады',
 			'playlists.errorLoading' => 'Тізімдерді жүктеу мүмкін болмады',
 			'playlists.errorAdding' => 'Тізімге қосу мүмкін болмады',
@@ -5396,14 +5384,14 @@ extension on TranslationsKk {
 			'metadataEdit.libraryDefault' => 'Кітапхана әдепкісі',
 			'metadataEdit.accountDefault' => 'Тіркелгі әдепкісі',
 			'metadataEdit.seriesDefault' => 'Сериал әдепкісі',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Бөлімдерді сұрыптау',
 			'metadataEdit.oldestFirst' => 'Басында ескілері',
 			'metadataEdit.newestFirst' => 'Басында жаңалары',
 			'metadataEdit.keep' => 'Сақтау',
 			'metadataEdit.allEpisodes' => 'Барлық бөлімдер',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => 'Соңғы ${count} бөлім',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Соңғы бөлім',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Соңғы ${count} күнде қосылған бөлімдер',
 			'metadataEdit.deleteAfterPlaying' => 'Ойнатқаннан кейін өшіру',

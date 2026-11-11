@@ -118,8 +118,10 @@ Future<void> _openScanConfirmation(WidgetTester tester) async {
 
   expect(find.text(t.libraries.manageLibraries), findsOneWidget);
 
-  // The sheet owns one focus node for its virtual row/column navigation. Move
-  // from the row to its options column and open the real AppMenuSheet.
+  // The sheet owns one focus node for its virtual row/column navigation. Step
+  // past the server heading, move from the row to its options column and open
+  // the real AppMenuSheet.
+  await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
   await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
   await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
   await tester.sendKeyEvent(LogicalKeyboardKey.enter);
@@ -239,10 +241,11 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await tester.pumpAndSettle();
 
-    // One server means no server subtitle, so rows are shorter than the
-    // two-line height the reveal arithmetic used to assume.
-    final firstRow = tester.getRect(find.byType(ListTile).at(0));
-    final rowPitch = tester.getRect(find.byType(ListTile).at(1)).top - firstRow.top;
+    // Library rows carry no server subtitle, so they are shorter than the
+    // two-line height the reveal arithmetic used to assume. Row 0 is the
+    // server heading.
+    final firstRow = tester.getRect(find.byType(ListTile).at(1));
+    final rowPitch = tester.getRect(find.byType(ListTile).at(2)).top - firstRow.top;
     expect(rowPitch, lessThan(72.0));
 
     final viewport = tester.getRect(find.descendant(of: find.byType(Dialog), matching: find.byType(Scrollable)).first);
@@ -251,7 +254,7 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.pumpAndSettle();
 
-      final row = find.text('Library $index');
+      final row = find.text('Library ${index - 1}');
       expect(row, findsOneWidget, reason: 'focused row $index scrolled out of the built range');
       final rect = tester.getRect(row);
       expect(rect.top, greaterThanOrEqualTo(viewport.top), reason: 'focused row $index sits above the viewport');
@@ -292,13 +295,184 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Library c'), findsOneWidget);
 
-    // Move the first row down one place and confirm.
+    // Move the first library (below the heading) down one place and confirm.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await tester.pumpAndSettle();
 
     expect(launcher.libraries.libraries.map((l) => l.id), ['b', 'a', 'c']);
+  });
+
+  MediaLibrary serverLibrary(String serverId, String id) => MediaLibrary(
+    id: id,
+    backend: MediaBackend.plex,
+    title: 'Library $id',
+    kind: MediaKind.movie,
+    serverId: serverId,
+    serverName: 'Server $serverId',
+  );
+
+  Future<void> openSheetWithKeyboard(WidgetTester tester) async {
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('libraries are listed under a heading for their server', (tester) async {
+    await _pumpLibraryManagementLauncher(
+      tester,
+      libraries: [serverLibrary('a', '1'), serverLibrary('b', '2'), serverLibrary('a', '3')],
+    );
+    await openSheetWithKeyboard(tester);
+
+    final titles = tester
+        .widgetList<ListTile>(find.byType(ListTile))
+        .map((tile) => ((tile.title! as Text).data))
+        .toList();
+    expect(titles, ['Server a', 'Library 1', 'Library 3', 'Server b', 'Library 2']);
+  });
+
+  testWidgets('a server heading hides and then shows all of its libraries', (tester) async {
+    await _pumpLibraryManagementLauncher(
+      tester,
+      libraries: [serverLibrary('a', '1'), serverLibrary('a', '2'), serverLibrary('b', '3')],
+    );
+    await openSheetWithKeyboard(tester);
+    final hidden = tester.element(find.text('Library 1')).read<HiddenLibrariesProvider>();
+
+    // One library already hidden: the heading still hides the rest.
+    await hidden.hideLibrary(serverLibrary('a', '1').globalKey);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight); // the heading's eye
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(hidden.hiddenLibraryKeys, {serverLibrary('a', '1').globalKey, serverLibrary('a', '2').globalKey});
+    expect(find.byTooltip(t.libraries.showServer), findsOneWidget);
+
+    await tester.tap(find.byTooltip(t.libraries.showServer));
+    await tester.pumpAndSettle();
+    expect(hidden.hiddenLibraryKeys, isEmpty);
+  });
+
+  testWidgets('UP/DOWN keep the chosen button column across rows', (tester) async {
+    // Only Library 1 has the options column.
+    await _pumpLibraryManagementLauncher(
+      tester,
+      libraries: [serverLibrary('a', '1'), serverLibrary('a', '2')],
+      canAdministerLibrary: (library) => library.id == '1',
+    );
+    await openSheetWithKeyboard(tester);
+    final hidden = tester.element(find.text('Library 1')).read<HiddenLibrariesProvider>();
+
+    // Heading's eye, then down twice: still on the eye, so SELECT hides Library 2.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(hidden.hiddenLibraryKeys, {serverLibrary('a', '2').globalKey});
+
+    // Library 1's options column (2) steps in to Library 2's eye (1) and back
+    // out to 2.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(find.text(t.libraries.scanLibraryFiles), findsOneWidget);
+  });
+
+  Future<void> pressKeys(WidgetTester tester, List<LogicalKeyboardKey> keys) async {
+    for (final key in keys) {
+      await tester.sendKeyEvent(key);
+      await tester.pumpAndSettle();
+    }
+  }
+
+  const right = LogicalKeyboardKey.arrowRight;
+  const up = LogicalKeyboardKey.arrowUp;
+  const down = LogicalKeyboardKey.arrowDown;
+  const select = LogicalKeyboardKey.enter;
+  const back = LogicalKeyboardKey.escape;
+
+  testWidgets('the last heading button collapses and expands its server', (tester) async {
+    TvDetectionService.debugSetTvOverride(true);
+    await _pumpLibraryManagementLauncher(
+      tester,
+      libraries: [serverLibrary('a', '1'), serverLibrary('a', '2'), serverLibrary('b', '3')],
+    );
+    await openSheetWithKeyboard(tester);
+    final hidden = tester.element(find.text('Library 1')).read<HiddenLibrariesProvider>();
+
+    await pressKeys(tester, [right, right, select]);
+    expect(find.text('Library 1'), findsNothing);
+    expect(find.text('Library 3'), findsOneWidget);
+
+    // Down reaches server b's heading; its eye hides it.
+    await pressKeys(tester, [LogicalKeyboardKey.arrowLeft, down, select]);
+    expect(hidden.hiddenLibraryKeys, {serverLibrary('b', '3').globalKey});
+
+    expect(find.byTooltip(t.libraries.expandServer), findsOneWidget);
+    await pressKeys(tester, [up, right, select]);
+    expect(find.text('Library 1'), findsOneWidget);
+  });
+
+  testWidgets('reordering servers collapses them all, then restores each one', (tester) async {
+    TvDetectionService.debugSetTvOverride(true);
+    final launcher = await _pumpLibraryManagementLauncher(
+      tester,
+      libraries: [serverLibrary('a', '1'), serverLibrary('a', '2'), serverLibrary('b', '3')],
+    );
+    await openSheetWithKeyboard(tester);
+
+    // Collapse server a, then SELECT server b's heading to start reordering.
+    await pressKeys(tester, [right, right, select]);
+    await pressKeys(tester, [down, LogicalKeyboardKey.arrowLeft, LogicalKeyboardKey.arrowLeft, select]);
+    expect(find.text('Library 3'), findsNothing);
+
+    // BACK cancels: nothing moves and server b is expanded again.
+    await pressKeys(tester, [up, back]);
+    expect(launcher.libraries.libraries.map((l) => l.id), ['1', '2', '3']);
+    expect(find.text('Library 3'), findsOneWidget);
+    expect(find.text('Library 1'), findsNothing);
+
+    // This time move server b up and confirm.
+    await pressKeys(tester, [select, up, select]);
+    expect(launcher.libraries.libraries.map((l) => l.id), ['3', '1', '2']);
+    final titles = tester
+        .widgetList<ListTile>(find.byType(ListTile))
+        .map((tile) => ((tile.title! as Text).data))
+        .toList();
+    expect(titles, ['Server b', 'Library 3', 'Server a']);
+  });
+
+  testWidgets('a moving library stops at its server boundary', (tester) async {
+    final launcher = await _pumpLibraryManagementLauncher(
+      tester,
+      libraries: [serverLibrary('a', '1'), serverLibrary('a', '2'), serverLibrary('b', '3')],
+    );
+    await openSheetWithKeyboard(tester);
+
+    // Move Library 2 down: it is last on server a, so it stays put.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(launcher.libraries.libraries.map((l) => l.id), ['1', '2', '3']);
+
+    // Up still works within the server.
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(launcher.libraries.libraries.map((l) => l.id), ['2', '1', '3']);
   });
 
   testWidgets('library admin actions are offered only on servers the user administers', (tester) async {

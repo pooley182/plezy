@@ -86,6 +86,27 @@ const startupSectionTabs = [
   NavigationTabId.search,
 ];
 
+/// Side-rail items between Home and Settings that the user can reorder and
+/// hide, in their default order.
+const customizableNavItems = [
+  NavigationTabId.libraries,
+  NavigationTabId.liveTv,
+  NavigationTabId.explore,
+  NavigationTabId.search,
+  NavigationTabId.downloads,
+];
+
+/// The rail order for [stored] item names (`SettingsService.navItemOrder`):
+/// unknown names dropped, items missing from it appended in default order.
+List<NavigationTabId> resolveNavItemOrder(List<String> stored) {
+  final byName = NavigationTabId.values.asNameMap();
+  return {
+    for (final name in stored)
+      if (byName[name] case final id? when customizableNavItems.contains(id)) id,
+    ...customizableNavItems,
+  }.toList();
+}
+
 // Label getters (must be top-level for const constructor)
 String _getHomeLabel() => t.common.home;
 String _getExploreLabel() => t.navigation.explore;

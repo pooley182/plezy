@@ -539,10 +539,6 @@ class _Translations$settings$nb extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Vis etiketter i navigasjonsfeltet';
 	@override String get showNavBarLabelsDescription => 'Vis tekstetiketter under ikonene i navigasjonsfeltet';
 	@override String get startupSection => 'Startseksjon';
-	@override String get showExploreTab => 'Vis Oppdag-fanen';
-	@override String get showExploreTabDescription => 'Vis Oppdag-fanen med innhold fra Plex Discover og tilkoblede sporingstjenester';
-	@override String get liveTvDefaultFavorites => 'Vis favorittkanaler som standard';
-	@override String get liveTvDefaultFavoritesDescription => 'Vis bare favorittkanaler når du åpner Direkte-TV';
 	@override String get general => 'Generelt';
 	@override String get generalDescription => 'Språk, oppstart og vindusatferd';
 	@override String get languageAndRegion => 'Språk og region';
@@ -551,7 +547,6 @@ class _Translations$settings$nb extends Translations$settings$en {
 	@override String get libraryAndCards => 'Bibliotek og kort';
 	@override String get homeScreen => 'Hjemmeskjerm';
 	@override String get navigation => 'Navigering';
-	@override String get liveTv => 'Direkte-TV';
 	@override String get player => 'Spiller';
 	@override String get videoAndDisplay => 'Video og skjerm';
 	@override String get audio => 'Lyd';
@@ -1358,7 +1353,6 @@ class _Translations$libraries$nb extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Kunne ikke analysere bibliotek: ${error}';
 	@override String get noLibrariesFound => 'Ingen biblioteker funnet';
 	@override String get allLibrariesHidden => 'Alle biblioteker er skjult';
-	@override String hiddenLibrariesCount({required Object count}) => 'Skjulte biblioteker (${count})';
 	@override String get thisLibraryIsEmpty => 'Dette biblioteket er tomt';
 	@override String get noItemsMatchFilters => 'Ingen elementer samsvarer med de aktive filtrene';
 	@override String get resetFilters => 'Tilbakestill filtre';
@@ -3766,10 +3760,6 @@ extension on TranslationsNb {
 			'settings.showNavBarLabels' => 'Vis etiketter i navigasjonsfeltet',
 			'settings.showNavBarLabelsDescription' => 'Vis tekstetiketter under ikonene i navigasjonsfeltet',
 			'settings.startupSection' => 'Startseksjon',
-			'settings.showExploreTab' => 'Vis Oppdag-fanen',
-			'settings.showExploreTabDescription' => 'Vis Oppdag-fanen med innhold fra Plex Discover og tilkoblede sporingstjenester',
-			'settings.liveTvDefaultFavorites' => 'Vis favorittkanaler som standard',
-			'settings.liveTvDefaultFavoritesDescription' => 'Vis bare favorittkanaler når du åpner Direkte-TV',
 			'settings.general' => 'Generelt',
 			'settings.generalDescription' => 'Språk, oppstart og vindusatferd',
 			'settings.languageAndRegion' => 'Språk og region',
@@ -3778,7 +3768,6 @@ extension on TranslationsNb {
 			'settings.libraryAndCards' => 'Bibliotek og kort',
 			'settings.homeScreen' => 'Hjemmeskjerm',
 			'settings.navigation' => 'Navigering',
-			'settings.liveTv' => 'Direkte-TV',
 			'settings.player' => 'Spiller',
 			'settings.videoAndDisplay' => 'Video og skjerm',
 			'settings.audio' => 'Lyd',
@@ -3854,13 +3843,13 @@ extension on TranslationsNb {
 			'hotkeys.actions.playPause' => 'Spill av/Pause',
 			'hotkeys.actions.volumeUp' => 'Volum opp',
 			'hotkeys.actions.volumeDown' => 'Volum ned',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Spol fremover (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Spol bakover (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Slå fullskjerm av/på',
 			'hotkeys.actions.muteToggle' => 'Slå lyddemping av/på',
 			'hotkeys.actions.subtitleToggle' => 'Slå undertekster av/på',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Neste lydspor',
 			'hotkeys.actions.subtitleTrackNext' => 'Neste undertekstspor',
 			'hotkeys.actions.chapterNext' => 'Neste kapittel',
@@ -4368,13 +4357,13 @@ extension on TranslationsNb {
 			'accountPreferences.subtitleModes.smart' => 'Vist med fremmedspråklig lyd',
 			'accountPreferences.subtitleModes.smartDescription' => 'Slå på undertekster bare når lyden er på et annet språk.',
 			'accountPreferences.subtitleAccessibility' => 'SDH-undertekster',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Foretrekk ikke-SDH-undertekster',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Foretrekk SDH-undertekster',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Kun SDH-undertekster',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Kun ikke-SDH-undertekster',
 			'accountPreferences.forcedSubtitles' => 'Tvungne undertekster',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Foretrekk ikke-tvungne undertekster',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Foretrekk tvungne undertekster',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Kun tvungne undertekster',
@@ -4462,7 +4451,6 @@ extension on TranslationsNb {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kunne ikke analysere bibliotek: ${error}',
 			'libraries.noLibrariesFound' => 'Ingen biblioteker funnet',
 			'libraries.allLibrariesHidden' => 'Alle biblioteker er skjult',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Skjulte biblioteker (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Dette biblioteket er tomt',
 			'libraries.noItemsMatchFilters' => 'Ingen elementer samsvarer med de aktive filtrene',
 			'libraries.resetFilters' => 'Tilbakestill filtre',
@@ -4882,14 +4870,14 @@ extension on TranslationsNb {
 			'playlists.deleteConfirm' => 'Slett spilleliste?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Er du sikker på at du vil slette "${name}"?',
 			'playlists.created' => 'Spilleliste opprettet',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Spilleliste slettet',
 			'playlists.itemAdded' => 'Lagt til i spilleliste',
 			'playlists.itemRemoved' => 'Fjernet fra spilleliste',
 			'playlists.selectPlaylist' => 'Velg spilleliste',
 			'playlists.searchPlaylists' => 'Søk i spillelister...',
 			'playlists.errorCreating' => 'Kunne ikke opprette spilleliste',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Kunne ikke slette spilleliste',
 			'playlists.errorLoading' => 'Kunne ikke laste spillelister',
 			'playlists.errorAdding' => 'Kunne ikke legge til i spilleliste',
@@ -5396,14 +5384,14 @@ extension on TranslationsNb {
 			'metadataEdit.libraryDefault' => 'Bibliotekstandard',
 			'metadataEdit.accountDefault' => 'Kontostandard',
 			'metadataEdit.seriesDefault' => 'Seriestandard',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Episodesortering',
 			'metadataEdit.oldestFirst' => 'Eldste først',
 			'metadataEdit.newestFirst' => 'Nyeste først',
 			'metadataEdit.keep' => 'Behold',
 			'metadataEdit.allEpisodes' => 'Alle episoder',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '${count} nyeste episoder',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Nyeste episode',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Episoder lagt til de siste ${count} dagene',
 			'metadataEdit.deleteAfterPlaying' => 'Slett episoder etter avspilling',

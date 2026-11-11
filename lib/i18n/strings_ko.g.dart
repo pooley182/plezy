@@ -539,10 +539,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get showNavBarLabels => '내비게이션 바 라벨 표시';
 	@override String get showNavBarLabelsDescription => '내비게이션 바 아이콘 아래에 텍스트 라벨을 표시합니다';
 	@override String get startupSection => '시작 섹션';
-	@override String get showExploreTab => '둘러보기 탭 표시';
-	@override String get showExploreTabDescription => 'Plex Discover와 연결된 트래커의 콘텐츠가 포함된 둘러보기 탭을 표시합니다';
-	@override String get liveTvDefaultFavorites => '즐겨찾기 채널 기본 설정';
-	@override String get liveTvDefaultFavoritesDescription => '라이브 TV를 열 때 즐겨찾기 채널만 표시';
 	@override String get general => '일반';
 	@override String get generalDescription => '언어, 시작 및 창 동작';
 	@override String get languageAndRegion => '언어 및 지역';
@@ -551,7 +547,6 @@ class _Translations$settings$ko extends Translations$settings$en {
 	@override String get libraryAndCards => '라이브러리 및 카드';
 	@override String get homeScreen => '홈 화면';
 	@override String get navigation => '탐색';
-	@override String get liveTv => '라이브 TV';
 	@override String get player => '플레이어';
 	@override String get videoAndDisplay => '비디오 및 디스플레이';
 	@override String get audio => '오디오';
@@ -1353,7 +1348,6 @@ class _Translations$libraries$ko extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => '미디어 라이브러리 분석 실패: ${error}';
 	@override String get noLibrariesFound => '미디어 라이브러리 없음';
 	@override String get allLibrariesHidden => '모든 라이브러리가 숨겨졌습니다';
-	@override String hiddenLibrariesCount({required Object count}) => '숨겨진 라이브러리 (${count})';
 	@override String get thisLibraryIsEmpty => '이 미디어 라이브러리는 비어 있습니다';
 	@override String get noItemsMatchFilters => '활성화된 필터와 일치하는 항목이 없습니다';
 	@override String get resetFilters => '필터 초기화';
@@ -3754,10 +3748,6 @@ extension on TranslationsKo {
 			'settings.showNavBarLabels' => '내비게이션 바 라벨 표시',
 			'settings.showNavBarLabelsDescription' => '내비게이션 바 아이콘 아래에 텍스트 라벨을 표시합니다',
 			'settings.startupSection' => '시작 섹션',
-			'settings.showExploreTab' => '둘러보기 탭 표시',
-			'settings.showExploreTabDescription' => 'Plex Discover와 연결된 트래커의 콘텐츠가 포함된 둘러보기 탭을 표시합니다',
-			'settings.liveTvDefaultFavorites' => '즐겨찾기 채널 기본 설정',
-			'settings.liveTvDefaultFavoritesDescription' => '라이브 TV를 열 때 즐겨찾기 채널만 표시',
 			'settings.general' => '일반',
 			'settings.generalDescription' => '언어, 시작 및 창 동작',
 			'settings.languageAndRegion' => '언어 및 지역',
@@ -3766,7 +3756,6 @@ extension on TranslationsKo {
 			'settings.libraryAndCards' => '라이브러리 및 카드',
 			'settings.homeScreen' => '홈 화면',
 			'settings.navigation' => '탐색',
-			'settings.liveTv' => '라이브 TV',
 			'settings.player' => '플레이어',
 			'settings.videoAndDisplay' => '비디오 및 디스플레이',
 			'settings.audio' => '오디오',
@@ -3842,13 +3831,13 @@ extension on TranslationsKo {
 			'hotkeys.actions.playPause' => '재생/일시정지',
 			'hotkeys.actions.volumeUp' => '볼륨 높이기',
 			'hotkeys.actions.volumeDown' => '볼륨 낮추기',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => '앞으로 이동 (${seconds}초)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => '뒤로 이동 (${seconds}초)',
 			'hotkeys.actions.fullscreenToggle' => '전체 화면 전환',
 			'hotkeys.actions.muteToggle' => '음소거 전환',
 			'hotkeys.actions.subtitleToggle' => '자막 전환',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => '다음 오디오 트랙',
 			'hotkeys.actions.subtitleTrackNext' => '다음 자막 트랙',
 			'hotkeys.actions.chapterNext' => '다음 챕터',
@@ -4356,13 +4345,13 @@ extension on TranslationsKo {
 			'accountPreferences.subtitleModes.smart' => '외국어 오디오 시 표시',
 			'accountPreferences.subtitleModes.smartDescription' => '오디오가 다른 언어일 때만 자막을 켭니다.',
 			'accountPreferences.subtitleAccessibility' => 'SDH 자막',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'SDH가 아닌 자막 선호',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH 자막 선호',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'SDH 자막만',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'SDH가 아닌 자막만',
 			'accountPreferences.forcedSubtitles' => '강제 자막',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => '강제가 아닌 자막 선호',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => '강제 자막 선호',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => '강제 자막만',
@@ -4450,7 +4439,6 @@ extension on TranslationsKo {
 			'libraries.failedToAnalyze' => ({required Object error}) => '미디어 라이브러리 분석 실패: ${error}',
 			'libraries.noLibrariesFound' => '미디어 라이브러리 없음',
 			'libraries.allLibrariesHidden' => '모든 라이브러리가 숨겨졌습니다',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => '숨겨진 라이브러리 (${count})',
 			'libraries.thisLibraryIsEmpty' => '이 미디어 라이브러리는 비어 있습니다',
 			'libraries.noItemsMatchFilters' => '활성화된 필터와 일치하는 항목이 없습니다',
 			'libraries.resetFilters' => '필터 초기화',
@@ -4870,14 +4858,14 @@ extension on TranslationsKo {
 			'playlists.deleteConfirm' => '재생 목록을 삭제하시겠습니까?',
 			'playlists.deleteMessage' => ({required Object name}) => '"${name}"을(를) 삭제하시겠습니까?',
 			'playlists.created' => '재생 목록이 생성되었습니다',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => '재생 목록이 삭제되었습니다',
 			'playlists.itemAdded' => '재생 목록에 추가되었습니다',
 			'playlists.itemRemoved' => '재생 목록에서 제거됨',
 			'playlists.selectPlaylist' => '재생 목록 선택',
 			'playlists.searchPlaylists' => '재생 목록 검색...',
 			'playlists.errorCreating' => '재생 목록 생성 실패',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => '재생 목록 삭제 실패',
 			'playlists.errorLoading' => '재생 목록 로드 실패',
 			'playlists.errorAdding' => '재생 목록에 추가 실패',
@@ -5384,14 +5372,14 @@ extension on TranslationsKo {
 			'metadataEdit.libraryDefault' => '라이브러리 기본값',
 			'metadataEdit.accountDefault' => '계정 기본값',
 			'metadataEdit.seriesDefault' => '시리즈 기본값',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => '에피소드 정렬',
 			'metadataEdit.oldestFirst' => '오래된 순',
 			'metadataEdit.newestFirst' => '최신 순',
 			'metadataEdit.keep' => '유지',
 			'metadataEdit.allEpisodes' => '모든 에피소드',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '최신 에피소드 ${count}개',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => '최신 에피소드',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => '최근 ${count}일 내 추가된 에피소드',
 			'metadataEdit.deleteAfterPlaying' => '재생 후 에피소드 삭제',

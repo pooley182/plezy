@@ -539,10 +539,6 @@ class _Translations$settings$uz extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Navigatsiya paneli matnlarini koʻrsatish';
 	@override String get showNavBarLabelsDescription => 'Navigatsiya belgilarining ostida matnni koʻrsatish';
 	@override String get startupSection => 'Boshlangʻich boʻlim';
-	@override String get showExploreTab => 'Kashf qilish varagʻini koʻrsatish';
-	@override String get showExploreTabDescription => 'Plex Discover va ulangan kuzatuvchilardagi kontent bilan Kashf qilish varagʻini koʻrsatish';
-	@override String get liveTvDefaultFavorites => 'Jonli TV-da tanlangan kanallarni standart qilish';
-	@override String get liveTvDefaultFavoritesDescription => 'Jonli TV ochilganda faqat tanlangan kanallarni koʻrsatish';
 	@override String get general => 'Umumiy';
 	@override String get generalDescription => 'Til, ishga tushirish va oyna xatti-harakati';
 	@override String get languageAndRegion => 'Til va mintaqa';
@@ -551,7 +547,6 @@ class _Translations$settings$uz extends Translations$settings$en {
 	@override String get libraryAndCards => 'Kutubxona va kartochkalar';
 	@override String get homeScreen => 'Bosh ekran';
 	@override String get navigation => 'Navigatsiya';
-	@override String get liveTv => 'Jonli TV';
 	@override String get player => 'Pleyer';
 	@override String get videoAndDisplay => 'Video va displey';
 	@override String get audio => 'Audio';
@@ -1358,7 +1353,6 @@ class _Translations$libraries$uz extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Tahlil qilib boʻlmadi: ${error}';
 	@override String get noLibrariesFound => 'Kutubxonalar topilmadi';
 	@override String get allLibrariesHidden => 'Barcha kutubxonalar yashirilgan';
-	@override String hiddenLibrariesCount({required Object count}) => 'Yashirin kutubxonalar (${count})';
 	@override String get thisLibraryIsEmpty => 'Ushbu kutubxona boʻsh';
 	@override String get noItemsMatchFilters => 'Filtrlarga mos keladigan elementlar topilmadi';
 	@override String get resetFilters => 'Filtrlarni qayta oʻrnatish';
@@ -3766,10 +3760,6 @@ extension on TranslationsUz {
 			'settings.showNavBarLabels' => 'Navigatsiya paneli matnlarini koʻrsatish',
 			'settings.showNavBarLabelsDescription' => 'Navigatsiya belgilarining ostida matnni koʻrsatish',
 			'settings.startupSection' => 'Boshlangʻich boʻlim',
-			'settings.showExploreTab' => 'Kashf qilish varagʻini koʻrsatish',
-			'settings.showExploreTabDescription' => 'Plex Discover va ulangan kuzatuvchilardagi kontent bilan Kashf qilish varagʻini koʻrsatish',
-			'settings.liveTvDefaultFavorites' => 'Jonli TV-da tanlangan kanallarni standart qilish',
-			'settings.liveTvDefaultFavoritesDescription' => 'Jonli TV ochilganda faqat tanlangan kanallarni koʻrsatish',
 			'settings.general' => 'Umumiy',
 			'settings.generalDescription' => 'Til, ishga tushirish va oyna xatti-harakati',
 			'settings.languageAndRegion' => 'Til va mintaqa',
@@ -3778,7 +3768,6 @@ extension on TranslationsUz {
 			'settings.libraryAndCards' => 'Kutubxona va kartochkalar',
 			'settings.homeScreen' => 'Bosh ekran',
 			'settings.navigation' => 'Navigatsiya',
-			'settings.liveTv' => 'Jonli TV',
 			'settings.player' => 'Pleyer',
 			'settings.videoAndDisplay' => 'Video va displey',
 			'settings.audio' => 'Audio',
@@ -3854,13 +3843,13 @@ extension on TranslationsUz {
 			'hotkeys.actions.playPause' => 'Ijro/Pauza',
 			'hotkeys.actions.volumeUp' => 'Ovozni balandlatish',
 			'hotkeys.actions.volumeDown' => 'Ovozni pastlatish',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Oldinga oʻtkazish (${seconds}son)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Orqaga oʻtkazish (${seconds}son)',
 			'hotkeys.actions.fullscreenToggle' => 'Toʻliq ekranga oʻtish/chiqish',
 			'hotkeys.actions.muteToggle' => 'Ovozni oʻchirish/yoqish',
 			'hotkeys.actions.subtitleToggle' => 'Subtitrni yoqish/oʻchirish',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Keyingi audio yoʻlak',
 			'hotkeys.actions.subtitleTrackNext' => 'Keyingi subtitr yoʻlagi',
 			'hotkeys.actions.chapterNext' => 'Keyingi boʻlim',
@@ -4368,13 +4357,13 @@ extension on TranslationsUz {
 			'accountPreferences.subtitleModes.smart' => 'Chet el audiosi bilan koʻrsatiladi',
 			'accountPreferences.subtitleModes.smartDescription' => 'Subtitr faqat audio boshqa tilda boʻlganda yoqiladi.',
 			'accountPreferences.subtitleAccessibility' => 'SDH subtitrlar',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'SDH boʻlmagan subtitrlarga ustunlik berish',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH subtitrlarga ustunlik berish',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Faqat SDH subtitrlar',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Faqat SDH boʻlmagan subtitrlar',
 			'accountPreferences.forcedSubtitles' => 'Majburiy subtitrlar',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Majburiy boʻlmagan subtitrlarga ustunlik berish',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Majburiy subtitrlarga ustunlik berish',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Faqat majburiy subtitrlar',
@@ -4462,7 +4451,6 @@ extension on TranslationsUz {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Tahlil qilib boʻlmadi: ${error}',
 			'libraries.noLibrariesFound' => 'Kutubxonalar topilmadi',
 			'libraries.allLibrariesHidden' => 'Barcha kutubxonalar yashirilgan',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Yashirin kutubxonalar (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Ushbu kutubxona boʻsh',
 			'libraries.noItemsMatchFilters' => 'Filtrlarga mos keladigan elementlar topilmadi',
 			'libraries.resetFilters' => 'Filtrlarni qayta oʻrnatish',
@@ -4882,14 +4870,14 @@ extension on TranslationsUz {
 			'playlists.deleteConfirm' => 'Ijro roʻyxati oʻchirilsinmi?',
 			'playlists.deleteMessage' => ({required Object name}) => '"${name}" oʻchirilsinmi?',
 			'playlists.created' => 'Ijro roʻyxati yaratildi',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Ijro roʻyxati oʻchirildi',
 			'playlists.itemAdded' => 'Roʻyxatga qoʻshildi',
 			'playlists.itemRemoved' => 'Roʻyxatdan oʻchirildi',
 			'playlists.selectPlaylist' => 'Roʻyxatni tanlash',
 			'playlists.searchPlaylists' => 'Ijro roʻyxatlaridan qidirish...',
 			'playlists.errorCreating' => 'Roʻyxatni yaratib boʻlmadi',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Roʻyxatni oʻchirib boʻlmadi',
 			'playlists.errorLoading' => 'Roʻyxatlarni yuklab boʻlmadi',
 			'playlists.errorAdding' => 'Roʻyxatga qoʻshib boʻlmadi',
@@ -5396,14 +5384,14 @@ extension on TranslationsUz {
 			'metadataEdit.libraryDefault' => 'Kutubxona standarti',
 			'metadataEdit.accountDefault' => 'Hisob standarti',
 			'metadataEdit.seriesDefault' => 'Serial standarti',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Qismlarni saralash',
 			'metadataEdit.oldestFirst' => 'Avval eskilar',
 			'metadataEdit.newestFirst' => 'Avval yangilar',
 			'metadataEdit.keep' => 'Saqlash',
 			'metadataEdit.allEpisodes' => 'Barcha qismlar',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => 'Soʻnggi ${count} qism',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Soʻnggi qism',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Soʻnggi ${count} kunda qoʻshilgan qismlar',
 			'metadataEdit.deleteAfterPlaying' => 'Ijro etgandan keyin oʻchirish',

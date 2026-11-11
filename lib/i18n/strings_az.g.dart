@@ -539,10 +539,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Naviqasiya paneli yazılarını göstər';
 	@override String get showNavBarLabelsDescription => 'Naviqasiya paneli ikonlarının altında mətni göstər';
 	@override String get startupSection => 'Başlanğıc bölməsi';
-	@override String get showExploreTab => 'Kəşf et nişanını göstər';
-	@override String get showExploreTabDescription => 'Plex Discover və qoşulmuş izləmə xidmətlərindəki məzmunla Kəşf et nişanını göstər';
-	@override String get liveTvDefaultFavorites => 'Canlı TV-də sevimli kanalları defolt et';
-	@override String get liveTvDefaultFavoritesDescription => 'Canlı TV açıldıqda yalnız sevimli kanalları göstər';
 	@override String get general => 'Ümumi';
 	@override String get generalDescription => 'Dil, başlanğıc və pəncərə davranışı';
 	@override String get languageAndRegion => 'Dil və Region';
@@ -551,7 +547,6 @@ class _Translations$settings$az extends Translations$settings$en {
 	@override String get libraryAndCards => 'Kitabxana və kartlar';
 	@override String get homeScreen => 'Ana ekran';
 	@override String get navigation => 'Naviqasiya';
-	@override String get liveTv => 'Canlı TV';
 	@override String get player => 'Oynadıcı';
 	@override String get videoAndDisplay => 'Video və Ekran';
 	@override String get audio => 'Səs';
@@ -1358,7 +1353,6 @@ class _Translations$libraries$az extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Kitabxana analiz edilə bilmədi: ${error}';
 	@override String get noLibrariesFound => 'Kitabxana tapılmadı';
 	@override String get allLibrariesHidden => 'Bütün kitabxanalar gizlədilib';
-	@override String hiddenLibrariesCount({required Object count}) => 'Gizli kitabxanalar (${count})';
 	@override String get thisLibraryIsEmpty => 'Bu kitabxana boşdur';
 	@override String get noItemsMatchFilters => 'Filtrlərə uyğun element tapılmadı';
 	@override String get resetFilters => 'Filtrləri sıfırla';
@@ -3766,10 +3760,6 @@ extension on TranslationsAz {
 			'settings.showNavBarLabels' => 'Naviqasiya paneli yazılarını göstər',
 			'settings.showNavBarLabelsDescription' => 'Naviqasiya paneli ikonlarının altında mətni göstər',
 			'settings.startupSection' => 'Başlanğıc bölməsi',
-			'settings.showExploreTab' => 'Kəşf et nişanını göstər',
-			'settings.showExploreTabDescription' => 'Plex Discover və qoşulmuş izləmə xidmətlərindəki məzmunla Kəşf et nişanını göstər',
-			'settings.liveTvDefaultFavorites' => 'Canlı TV-də sevimli kanalları defolt et',
-			'settings.liveTvDefaultFavoritesDescription' => 'Canlı TV açıldıqda yalnız sevimli kanalları göstər',
 			'settings.general' => 'Ümumi',
 			'settings.generalDescription' => 'Dil, başlanğıc və pəncərə davranışı',
 			'settings.languageAndRegion' => 'Dil və Region',
@@ -3778,7 +3768,6 @@ extension on TranslationsAz {
 			'settings.libraryAndCards' => 'Kitabxana və kartlar',
 			'settings.homeScreen' => 'Ana ekran',
 			'settings.navigation' => 'Naviqasiya',
-			'settings.liveTv' => 'Canlı TV',
 			'settings.player' => 'Oynadıcı',
 			'settings.videoAndDisplay' => 'Video və Ekran',
 			'settings.audio' => 'Səs',
@@ -3854,13 +3843,13 @@ extension on TranslationsAz {
 			'hotkeys.actions.playPause' => 'Oynat/Fasilə',
 			'hotkeys.actions.volumeUp' => 'Səsi artır',
 			'hotkeys.actions.volumeDown' => 'Səsi azalt',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'İrəli sar (${seconds}san)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Geri sar (${seconds}san)',
 			'hotkeys.actions.fullscreenToggle' => 'Tam ekranı dəyişdir',
 			'hotkeys.actions.muteToggle' => 'Səsi aç/bağla',
 			'hotkeys.actions.subtitleToggle' => 'Altyazını aç/bağla',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Növbəti səs zolağı',
 			'hotkeys.actions.subtitleTrackNext' => 'Növbəti altyazı zolağı',
 			'hotkeys.actions.chapterNext' => 'Növbəti hissə',
@@ -4368,13 +4357,13 @@ extension on TranslationsAz {
 			'accountPreferences.subtitleModes.smart' => 'Xarici səs olduqda göstərilən',
 			'accountPreferences.subtitleModes.smartDescription' => 'Altyazıları yalnız səs başqa dildə olduqda aç.',
 			'accountPreferences.subtitleAccessibility' => 'SDH altyazıları',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'SDH olmayan altyazılara üstünlük ver',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH altyazılarına üstünlük ver',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Yalnız SDH altyazıları',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Yalnız SDH olmayan altyazılar',
 			'accountPreferences.forcedSubtitles' => 'Məcburi altyazılar',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Məcburi olmayan altyazılara üstünlük ver',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Məcburi altyazılara üstünlük ver',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Yalnız məcburi altyazılar',
@@ -4462,7 +4451,6 @@ extension on TranslationsAz {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kitabxana analiz edilə bilmədi: ${error}',
 			'libraries.noLibrariesFound' => 'Kitabxana tapılmadı',
 			'libraries.allLibrariesHidden' => 'Bütün kitabxanalar gizlədilib',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Gizli kitabxanalar (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Bu kitabxana boşdur',
 			'libraries.noItemsMatchFilters' => 'Filtrlərə uyğun element tapılmadı',
 			'libraries.resetFilters' => 'Filtrləri sıfırla',
@@ -4882,14 +4870,14 @@ extension on TranslationsAz {
 			'playlists.deleteConfirm' => 'Oynatma siyahısı silinsin?',
 			'playlists.deleteMessage' => ({required Object name}) => '"${name}" siyahısını silmək istədiyinizdən əminsiniz?',
 			'playlists.created' => 'Oynatma siyahısı yaradıldı',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Oynatma siyahısı silindi',
 			'playlists.itemAdded' => 'Oynatma siyahısına əlavə edildi',
 			'playlists.itemRemoved' => 'Oynatma siyahısından silindi',
 			'playlists.selectPlaylist' => 'Oynatma siyahısı seç',
 			'playlists.searchPlaylists' => 'Oynatma siyahılarında axtar...',
 			'playlists.errorCreating' => 'Oynatma siyahısı yaradıla bilmədi',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Oynatma siyahısı silinə bilmədi',
 			'playlists.errorLoading' => 'Oynatma siyahıları yüklənə bilmədi',
 			'playlists.errorAdding' => 'Oynatma siyahısına əlavə edilə bilmədi',
@@ -5396,14 +5384,14 @@ extension on TranslationsAz {
 			'metadataEdit.libraryDefault' => 'Kitabxana defoltu',
 			'metadataEdit.accountDefault' => 'Hesab defoltu',
 			'metadataEdit.seriesDefault' => 'Serial defoltu',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Seriya sıralaması',
 			'metadataEdit.oldestFirst' => 'Əvvəlcə ən köhnə',
 			'metadataEdit.newestFirst' => 'Əvvəlcə ən yeni',
 			'metadataEdit.keep' => 'Saxla',
 			'metadataEdit.allEpisodes' => 'Bütün seriyalar',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => 'Ən son ${count} seriya',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Ən son seriya',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Son ${count} gündə əlavə olunan seriyalar',
 			'metadataEdit.deleteAfterPlaying' => 'Oynatdıqdan sonra seriyaları sil',

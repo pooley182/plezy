@@ -539,10 +539,6 @@ class _Translations$settings$ru extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Показывать подписи панели навигации';
 	@override String get showNavBarLabelsDescription => 'Отображать текстовые подписи под иконками панели навигации';
 	@override String get startupSection => 'Начальный раздел';
-	@override String get showExploreTab => 'Показывать вкладку «Обзор»';
-	@override String get showExploreTabDescription => 'Показывать вкладку «Обзор» с контентом из Plex Discover и подключённых трекеров';
-	@override String get liveTvDefaultFavorites => 'Избранные каналы по умолчанию';
-	@override String get liveTvDefaultFavoritesDescription => 'Показывать только избранные каналы при открытии ТВ';
 	@override String get general => 'Основные';
 	@override String get generalDescription => 'Язык, запуск и поведение окна';
 	@override String get languageAndRegion => 'Язык и регион';
@@ -551,7 +547,6 @@ class _Translations$settings$ru extends Translations$settings$en {
 	@override String get libraryAndCards => 'Библиотека и карточки';
 	@override String get homeScreen => 'Главный экран';
 	@override String get navigation => 'Навигация';
-	@override String get liveTv => 'Прямой эфир';
 	@override String get player => 'Плеер';
 	@override String get videoAndDisplay => 'Видео и экран';
 	@override String get audio => 'Аудио';
@@ -1368,7 +1363,6 @@ class _Translations$libraries$ru extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Не удалось проанализировать библиотеку: ${error}';
 	@override String get noLibrariesFound => 'Библиотеки не найдены';
 	@override String get allLibrariesHidden => 'Все библиотеки скрыты';
-	@override String hiddenLibrariesCount({required Object count}) => 'Скрытые библиотеки (${count})';
 	@override String get thisLibraryIsEmpty => 'Эта библиотека пуста';
 	@override String get noItemsMatchFilters => 'Нет элементов, соответствующих активным фильтрам';
 	@override String get resetFilters => 'Сбросить фильтры';
@@ -3790,10 +3784,6 @@ extension on TranslationsRu {
 			'settings.showNavBarLabels' => 'Показывать подписи панели навигации',
 			'settings.showNavBarLabelsDescription' => 'Отображать текстовые подписи под иконками панели навигации',
 			'settings.startupSection' => 'Начальный раздел',
-			'settings.showExploreTab' => 'Показывать вкладку «Обзор»',
-			'settings.showExploreTabDescription' => 'Показывать вкладку «Обзор» с контентом из Plex Discover и подключённых трекеров',
-			'settings.liveTvDefaultFavorites' => 'Избранные каналы по умолчанию',
-			'settings.liveTvDefaultFavoritesDescription' => 'Показывать только избранные каналы при открытии ТВ',
 			'settings.general' => 'Основные',
 			'settings.generalDescription' => 'Язык, запуск и поведение окна',
 			'settings.languageAndRegion' => 'Язык и регион',
@@ -3802,7 +3792,6 @@ extension on TranslationsRu {
 			'settings.libraryAndCards' => 'Библиотека и карточки',
 			'settings.homeScreen' => 'Главный экран',
 			'settings.navigation' => 'Навигация',
-			'settings.liveTv' => 'Прямой эфир',
 			'settings.player' => 'Плеер',
 			'settings.videoAndDisplay' => 'Видео и экран',
 			'settings.audio' => 'Аудио',
@@ -3878,13 +3867,13 @@ extension on TranslationsRu {
 			'hotkeys.actions.playPause' => 'Воспроизведение/Пауза',
 			'hotkeys.actions.volumeUp' => 'Громкость выше',
 			'hotkeys.actions.volumeDown' => 'Громкость ниже',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Перемотка вперёд (${seconds}с)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Перемотка назад (${seconds}с)',
 			'hotkeys.actions.fullscreenToggle' => 'Полноэкранный режим',
 			'hotkeys.actions.muteToggle' => 'Вкл./выкл. звук',
 			'hotkeys.actions.subtitleToggle' => 'Вкл./выкл. субтитры',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Следующая аудиодорожка',
 			'hotkeys.actions.subtitleTrackNext' => 'Следующая дорожка субтитров',
 			'hotkeys.actions.chapterNext' => 'Следующая глава',
@@ -4392,13 +4381,13 @@ extension on TranslationsRu {
 			'accountPreferences.subtitleModes.smart' => 'Показывать при иноязычном аудио',
 			'accountPreferences.subtitleModes.smartDescription' => 'Включать субтитры только когда аудио на другом языке.',
 			'accountPreferences.subtitleAccessibility' => 'Субтитры SDH',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Предпочитать субтитры без SDH',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Предпочитать субтитры SDH',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Только субтитры SDH',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Только субтитры без SDH',
 			'accountPreferences.forcedSubtitles' => 'Принудительные субтитры',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Предпочитать непринудительные субтитры',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Предпочитать принудительные субтитры',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Только принудительные субтитры',
@@ -4486,7 +4475,6 @@ extension on TranslationsRu {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Не удалось проанализировать библиотеку: ${error}',
 			'libraries.noLibrariesFound' => 'Библиотеки не найдены',
 			'libraries.allLibrariesHidden' => 'Все библиотеки скрыты',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Скрытые библиотеки (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Эта библиотека пуста',
 			'libraries.noItemsMatchFilters' => 'Нет элементов, соответствующих активным фильтрам',
 			'libraries.resetFilters' => 'Сбросить фильтры',
@@ -4906,14 +4894,14 @@ extension on TranslationsRu {
 			'playlists.deleteConfirm' => 'Удалить плейлист?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Вы уверены, что хотите удалить "${name}"?',
 			'playlists.created' => 'Плейлист создан',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Плейлист удалён',
 			'playlists.itemAdded' => 'Добавлено в плейлист',
 			'playlists.itemRemoved' => 'Удалено из плейлиста',
 			'playlists.selectPlaylist' => 'Выбрать плейлист',
 			'playlists.searchPlaylists' => 'Поиск плейлистов...',
 			'playlists.errorCreating' => 'Не удалось создать плейлист',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Не удалось удалить плейлист',
 			'playlists.errorLoading' => 'Не удалось загрузить плейлисты',
 			'playlists.errorAdding' => 'Не удалось добавить в плейлист',
@@ -5420,14 +5408,14 @@ extension on TranslationsRu {
 			'metadataEdit.libraryDefault' => 'По умолчанию библиотеки',
 			'metadataEdit.accountDefault' => 'По умолчанию аккаунта',
 			'metadataEdit.seriesDefault' => 'По умолчанию сериала',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Сортировка эпизодов',
 			'metadataEdit.oldestFirst' => 'Сначала старые',
 			'metadataEdit.newestFirst' => 'Сначала новые',
 			'metadataEdit.keep' => 'Сохранять',
 			'metadataEdit.allEpisodes' => 'Все эпизоды',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '${count} последних эпизодов',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Последний эпизод',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Эпизоды, добавленные за последние ${count} дней',
 			'metadataEdit.deleteAfterPlaying' => 'Удалять эпизоды после просмотра',

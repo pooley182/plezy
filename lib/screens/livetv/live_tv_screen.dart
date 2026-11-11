@@ -79,6 +79,12 @@ class _LiveTvScreenState extends State<LiveTvScreen>
 
   // Favorites
   bool _showFavoritesOnly = false;
+
+  /// Set once favorites have loaded (or the viewer chose a filter first). With
+  /// "Default to Favorite Channels" on, the favorites view becomes the default
+  /// only when there are favorites, decided once so a refresh never overrides
+  /// the viewer's choice.
+  bool _favoritesDefaultApplied = false;
   Set<String> _favoriteKeys = {};
   List<FavoriteChannel> _favoriteChannels = [];
 
@@ -145,7 +151,6 @@ class _LiveTvScreenState extends State<LiveTvScreen>
   void initState() {
     super.initState();
     suppressAutoFocus = true;
-    _showFavoritesOnly = context.settingsRead(SettingsService.liveTvDefaultFavorites);
     final initialTabs = _tabStateFor(context.read<MultiServerProvider>());
     _visibleTabs = initialTabs.tabs;
     _canProcessRules = initialTabs.canProcessRules;
@@ -569,6 +574,13 @@ class _LiveTvScreenState extends State<LiveTvScreen>
         ..addAll(storeBySource);
       _favoriteChannels = merged;
       _refreshFavoriteKeys();
+      // A load that failed outright decides nothing; the next one retries.
+      if (!_favoritesDefaultApplied && (merged.isNotEmpty || failedStores.isEmpty)) {
+        _favoritesDefaultApplied = true;
+        if (merged.isNotEmpty && context.settingsRead(SettingsService.liveTvDefaultFavorites)) {
+          _showFavoritesOnly = true;
+        }
+      }
       _favoritesLoaded = failedStores.isEmpty || successfulStores.isNotEmpty || merged.isNotEmpty;
       _favoritesWritable = failedStores.isEmpty;
     });
@@ -580,6 +592,7 @@ class _LiveTvScreenState extends State<LiveTvScreen>
 
   void _toggleFavoritesFilter() {
     setState(() {
+      _favoritesDefaultApplied = true;
       _showFavoritesOnly = !_showFavoritesOnly;
     });
   }
@@ -653,7 +666,10 @@ class _LiveTvScreenState extends State<LiveTvScreen>
     // The guide only shows favorite rows while the filter is on — drop it so
     // the target channel's row exists to land on.
     if (_showFavoritesOnly && !_isFavoriteChannel(channel)) {
-      setState(() => _showFavoritesOnly = false);
+      setState(() {
+        _favoritesDefaultApplied = true;
+        _showFavoritesOnly = false;
+      });
     }
     // Search opens from any tab, but results live in the guide grid. A tab
     // switch builds GuideTab fresh (no keep-alive); its jump methods stash

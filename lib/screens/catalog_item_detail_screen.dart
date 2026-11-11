@@ -26,6 +26,7 @@ import '../models/catalog/catalog_item.dart';
 import '../models/catalog/catalog_labels.dart';
 import '../models/catalog/catalog_metadata.dart';
 import '../providers/catalog_sources_provider.dart';
+import '../providers/libraries_provider.dart';
 import '../providers/multi_server_provider.dart';
 import '../providers/seerr_account_provider.dart';
 import '../services/catalog/catalog_library_matcher.dart';
@@ -210,7 +211,12 @@ class _CatalogItemDetailScreenState extends State<CatalogItemDetailScreen> {
   void _mergeMatches(List<MediaItem> matches) {
     if (!mounted) return;
     final focused = _libraryMatchNodesByKey.values.firstWhereOrNull((node) => node.hasPrimaryFocus);
-    final merged = mergeLibraryCopies(_matches ?? const [], matches);
+    // Rows follow the Manage Libraries order; copies within one library stay
+    // best-first.
+    final merged = sortByLibraryOrder(
+      mergeLibraryCopies(_matches ?? const [], matches),
+      Provider.of<LibrariesProvider?>(context, listen: false)?.libraries ?? const [],
+    );
     final keys = {for (final match in merged) match.globalKey};
     for (final key in _libraryMatchNodesByKey.keys.toList()) {
       if (!keys.contains(key)) _libraryMatchNodesByKey.remove(key)!.dispose();

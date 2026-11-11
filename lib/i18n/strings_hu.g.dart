@@ -539,10 +539,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Navigációs sáv címkéinek megjelenítése';
 	@override String get showNavBarLabelsDescription => 'Szöveges címkék megjelenítése a navigációs sáv ikonjai alatt';
 	@override String get startupSection => 'Indítási oldal';
-	@override String get showExploreTab => 'Felfedezés lap megjelenítése';
-	@override String get showExploreTabDescription => 'A Plex Discover és a csatlakoztatott követők tartalmait megjelenítő Felfedezés lap megjelenítése';
-	@override String get liveTvDefaultFavorites => 'Kedvenc csatornák alapértelmezés szerint';
-	@override String get liveTvDefaultFavoritesDescription => 'Csak a kedvenc csatornák megjelenítése az Élő TV megnyitásakor';
 	@override String get general => 'Általános';
 	@override String get generalDescription => 'Nyelv, indítás és ablakviselkedés';
 	@override String get languageAndRegion => 'Nyelv és régió';
@@ -551,7 +547,6 @@ class _Translations$settings$hu extends Translations$settings$en {
 	@override String get libraryAndCards => 'Könyvtár és kártyák';
 	@override String get homeScreen => 'Kezdőképernyő';
 	@override String get navigation => 'Navigáció';
-	@override String get liveTv => 'Élő TV';
 	@override String get player => 'Lejátszó';
 	@override String get videoAndDisplay => 'Videó és kijelző';
 	@override String get audio => 'Hang';
@@ -1358,7 +1353,6 @@ class _Translations$libraries$hu extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Nem sikerült a könyvtár elemzése: ${error}';
 	@override String get noLibrariesFound => 'Nem találhatók könyvtárak';
 	@override String get allLibrariesHidden => 'Minden könyvtár el van rejtve';
-	@override String hiddenLibrariesCount({required Object count}) => 'Rejtett könyvtárak (${count})';
 	@override String get thisLibraryIsEmpty => 'Ez a könyvtár üres';
 	@override String get noItemsMatchFilters => 'Nincs az aktív szűrőknek megfelelő elem';
 	@override String get resetFilters => 'Szűrők visszaállítása';
@@ -3766,10 +3760,6 @@ extension on TranslationsHu {
 			'settings.showNavBarLabels' => 'Navigációs sáv címkéinek megjelenítése',
 			'settings.showNavBarLabelsDescription' => 'Szöveges címkék megjelenítése a navigációs sáv ikonjai alatt',
 			'settings.startupSection' => 'Indítási oldal',
-			'settings.showExploreTab' => 'Felfedezés lap megjelenítése',
-			'settings.showExploreTabDescription' => 'A Plex Discover és a csatlakoztatott követők tartalmait megjelenítő Felfedezés lap megjelenítése',
-			'settings.liveTvDefaultFavorites' => 'Kedvenc csatornák alapértelmezés szerint',
-			'settings.liveTvDefaultFavoritesDescription' => 'Csak a kedvenc csatornák megjelenítése az Élő TV megnyitásakor',
 			'settings.general' => 'Általános',
 			'settings.generalDescription' => 'Nyelv, indítás és ablakviselkedés',
 			'settings.languageAndRegion' => 'Nyelv és régió',
@@ -3778,7 +3768,6 @@ extension on TranslationsHu {
 			'settings.libraryAndCards' => 'Könyvtár és kártyák',
 			'settings.homeScreen' => 'Kezdőképernyő',
 			'settings.navigation' => 'Navigáció',
-			'settings.liveTv' => 'Élő TV',
 			'settings.player' => 'Lejátszó',
 			'settings.videoAndDisplay' => 'Videó és kijelző',
 			'settings.audio' => 'Hang',
@@ -3854,13 +3843,13 @@ extension on TranslationsHu {
 			'hotkeys.actions.playPause' => 'Lejátszás/Szünet',
 			'hotkeys.actions.volumeUp' => 'Hangerő fel',
 			'hotkeys.actions.volumeDown' => 'Hangerő le',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Tekerés előre (${seconds} mp)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Tekerés hátra (${seconds} mp)',
 			'hotkeys.actions.fullscreenToggle' => 'Teljes képernyős mód váltása',
 			'hotkeys.actions.muteToggle' => 'Némítás be- és kikapcsolása',
 			'hotkeys.actions.subtitleToggle' => 'Feliratok be- és kikapcsolása',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Következő hangsáv',
 			'hotkeys.actions.subtitleTrackNext' => 'Következő feliratsáv',
 			'hotkeys.actions.chapterNext' => 'Következő fejezet',
@@ -4368,13 +4357,13 @@ extension on TranslationsHu {
 			'accountPreferences.subtitleModes.smart' => 'Idegen nyelvű hang esetén megjelenítve',
 			'accountPreferences.subtitleModes.smartDescription' => 'Feliratok bekapcsolása csak akkor, ha a hang más nyelven szól.',
 			'accountPreferences.subtitleAccessibility' => 'SDH-feliratok',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Nem SDH-feliratok előnyben részesítése',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH-feliratok előnyben részesítése',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Csak SDH-feliratok',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Csak nem SDH-feliratok',
 			'accountPreferences.forcedSubtitles' => 'Kényszerített feliratok',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Nem kényszerített feliratok előnyben részesítése',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Kényszerített feliratok előnyben részesítése',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Csak kényszerített feliratok',
@@ -4462,7 +4451,6 @@ extension on TranslationsHu {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Nem sikerült a könyvtár elemzése: ${error}',
 			'libraries.noLibrariesFound' => 'Nem találhatók könyvtárak',
 			'libraries.allLibrariesHidden' => 'Minden könyvtár el van rejtve',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Rejtett könyvtárak (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Ez a könyvtár üres',
 			'libraries.noItemsMatchFilters' => 'Nincs az aktív szűrőknek megfelelő elem',
 			'libraries.resetFilters' => 'Szűrők visszaállítása',
@@ -4882,14 +4870,14 @@ extension on TranslationsHu {
 			'playlists.deleteConfirm' => 'Törlöd a lejátszási listát?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Biztosan törölni szeretnéd a következőt: "${name}"?',
 			'playlists.created' => 'Lejátszási lista létrehozva',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Lejátszási lista törölve',
 			'playlists.itemAdded' => 'Hozzáadva a lejátszási listához',
 			'playlists.itemRemoved' => 'Eltávolítva a lejátszási listáról',
 			'playlists.selectPlaylist' => 'Lejátszási lista kiválasztása',
 			'playlists.searchPlaylists' => 'Lejátszási listák keresése...',
 			'playlists.errorCreating' => 'Nem sikerült a lejátszási lista létrehozása',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Nem sikerült a lejátszási lista törlése',
 			'playlists.errorLoading' => 'Nem sikerült a lejátszási listák betöltése',
 			'playlists.errorAdding' => 'Nem sikerült a lejátszási listához adni',
@@ -5396,14 +5384,14 @@ extension on TranslationsHu {
 			'metadataEdit.libraryDefault' => 'Könyvtári alapértelmezés',
 			'metadataEdit.accountDefault' => 'Fiók alapértelmezése',
 			'metadataEdit.seriesDefault' => 'Sorozat alapértelmezése',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Epizódok rendezése',
 			'metadataEdit.oldestFirst' => 'Legrégebbi elöl',
 			'metadataEdit.newestFirst' => 'Legújabb elöl',
 			'metadataEdit.keep' => 'Megtartás',
 			'metadataEdit.allEpisodes' => 'Minden epizód',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => 'Legutóbbi ${count} epizód',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Legutóbbi epizód',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Az elmúlt ${count} napban hozzáadott epizódok',
 			'metadataEdit.deleteAfterPlaying' => 'Epizódok törlése lejátszás után',

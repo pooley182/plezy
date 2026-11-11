@@ -294,12 +294,41 @@ Future<void> _analyzeLibrary(BuildContext context, MediaLibrary library) {
   );
 }
 
+/// A sheet row: a server heading when [library] is null, otherwise one of that
+/// server's libraries.
+typedef _SheetRow = ({String serverKey, String title, MediaLibrary? library});
+
+String _serverKeyOf(MediaLibrary library) => library.serverId ?? '';
+
+/// [libraries] per server, servers in order of first appearance and each
+/// server's libraries in their relative order.
+Map<String, List<MediaLibrary>> _groupByServer(Iterable<MediaLibrary> libraries) {
+  final groups = <String, List<MediaLibrary>>{};
+  for (final library in libraries) {
+    (groups[_serverKeyOf(library)] ??= []).add(library);
+  }
+  return groups;
+}
+
+/// Whether every library row still sits under its own server's heading.
+bool _isGroupedByServer(List<_SheetRow> rows) {
+  String? currentServer;
+  for (final row in rows) {
+    if (row.library == null) {
+      currentServer = row.serverKey;
+    } else if (row.serverKey != currentServer) {
+      return false;
+    }
+  }
+  return true;
+}
+
 class _LibraryManagementSheet extends StatefulWidget {
   final bool isDialog;
   final LibrariesProvider librariesProvider;
   final Set<String> hiddenLibraryKeys;
   final Function(List<MediaLibrary>) onReorder;
-  final Function(MediaLibrary) onToggleVisibility;
+  final Future<void> Function(MediaLibrary) onToggleVisibility;
   final List<ContextMenuItem> Function(MediaLibrary) getLibraryMenuItems;
   final void Function(String action, MediaLibrary library) onLibraryMenuAction;
 
@@ -318,23 +347,42 @@ class _LibraryManagementSheet extends StatefulWidget {
 }
 
 class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
-    with DpadReorderListMixin<MediaLibrary, _LibraryManagementSheet> {
-  late List<MediaLibrary> _tempLibraries;
+    with DpadReorderListMixin<_SheetRow, _LibraryManagementSheet> {
+  /// Every library, grouped by server: the order the sheet saves.
+  late List<MediaLibrary> _libraries;
+
+  /// What the list shows: each server's heading, followed by its libraries
+  /// unless it is collapsed. Rebuilt from [_libraries] by [_rebuildRows].
+  late List<_SheetRow> _rows;
+
+  // ponytail: collapsed servers last only while the sheet is open; persist
+  // them if users want them remembered.
+  Set<String> _collapsedServers = {};
+
+  /// While servers are being reordered: the collapsed servers to restore
+  /// afterwards. Every server is collapsed in the meantime.
+  Set<String>? _collapsedBeforeServerReorder;
 
   final FocusNode _listFocusNode = FocusNode();
   final ScrollController _dialogScrollController = ScrollController();
   final ScrollController _sheetScrollController = ScrollController();
 
-  @override
-  List<MediaLibrary> get reorderItems => _tempLibraries;
+  bool get _isReorderingServers => _collapsedBeforeServerReorder != null;
 
   @override
-  set reorderItems(List<MediaLibrary> value) => _tempLibraries = value;
+  List<_SheetRow> get reorderItems => _rows;
 
-  /// Column 2 (the options button) exists only on rows with admin actions.
   @override
-  int get lastReorderColumn =>
-      focusedIndex < _tempLibraries.length && _hasLibraryMenu(_tempLibraries[focusedIndex]) ? 2 : 1;
+  set reorderItems(List<_SheetRow> value) => _rows = value;
+
+  /// Headings have visibility and options columns; library rows add the
+  /// options button (column 2) only when they have admin actions.
+  @override
+  int get lastReorderColumn {
+    if (focusedIndex >= _rows.length) return 1;
+    final library = _rows[focusedIndex].library;
+    return library == null || _hasLibraryMenu(library) ? 2 : 1;
+  }
 
   bool _hasLibraryMenu(MediaLibrary library) => widget.getLibraryMenuItems(library).isNotEmpty;
 
@@ -343,13 +391,43 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
   @override
   ScrollController? get reorderScrollController => widget.isDialog ? _dialogScrollController : _sheetScrollController;
 
+  /// A heading is not moved in place: SELECT on it starts [_startServerReorder],
+  /// which collapses every server first.
   @override
-  void onReorderMoveConfirmed() => widget.onReorder(_tempLibraries);
+  bool canMoveReorderItem(int index) => _rows[index].library != null;
+
+  /// A library moves only among its own server's libraries; a heading only
+  /// past other headings.
+  @override
+  bool canSwapReorderItems(int from, int to) {
+    if (_rows[from].library == null) return _rows[to].library == null;
+    return _rows[to].library != null && _rows[to].serverKey == _rows[from].serverKey;
+  }
+
+  @override
+  void onReorderMoveConfirmed() {
+    _libraries = _orderFromRows(_rows);
+    widget.onReorder(_libraries);
+    _finishServerReorder();
+  }
+
+  @override
+  void onReorderMoveCancelled() => _finishServerReorder();
 
   @override
   void onReorderColumnActivated(int column, int index) {
-    final library = _tempLibraries[index];
-    if (column == 1) {
+    final row = _rows[index];
+    final library = row.library;
+    if (library == null) {
+      switch (column) {
+        case 0:
+          _startServerReorder(row.serverKey);
+        case 1:
+          unawaited(_toggleServerVisibility(row.serverKey));
+        case 2:
+          _toggleCollapsed(row.serverKey);
+      }
+    } else if (column == 1) {
       widget.onToggleVisibility(library);
     } else if (column == 2 && _hasLibraryMenu(library)) {
       _showLibraryMenuBottomSheet(context, library);
@@ -359,8 +437,37 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
   @override
   void initState() {
     super.initState();
-    _tempLibraries = List.of(widget.librariesProvider.libraries);
+    _libraries = _groupByServer(widget.librariesProvider.libraries).values.expand((l) => l).toList();
+    _rebuildRows();
     widget.librariesProvider.addListener(_onLibrariesChanged);
+  }
+
+  void _rebuildRows() {
+    _rows = [
+      for (final MapEntry(key: serverKey, value: libraries) in _groupByServer(_libraries).entries) ...[
+        (serverKey: serverKey, title: libraries.first.serverName ?? serverKey, library: null),
+        if (!_collapsedServers.contains(serverKey))
+          for (final library in libraries) (serverKey: serverKey, title: library.title, library: library),
+      ],
+    ];
+  }
+
+  /// The full library order for [rows]: servers in the rows' heading order,
+  /// shown libraries in the rows' order, a collapsed server's libraries as
+  /// they were.
+  List<MediaLibrary> _orderFromRows(List<_SheetRow> rows) {
+    final previous = _groupByServer(_libraries);
+    final shown = _groupByServer([for (final row in rows) ?row.library]);
+    return [
+      for (final heading in rows.where((row) => row.library == null))
+        ...?shown[heading.serverKey] ?? previous[heading.serverKey],
+    ];
+  }
+
+  /// Rebuilds the rows and keeps the cursor on [serverKey]'s heading.
+  void _rebuildRowsFocusingServer(String serverKey) {
+    _rebuildRows();
+    focusedIndex = _rows.indexWhere((row) => row.library == null && row.serverKey == serverKey);
   }
 
   /// Follows library loads and changes made while the sheet is open, keeping
@@ -369,9 +476,13 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
   void _onLibrariesChanged() {
     if (!mounted || movingIndex != null) return;
     setState(() {
-      _tempLibraries = reconcileLibraryOrder(_tempLibraries, widget.librariesProvider.libraries);
-      if (focusedIndex >= _tempLibraries.length) {
-        focusedIndex = _tempLibraries.isEmpty ? 0 : _tempLibraries.length - 1;
+      _libraries = _groupByServer(
+        reconcileLibraryOrder(_libraries, widget.librariesProvider.libraries),
+      ).values.expand((l) => l).toList();
+      if (_isReorderingServers) _collapsedServers = _groupByServer(_libraries).keys.toSet();
+      _rebuildRows();
+      if (focusedIndex >= _rows.length) {
+        focusedIndex = _rows.isEmpty ? 0 : _rows.length - 1;
         focusedColumn = 0;
       }
     });
@@ -386,13 +497,59 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
     super.dispose();
   }
 
-  void _reorderLibraries(int oldIndex, int newIndex) {
+  /// Pointer drag. A drop that would carry a library out of its server is
+  /// ignored and the row snaps back.
+  void _reorderRows(int oldIndex, int newIndex) {
+    final candidate = List.of(_rows);
+    candidate.insert(newIndex, candidate.removeAt(oldIndex));
+    if (!_isGroupedByServer(candidate)) return;
     setState(() {
-      final library = _tempLibraries.removeAt(oldIndex);
-      _tempLibraries.insert(newIndex, library);
+      _libraries = _orderFromRows(candidate);
+      _rebuildRows();
     });
-    // Apply immediately
-    widget.onReorder(_tempLibraries);
+    widget.onReorder(_libraries);
+  }
+
+  void _toggleCollapsed(String serverKey) {
+    setState(() {
+      if (!_collapsedServers.remove(serverKey)) _collapsedServers.add(serverKey);
+      _rebuildRowsFocusingServer(serverKey);
+    });
+  }
+
+  /// Collapses every server and picks up [serverKey]'s heading. Confirming or
+  /// cancelling the move restores each server's collapsed state.
+  void _startServerReorder(String serverKey) {
+    setState(() {
+      _collapsedBeforeServerReorder = _collapsedServers;
+      _collapsedServers = _groupByServer(_libraries).keys.toSet();
+      _rebuildRowsFocusingServer(serverKey);
+    });
+    startReorderMove(focusedIndex);
+  }
+
+  void _finishServerReorder() {
+    final collapsedBefore = _collapsedBeforeServerReorder;
+    if (collapsedBefore == null) return;
+    final movedServer = _rows[focusedIndex].serverKey;
+    setState(() {
+      _collapsedBeforeServerReorder = null;
+      _collapsedServers = collapsedBefore;
+      _rebuildRowsFocusingServer(movedServer);
+    });
+    ensureFocusedVisible();
+  }
+
+  /// Hides every library on the server, or shows them all when they are all
+  /// hidden already. Goes library by library so a caller's
+  /// [_LibraryManagementSheet.onToggleVisibility] override still runs.
+  Future<void> _toggleServerVisibility(String serverKey) async {
+    final hidden = context.read<HiddenLibrariesProvider>().hiddenLibraryKeys;
+    final serverLibraries = _groupByServer(_libraries)[serverKey] ?? const [];
+    final hide = !serverLibraries.every((library) => hidden.contains(library.globalKey));
+    for (final library in serverLibraries) {
+      if (hidden.contains(library.globalKey) != hide) await widget.onToggleVisibility(library);
+    }
   }
 
   void _showLibraryMenuBottomSheet(BuildContext outerContext, MediaLibrary library) {
@@ -408,12 +565,6 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
         onSelected: (value) => widget.onLibraryMenuAction(value, library),
       ),
     );
-  }
-
-  /// Whether the libraries span more than one connected server.
-  bool _hasMultipleServers() {
-    final serverIds = _tempLibraries.where((lib) => lib.serverId != null).map((lib) => lib.serverId).toSet();
-    return serverIds.length > 1;
   }
 
   @override
@@ -450,7 +601,7 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
               descendantsAreFocusable: false,
               autofocus: InputModeTracker.isKeyboardMode(context),
               onKeyEvent: handleReorderKeyEvent,
-              child: _buildFlatLibraryList(_dialogScrollController, hiddenLibraryKeys, shrinkWrap: false),
+              child: _buildRowList(_dialogScrollController, hiddenLibraryKeys, shrinkWrap: false),
             ),
           ),
         ),
@@ -465,75 +616,142 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
         descendantsAreFocusable: false,
         autofocus: InputModeTracker.isKeyboardMode(context),
         onKeyEvent: handleReorderKeyEvent,
-        child: _buildFlatLibraryList(_sheetScrollController, hiddenLibraryKeys, shrinkWrap: true),
+        child: _buildRowList(_sheetScrollController, hiddenLibraryKeys, shrinkWrap: true),
       ),
     );
   }
 
-  /// Build flat library list with a server subtitle when multiple servers are
-  /// connected. Each layout passes its own controller, which is also what
-  /// [reorderScrollController] scrolls when the keyboard cursor moves.
-  Widget _buildFlatLibraryList(
-    ScrollController scrollController,
-    Set<String> hiddenLibraryKeys, {
-    required bool shrinkWrap,
-  }) {
-    final showServerNames = _hasMultipleServers();
+  /// Server headings with their libraries below. Each layout passes its own
+  /// controller, which is also what [reorderScrollController] scrolls when the
+  /// keyboard cursor moves.
+  Widget _buildRowList(ScrollController scrollController, Set<String> hiddenLibraryKeys, {required bool shrinkWrap}) {
     final isKeyboardMode = InputModeTracker.isKeyboardMode(context);
 
     return ReorderableListView.builder(
       scrollController: scrollController,
       shrinkWrap: shrinkWrap,
-      onReorderItem: _reorderLibraries,
-      itemCount: _tempLibraries.length,
+      onReorderItem: _reorderRows,
+      itemCount: _rows.length,
       padding: const EdgeInsets.symmetric(vertical: 8),
       buildDefaultDragHandles: false,
       itemBuilder: (context, index) {
-        final library = _tempLibraries[index];
-        final showServerName = showServerNames && library.serverName != null;
+        final row = _rows[index];
+        final library = row.library;
         final isFocused = isKeyboardMode && index == focusedIndex;
-        final isMoving = index == movingIndex;
+        final focusedColumn = isFocused ? this.focusedColumn : null;
+        if (library == null) {
+          return _buildServerHeader(
+            row,
+            hiddenLibraryKeys,
+            isMoving: index == movingIndex,
+            focusedColumn: focusedColumn,
+          );
+        }
         return _buildLibraryTile(
           library,
           index,
           hiddenLibraryKeys,
-          showServerName: showServerName,
-          isFocused: isFocused,
-          isMoving: isMoving,
-          focusedColumn: isFocused ? focusedColumn : null,
+          isMoving: index == movingIndex,
+          focusedColumn: focusedColumn,
         );
       },
     );
   }
 
-  /// Build a single library tile
+  /// A server heading: SELECT reorders servers, the eye hides or shows all of
+  /// the server's libraries, and the last button collapses or expands it.
+  /// [focusedColumn] is null unless the D-pad cursor is on this row.
+  Widget _buildServerHeader(_SheetRow row, Set<String> hiddenLibraryKeys, {bool isMoving = false, int? focusedColumn}) {
+    final allHidden = (_groupByServer(_libraries)[row.serverKey] ?? const <MediaLibrary>[]).every(
+      (library) => hiddenLibraryKeys.contains(library.globalKey),
+    );
+    final isCollapsed = _collapsedServers.contains(row.serverKey);
+    final theme = Theme.of(context);
+
+    Color? tileColor;
+    if (isMoving) {
+      tileColor = theme.colorScheme.primaryContainer;
+    } else if (focusedColumn != null) {
+      tileColor = theme.focusColor;
+    }
+
+    return Opacity(
+      key: ValueKey('server:${row.serverKey}'),
+      opacity: allHidden ? 0.5 : 1.0,
+      child: ListTile(
+        tileColor: tileColor,
+        leading: Row(
+          mainAxisSize: .min,
+          children: [
+            AppIcon(
+              isMoving ? Symbols.swap_vert_rounded : Symbols.drag_indicator_rounded,
+              fill: 1,
+              color: isMoving ? theme.colorScheme.primary : IconTheme.of(context).color?.withValues(alpha: 0.5),
+            ),
+            const SizedBox(width: 8),
+            const AppIcon(Symbols.dns_rounded, fill: 1),
+          ],
+        ),
+        title: Text(row.title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+        trailing: Row(
+          mainAxisSize: .min,
+          children: [
+            Container(
+              decoration: FocusTheme.focusBackgroundDecoration(
+                context,
+                isFocused: focusedColumn == 1,
+                borderRadius: 20,
+              ),
+              child: IconButton(
+                icon: AppIcon(allHidden ? Symbols.visibility_off_rounded : Symbols.visibility_rounded, fill: 1),
+                tooltip: allHidden ? t.libraries.showServer : t.libraries.hideServer,
+                onPressed: () => _toggleServerVisibility(row.serverKey),
+              ),
+            ),
+            Container(
+              decoration: FocusTheme.focusBackgroundDecoration(
+                context,
+                isFocused: focusedColumn == 2,
+                borderRadius: 20,
+              ),
+              child: IconButton(
+                icon: AppIcon(isCollapsed ? Symbols.expand_more_rounded : Symbols.expand_less_rounded, fill: 1),
+                tooltip: isCollapsed ? t.libraries.expandServer : t.libraries.collapseServer,
+                onPressed: () => _toggleCollapsed(row.serverKey),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A library row, indented under its server heading. [focusedColumn] is null
+  /// unless the D-pad cursor is on this row.
   Widget _buildLibraryTile(
     MediaLibrary library,
     int index,
     Set<String> hiddenLibraryKeys, {
-    bool showServerName = false,
-    bool isFocused = false,
     bool isMoving = false,
     int? focusedColumn,
   }) {
     final isHidden = hiddenLibraryKeys.contains(library.globalKey);
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     Color? tileColor;
     if (isMoving) {
       tileColor = colorScheme.primaryContainer;
-    } else if (isFocused && focusedColumn == 0) {
-      tileColor = colorScheme.surfaceContainerHighest;
+    } else if (focusedColumn != null) {
+      tileColor = theme.focusColor;
     }
-
-    final isVisibilityButtonFocused = isFocused && focusedColumn == 1;
-    final isOptionsButtonFocused = isFocused && focusedColumn == 2;
 
     return Opacity(
       key: ValueKey(library.globalKey),
       opacity: isHidden ? 0.5 : 1.0,
       child: ListTile(
         tileColor: tileColor,
+        contentPadding: const EdgeInsetsDirectional.only(start: 32, end: 16),
         leading: Row(
           mainAxisSize: .min,
           children: [
@@ -550,22 +768,13 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
           ],
         ),
         title: Text(library.title),
-        subtitle: showServerName
-            ? Text(
-                library.serverName!,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
-                ),
-              )
-            : null,
         trailing: Row(
           mainAxisSize: .min,
           children: [
             Container(
               decoration: FocusTheme.focusBackgroundDecoration(
                 context,
-                isFocused: isVisibilityButtonFocused,
+                isFocused: focusedColumn == 1,
                 borderRadius: 20,
               ),
               child: IconButton(
@@ -578,7 +787,7 @@ class _LibraryManagementSheetState extends State<_LibraryManagementSheet>
               Container(
                 decoration: FocusTheme.focusBackgroundDecoration(
                   context,
-                  isFocused: isOptionsButtonFocused,
+                  isFocused: focusedColumn == 2,
                   borderRadius: 20,
                 ),
                 child: IconButton(

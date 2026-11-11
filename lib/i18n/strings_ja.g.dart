@@ -539,10 +539,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get showNavBarLabels => 'ナビゲーションバーのラベルを表示';
 	@override String get showNavBarLabelsDescription => 'ナビゲーションバーのアイコンの下にテキストラベルを表示';
 	@override String get startupSection => '起動時のセクション';
-	@override String get showExploreTab => '「探す」タブを表示';
-	@override String get showExploreTabDescription => 'Plex Discoverと接続済みのトラッカーのコンテンツを「探す」タブに表示します';
-	@override String get liveTvDefaultFavorites => 'お気に入りチャンネルをデフォルトに';
-	@override String get liveTvDefaultFavoritesDescription => 'ライブTVを開いたときにお気に入りチャンネルのみ表示';
 	@override String get general => '一般';
 	@override String get generalDescription => '言語、起動、ウィンドウの動作';
 	@override String get languageAndRegion => '言語と地域';
@@ -551,7 +547,6 @@ class _Translations$settings$ja extends Translations$settings$en {
 	@override String get libraryAndCards => 'ライブラリとカード';
 	@override String get homeScreen => 'ホーム画面';
 	@override String get navigation => 'ナビゲーション';
-	@override String get liveTv => 'ライブTV';
 	@override String get player => 'プレーヤー';
 	@override String get videoAndDisplay => '映像とディスプレイ';
 	@override String get audio => '音声';
@@ -1353,7 +1348,6 @@ class _Translations$libraries$ja extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'ライブラリの解析に失敗しました: ${error}';
 	@override String get noLibrariesFound => 'ライブラリが見つかりません';
 	@override String get allLibrariesHidden => 'すべてのライブラリが非表示です';
-	@override String hiddenLibrariesCount({required Object count}) => '非表示のライブラリ (${count})';
 	@override String get thisLibraryIsEmpty => 'このライブラリは空です';
 	@override String get noItemsMatchFilters => '有効なフィルターに一致する項目はありません';
 	@override String get resetFilters => 'フィルターをリセット';
@@ -3754,10 +3748,6 @@ extension on TranslationsJa {
 			'settings.showNavBarLabels' => 'ナビゲーションバーのラベルを表示',
 			'settings.showNavBarLabelsDescription' => 'ナビゲーションバーのアイコンの下にテキストラベルを表示',
 			'settings.startupSection' => '起動時のセクション',
-			'settings.showExploreTab' => '「探す」タブを表示',
-			'settings.showExploreTabDescription' => 'Plex Discoverと接続済みのトラッカーのコンテンツを「探す」タブに表示します',
-			'settings.liveTvDefaultFavorites' => 'お気に入りチャンネルをデフォルトに',
-			'settings.liveTvDefaultFavoritesDescription' => 'ライブTVを開いたときにお気に入りチャンネルのみ表示',
 			'settings.general' => '一般',
 			'settings.generalDescription' => '言語、起動、ウィンドウの動作',
 			'settings.languageAndRegion' => '言語と地域',
@@ -3766,7 +3756,6 @@ extension on TranslationsJa {
 			'settings.libraryAndCards' => 'ライブラリとカード',
 			'settings.homeScreen' => 'ホーム画面',
 			'settings.navigation' => 'ナビゲーション',
-			'settings.liveTv' => 'ライブTV',
 			'settings.player' => 'プレーヤー',
 			'settings.videoAndDisplay' => '映像とディスプレイ',
 			'settings.audio' => '音声',
@@ -3842,13 +3831,13 @@ extension on TranslationsJa {
 			'hotkeys.actions.playPause' => '再生/一時停止',
 			'hotkeys.actions.volumeUp' => '音量を上げる',
 			'hotkeys.actions.volumeDown' => '音量を下げる',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => '早送り（${seconds}秒）',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => '巻き戻し（${seconds}秒）',
 			'hotkeys.actions.fullscreenToggle' => 'フルスクリーン切替',
 			'hotkeys.actions.muteToggle' => 'ミュート切替',
 			'hotkeys.actions.subtitleToggle' => '字幕切替',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => '次の音声トラック',
 			'hotkeys.actions.subtitleTrackNext' => '次の字幕トラック',
 			'hotkeys.actions.chapterNext' => '次のチャプター',
@@ -4356,13 +4345,13 @@ extension on TranslationsJa {
 			'accountPreferences.subtitleModes.smart' => '外国語音声時に表示',
 			'accountPreferences.subtitleModes.smartDescription' => '音声が別の言語の場合にのみ字幕をオンにします。',
 			'accountPreferences.subtitleAccessibility' => 'SDH字幕',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => '非SDH字幕を優先',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH字幕を優先',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'SDH字幕のみ',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => '非SDH字幕のみ',
 			'accountPreferences.forcedSubtitles' => '強制字幕',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => '非強制字幕を優先',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => '強制字幕を優先',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => '強制字幕のみ',
@@ -4450,7 +4439,6 @@ extension on TranslationsJa {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'ライブラリの解析に失敗しました: ${error}',
 			'libraries.noLibrariesFound' => 'ライブラリが見つかりません',
 			'libraries.allLibrariesHidden' => 'すべてのライブラリが非表示です',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => '非表示のライブラリ (${count})',
 			'libraries.thisLibraryIsEmpty' => 'このライブラリは空です',
 			'libraries.noItemsMatchFilters' => '有効なフィルターに一致する項目はありません',
 			'libraries.resetFilters' => 'フィルターをリセット',
@@ -4870,14 +4858,14 @@ extension on TranslationsJa {
 			'playlists.deleteConfirm' => 'プレイリストを削除しますか？',
 			'playlists.deleteMessage' => ({required Object name}) => '「${name}」を削除しますか？',
 			'playlists.created' => 'プレイリストを作成しました',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'プレイリストを削除しました',
 			'playlists.itemAdded' => 'プレイリストに追加しました',
 			'playlists.itemRemoved' => 'プレイリストから削除しました',
 			'playlists.selectPlaylist' => 'プレイリストを選択',
 			'playlists.searchPlaylists' => 'プレイリストを検索…',
 			'playlists.errorCreating' => 'プレイリストの作成に失敗しました',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'プレイリストの削除に失敗しました',
 			'playlists.errorLoading' => 'プレイリストの読み込みに失敗しました',
 			'playlists.errorAdding' => 'プレイリストへの追加に失敗しました',
@@ -5384,14 +5372,14 @@ extension on TranslationsJa {
 			'metadataEdit.libraryDefault' => 'ライブラリのデフォルト',
 			'metadataEdit.accountDefault' => 'アカウントのデフォルト',
 			'metadataEdit.seriesDefault' => 'シリーズのデフォルト',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'エピソードの並べ替え',
 			'metadataEdit.oldestFirst' => '古い順',
 			'metadataEdit.newestFirst' => '新しい順',
 			'metadataEdit.keep' => '保持',
 			'metadataEdit.allEpisodes' => 'すべてのエピソード',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '最新の${count}話',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => '最新エピソード',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => '過去${count}日間に追加されたエピソード',
 			'metadataEdit.deleteAfterPlaying' => '再生後にエピソードを削除',

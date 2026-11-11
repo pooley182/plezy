@@ -4,6 +4,7 @@ import 'package:plezy/media/media_backend.dart';
 import 'package:plezy/media/media_item.dart';
 import 'package:plezy/media/media_item_merge.dart';
 import 'package:plezy/media/media_kind.dart';
+import 'package:plezy/media/media_library.dart';
 import 'package:plezy/media/media_version.dart';
 import '../test_helpers/media_items.dart';
 
@@ -145,5 +146,25 @@ void main() {
     );
 
     expect(merged.single.mediaVersions?.single.videoResolution, '1080');
+  });
+
+  test('sortByLibraryOrder follows the Manage Libraries order', () {
+    MediaItem match(String id, String serverId, String? libraryId) =>
+        testMediaItem(id: id, serverId: serverId, libraryId: libraryId);
+    MediaLibrary library(String serverId, String id) =>
+        MediaLibrary(id: id, backend: MediaBackend.plex, title: id, kind: MediaKind.show, serverId: serverId);
+
+    final sorted = sortByLibraryOrder(
+      [
+        match('unknown', 'gone', 'x'),
+        match('agent-tv', 'agent', 'tv'),
+        match('hal-tv-4k', 'hal', 'tv'),
+        match('hal-tv', 'hal', 'tv'),
+        match('hal-no-library', 'hal', null),
+      ],
+      [library('hal', 'tv'), library('agent', 'tv')],
+    );
+
+    expect(sorted.map((m) => m.id), ['hal-tv-4k', 'hal-tv', 'hal-no-library', 'agent-tv', 'unknown']);
   });
 }

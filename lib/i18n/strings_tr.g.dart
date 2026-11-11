@@ -539,10 +539,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Gezinme Çubuğu Etiketlerini Göster';
 	@override String get showNavBarLabelsDescription => 'Gezinme çubuğu simgelerinin altında metin etiketlerini göster';
 	@override String get startupSection => 'Başlangıç Bölümü';
-	@override String get showExploreTab => 'Keşfet sekmesini göster';
-	@override String get showExploreTabDescription => 'Plex Keşfet ve bağlı takip hizmetlerinden gelen içeriklerle Keşfet sekmesini göster';
-	@override String get liveTvDefaultFavorites => 'Canlı TV\'de Favorileri Varsayılan Yap';
-	@override String get liveTvDefaultFavoritesDescription => 'Canlı TV açıldığında yalnızca favori kanalları göster';
 	@override String get general => 'Genel';
 	@override String get generalDescription => 'Dil, başlangıç ve pencere davranışı';
 	@override String get languageAndRegion => 'Dil ve Bölge';
@@ -551,7 +547,6 @@ class _Translations$settings$tr extends Translations$settings$en {
 	@override String get libraryAndCards => 'Kitaplık ve Kartlar';
 	@override String get homeScreen => 'Ana Ekran';
 	@override String get navigation => 'Gezinme';
-	@override String get liveTv => 'Canlı TV';
 	@override String get player => 'Oynatıcı';
 	@override String get videoAndDisplay => 'Video ve Ekran';
 	@override String get audio => 'Ses';
@@ -1358,7 +1353,6 @@ class _Translations$libraries$tr extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Kitaplık analiz edilemedi: ${error}';
 	@override String get noLibrariesFound => 'Kitaplık bulunamadı';
 	@override String get allLibrariesHidden => 'Tüm kitaplıklar gizli';
-	@override String hiddenLibrariesCount({required Object count}) => 'Gizli kitaplıklar (${count})';
 	@override String get thisLibraryIsEmpty => 'Bu kitaplık boş';
 	@override String get noItemsMatchFilters => 'Etkin filtrelerle eşleşen öge yok';
 	@override String get resetFilters => 'Filtreleri sıfırla';
@@ -3766,10 +3760,6 @@ extension on TranslationsTr {
 			'settings.showNavBarLabels' => 'Gezinme Çubuğu Etiketlerini Göster',
 			'settings.showNavBarLabelsDescription' => 'Gezinme çubuğu simgelerinin altında metin etiketlerini göster',
 			'settings.startupSection' => 'Başlangıç Bölümü',
-			'settings.showExploreTab' => 'Keşfet sekmesini göster',
-			'settings.showExploreTabDescription' => 'Plex Keşfet ve bağlı takip hizmetlerinden gelen içeriklerle Keşfet sekmesini göster',
-			'settings.liveTvDefaultFavorites' => 'Canlı TV\'de Favorileri Varsayılan Yap',
-			'settings.liveTvDefaultFavoritesDescription' => 'Canlı TV açıldığında yalnızca favori kanalları göster',
 			'settings.general' => 'Genel',
 			'settings.generalDescription' => 'Dil, başlangıç ve pencere davranışı',
 			'settings.languageAndRegion' => 'Dil ve Bölge',
@@ -3778,7 +3768,6 @@ extension on TranslationsTr {
 			'settings.libraryAndCards' => 'Kitaplık ve Kartlar',
 			'settings.homeScreen' => 'Ana Ekran',
 			'settings.navigation' => 'Gezinme',
-			'settings.liveTv' => 'Canlı TV',
 			'settings.player' => 'Oynatıcı',
 			'settings.videoAndDisplay' => 'Video ve Ekran',
 			'settings.audio' => 'Ses',
@@ -3854,13 +3843,13 @@ extension on TranslationsTr {
 			'hotkeys.actions.playPause' => 'Oynat/Duraklat',
 			'hotkeys.actions.volumeUp' => 'Sesi Yükselt',
 			'hotkeys.actions.volumeDown' => 'Sesi Kıs',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'İleri Sar (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Geri Sar (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Tam Ekranı Aç/Kapat',
 			'hotkeys.actions.muteToggle' => 'Sesi Aç/Kapat',
 			'hotkeys.actions.subtitleToggle' => 'Altyazıyı Aç/Kapat',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Sonraki Ses Parçası',
 			'hotkeys.actions.subtitleTrackNext' => 'Sonraki Altyazı Parçası',
 			'hotkeys.actions.chapterNext' => 'Sonraki Kısım',
@@ -4368,13 +4357,13 @@ extension on TranslationsTr {
 			'accountPreferences.subtitleModes.smart' => 'Yabancı sesle gösterilen',
 			'accountPreferences.subtitleModes.smartDescription' => 'Altyazıları yalnızca ses başka bir dildeyken aç.',
 			'accountPreferences.subtitleAccessibility' => 'SDH altyazılar',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'SDH olmayan altyazıları tercih et',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'SDH altyazıları tercih et',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Yalnızca SDH altyazılar',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Yalnızca SDH olmayan altyazılar',
 			'accountPreferences.forcedSubtitles' => 'Zorunlu altyazılar',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Zorunlu olmayan altyazıları tercih et',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Zorunlu altyazıları tercih et',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Yalnızca zorunlu altyazılar',
@@ -4462,7 +4451,6 @@ extension on TranslationsTr {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kitaplık analiz edilemedi: ${error}',
 			'libraries.noLibrariesFound' => 'Kitaplık bulunamadı',
 			'libraries.allLibrariesHidden' => 'Tüm kitaplıklar gizli',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Gizli kitaplıklar (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Bu kitaplık boş',
 			'libraries.noItemsMatchFilters' => 'Etkin filtrelerle eşleşen öge yok',
 			'libraries.resetFilters' => 'Filtreleri sıfırla',
@@ -4882,14 +4870,14 @@ extension on TranslationsTr {
 			'playlists.deleteConfirm' => 'Oynatma Listesi Silinsin mi?',
 			'playlists.deleteMessage' => ({required Object name}) => '"${name}" listesini silmek istediğinizden emin misiniz?',
 			'playlists.created' => 'Oynatma listesi oluşturuldu',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Oynatma listesi silindi',
 			'playlists.itemAdded' => 'Oynatma listesine eklendi',
 			'playlists.itemRemoved' => 'Oynatma listesinden kaldırıldı',
 			'playlists.selectPlaylist' => 'Oynatma Listesi Seç',
 			'playlists.searchPlaylists' => 'Oynatma listelerinde ara...',
 			'playlists.errorCreating' => 'Oynatma listesi oluşturulamadı',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Oynatma listesi silinemedi',
 			'playlists.errorLoading' => 'Oynatma listeleri yüklenemedi',
 			'playlists.errorAdding' => 'Oynatma listesine eklenemedi',
@@ -5396,14 +5384,14 @@ extension on TranslationsTr {
 			'metadataEdit.libraryDefault' => 'Kitaplık varsayılanı',
 			'metadataEdit.accountDefault' => 'Hesap varsayılanı',
 			'metadataEdit.seriesDefault' => 'Dizi varsayılanı',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Bölüm Sıralaması',
 			'metadataEdit.oldestFirst' => 'Önce en eski',
 			'metadataEdit.newestFirst' => 'Önce en yeni',
 			'metadataEdit.keep' => 'Sakla',
 			'metadataEdit.allEpisodes' => 'Tüm bölümler',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => 'En son ${count} bölüm',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'En son bölüm',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Son ${count} günde eklenen bölümler',
 			'metadataEdit.deleteAfterPlaying' => 'Oynatıldıktan Sonra Bölümleri Sil',

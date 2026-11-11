@@ -192,7 +192,7 @@ class AgentSettingsCommands {
         if (!tv) return 'This setting is used by the TV layout.';
       case 'show_hero_section' || 'show_season_posters_on_tabs':
         if (tv) return 'This setting is not used by the TV layout.';
-      case 'always_keep_sidebar_open' || 'group_libraries_by_server' || 'libraries_section_expanded':
+      case 'always_keep_sidebar_open' || 'group_libraries_by_server' || 'nav_item_order' || 'hidden_nav_items':
         if (!PlatformDetector.shouldUseSideNavigation(context)) return 'This setting requires the sidebar layout.';
       case 'show_nav_bar_labels':
         if (PlatformDetector.shouldUseSideNavigation(context)) return 'This setting requires bottom navigation.';

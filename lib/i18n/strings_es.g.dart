@@ -539,10 +539,6 @@ class _Translations$settings$es extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Mostrar etiquetas de la barra de navegación';
 	@override String get showNavBarLabelsDescription => 'Mostrar etiquetas de texto bajo los iconos de la barra de navegación';
 	@override String get startupSection => 'Sección de inicio';
-	@override String get showExploreTab => 'Mostrar pestaña Explorar';
-	@override String get showExploreTabDescription => 'Muestra la pestaña Explorar con contenido de Plex Discover y servicios de seguimiento conectados';
-	@override String get liveTvDefaultFavorites => 'Canales favoritos por defecto';
-	@override String get liveTvDefaultFavoritesDescription => 'Mostrar solo canales favoritos al abrir TV en vivo';
 	@override String get general => 'General';
 	@override String get generalDescription => 'Idioma, inicio y comportamiento de la ventana';
 	@override String get languageAndRegion => 'Idioma y región';
@@ -551,7 +547,6 @@ class _Translations$settings$es extends Translations$settings$en {
 	@override String get libraryAndCards => 'Biblioteca y tarjetas';
 	@override String get homeScreen => 'Pantalla de inicio';
 	@override String get navigation => 'Navegación';
-	@override String get liveTv => 'TV en vivo';
 	@override String get player => 'Reproductor';
 	@override String get videoAndDisplay => 'Video y pantalla';
 	@override String get audio => 'Audio';
@@ -1358,7 +1353,6 @@ class _Translations$libraries$es extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Error al analizar la biblioteca: ${error}';
 	@override String get noLibrariesFound => 'No se encontraron bibliotecas';
 	@override String get allLibrariesHidden => 'Todas las bibliotecas están ocultas';
-	@override String hiddenLibrariesCount({required Object count}) => 'Bibliotecas ocultas (${count})';
 	@override String get thisLibraryIsEmpty => 'Esta biblioteca está vacía';
 	@override String get noItemsMatchFilters => 'Ningún elemento coincide con los filtros activos';
 	@override String get resetFilters => 'Restablecer filtros';
@@ -3766,10 +3760,6 @@ extension on TranslationsEs {
 			'settings.showNavBarLabels' => 'Mostrar etiquetas de la barra de navegación',
 			'settings.showNavBarLabelsDescription' => 'Mostrar etiquetas de texto bajo los iconos de la barra de navegación',
 			'settings.startupSection' => 'Sección de inicio',
-			'settings.showExploreTab' => 'Mostrar pestaña Explorar',
-			'settings.showExploreTabDescription' => 'Muestra la pestaña Explorar con contenido de Plex Discover y servicios de seguimiento conectados',
-			'settings.liveTvDefaultFavorites' => 'Canales favoritos por defecto',
-			'settings.liveTvDefaultFavoritesDescription' => 'Mostrar solo canales favoritos al abrir TV en vivo',
 			'settings.general' => 'General',
 			'settings.generalDescription' => 'Idioma, inicio y comportamiento de la ventana',
 			'settings.languageAndRegion' => 'Idioma y región',
@@ -3778,7 +3768,6 @@ extension on TranslationsEs {
 			'settings.libraryAndCards' => 'Biblioteca y tarjetas',
 			'settings.homeScreen' => 'Pantalla de inicio',
 			'settings.navigation' => 'Navegación',
-			'settings.liveTv' => 'TV en vivo',
 			'settings.player' => 'Reproductor',
 			'settings.videoAndDisplay' => 'Video y pantalla',
 			'settings.audio' => 'Audio',
@@ -3854,13 +3843,13 @@ extension on TranslationsEs {
 			'hotkeys.actions.playPause' => 'Reproducir/pausar',
 			'hotkeys.actions.volumeUp' => 'Subir volumen',
 			'hotkeys.actions.volumeDown' => 'Bajar volumen',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Avanzar (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Retroceder (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Alternar pantalla completa',
 			'hotkeys.actions.muteToggle' => 'Activar/desactivar silencio',
 			'hotkeys.actions.subtitleToggle' => 'Activar/desactivar subtítulos',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Pista de audio siguiente',
 			'hotkeys.actions.subtitleTrackNext' => 'Pista de subtítulos siguiente',
 			'hotkeys.actions.chapterNext' => 'Capítulo siguiente',
@@ -4368,13 +4357,13 @@ extension on TranslationsEs {
 			'accountPreferences.subtitleModes.smart' => 'Mostrar con audio extranjero',
 			'accountPreferences.subtitleModes.smartDescription' => 'Activar los subtítulos solo cuando el audio está en otro idioma.',
 			'accountPreferences.subtitleAccessibility' => 'Subtítulos SDH',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Preferir subtítulos no SDH',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Preferir subtítulos SDH',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Solo subtítulos SDH',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Solo subtítulos no SDH',
 			'accountPreferences.forcedSubtitles' => 'Subtítulos forzados',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Preferir subtítulos no forzados',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Preferir subtítulos forzados',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Solo subtítulos forzados',
@@ -4462,7 +4451,6 @@ extension on TranslationsEs {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Error al analizar la biblioteca: ${error}',
 			'libraries.noLibrariesFound' => 'No se encontraron bibliotecas',
 			'libraries.allLibrariesHidden' => 'Todas las bibliotecas están ocultas',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Bibliotecas ocultas (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Esta biblioteca está vacía',
 			'libraries.noItemsMatchFilters' => 'Ningún elemento coincide con los filtros activos',
 			'libraries.resetFilters' => 'Restablecer filtros',
@@ -4882,14 +4870,14 @@ extension on TranslationsEs {
 			'playlists.deleteConfirm' => '¿Eliminar lista de reproducción?',
 			'playlists.deleteMessage' => ({required Object name}) => '¿Estás seguro de que quieres eliminar "${name}"?',
 			'playlists.created' => 'Lista de reproducción creada',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Lista de reproducción eliminada',
 			'playlists.itemAdded' => 'Añadido a la lista de reproducción',
 			'playlists.itemRemoved' => 'Eliminado de la lista de reproducción',
 			'playlists.selectPlaylist' => 'Seleccionar lista de reproducción',
 			'playlists.searchPlaylists' => 'Buscar listas de reproducción...',
 			'playlists.errorCreating' => 'Error al crear la lista de reproducción',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Error al eliminar la lista de reproducción',
 			'playlists.errorLoading' => 'Error al cargar las listas de reproducción',
 			'playlists.errorAdding' => 'Error al añadir a la lista de reproducción',
@@ -5396,14 +5384,14 @@ extension on TranslationsEs {
 			'metadataEdit.libraryDefault' => 'Predeterminado de biblioteca',
 			'metadataEdit.accountDefault' => 'Predeterminado de cuenta',
 			'metadataEdit.seriesDefault' => 'Predeterminado de serie',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Orden de episodios',
 			'metadataEdit.oldestFirst' => 'Más antiguos primero',
 			'metadataEdit.newestFirst' => 'Más recientes primero',
 			'metadataEdit.keep' => 'Conservar',
 			'metadataEdit.allEpisodes' => 'Todos los episodios',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '${count} episodios más recientes',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Episodio más reciente',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Episodios añadidos en los últimos ${count} días',
 			'metadataEdit.deleteAfterPlaying' => 'Eliminar episodios después de reproducir',

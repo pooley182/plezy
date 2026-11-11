@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -15,7 +17,7 @@ import 'key_event_utils.dart';
 /// `Focus.onKeyEvent` and by reading [focusedIndex], [focusedColumn] and
 /// [movingIndex] when building rows.
 ///
-/// Navigation mode: UP/DOWN move between rows (resetting to column 0),
+/// Navigation mode: UP/DOWN move between rows (keeping the chosen column),
 /// LEFT/RIGHT move between the row (column 0) and the trailing action columns
 /// up to [lastReorderColumn], SELECT on column 0 enters move mode and on any
 /// other column calls [onReorderColumnActivated].
@@ -35,6 +37,10 @@ mixin DpadReorderListMixin<E, W extends StatefulWidget> on State<W> {
   /// Column within [focusedIndex]: 0 is the row itself, 1..[lastReorderColumn]
   /// are the trailing action buttons.
   int focusedColumn = 0;
+
+  /// Column last picked with LEFT/RIGHT. UP/DOWN keep it, stepping in to the
+  /// row's last column when the row has fewer.
+  int _preferredColumn = 0;
 
   /// Row being moved, or null when not in move mode.
   int? movingIndex;
@@ -59,8 +65,31 @@ mixin DpadReorderListMixin<E, W extends StatefulWidget> on State<W> {
   /// order.
   void onReorderMoveConfirmed();
 
-  /// Called when SELECT activates a trailing action column (1 or greater).
+  /// Called when SELECT activates a trailing action column (1 or greater), or
+  /// column 0 of a row [canMoveReorderItem] rejects.
   void onReorderColumnActivated(int column, int index);
+
+  /// Whether SELECT on column 0 of row [index] enters move mode.
+  bool canMoveReorderItem(int index) => true;
+
+  /// Whether the moving row at [from] may swap with its neighbour at [to].
+  bool canSwapReorderItems(int from, int to) => true;
+
+  /// Called after BACK cancels a move and [reorderItems] is restored.
+  // ignore: no-empty-block - optional hook
+  void onReorderMoveCancelled() {}
+
+  /// Enters move mode on row [index], as SELECT on its column 0 does.
+  void startReorderMove(int index) {
+    setState(() {
+      focusedIndex = index;
+      focusedColumn = 0;
+      movingIndex = index;
+      _originalIndex = index;
+      _originalOrder = List<E>.from(reorderItems);
+    });
+    ensureFocusedVisible();
+  }
 
   /// Scrolls [focusedIndex] into view, parking it ~25% from the viewport top.
   void ensureFocusedVisible() {
@@ -98,6 +127,7 @@ mixin DpadReorderListMixin<E, W extends StatefulWidget> on State<W> {
           _originalIndex = null;
           _originalOrder = null;
         });
+        onReorderMoveCancelled();
       } else {
         OverlaySheetController.popAdaptive(context);
       }
@@ -116,11 +146,11 @@ mixin DpadReorderListMixin<E, W extends StatefulWidget> on State<W> {
     final int? moving = movingIndex;
     if (moving != null) {
       // Move mode - arrows reorder the item
-      if (key.isUpKey && moving > 0) {
+      if (key.isUpKey && moving > 0 && canSwapReorderItems(moving, moving - 1)) {
         _swapMovingItem(moving, moving - 1);
         return KeyEventResult.handled;
       }
-      if (key.isDownKey && moving < reorderItems.length - 1) {
+      if (key.isDownKey && moving < reorderItems.length - 1 && canSwapReorderItems(moving, moving + 1)) {
         _swapMovingItem(moving, moving + 1);
         return KeyEventResult.handled;
       }
@@ -129,7 +159,7 @@ mixin DpadReorderListMixin<E, W extends StatefulWidget> on State<W> {
       if (key.isUpKey && focusedIndex > 0) {
         setState(() {
           focusedIndex--;
-          focusedColumn = 0; // Reset to row when changing rows
+          focusedColumn = min(_preferredColumn, lastReorderColumn);
         });
         ensureFocusedVisible();
         return KeyEventResult.handled;
@@ -137,17 +167,17 @@ mixin DpadReorderListMixin<E, W extends StatefulWidget> on State<W> {
       if (key.isDownKey && focusedIndex < reorderItems.length - 1) {
         setState(() {
           focusedIndex++;
-          focusedColumn = 0; // Reset to row when changing rows
+          focusedColumn = min(_preferredColumn, lastReorderColumn);
         });
         ensureFocusedVisible();
         return KeyEventResult.handled;
       }
       if (key.isLeftKey && focusedColumn > 0) {
-        setState(() => focusedColumn--);
+        setState(() => _preferredColumn = --focusedColumn);
         return KeyEventResult.handled;
       }
       if (key.isRightKey && focusedColumn < lastReorderColumn) {
-        setState(() => focusedColumn++);
+        setState(() => _preferredColumn = ++focusedColumn);
         return KeyEventResult.handled;
       }
     }
@@ -172,13 +202,10 @@ mixin DpadReorderListMixin<E, W extends StatefulWidget> on State<W> {
       return;
     }
     if (focusedIndex >= reorderItems.length) return;
-    if (focusedColumn == 0) {
-      // Enter move mode
-      setState(() {
-        movingIndex = focusedIndex;
-        _originalIndex = focusedIndex;
-        _originalOrder = List<E>.from(reorderItems);
-      });
+    if (focusedColumn == 0 && !canMoveReorderItem(focusedIndex)) {
+      onReorderColumnActivated(0, focusedIndex);
+    } else if (focusedColumn == 0) {
+      startReorderMove(focusedIndex);
     } else {
       onReorderColumnActivated(focusedColumn, focusedIndex);
     }

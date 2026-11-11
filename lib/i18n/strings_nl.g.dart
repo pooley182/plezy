@@ -539,10 +539,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get showNavBarLabels => 'Labels op navigatiebalk tonen';
 	@override String get showNavBarLabelsDescription => 'Tekstlabels onder de pictogrammen op de navigatiebalk weergeven';
 	@override String get startupSection => 'Opstartsectie';
-	@override String get showExploreTab => 'Tabblad Ontdekken tonen';
-	@override String get showExploreTabDescription => 'Toon het tabblad Ontdekken met content uit Plex Discover en gekoppelde trackers';
-	@override String get liveTvDefaultFavorites => 'Standaard favoriete zenders';
-	@override String get liveTvDefaultFavoritesDescription => 'Toon alleen favoriete zenders bij het openen van Live TV';
 	@override String get general => 'Algemeen';
 	@override String get generalDescription => 'Taal, opstart- en venstergedrag';
 	@override String get languageAndRegion => 'Taal en regio';
@@ -551,7 +547,6 @@ class _Translations$settings$nl extends Translations$settings$en {
 	@override String get libraryAndCards => 'Bibliotheek en kaarten';
 	@override String get homeScreen => 'Startscherm';
 	@override String get navigation => 'Navigatie';
-	@override String get liveTv => 'Live-tv';
 	@override String get player => 'Speler';
 	@override String get videoAndDisplay => 'Video en weergave';
 	@override String get audio => 'Audio';
@@ -1358,7 +1353,6 @@ class _Translations$libraries$nl extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => 'Kon bibliotheek niet analyseren: ${error}';
 	@override String get noLibrariesFound => 'Geen bibliotheken gevonden';
 	@override String get allLibrariesHidden => 'Alle bibliotheken zijn verborgen';
-	@override String hiddenLibrariesCount({required Object count}) => 'Verborgen bibliotheken (${count})';
 	@override String get thisLibraryIsEmpty => 'Deze bibliotheek is leeg';
 	@override String get noItemsMatchFilters => 'Geen items komen overeen met de actieve filters';
 	@override String get resetFilters => 'Filters opnieuw instellen';
@@ -3766,10 +3760,6 @@ extension on TranslationsNl {
 			'settings.showNavBarLabels' => 'Labels op navigatiebalk tonen',
 			'settings.showNavBarLabelsDescription' => 'Tekstlabels onder de pictogrammen op de navigatiebalk weergeven',
 			'settings.startupSection' => 'Opstartsectie',
-			'settings.showExploreTab' => 'Tabblad Ontdekken tonen',
-			'settings.showExploreTabDescription' => 'Toon het tabblad Ontdekken met content uit Plex Discover en gekoppelde trackers',
-			'settings.liveTvDefaultFavorites' => 'Standaard favoriete zenders',
-			'settings.liveTvDefaultFavoritesDescription' => 'Toon alleen favoriete zenders bij het openen van Live TV',
 			'settings.general' => 'Algemeen',
 			'settings.generalDescription' => 'Taal, opstart- en venstergedrag',
 			'settings.languageAndRegion' => 'Taal en regio',
@@ -3778,7 +3768,6 @@ extension on TranslationsNl {
 			'settings.libraryAndCards' => 'Bibliotheek en kaarten',
 			'settings.homeScreen' => 'Startscherm',
 			'settings.navigation' => 'Navigatie',
-			'settings.liveTv' => 'Live-tv',
 			'settings.player' => 'Speler',
 			'settings.videoAndDisplay' => 'Video en weergave',
 			'settings.audio' => 'Audio',
@@ -3854,13 +3843,13 @@ extension on TranslationsNl {
 			'hotkeys.actions.playPause' => 'Afspelen/Pauzeren',
 			'hotkeys.actions.volumeUp' => 'Volume omhoog',
 			'hotkeys.actions.volumeDown' => 'Volume omlaag',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => 'Vooruitspoelen (${seconds}s)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => 'Terugspoelen (${seconds}s)',
 			'hotkeys.actions.fullscreenToggle' => 'Volledig scherm',
 			'hotkeys.actions.muteToggle' => 'Dempen',
 			'hotkeys.actions.subtitleToggle' => 'Ondertiteling',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => 'Volgende audiotrack',
 			'hotkeys.actions.subtitleTrackNext' => 'Volgende ondertiteltrack',
 			'hotkeys.actions.chapterNext' => 'Volgend hoofdstuk',
@@ -4368,13 +4357,13 @@ extension on TranslationsNl {
 			'accountPreferences.subtitleModes.smart' => 'Weergeven bij anderstalig geluid',
 			'accountPreferences.subtitleModes.smartDescription' => 'Schakel ondertitels alleen in wanneer de audio in een andere taal is.',
 			'accountPreferences.subtitleAccessibility' => 'SDH-ondertitels',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => 'Voorkeur voor niet-SDH-ondertitels',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => 'Voorkeur voor SDH-ondertitels',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => 'Alleen SDH-ondertitels',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => 'Alleen niet-SDH-ondertitels',
 			'accountPreferences.forcedSubtitles' => 'Geforceerde ondertitels',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => 'Voorkeur voor niet-geforceerde ondertitels',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => 'Voorkeur voor geforceerde ondertitels',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => 'Alleen geforceerde ondertitels',
@@ -4462,7 +4451,6 @@ extension on TranslationsNl {
 			'libraries.failedToAnalyze' => ({required Object error}) => 'Kon bibliotheek niet analyseren: ${error}',
 			'libraries.noLibrariesFound' => 'Geen bibliotheken gevonden',
 			'libraries.allLibrariesHidden' => 'Alle bibliotheken zijn verborgen',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => 'Verborgen bibliotheken (${count})',
 			'libraries.thisLibraryIsEmpty' => 'Deze bibliotheek is leeg',
 			'libraries.noItemsMatchFilters' => 'Geen items komen overeen met de actieve filters',
 			'libraries.resetFilters' => 'Filters opnieuw instellen',
@@ -4882,14 +4870,14 @@ extension on TranslationsNl {
 			'playlists.deleteConfirm' => 'Afspeellijst verwijderen?',
 			'playlists.deleteMessage' => ({required Object name}) => 'Weet je zeker dat je "${name}" wilt verwijderen?',
 			'playlists.created' => 'Afspeellijst gemaakt',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => 'Afspeellijst verwijderd',
 			'playlists.itemAdded' => 'Toegevoegd aan afspeellijst',
 			'playlists.itemRemoved' => 'Verwijderd uit afspeellijst',
 			'playlists.selectPlaylist' => 'Afspeellijst selecteren',
 			'playlists.searchPlaylists' => 'Afspeellijsten zoeken...',
 			'playlists.errorCreating' => 'Afspeellijst maken mislukt',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => 'Afspeellijst verwijderen mislukt',
 			'playlists.errorLoading' => 'Afspeellijsten laden mislukt',
 			'playlists.errorAdding' => 'Toevoegen aan afspeellijst mislukt',
@@ -5396,14 +5384,14 @@ extension on TranslationsNl {
 			'metadataEdit.libraryDefault' => 'Standaard van de bibliotheek',
 			'metadataEdit.accountDefault' => 'Standaard van het account',
 			'metadataEdit.seriesDefault' => 'Standaard van de serie',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => 'Afleveringen sorteren',
 			'metadataEdit.oldestFirst' => 'Oudste eerst',
 			'metadataEdit.newestFirst' => 'Nieuwste eerst',
 			'metadataEdit.keep' => 'Bewaren',
 			'metadataEdit.allEpisodes' => 'Alle afleveringen',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '${count} nieuwste afleveringen',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => 'Nieuwste aflevering',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => 'Afleveringen toegevoegd in de afgelopen ${count} dagen',
 			'metadataEdit.deleteAfterPlaying' => 'Afleveringen verwijderen na afspelen',

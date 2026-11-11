@@ -1,5 +1,6 @@
 import 'ids.dart';
 import 'media_item.dart';
+import 'media_library.dart';
 import 'media_version.dart';
 
 /// The library a copy belongs to: [MediaItem.libraryId] with the
@@ -65,6 +66,23 @@ int compareLibraryCopies(MediaItem a, MediaItem b) {
   final byServer = (a.serverName ?? '').compareTo(b.serverName ?? '');
   if (byServer != 0) return byServer;
   return a.globalKey.compareTo(b.globalKey);
+}
+
+/// [copies] in the order their libraries sit in [libraries] (the user's
+/// Manage Libraries order). A copy with no library id ranks with its server's
+/// first library; copies of one library, and copies whose library is not
+/// listed (placed last), keep their order in [copies].
+List<MediaItem> sortByLibraryOrder(List<MediaItem> copies, List<MediaLibrary> libraries) {
+  int rank(MediaItem copy) {
+    final index = libraries.indexWhere(
+      (library) => library.serverId == copy.serverId && (copy.libraryId == null || library.id == copy.libraryId),
+    );
+    return index < 0 ? libraries.length : index;
+  }
+
+  final ranked = [for (final (position, copy) in copies.indexed) (rank: rank(copy), position: position, copy: copy)]
+    ..sort((a, b) => a.rank != b.rank ? a.rank.compareTo(b.rank) : a.position.compareTo(b.position));
+  return [for (final entry in ranked) entry.copy];
 }
 
 /// The technical label of [copy]'s best version, e.g. "4K HEVC MKV

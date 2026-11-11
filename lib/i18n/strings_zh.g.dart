@@ -539,10 +539,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get showNavBarLabels => '显示导航栏标签';
 	@override String get showNavBarLabelsDescription => '在导航栏图标下方显示文字标签';
 	@override String get startupSection => '启动页面';
-	@override String get showExploreTab => '显示“探索”标签页';
-	@override String get showExploreTabDescription => '显示“探索”标签页，其中包含来自 Plex Discover 和已连接追踪服务的内容';
-	@override String get liveTvDefaultFavorites => '默认显示收藏频道';
-	@override String get liveTvDefaultFavoritesDescription => '打开直播电视时仅显示收藏频道';
 	@override String get general => '通用';
 	@override String get generalDescription => '语言、启动和窗口行为';
 	@override String get languageAndRegion => '语言与地区';
@@ -551,7 +547,6 @@ class Translations$settings$zh extends Translations$settings$en {
 	@override String get libraryAndCards => '媒体库与卡片';
 	@override String get homeScreen => '主屏幕';
 	@override String get navigation => '导航';
-	@override String get liveTv => '直播电视';
 	@override String get player => '播放器';
 	@override String get videoAndDisplay => '视频与显示';
 	@override String get audio => '音频';
@@ -1353,7 +1348,6 @@ class Translations$libraries$zh extends Translations$libraries$en {
 	@override String failedToAnalyze({required Object error}) => '无法分析媒体库：${error}';
 	@override String get noLibrariesFound => '未找到媒体库';
 	@override String get allLibrariesHidden => '所有媒体库已隐藏';
-	@override String hiddenLibrariesCount({required Object count}) => '已隐藏的媒体库 (${count})';
 	@override String get thisLibraryIsEmpty => '此媒体库为空';
 	@override String get noItemsMatchFilters => '没有项目符合当前筛选条件';
 	@override String get resetFilters => '重置筛选条件';
@@ -3754,10 +3748,6 @@ extension on TranslationsZh {
 			'settings.showNavBarLabels' => '显示导航栏标签',
 			'settings.showNavBarLabelsDescription' => '在导航栏图标下方显示文字标签',
 			'settings.startupSection' => '启动页面',
-			'settings.showExploreTab' => '显示“探索”标签页',
-			'settings.showExploreTabDescription' => '显示“探索”标签页，其中包含来自 Plex Discover 和已连接追踪服务的内容',
-			'settings.liveTvDefaultFavorites' => '默认显示收藏频道',
-			'settings.liveTvDefaultFavoritesDescription' => '打开直播电视时仅显示收藏频道',
 			'settings.general' => '通用',
 			'settings.generalDescription' => '语言、启动和窗口行为',
 			'settings.languageAndRegion' => '语言与地区',
@@ -3766,7 +3756,6 @@ extension on TranslationsZh {
 			'settings.libraryAndCards' => '媒体库与卡片',
 			'settings.homeScreen' => '主屏幕',
 			'settings.navigation' => '导航',
-			'settings.liveTv' => '直播电视',
 			'settings.player' => '播放器',
 			'settings.videoAndDisplay' => '视频与显示',
 			'settings.audio' => '音频',
@@ -3842,13 +3831,13 @@ extension on TranslationsZh {
 			'hotkeys.actions.playPause' => '播放/暂停',
 			'hotkeys.actions.volumeUp' => '增大音量',
 			'hotkeys.actions.volumeDown' => '减小音量',
-			_ => null,
-		} ?? switch (path) {
 			'hotkeys.actions.seekForward' => ({required Object seconds}) => '快进 (${seconds}秒)',
 			'hotkeys.actions.seekBackward' => ({required Object seconds}) => '快退 (${seconds}秒)',
 			'hotkeys.actions.fullscreenToggle' => '切换全屏',
 			'hotkeys.actions.muteToggle' => '切换静音',
 			'hotkeys.actions.subtitleToggle' => '切换字幕',
+			_ => null,
+		} ?? switch (path) {
 			'hotkeys.actions.audioTrackNext' => '下一音轨',
 			'hotkeys.actions.subtitleTrackNext' => '下一字幕轨',
 			'hotkeys.actions.chapterNext' => '下一章节',
@@ -4356,13 +4345,13 @@ extension on TranslationsZh {
 			'accountPreferences.subtitleModes.smart' => '外语音频时显示',
 			'accountPreferences.subtitleModes.smartDescription' => '仅在音频为其他语言时打开字幕。',
 			'accountPreferences.subtitleAccessibility' => 'SDH 字幕',
-			_ => null,
-		} ?? switch (path) {
 			'accountPreferences.subtitleAccessibilityOptions.preferNonSdh' => '优先非 SDH 字幕',
 			'accountPreferences.subtitleAccessibilityOptions.preferSdh' => '优先 SDH 字幕',
 			'accountPreferences.subtitleAccessibilityOptions.onlySdh' => '仅 SDH 字幕',
 			'accountPreferences.subtitleAccessibilityOptions.onlyNonSdh' => '仅非 SDH 字幕',
 			'accountPreferences.forcedSubtitles' => '强制字幕',
+			_ => null,
+		} ?? switch (path) {
 			'accountPreferences.forcedSubtitleOptions.preferNonForced' => '优先非强制字幕',
 			'accountPreferences.forcedSubtitleOptions.preferForced' => '优先强制字幕',
 			'accountPreferences.forcedSubtitleOptions.onlyForced' => '仅强制字幕',
@@ -4450,7 +4439,6 @@ extension on TranslationsZh {
 			'libraries.failedToAnalyze' => ({required Object error}) => '无法分析媒体库：${error}',
 			'libraries.noLibrariesFound' => '未找到媒体库',
 			'libraries.allLibrariesHidden' => '所有媒体库已隐藏',
-			'libraries.hiddenLibrariesCount' => ({required Object count}) => '已隐藏的媒体库 (${count})',
 			'libraries.thisLibraryIsEmpty' => '此媒体库为空',
 			'libraries.noItemsMatchFilters' => '没有项目符合当前筛选条件',
 			'libraries.resetFilters' => '重置筛选条件',
@@ -4870,14 +4858,14 @@ extension on TranslationsZh {
 			'playlists.deleteConfirm' => '删除播放列表？',
 			'playlists.deleteMessage' => ({required Object name}) => '确定要删除“${name}”吗？',
 			'playlists.created' => '播放列表已创建',
-			_ => null,
-		} ?? switch (path) {
 			'playlists.deleted' => '播放列表已删除',
 			'playlists.itemAdded' => '已添加到播放列表',
 			'playlists.itemRemoved' => '已从播放列表中移除',
 			'playlists.selectPlaylist' => '选择播放列表',
 			'playlists.searchPlaylists' => '搜索播放列表…',
 			'playlists.errorCreating' => '创建播放列表失败',
+			_ => null,
+		} ?? switch (path) {
 			'playlists.errorDeleting' => '删除播放列表失败',
 			'playlists.errorLoading' => '加载播放列表失败',
 			'playlists.errorAdding' => '添加到播放列表失败',
@@ -5384,14 +5372,14 @@ extension on TranslationsZh {
 			'metadataEdit.libraryDefault' => '媒体库默认',
 			'metadataEdit.accountDefault' => '账户默认',
 			'metadataEdit.seriesDefault' => '剧集默认',
-			_ => null,
-		} ?? switch (path) {
 			'metadataEdit.episodeSorting' => '剧集排序',
 			'metadataEdit.oldestFirst' => '最旧优先',
 			'metadataEdit.newestFirst' => '最新优先',
 			'metadataEdit.keep' => '保留',
 			'metadataEdit.allEpisodes' => '所有剧集',
 			'metadataEdit.latestEpisodes' => ({required Object count}) => '最新 ${count} 集',
+			_ => null,
+		} ?? switch (path) {
 			'metadataEdit.latestEpisode' => '最新一集',
 			'metadataEdit.episodesAddedPastDays' => ({required Object count}) => '过去 ${count} 天内添加的剧集',
 			'metadataEdit.deleteAfterPlaying' => '播放后删除剧集',

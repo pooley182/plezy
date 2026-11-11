@@ -35,33 +35,70 @@ void main() {
   setUp(() async {
     resetSharedPreferencesForTest();
     LocaleSettings.setLocaleSync(AppLocale.en);
-    final settings = await SettingsService.getInstance();
-    await settings.write(SettingsService.liveTvDefaultFavorites, true);
+    await SettingsService.getInstance();
   });
 
-  testWidgets('loaded empty favorites shows the favorites empty state and can restore all channels', (tester) async {
+  testWidgets('no favorites keeps the full guide; turning the filter on shows its empty state', (tester) async {
     final harness = await _pumpLiveTvScreen(tester);
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox.shrink());
       harness.dispose();
     });
 
-    expect(find.byIcon(Symbols.star_rounded), findsOneWidget);
+    expect(find.byIcon(Symbols.star_outline_rounded), findsOneWidget);
     expect(_guideChannels(tester).map((channel) => channel.key), ['channel-a']);
 
     harness.liveTv.favorites.complete(const []);
     await tester.pumpAndSettle();
 
-    expect(find.byType(GuideTab), findsNothing);
-    expect(find.text(t.liveTv.noFavoriteChannels), findsOneWidget);
-    expect(find.text(t.liveTv.showAllChannels), findsOneWidget);
-
-    await tester.tap(find.text(t.liveTv.showAllChannels));
-    await tester.pumpAndSettle();
-
     expect(find.text(t.liveTv.noFavoriteChannels), findsNothing);
     expect(find.byIcon(Symbols.star_outline_rounded), findsOneWidget);
     expect(_guideChannels(tester).map((channel) => channel.key), ['channel-a']);
+
+    await tester.tap(find.byIcon(Symbols.star_outline_rounded));
+    await tester.pumpAndSettle();
+    expect(find.byType(GuideTab), findsNothing);
+    expect(find.text(t.liveTv.noFavoriteChannels), findsOneWidget);
+
+    await tester.tap(find.text(t.liveTv.showAllChannels));
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Symbols.star_outline_rounded), findsOneWidget);
+    expect(_guideChannels(tester).map((channel) => channel.key), ['channel-a']);
+  });
+
+  testWidgets('with Default to Favorite Channels off, favorites do not narrow the guide', (tester) async {
+    await SettingsService.instance.write(SettingsService.liveTvDefaultFavorites, false);
+    final harness = await _pumpLiveTvScreen(tester, channelKeys: const ['channel-a', 'channel-b']);
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      harness.dispose();
+    });
+
+    harness.liveTv.favorites.complete([FavoriteChannel(id: 'channel-a', source: 'server://server-a/provider-a')]);
+    await tester.pumpAndSettle();
+
+    expect(_guideChannels(tester).map((channel) => channel.key), ['channel-a', 'channel-b']);
+  });
+
+  testWidgets('a filter chosen before favorites load is kept', (tester) async {
+    final harness = await _pumpLiveTvScreen(tester, channelKeys: const ['channel-a', 'channel-b']);
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      harness.dispose();
+    });
+
+    // On and back off again: the viewer has picked the full guide.
+    await tester.tap(find.byIcon(Symbols.star_outline_rounded));
+    await tester.pump();
+    await tester.tap(find.byIcon(Symbols.star_rounded));
+    await tester.pump();
+
+    harness.liveTv.favorites.complete([FavoriteChannel(id: 'channel-a', source: 'server://server-a/provider-a')]);
+    await tester.pumpAndSettle();
+
+    expect(_guideChannels(tester).map((channel) => channel.key), ['channel-a', 'channel-b']);
   });
 
   testWidgets('favorites matching no loaded channel show the favorites empty state', (tester) async {
@@ -144,7 +181,7 @@ void main() {
     harness.liveTv.favorites.completeError(StateError('favorite read failed'));
     await tester.pumpAndSettle();
 
-    expect(find.byIcon(Symbols.star_rounded), findsOneWidget);
+    expect(find.byIcon(Symbols.star_outline_rounded), findsOneWidget);
     expect(_guideChannels(tester).map((channel) => channel.key), ['channel-a']);
   });
   testWidgets('favorite failure keeps favorites loaded from healthy stores', (tester) async {
@@ -188,8 +225,6 @@ void main() {
   testWidgets('favorite write failure keeps optimistic state, shows feedback, and leaves the queue usable', (
     tester,
   ) async {
-    final settings = await SettingsService.getInstance();
-    await settings.write(SettingsService.liveTvDefaultFavorites, false);
     final harness = await _pumpLiveTvScreen(tester);
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox.shrink());
@@ -241,8 +276,6 @@ void main() {
       harness.dispose();
     });
     harness.liveTv.favorites.complete(const []);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(t.liveTv.showAllChannels));
     await tester.pumpAndSettle();
     expect(_guideChannels(tester).map((channel) => channel.key), ['channel-a', 'channel-b']);
 
