@@ -287,6 +287,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull, reason: 'the NEW pill must not overflow a narrow tile');
 
+    final title = find.text('A Very Long Programme Title That Cannot Fit');
+    Finder scrollers() => find.ancestor(of: title, matching: find.byType(SingleChildScrollView));
+    final unfocusedScrollers = scrollers().evaluate().length;
+
+    // Down then right lands on the airing show; right again on the short slot.
     final guideFocus = tester.widget<Focus>(
       find.byWidgetPredicate((widget) => widget is Focus && widget.focusNode?.debugLabel == 'guide_tab'),
     );
@@ -296,14 +301,9 @@ void main() {
     await tester.pump();
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
     await tester.pump();
-
-    final title = find.text('A Very Long Programme Title That Cannot Fit');
-    Finder scrollers() => find.ancestor(of: title, matching: find.byType(SingleChildScrollView));
-    final unfocusedScrollers = scrollers().evaluate().length;
-
-    // Right lands on the airing show; left moves back to the short slot.
-    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
     await tester.pump();
+
     expect(scrollers().evaluate().length, unfocusedScrollers + 1, reason: 'the focused tile scrolls its title');
 
     // The nearest scroller is the tile's own.
@@ -796,28 +796,24 @@ final class _ControllableLiveTvSupport implements LiveTvSupport {
     ]);
   }
 
-  /// A 5-minute premiere with a long title, followed by an hour-long show.
+  /// An airing show, then a 5-minute premiere with a long title starting a
+  /// minute from now, then an hour-long show.
   void completeShortPremiere(int index) {
     final request = requests[index];
-    final startEpoch = request.from.millisecondsSinceEpoch ~/ 1000;
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    LiveTvProgram program(String key, String title, int begins, int ends, {bool premiere = false}) => LiveTvProgram(
+      ratingKey: '$serverId-$index-$key',
+      title: title,
+      premiere: premiere,
+      beginsAt: begins,
+      endsAt: ends,
+      channelIdentifier: stationId,
+      serverId: serverId,
+    );
     request.completer.complete([
-      LiveTvProgram(
-        ratingKey: '$serverId-$index-short',
-        title: 'A Very Long Programme Title That Cannot Fit',
-        premiere: true,
-        beginsAt: startEpoch,
-        endsAt: startEpoch + 5 * 60,
-        channelIdentifier: stationId,
-        serverId: serverId,
-      ),
-      LiveTvProgram(
-        ratingKey: '$serverId-$index-long',
-        title: 'Next Show',
-        beginsAt: startEpoch + 5 * 60,
-        endsAt: startEpoch + 65 * 60,
-        channelIdentifier: stationId,
-        serverId: serverId,
-      ),
+      program('airing', 'Airing Show', now - 3600, now + 60),
+      program('short', 'A Very Long Programme Title That Cannot Fit', now + 60, now + 6 * 60, premiere: true),
+      program('next', 'Next Show', now + 6 * 60, now + 66 * 60),
     ]);
   }
 
