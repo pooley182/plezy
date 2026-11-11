@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a fork of Plezy (a Flutter client for Plex, Jellyfin, and Emby) being cut down to an **Android TV-only** Plex client. Playback uses mpv and ExoPlayer.
 
+The app is branded **Flex**, package ID `net.h4v0k.flex` (the Kotlin namespace stays `com.edde746.plezy`; content-provider authorities are hard-coded to the package ID). Only user-visible text says Flex: network identifiers (Plex/Jellyfin client headers, User-Agent, the Watch Together relay client name) deliberately still say Plezy.
+
 **Migration in progress (branch `android-tv-only`).** The iOS, macOS, Windows, Linux, and tvOS platform folders, their CI/packaging, the desktop/Apple-only dependencies, and the Dart `Platform.isX`/`isAppleTV`/`isDesktopOS` branches are gone: `lib/` assumes Android. Still left: phone/tablet code (`PlatformDetector.isMobile` now just means "not a TV"; the "Desktop" names such as `DesktopVideoControls` and `isDesktop` are the TV layout) and Jellyfin/Emby. Treat phone branches as dead code to fold into the TV path. Next: phone/tablet code (rename "Desktop" → TV) → Jellyfin/Emby removal.
 
 Tests run on the host OS but exercise the Android paths. `test/flutter_test_config.dart` mocks the Android-only fire-and-forget channels, answers TV detection with "not a TV" (opt in with `TvDetectionService.debugSetTvOverride(true)`), and resets player channel ownership per test. Fake players that use `noSuchMethod` should mix in `test/test_helpers/android_player_noops.dart`; widgets that look up `DownloadProvider` can take `emptyDownloadProvider()`.

@@ -413,14 +413,14 @@ void main() {
       }
     });
 
-    _roomTest('a code without a room is refused, and a display name without text is Plezy', (world) async {
+    _roomTest('a code without a room is refused, and a display name without text is Flex', (world) async {
       final h = world.member('\u202E\n');
       await world.settle(h.provider.createRoom());
       final g = world.guest();
 
       expect(await world.refusal(g.provider.joinRoom('K7M-Q2Y')), owp.ErrorCode.roomNotFound);
       expect(g.provider.isInSession, isFalse);
-      expect(h.provider.participants.single.name, 'Plezy');
+      expect(h.provider.participants.single.name, 'Flex');
     });
 
     _roomTest('host transfer, control mode and lock; a guest is refused host commands', (world) async {

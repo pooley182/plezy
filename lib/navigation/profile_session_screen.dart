@@ -275,7 +275,7 @@ class _ProfileSessionScreenState extends State<ProfileSessionScreen> {
                   return WatchTogetherProvider(
                     clientFor: (serverId) => multiServer.getClientForServer(ServerId(serverId)),
                     findCopies: multiServer.aggregationService.findTitleCopiesAcrossServers,
-                    displayName: () => activeProfile.active?.displayName ?? 'Plezy',
+                    displayName: () => activeProfile.active?.displayName ?? 'Flex',
                     profileId: () => activeProfile.activeId,
                   );
                 },

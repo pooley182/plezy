@@ -33,7 +33,7 @@ void main() {
     MemoryLogOutput.clearLogs();
   });
   test('log upload payload preserves the header and newest complete lines', () {
-    const header = 'Plezy test device\n---\n';
+    const header = 'Flex test device\n---\n';
     const logs = 'oldest line that should be removed\nmiddle line that should be removed\nnewest 🚀 line';
 
     final payload = constrainLogUploadPayload(header: header, logs: logs, maxBytes: 52);
@@ -58,7 +58,7 @@ void main() {
     String? clipboardText;
 
     PackageInfo.setMockInitialValues(
-      appName: 'Plezy',
+      appName: 'Flex',
       packageName: 'com.plezy.test',
       version: '1.2.3',
       buildNumber: '45',
@@ -142,7 +142,7 @@ void main() {
 
     Future<void> pumpLogs(WidgetTester tester) async {
       PackageInfo.setMockInitialValues(
-        appName: 'Plezy',
+        appName: 'Flex',
         packageName: 'com.plezy.test',
         version: '2.11.0',
         buildNumber: '124',
@@ -208,7 +208,7 @@ void main() {
 
     setUp(() {
       PackageInfo.setMockInitialValues(
-        appName: 'Plezy',
+        appName: 'Flex',
         packageName: 'com.plezy.test',
         version: '1.2.3',
         buildNumber: '45',
@@ -324,7 +324,7 @@ void main() {
       await tester.pump();
 
       expect(clipboardText, isNotNull);
-      expect(clipboardText, startsWith('Plezy'));
+      expect(clipboardText, startsWith('Flex'));
       expect(clipboardText, matches(RegExp(r'---\n\[')));
       expect(clipboardText, matches(RegExp(r'newer-row\n\[')));
       expect(clipboardText, endsWith('older-row'));
@@ -347,7 +347,7 @@ void main() {
 
       await pumpLogs(tester);
       await pumpSelectionRegistration(tester);
-      final header = find.textContaining('Plezy', findRichText: true);
+      final header = find.textContaining('Flex', findRichText: true);
       final newerRow = find.textContaining('newer-row', findRichText: true);
       final gesture = await tester.startGesture(
         tester.getTopLeft(header) + const Offset(1, 6),
@@ -385,7 +385,7 @@ void main() {
       await TvDetectionService.getInstance(forceTv: true);
       TvDetectionService.setForceTVSync(true);
       PackageInfo.setMockInitialValues(
-        appName: 'Plezy',
+        appName: 'Flex',
         packageName: 'com.plezy.test',
         version: '1.2.3',
         buildNumber: '45',
