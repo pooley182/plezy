@@ -1757,25 +1757,45 @@ class GuideTabState extends State<GuideTab>
                   crossAxisAlignment: .start,
                   mainAxisAlignment: .center,
                   children: [
-                    Row(
-                      children: [
-                        if (isRecordingScheduled) ...[
-                          _RecordingDot(color: Colors.red, tooltip: t.liveTv.recordingScheduled),
-                          const SizedBox(width: 5),
-                        ],
-                        if (program.premiere == true) ...[
-                          StatusPill(label: t.liveTv.premiereBadge, color: titleColor, dense: true),
-                          const SizedBox(width: 5),
-                        ],
-                        Expanded(
-                          child: Text(
-                            program.grandparentTitle ?? program.title,
-                            style: theme.textTheme.bodyMedium?.copyWith(fontWeight: .w600, color: titleColor),
-                            maxLines: 1,
-                            overflow: .ellipsis,
-                          ),
-                        ),
-                      ],
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final badges = [
+                          if (isRecordingScheduled) ...[
+                            _RecordingDot(color: Colors.red, tooltip: t.liveTv.recordingScheduled),
+                            const SizedBox(width: 5),
+                          ],
+                          if (program.premiere == true) ...[
+                            StatusPill(label: t.liveTv.premiereBadge, color: titleColor, dense: true),
+                            const SizedBox(width: 5),
+                          ],
+                        ];
+                        final title = program.grandparentTitle ?? program.title;
+                        final titleStyle = theme.textTheme.bodyMedium?.copyWith(fontWeight: .w600, color: titleColor);
+                        // Focused: the whole line scrolls when it doesn't fit,
+                        // so a short slot's title can still be read.
+                        if (isFocused) {
+                          return _Marquee(
+                            child: Row(
+                              mainAxisSize: .min,
+                              children: [
+                                ...badges,
+                                Text(title, style: titleStyle, maxLines: 1, softWrap: false),
+                              ],
+                            ),
+                          );
+                        }
+                        // ponytail: fixed width cut-off for the badges; a much
+                        // longer translated badge label could still overflow.
+                        final showBadges = constraints.maxWidth >= _minBadgeLineWidth;
+                        return Row(
+                          children: [
+                            if (showBadges) ...badges,
+                            Expanded(
+                              child: Text(title, style: titleStyle, maxLines: 1, overflow: .ellipsis),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     if (program.grandparentTitle != null)
                       Text(
@@ -1808,6 +1828,76 @@ class GuideTabState extends State<GuideTab>
       posterThumb: program.thumb,
       posterServerId: channel.serverId,
       onRecordingStateChanged: (isScheduled) => _handleRecordingStateChanged(program, isScheduled),
+    );
+  }
+}
+
+/// Below this width an unfocused tile drops its badges (recording dot, NEW
+/// pill): they alone would overflow it, and the title matters more.
+const double _minBadgeLineWidth = 96;
+
+/// Clips [child] to one line and, when it is wider than the space, scrolls it
+/// to its end and back on a loop: pause, scroll, pause, jump back.
+class _Marquee extends StatefulWidget {
+  const _Marquee({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_Marquee> createState() => _MarqueeState();
+}
+
+class _MarqueeState extends State<_Marquee> {
+  static const _pause = Duration(milliseconds: 1200);
+  static const _msPerPixel = 25;
+
+  final ScrollController _controller = ScrollController();
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _schedule();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _schedule() => _timer = Timer(_pause, _scrollToEnd);
+
+  void _scrollToEnd() {
+    if (!mounted || !_controller.hasClients) return;
+    final end = _controller.position.maxScrollExtent;
+    if (end <= 0) return;
+    unawaited(
+      _controller
+          .animateTo(
+            end,
+            duration: Duration(milliseconds: (end * _msPerPixel).round()),
+            curve: Curves.linear,
+          )
+          .then((_) {
+            if (!mounted) return;
+            _timer = Timer(_pause, () {
+              if (!mounted || !_controller.hasClients) return;
+              _controller.jumpTo(0);
+              _schedule();
+            });
+          }),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      controller: _controller,
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
+      child: widget.child,
     );
   }
 }

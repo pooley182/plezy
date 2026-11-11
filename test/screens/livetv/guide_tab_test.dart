@@ -279,6 +279,50 @@ void main() {
     expect(find.text('Tomorrow Programs'), findsOneWidget);
   });
 
+  testWidgets('a short slot fits without overflow and scrolls its title while focused', (tester) async {
+    final harness = _GuideHarness.oneServer();
+    addTearDown(harness.dispose);
+    await harness.pump(tester);
+    harness.serverA.schedule.completeShortPremiere(0);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull, reason: 'the NEW pill must not overflow a narrow tile');
+
+    final guideFocus = tester.widget<Focus>(
+      find.byWidgetPredicate((widget) => widget is Focus && widget.focusNode?.debugLabel == 'guide_tab'),
+    );
+    guideFocus.focusNode!.requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pump();
+
+    final title = find.text('A Very Long Programme Title That Cannot Fit');
+    Finder scrollers() => find.ancestor(of: title, matching: find.byType(SingleChildScrollView));
+    final unfocusedScrollers = scrollers().evaluate().length;
+
+    // Right lands on the airing show; left moves back to the short slot.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await tester.pump();
+    expect(scrollers().evaluate().length, unfocusedScrollers + 1, reason: 'the focused tile scrolls its title');
+
+    // The nearest scroller is the tile's own.
+    ScrollPosition position() => tester
+        .state<ScrollableState>(find.descendant(of: scrollers().first, matching: find.byType(Scrollable)).first)
+        .position;
+    expect(position().pixels, 0);
+    expect(position().maxScrollExtent, greaterThan(0));
+    await tester.pump(const Duration(milliseconds: 1300));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(position().pixels, greaterThan(0));
+    expect(tester.takeException(), isNull);
+
+    // Leaving the tile drops the scroller.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pump();
+    expect(scrollers().evaluate().length, unfocusedScrollers);
+  });
+
   testWidgets('horizontal guide virtualization keeps the D-pad focus target rendered', (tester) async {
     final harness = _GuideHarness.oneServer();
     addTearDown(harness.dispose);
@@ -746,6 +790,31 @@ final class _ControllableLiveTvSupport implements LiveTvSupport {
         title: title,
         beginsAt: beginsAt,
         endsAt: beginsAt + 3600,
+        channelIdentifier: stationId,
+        serverId: serverId,
+      ),
+    ]);
+  }
+
+  /// A 5-minute premiere with a long title, followed by an hour-long show.
+  void completeShortPremiere(int index) {
+    final request = requests[index];
+    final startEpoch = request.from.millisecondsSinceEpoch ~/ 1000;
+    request.completer.complete([
+      LiveTvProgram(
+        ratingKey: '$serverId-$index-short',
+        title: 'A Very Long Programme Title That Cannot Fit',
+        premiere: true,
+        beginsAt: startEpoch,
+        endsAt: startEpoch + 5 * 60,
+        channelIdentifier: stationId,
+        serverId: serverId,
+      ),
+      LiveTvProgram(
+        ratingKey: '$serverId-$index-long',
+        title: 'Next Show',
+        beginsAt: startEpoch + 5 * 60,
+        endsAt: startEpoch + 65 * 60,
         channelIdentifier: stationId,
         serverId: serverId,
       ),
